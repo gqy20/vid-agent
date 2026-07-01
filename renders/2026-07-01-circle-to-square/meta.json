@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-01-circle-to-square",
+  "title": "Blue circle morphs into red square",
+  "created": "2026-07-01T00:01:34+08:00",
+  "description": "5-second -ql animation: a blue solid circle smoothly morphs into a red solid square, center stays put, title text 'Shape morph' pinned at top. Sanity demo of the manim project layout.",
+  "scene_class": "ShapeMorph",
+  "script_path": "src/shape_morph.py",
+  "theme_tags": ["geometry", "primitives", "demo"],
+  "env": {
+    "manim_version": "0.20.1",
+    "python": "3.13.5",
+    "latex": "absent",
+    "uv_lock_sha": null
+  },
+  "renders": [
+    {
+      "role": "debug",
+      "quality_flag": "-ql",
+      "resolution": "854x480",
+      "fps": 15,
+      "command": "uv run manim -ql --media_dir renders/debug/_build src/shape_morph.py ShapeMorph",
+      "output": "renders/debug/shape_morph_480p15_20260701-000134.mp4",
+      "duration_s": 5.066341,
+      "bit_rate_bps": 66350,
+      "size_bytes": 42019,
+      "anim_count": 3
+    },
+    {
+      "role": "final",
+      "quality_flag": "-qh",
+      "resolution": "1920x1080",
+      "fps": 60,
+      "command": "uv run manim -qh --media_dir renders/final/_build src/shape_morph.py ShapeMorph",
+      "output": "renders/final/shape_morph_1080p60_20260701-000134.mp4",
+      "duration_s": 5.0,
+      "bit_rate_bps": 303280,
+      "size_bytes": 189550,
+      "anim_count": 3
+    }
+  ],
+  "thumbnail": "thumbnail.png",
+  "reproduce": {
+    "debug": "uv run manim -ql --media_dir renders/debug/_build src/shape_morph.py ShapeMorph",
+    "final": "uv run manim -qh --media_dir renders/final/_build src/shape_morph.py ShapeMorph"
+  },
+  "notes": "First project under the renders/ layout convention. Source copied from green-baseline/scenes/scenario_1.py (skill-applied baseline)."
+}

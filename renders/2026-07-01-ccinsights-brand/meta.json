@@ -1,0 +1,82 @@
+{
+  "id": "2026-07-01-ccinsights-brand",
+  "title": "cc-insights 品牌叙事宣传片",
+  "created": "2026-07-01T00:27:00+08:00",
+  "description": "Two deliverable assets: (1) a 3.4-second hero shot at 1080p60; (2) a 30.2-second brand narrative video at 1080p60 with shaonv Mandarin voice + ambient BGM muxed in. Suitable for README banner, Twitter video, and a feature share.",
+  "theme_tags": ["brand", "narrative", "promo", "diagnostics", "claude-code"],
+  "env": {
+    "manim_version": "0.20.1",
+    "python": "3.13.5",
+    "latex": "absent",
+    "brand_color": "#C15F3C",
+    "uv_lock_sha": null,
+    "mmx_cli": "MiniMax Studio CLI (voice + music generation)"
+  },
+  "renders": [
+    {
+      "role": "hero (final)",
+      "scene": "Hero",
+      "script": "src/hero.py",
+      "quality_flag": "-qh (1080p60)",
+      "command": "uv run manim -qh --media_dir /tmp/qh_hero src/hero.py Hero",
+      "output": "renders/final/hero_final.mp4",
+      "duration_s": 3.4,
+      "size_bytes": 193593,
+      "anim_count": 6,
+      "notes": "Silent. Use this for README banner / Twitter header."
+    },
+    {
+      "role": "brand_concat_video_only",
+      "qualifier": "10-segment concatenation via ffmpeg concat, video only (-qh source segments)",
+      "command": "ffmpeg -y -f concat -safe 0 -i <files> -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p renders/final/brand-concat-1080p.mp4",
+      "output": "renders/final/brand-concat-1080p.mp4",
+      "duration_s": 30.2,
+      "size_bytes": 1250394,
+      "video_codec": "h264 yuv420p"
+    },
+    {
+      "role": "voice_over",
+      "tool": "mmx speech synthesize",
+      "input": "scripts/voice-script.txt (cleaned) → tts/voice-text.txt",
+      "voice_id": "female-shaonv",
+      "format": "wav 44100 Hz",
+      "raw_duration_s": 41.06,
+      "post_speedup": "atempo=1.32 → fits 30.2s",
+      "output": "tts/voice.wav"
+    },
+    {
+      "role": "background_music",
+      "tool": "mmx music generate",
+      "prompt": "calm tech ambient, soft pad, educational explainer style, gentle pulse, no lyrics",
+      "instrumental": true,
+      "genre": "ambient electronic",
+      "mood": "calm, focused, modern",
+      "use_case": "background music for technical explainer video",
+      "format": "wav 44100 Hz",
+      "raw_duration_s": 108.59,
+      "post_process": "atrim=0:31, volume=0.18 (BGM ducked)",
+      "output": "bgm/bgm.wav"
+    },
+    {
+      "role": "brand_final (DISTRIBUTION COPY)",
+      "qualifier": "brand_concat_video_only + voice_over + background_music muxed",
+      "command": "ffmpeg -y -hide_banner -i brand-concat-1080p.mp4 -i voice.wav -i bgm.wav -filter_complex \"[1:a]atempo=1.32,volume=1.0[v]; [2:a]atrim=0:31,asetpts=PTS-STARTPTS,volume=0.18[b]; [b][v]amix=inputs=2:duration=longest[mix]\" -map 0:v -map \"[mix]\" -c:v copy -c:a aac -b:a 192k -shortest brand-final-1080p.mp4",
+      "output": "renders/final/brand-final-1080p.mp4",
+      "duration_s": 30.2,
+      "size_bytes": 2014007,
+      "video_codec": "h264",
+      "audio_codec": "aac 192k",
+      "notes": "Distribution-ready 1080p with synced voice + ambient BGM."
+    }
+  ],
+  "thumbnail": "thumbnail.png (silent mid-frame) / thumbnail-final.png (with audio)",
+  "reproduce": {
+    "render_qh": "cd src && for f in hero.py brand/s0*.py; do uv run manim -qh --media_dir /tmp/qh_$f $f <ClassName>; done",
+    "concat_qh": "ffmpeg ... concat 10 segments -> renders/final/brand-concat-1080p.mp4",
+    "voice": "mmx speech synthesize --text-file tts/voice-text.txt --voice female-shaonv --format wav --out tts/voice.wav",
+    "music": "mmx music generate --prompt 'calm tech ambient, soft pad, educational, gentle pulse, no lyrics' --instrumental --format wav --out bgm/bgm.wav",
+    "final": "ffmpeg filter_complex atempo(voice) + atrim/bgm + amix → brand-final-1080p.mp4"
+  },
+  "notes": "Skill anti-patterns followed throughout: explicit grouped imports, no MathTex, no Axes.get_axis_labels, brand color centralized in src/_lib.py. One real bug: manim 0.20.1 has no `Polyline` — used `VMobject.set_points_as_corners(...)` instead in hero.py and s10_end.py."
+}
+

@@ -1,0 +1,50 @@
+# vid-agent 项目 gitignore
+# ==============================
+# 该 commit（不 ignore）:
+#   - .claude/skills/<skill>/baseline/  (skill 开发过程，与 skill 同寿)
+#   - renders/                          (项目作品)
+#   - uv.lock, pyproject.toml, README.md, CLAUDE.md, docs/
+# ==============================
+
+# ── Python (uv-managed) ──
+.venv/                       # uv 虚拟环境
+__pycache__/                 # Python bytecode
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# ── manim 渲染产物 ──
+media/                       # manim 默认输出
+**/_build/                   # render_scene.sh 临时 build 目录
+**/partial_movie_files/      # manim partial-movie 缓存
+**/frames/                   # 抽帧调试临时
+**/frames_v2/
+
+# ── Remotion 工作项目 ──
+remotion/node_modules/       # pnpm 装包（GB 级）
+remotion/node_modules.pnp
+remotion/out/                # remotion build 产物
+remotion/.next/              # next.js 缓存
+remotion/dist/
+
+# ── 密钥 / 本地配置 ──
+.env
+.env.local
+*.pem
+*.key
+*.secret
+
+# ── 编辑器 / IDE 个人设置 ──
+.idea/                        # PyCharm/IntelliJ
+.vscode/                      # VSCode（个人偏好，不入库）
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+*.orig
+
+# ── OS 垃圾 ──
+.DS_Store
+Thumbs.db

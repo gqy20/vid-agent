@@ -1,0 +1,42 @@
+{
+  "id": "2026-06-30-brand-intro",
+  "title": "qingyu_ge 个人品牌片头",
+  "created": "2026-06-30T23:53:00+08:00",
+  "description": "5s 诗意科技风品牌片头：青紫渐变 + 粒子 + 羽毛飘落 + 名称辉光浮现。",
+  "composition_id": "BrandIntro",
+  "source": "src/BrandIntro.tsx",
+  "theme_tags": ["brand-intro", "particles", "poetic"],
+
+  "env": {
+    "remotion_version": "4.0.484",
+    "node": "25.8.0",
+    "browser_executable": "/opt/google/chrome/chrome",
+    "fonts": "system sans-serif (片头早于字体升级，未用本地专业字体)",
+    "pnpm_lock_sha": null
+  },
+
+  "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 150},
+
+  "renders": [
+    {
+      "role": "final",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "pnpm exec remotion render BrandIntro renders/2026-06-30-brand-intro/renders/final/brand-intro_1080p30_20260630-235300.mp4 --concurrency=4",
+      "output": "renders/final/brand-intro_1080p30_20260630-235300.mp4",
+      "duration_s": 5.06,
+      "nb_frames": 150,
+      "bit_rate_bps": 790954,
+      "size_bytes": 499883,
+      "render_wall_s": 20
+    }
+  ],
+
+  "thumbnail": "thumbnail.png",
+
+  "reproduce": {
+    "final": "pnpm exec remotion render BrandIntro <final-path> --concurrency=4"
+  },
+
+  "notes": "defaultProps: name/tagline/sub 可改。早于字体与缓动升级；如需对齐 cc-insights 的精致度，按 skill pass-2 升级。"
+}

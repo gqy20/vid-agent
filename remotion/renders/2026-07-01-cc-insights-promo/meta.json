@@ -1,0 +1,44 @@
+{
+  "id": "2026-07-01-cc-insights-promo",
+  "title": "cc-insights CLI 宣传片",
+  "created": "2026-07-01T00:42:00+08:00",
+  "description": "72s 终端风宣传片：痛点(乱码JSONL)→品牌→rec/tok/cmd/web 四段演示→四张卖点卡→CTA。",
+  "composition_id": "CCInsightsPromo",
+  "source": "src/CCInsights.tsx",
+  "theme_tags": ["promo", "terminal", "cli", "data-viz"],
+
+  "env": {
+    "remotion_version": "4.0.484",
+    "node": "25.8.0",
+    "browser_executable": "/opt/google/chrome/chrome",
+    "fonts": "local: JetBrainsMono Nerd Font + Noto Sans CJK SC (零联网)",
+    "pnpm_lock_sha": null
+  },
+
+  "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 2086},
+
+  "renders": [
+    {
+      "role": "final",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "pnpm exec remotion render CCInsightsPromo renders/2026-07-01-cc-insights-promo/renders/final/cc-insights-promo_1080p30_20260701-004200.mp4 --concurrency=4",
+      "output": "renders/final/cc-insights-promo_1080p30_20260701-004200.mp4",
+      "duration_s": 69.59,
+      "fps_actual": 30,
+      "nb_frames": 2086,
+      "bit_rate_bps": 1098236,
+      "size_bytes": 9553196,
+      "render_wall_s": 208
+    }
+  ],
+
+  "thumbnail": "thumbnail.png",
+
+  "reproduce": {
+    "still_check": "scripts/check-frames.sh CCInsightsPromo 90 470 880 1200 1500 1800",
+    "final": "pnpm exec remotion render CCInsightsPromo <final-path> --concurrency=4"
+  },
+
+  "notes": "本地字体零联网；durationInFrames = Σ场景2202 − Σ转场116 = 2086。配色/缓动/字体常量在 src/CCInsights.tsx 顶部。"
+}

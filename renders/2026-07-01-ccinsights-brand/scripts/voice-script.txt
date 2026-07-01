@@ -1,0 +1,33 @@
+# 配音脚本 — cc-insights 品牌叙事 35s
+# 每段对应 src/brand/s0X_xxx.py，时长是动画时长
+# 用法：mmx voice --script voice-script.txt --lang zh --output tts/voice.wav
+
+[s01_hook] 0:00-0:03
+你每天，都在用 Claude Code。
+
+[s02_pain] 0:03-0:07
+一次又一次的工具调用，你却从来没有认真看过，它到底在干什么。
+
+[s03_question] 0:07-0:11
+但你，从来，没有真正，诊断过自己。
+
+[s04_reveal] 0:11-0:15
+认识 cc-insights，AI 驱动的 Claude Code 使用诊断工具。
+
+[s05_promise] 0:15-0:19
+读取历史，解析工具调用，汇总数据，推荐改进。
+
+[s06_demo_tease] 0:19-0:24
+三十天里，一万一千次对话，十四万条命令，四万五千次工具调用。
+
+[s07_highlight] 0:24-0:27
+它会直接告诉你：哪一个 Agent 调用，慢到二十四分钟。
+
+[s08_credibility] 0:27-0:30
+MIT 协议，Go 1.21 起，单 binary，零外部依赖。
+
+[s09_cta] 0:30-0:33
+一个命令，开始诊断 cc-insights。
+
+[s10_end] 0:33-0:35
+快到你的终端，去试试看。

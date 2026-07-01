@@ -1,0 +1,4 @@
+# Manim build temp (cleaned after mv)
+**/_build/
+**/__pycache__/
+*.pyc
