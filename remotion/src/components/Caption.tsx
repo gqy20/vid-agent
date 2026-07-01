@@ -8,13 +8,13 @@ export const Caption: React.FC<{delay: number; text: string}> = ({delay, text}) 
       style={{
         fontFamily: SANS,
         fontSize: FZ.caption,
-        fontWeight: 500,
-        color: C.white,
-        background: 'rgba(13,17,23,0.72)',
-        padding: '12px 30px',
-        borderRadius: 34,
-        border: `1px solid ${C.border}`,
-        letterSpacing: 0.5,
+        fontWeight: 450,
+        color: 'rgba(240,246,252,0.82)',
+        background: 'rgba(13,17,23,0.42)',
+        padding: '9px 24px',
+        borderRadius: 10,
+        border: '1px solid rgba(139,148,158,0.16)',
+        letterSpacing: 0,
       }}
     >
       {text}

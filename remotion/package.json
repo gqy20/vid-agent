@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render CCInsightsPromo out/video.mp4 --concurrency=4 --timeout=120000",
-    "render:fast": "remotion render CCInsightsPromo out/video-fast.mp4 --concurrency=8 --timeout=120000",
-    "render:ranges": "JOBS=2 CONCURRENCY=4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh CCInsightsPromo cc-insights-promo 2086 600",
+    "render": "remotion render src/index.ts CCInsightsPromo out/video.mp4 --concurrency=4 --timeout=120000",
+    "render:fast": "remotion render src/index.ts CCInsightsPromo out/video-fast.mp4 --concurrency=8 --timeout=120000 --muted",
+    "render:ranges": "JOBS=1 CONCURRENCY=8 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh CCInsightsPromo cc-insights-promo auto 600",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

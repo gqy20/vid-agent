@@ -1,68 +1,39 @@
-import {AbsoluteFill, interpolate, random, useCurrentFrame} from 'remotion';
-import {useMemo} from 'react';
-import {C, MONO, SANS, EASE_OUT, CLAMP, FZ} from '../../../theme';
+import {C} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
-import {Reveal} from '../../../components/Reveal';
+import {DashboardShot, MetricRow, StoryStage, shot} from '../StoryPrimitives';
 
-/* S1 痛点钩子 */
-export const SceneHook: React.FC = () => {
-  const f = useCurrentFrame();
-  // noise 静态（random 确定性），memo 化避免每帧重建 44 行数组
-  const noise = useMemo(() => {
-    const keys = [
-      '"type":"tool_result"',
-      '"isError":true',
-      '"timeout"',
-      '"tokens":4182',
-      '"model":"claude"',
-      '"WebFetch"',
-      '"Bash"',
-      '"exit_code":1',
-    ];
-    return new Array(22).fill(0).map((_, i) =>
-      `{${keys[Math.floor(random(`k${i}`) * keys.length)]},"ts":17${Math.floor(random(`t${i}`) * 9e8)}...}`
-    );
-  }, []);
-  const scroll = f * 6;
-  const dim = interpolate(f, [36, 70], [1, 0.12], {easing: EASE_OUT, ...CLAMP});
-  return (
-    <Backdrop>
-      <AbsoluteFill style={{overflow: 'hidden', opacity: dim}}>
-        <div style={{translate: `0px ${-scroll}px`, padding: 48}}>
-          {noise.concat(noise).map((l, i) => (
-            <div
-              key={i}
-              style={{
-                fontFamily: MONO,
-                fontSize: FZ.micro,
-                color: i % 5 === 0 ? C.red : C.dim,
-                opacity: 0.5,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              ~/.claude/projects/{l}
-            </div>
-          ))}
-        </div>
-      </AbsoluteFill>
-
-      <Reveal delay={64} dur={18} style={{position: 'absolute', textAlign: 'center', padding: '0 80px'}}>
-        <div style={{fontFamily: MONO, fontSize: FZ.label, color: C.dim, marginBottom: 36}}>
-          <span style={{color: C.green}}>$ </span>grep -r "isError" ~/.claude/*.jsonl | wc -l
-        </div>
-        <div style={{fontFamily: SANS, fontSize: FZ.title, fontWeight: 800, color: C.white, lineHeight: 1.32}}>
-          为什么 Claude Code
+export const SceneHook: React.FC = () => (
+  <Backdrop>
+    <StoryStage
+      eyebrow="30d evidence"
+      title={
+        <>
+          先看异常，
           <br />
-          <span style={{color: C.warn}}>越来越慢</span> ·{' '}
-          <span style={{color: C.red}}>越来越贵</span> ·{' '}
-          <span style={{color: C.purple}}>老是失败</span>?
+          不先讲功能。
+        </>
+      }
+      body={
+        <>
+          30 天内的 Claude Code 使用已经出现稳定模式：高失败率、长会话和巨量
+          Token 同时发生。
+        </>
+      }
+    >
+      <div style={{display: 'flex', flexDirection: 'column', gap: 22}}>
+        <MetricRow
+          items={[
+            {label: 'messages', value: '67,823'},
+            {label: 'sessions', value: '271'},
+            {label: 'failure rate', value: '27.31%', tone: 'bad'},
+            {label: 'tokens', value: '7.8B', tone: 'warn'},
+          ]}
+        />
+        <DashboardShot src={shot('overview')} width={1120} cropY={0} />
+        <div style={{fontSize: 24, color: C.dim}}>
+          画面给总量，结论只说一件事：问题已经有模式。
         </div>
-        <Reveal delay={104} dur={16}>
-          <div style={{fontFamily: SANS, fontSize: FZ.subtitle, color: C.dim, marginTop: 34}}>
-            翻 JSONL、数 token、grep 日志 —— 你需要的是诊断，不是体力活
-          </div>
-        </Reveal>
-      </Reveal>
-    </Backdrop>
-  );
-};
+      </div>
+    </StoryStage>
+  </Backdrop>
+);

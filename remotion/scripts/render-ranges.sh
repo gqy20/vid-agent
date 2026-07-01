@@ -3,13 +3,15 @@
 # Run from the Remotion project root.
 #
 # Usage:
-#   scripts/render-ranges.sh <CompId> <slug> [total_frames] [chunk_frames]
+#   scripts/render-ranges.sh <CompId> <slug> [total_frames|auto] [chunk_frames]
 #
 # Environment:
-#   JOBS=4              number of parallel render processes
-#   CONCURRENCY=4       Remotion concurrency per process
+#   ENTRY=src/index.ts  Remotion entrypoint
+#   JOBS=1              number of parallel render processes
+#   CONCURRENCY=8       Remotion concurrency per process
 #   TIMEOUT=120000      Remotion browser/delayRender timeout in milliseconds
 #   MUTED=1             render chunks without audio; mux final audio separately if needed
+#   AUDIO_FILE=         optional premixed audio file to mux after video concat
 #   OUT_ROOT=out/ranges output directory root
 set -euo pipefail
 
@@ -20,25 +22,36 @@ set -euo pipefail
 
 COMP="$1"
 SLUG="$2"
-TOTAL_FRAMES="${3:-}"
+TOTAL_FRAMES="${3:-auto}"
 CHUNK_FRAMES="${4:-600}"
-JOBS="${JOBS:-4}"
-CONCURRENCY="${CONCURRENCY:-4}"
+ENTRY="${ENTRY:-src/index.ts}"
+JOBS="${JOBS:-1}"
+CONCURRENCY="${CONCURRENCY:-8}"
 TIMEOUT="${TIMEOUT:-120000}"
 MUTED="${MUTED:-1}"
+AUDIO_FILE="${AUDIO_FILE:-}"
 OUT_ROOT="${OUT_ROOT:-out/ranges}"
 TS="$(date +%Y%m%d-%H%M%S)"
 DIR="$OUT_ROOT/${SLUG}_${TS}"
 SEG_DIR="$DIR/segments"
 MANIFEST="$DIR/segments.ffconcat"
 FINAL="$DIR/${SLUG}_chunked_${TS}.mp4"
+AUDIO_FINAL="$DIR/${SLUG}_chunked_${TS}_audio.mp4"
 
 mkdir -p "$SEG_DIR"
 : > "$MANIFEST"
 
-if [ -z "$TOTAL_FRAMES" ]; then
-  echo "total_frames was not provided; pass it explicitly if composition probing is unavailable." >&2
-  exit 1
+probe_total_frames() {
+  pnpm exec remotion compositions "$ENTRY" |
+    awk -v comp="$COMP" '$1 == comp {print $4; found=1; exit} END {if (!found) exit 1}'
+}
+
+if [ -z "$TOTAL_FRAMES" ] || [ "$TOTAL_FRAMES" = "auto" ]; then
+  echo "Probing duration for $COMP via $ENTRY"
+  TOTAL_FRAMES="$(probe_total_frames)" || {
+    echo "Could not probe duration for composition '$COMP'. Pass total_frames explicitly." >&2
+    exit 1
+  }
 fi
 
 if [ "$TOTAL_FRAMES" -le 0 ] || [ "$CHUNK_FRAMES" -le 0 ]; then
@@ -57,14 +70,14 @@ render_one() {
   if [ "$MUTED" = "1" ]; then
     muted_flag=(--muted)
   fi
-  pnpm exec remotion render "$COMP" "$SEG_DIR/$name" \
+  pnpm exec remotion render "$ENTRY" "$COMP" "$SEG_DIR/$name" \
     --frames="$start-$end" \
     --concurrency="$CONCURRENCY" \
     --timeout="$TIMEOUT" \
     "${muted_flag[@]}"
 }
 export -f render_one
-export COMP SEG_DIR CONCURRENCY TIMEOUT MUTED
+export ENTRY COMP SEG_DIR CONCURRENCY TIMEOUT MUTED
 
 RANGES="$DIR/ranges.tsv"
 : > "$RANGES"
@@ -89,9 +102,20 @@ xargs -P "$JOBS" -n 3 bash -c 'render_one "$@"' _ < "$RANGES"
 echo "Concatenating -> $FINAL"
 ffmpeg -y -f concat -safe 0 -i "$MANIFEST" -c copy "$FINAL"
 
+if [ -n "$AUDIO_FILE" ]; then
+  echo "Muxing audio $AUDIO_FILE -> $AUDIO_FINAL"
+  ffmpeg -y -i "$FINAL" -i "$AUDIO_FILE" \
+    -map 0:v:0 -map 1:a:0 \
+    -c:v copy -c:a aac -b:a 192k -shortest \
+    "$AUDIO_FINAL"
+fi
+
 echo "== ffprobe =="
 ffprobe -v error -select_streams v:0 \
   -show_entries stream=width,height,r_frame_rate,nb_frames \
   -show_entries format=duration,bit_rate,size -of default=noprint_wrappers=1 "$FINAL"
 
 echo "Done: $FINAL"
+if [ -n "$AUDIO_FILE" ]; then
+  echo "Done with audio: $AUDIO_FINAL"
+fi

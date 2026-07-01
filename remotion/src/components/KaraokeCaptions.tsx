@@ -11,13 +11,12 @@ import {parseSrt} from '@remotion/captions';
 import type {Caption} from '@remotion/captions';
 import {C, SANS, FZ} from '../theme';
 
-/* 一句 Caption → 逐字 Caption[]，时间在 [startMs,endMs] 按字数线性插值。
-   每字前加空格(首字除外)让 pre-wrap 正确断字；Array.from 正确处理 CJK/代理对。 */
+/* 一句 Caption → 逐字 Caption[]，时间在 [startMs,endMs] 按字数线性插值。 */
 const splitToChars = (c: Caption): Caption[] => {
   const chars = Array.from(c.text.trim());
   const dur = c.endMs - c.startMs;
   return chars.map((ch, i) => ({
-    text: i === 0 ? ch : ` ${ch}`,
+    text: ch,
     startMs: Math.round(c.startMs + (dur * i) / chars.length),
     endMs: Math.round(c.startMs + (dur * (i + 1)) / chars.length),
     timestampMs: Math.round(c.startMs + (dur * (i + 0.5)) / chars.length),
@@ -47,22 +46,21 @@ const CaptionLine: React.FC<{line: Caption}> = ({line}) => {
   const tMs = line.startMs + (frame / fps) * 1000; // Sequence 内相对帧→绝对 ms
   const chars = useMemo(() => splitToChars(line), [line]);
   return (
-    <AbsoluteFill style={{alignItems: 'center', padding: '56px 0 0'}}>
+    <AbsoluteFill style={{alignItems: 'center', padding: '44px 0 0'}}>
       <div
         style={{
           fontFamily: SANS,
           fontSize: FZ.karaoke,
-          fontWeight: 700,
+          fontWeight: 600,
           color: C.white,
-          maxWidth: 1400,
+          maxWidth: 1320,
           textAlign: 'center',
           whiteSpace: 'pre-wrap',
-          background: 'rgba(7,8,26,0.7)',
-          borderRadius: 14,
-          padding: '10px 26px',
-          border: `1px solid ${C.border}`,
-          WebkitTextStroke: '1.2px rgba(7,8,26,0.85)',
-          paintOrder: 'stroke fill',
+          background: 'rgba(7,8,26,0.48)',
+          borderRadius: 10,
+          padding: '8px 22px',
+          border: '1px solid rgba(139,148,158,0.18)',
+          lineHeight: 1.28,
         }}
       >
         {chars.map((c, i) => {
@@ -72,7 +70,7 @@ const CaptionLine: React.FC<{line: Caption}> = ({line}) => {
               key={i}
               style={{
                 color: active ? C.cyan : C.white,
-                textShadow: active ? '0 0 12px rgba(86,212,196,0.6)' : 'none',
+                textShadow: active ? '0 0 8px rgba(86,212,196,0.36)' : 'none',
               }}
             >
               {c.text}

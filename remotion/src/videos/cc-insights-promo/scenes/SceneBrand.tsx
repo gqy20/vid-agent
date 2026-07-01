@@ -1,39 +1,44 @@
-import {interpolate, useCurrentFrame} from 'remotion';
-import {C, MONO, SANS, EASE_OUT, CLAMP, FZ} from '../../../theme';
+import {C, MONO} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
-import {Reveal} from '../../../components/Reveal';
-import {Logo} from '../Logo';
+import {DashboardShot, StoryStage, shot} from '../StoryPrimitives';
 
-/* S2 品牌亮相 */
-export const SceneBrand: React.FC = () => {
-  const f = useCurrentFrame();
-  const draw = interpolate(f, [0, 42], [0, 1], {easing: EASE_OUT, ...CLAMP});
-  const nameOp = interpolate(f, [24, 46], [0, 1], {easing: EASE_OUT, ...CLAMP});
-  const nameSc = interpolate(f, [24, 50], [0.86, 1], {easing: EASE_OUT, ...CLAMP});
-  const glow = interpolate(f, [30, 72], [0, 22], {easing: EASE_OUT, ...CLAMP});
-  return (
-    <Backdrop>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28}}>
-        <div style={{filter: 'drop-shadow(0 0 22px rgba(129,140,248,0.5))'}}>
-          <Logo p={draw} />
-        </div>
+export const SceneBrand: React.FC = () => (
+  <Backdrop>
+    <StoryStage
+      eyebrow="finding"
+      title={
+        <>
+          第一条结论：
+          <br />
+          慢调用不是感觉。
+        </>
+      }
+      body={
+        <>
+          真实 finding 直接给出工具、项目、Session、耗时和建议动作。诊断不是 Top N
+          排行，而是可修复对象。
+        </>
+      }
+    >
+      <div style={{position: 'relative'}}>
+        <DashboardShot src={shot('diagnostics')} width={1120} cropY={0} />
         <div
           style={{
-            fontFamily: MONO,
-            fontSize: FZ.hero,
-            fontWeight: 700,
+            position: 'absolute',
+            left: 38,
+            top: 36,
+            padding: '14px 18px',
+            borderRadius: 10,
+            background: 'rgba(205,92,92,0.92)',
             color: C.white,
-            opacity: nameOp,
-            scale: nameSc,
-            textShadow: `0 0 ${glow}px rgba(86,212,196,0.9)`,
+            fontFamily: MONO,
+            fontSize: 22,
+            boxShadow: '0 16px 38px rgba(0,0,0,0.22)',
           }}
         >
-          cc-insights
+          Bash:echo · 27.1min
         </div>
-        <Reveal delay={52} style={{fontFamily: SANS, fontSize: FZ.subtitle, color: C.cyan, textAlign: 'center'}}>
-          把使用历史变成可解释的<span style={{color: C.white, fontWeight: 600}}>证据 · 判断 · 改进方向</span>
-        </Reveal>
       </div>
-    </Backdrop>
-  );
-};
+    </StoryStage>
+  </Backdrop>
+);
