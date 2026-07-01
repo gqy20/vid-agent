@@ -1,0 +1,29 @@
+# vid-agent git hooks (lefthook)
+# ==============================
+# 启用：  lefthook install          （需先装 lefthook，本机：brew install lefthook）
+# 跳过单次：git commit --no-verify
+# 重新生成（改完本文件后）：lefthook install
+#
+# 设计要点：
+#   - pre-commit 做两件事，并行：① 误提交守卫 ② Remotion 类型检查（按路径触发）
+#   - commit-msg 做 Conventional Commits 宽松校验（允许中文描述）
+#   - 视频成片 mp4 本身要入库，所以大文件守卫带成片路径白名单
+
+pre-commit:
+  parallel: true
+  commands:
+    # ① 误提交守卫：拦截 .env/密钥/node_modules/.venv/media/调试渲染等，及非成片大文件(>100MB)
+    guard:
+      run: bash scripts/hooks/guard-staged.sh
+    # ② Remotion 类型检查：仅当 remotion/ 下 ts/tsx 或 tsconfig 改动时触发
+    remotion-typecheck:
+      glob:
+        - "remotion/**/*.{ts,tsx}"
+        - "remotion/tsconfig.json"
+      run: cd remotion && pnpm exec tsc --noEmit
+
+commit-msg:
+  commands:
+    # Conventional Commits 宽松校验（允许中文描述；merge/revert 自动提交放行）
+    conventional:
+      run: bash scripts/hooks/commit-msg-lint.sh {1}
