@@ -22,7 +22,7 @@ bug。
 
 ```bash
 pnpm install                                   # remotion + @remotion/cli + react
-pnpm exec remotion render <CompId> out.mp4 --concurrency=4
+pnpm exec remotion render <CompId> out.mp4 --concurrency=8
 ```
 
 - **先干掉 Chrome 下载**(references/environment.md):Remotion 首次渲染会自下载
@@ -54,10 +54,15 @@ Config.setBrowserExecutable('/opt/google/chrome/chrome'); // 跳过 150MB 下载
 4. **本地字体** —— `fc-list`;按字族名引用(references/environment.md)。
 5. **抽帧自检循环** —— 全片渲染前,逐场景渲一帧检查
    (references/still-check.md)。一帧只要几秒,全片渲染要几分钟。
-6. **渲染 → 归档** —— 用 `--concurrency=4` 渲进带日期的产物目录
+6. **长视频先数据化时间线** —— 超过 90s 或未来可能到 5min 时,把场景时长、
+   转场、fps、尺寸抽进 `timeline.ts`,Composition 的 `durationInFrames` 从常量计算
+   (references/long-video-rendering.md)。
+7. **渲染 → 归档** —— 先用 `--concurrency=8` 起测,再按机器调到 12/16;渲进带日期的产物目录
    `renders/<YYYY-MM-DD>-<slug>/renders/{debug,final}/`,补上 `thumbnail.png` +
    `meta.json` + `README.md`;用 `ffprobe` 校验。绝不让 mp4 堆在工程根目录
    (references/render-project-layout.md)。
+8. **需要更快时先测再拆** —— 先尝试单进程高 `--concurrency`;frame range 分片必须先
+   smoke test 当前 Remotion 版本是否会卡在 mp4 分片末帧,稳定后才用于生产。
 
 ## 第二遍——按官方 skill 精修(按收益排序)
 
@@ -78,10 +83,12 @@ transform 属性。代码见 references/api-cheatsheet.md 与 references/anti-pa
 | references/terminal-scenes.md | 模拟终端场景:配色、打字命令、输出形态、spinner/进度条 |
 | references/anti-patterns.md | 让视频显廉价或出错的反模式及修法 |
 | references/audio-mmx.md | 用 mmx-cli 生成配音/BGM + ffmpeg 混音 + Remotion 音视频合流 |
+| references/long-video-rendering.md | 长视频 timeline 数据化、frame-range 分片并发、scene segment 取舍 |
 | scripts/check-env.sh | 探测 Chrome/字体/工具链,打印建议配置行 |
 | scripts/new-video.sh | 一键建一条视频的源码 + 带日期的产物目录 |
 | scripts/check-frames.sh | 批量渲抽帧,供自检循环用 |
 | scripts/render-final.sh | 渲进带日期产物目录 + ffprobe + 抽 thumbnail |
+| scripts/render-ranges.sh | 按 frame range 并发渲染完整 Composition,再 ffmpeg concat |
 | scripts/audio-mix.sh | 配音 + BGM 混音,并 mux 进视频成 with-audio 版本 |
 | scripts/cleanup.sh | 清理工程根临时 `out/` |
 

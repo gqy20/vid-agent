@@ -1,7 +1,7 @@
-import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, MONO} from '../theme';
 
-/* 打字命令行 */
+/* 打字命令行。cps=字符/秒（与 fps 无关，自动适配）；光标每 8 帧（@30fps≈0.27s）闪一次。 */
 export const Typed: React.FC<{text: string; start: number; cps?: number}> = ({
   text,
   start,

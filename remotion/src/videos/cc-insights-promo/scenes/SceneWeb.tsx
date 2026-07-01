@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {C, EASE_OUT, CLAMP} from '../../../theme';
+import {C, EASE_OUT, CLAMP, FZ} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 import {Reveal} from '../../../components/Reveal';
 import {Terminal} from '../../../components/Terminal';
@@ -14,7 +14,7 @@ export const SceneWeb: React.FC = () => {
     <Backdrop>
       <Terminal title="cc-insights — 启动 Dashboard" width={1280} appear={0}>
         <Typed text="cc-insights web --addr :8932" start={6} />
-        <Reveal delay={36} style={{color: C.green, fontSize: 21}}>✓ Dashboard 已启动 → http://localhost:8932</Reveal>
+        <Reveal delay={36} style={{color: C.green, fontSize: FZ.term}}>✓ Dashboard 已启动 → http://localhost:8932</Reveal>
         <div style={{height: 20}} />
         <Reveal delay={48}>
           <div style={{background: '#0a0e16', border: `1px solid ${C.border}`, borderRadius: 12, padding: 24}}>
@@ -25,9 +25,9 @@ export const SceneWeb: React.FC = () => {
                 {k: '会话数', v: '184', c: C.purple},
                 {k: '诊断结论', v: '3', c: C.green},
               ].map((m, i) => (
-                <Reveal key={m.k} delay={56 + i * 8} style={{flex: 1, background: '#0d1117', border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 20px'}}>
-                  <div style={{color: C.dim, fontSize: 18}}>{m.k}</div>
-                  <div style={{color: m.c, fontSize: 36, fontWeight: 700}}>{m.v}</div>
+                <Reveal key={m.k} delay={56 + i * 8} style={{flex: 1, background: C.termBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 20px'}}>
+                  <div style={{color: C.dim, fontSize: FZ.termDim}}>{m.k}</div>
+                  <div style={{color: m.c, fontSize: FZ.subtitle, fontWeight: 700}}>{m.v}</div>
                 </Reveal>
               ))}
             </div>

@@ -55,6 +55,58 @@ scripts/extract_frames.sh renders/debug/s04_reveal_480p15_20260701-fix.mp4 frame
 
 脚本自动命名输出为 `{Scene}_{ms}ms.png`（如 `s04_reveal_2000ms.png`）便于扫读。
 
+## 先跑自动审计（frame_audit.py）
+
+抽帧眼检之前，先用 `frame_audit.py` 自动扫一遍**可量化的几何问题**——
+它读渲染期采集的真实 mobject 包围盒，检出画面溢出（blocking）、对象重叠 / 拥挤（advisory），
+零人眼、可进 CI、可阻断。
+
+**采集端**（scene.py 启用，渲染期自动记录包围盒）：
+
+```python
+from bbox_audit import AuditedScene
+class MyScene(AuditedScene):   # 继承即可，每个 play/add/wait 后自动快照
+    ...
+```
+
+`render_scene.sh` 已自动 `export PYTHONPATH`，直接 import；手动 `uv run manim` 时请
+`PYTHONPATH=<skill>/scripts`。默认写到 `cwd/_bbox_audit.jsonl`，用环境变量 `BBOX_AUDIT_OUT` 覆盖。
+
+**在线溢出自检（可选）**：设 `BBOX_AUDIT_ASSERT=warn`（渲染期溢出 → stderr 提示，不中断）或 `=1`（溢出 → RuntimeError 中断，fail-fast）。用官方 `is_off_screen()`，与下面的离线 `frame_audit` 互补——一个 fail-fast、一个事后批量审。
+
+**审计端**（渲染后）：
+
+```bash
+uv run python scripts/frame_audit.py renders/.../_bbox_audit.jsonl
+uv run python scripts/frame_audit.py --strict   # advisory 也当阻塞（CI 紧线时）
+```
+
+退出码：`0` 通过 / `1` 有 blocking（溢出 = 必被切边）/ `2` 解析失败。
+
+**分工——两者互补，不可互相替代：**
+
+- `frame_audit` 抓**几何**：溢出、重叠、拥挤（对应 13 条里的 #6 #7）。机器读坐标，精确。
+- 下面的人眼 checklist 抓**语义**：#1 居中错觉、#9 动词切换时机、#11 品牌色语义、#13 末帧稳定。
+  这些是 frame_audit 看不到的"意思对不对"。
+
+**自动审计先行，人眼收尾。**
+
+## 结构图 debug（index_labels / print_family）
+
+13 条查的是**几何 / 语义**。还有一种 bug：操作 `tex[0][8:12]` 这类切片时索引对不上画面——改错字了。manim 自带两个工具（`manim.utils.debug`）直接看结构：
+
+```python
+from manim import index_labels, print_family
+
+self.add(index_labels(my_tex))   # 画面上给每个 submobject 贴数字标签
+print_family(my_vgroup)            # 终端打印 mobject 树（含 id）
+```
+
+**注意：**
+
+- **依赖 LaTeX**：`index_labels` 用 `Integer` → `MathTex`。仅 `check_latex.sh` exit 0 时可用；LaTeX 不可用时只能用 `print_family`（纯文本，零 LaTeX 依赖）。
+- **与 frame_audit 互斥**：`index_labels` 加的数字标签会被 `bbox_audit` 采进画面，引入假的 overflow / overlap（实测一次叠加让 overflow 从 1 涨到 2）。**debug 结构时用它，审布局时去掉它**，别同时跑。
+
 ## 13 条 checklist
 
 每张 PNG 都要从顶到底扫一遍：

@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render HelloWorld out/video.mp4"
+    "render": "remotion render CCInsightsPromo out/video.mp4 --concurrency=4 --timeout=120000",
+    "render:fast": "remotion render CCInsightsPromo out/video-fast.mp4 --concurrency=8 --timeout=120000",
+    "render:ranges": "JOBS=2 CONCURRENCY=4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh CCInsightsPromo cc-insights-promo 2086 600",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@remotion/captions": "^4.0.484",
     "@remotion/cli": "^4.0.0",
     "@remotion/transitions": "^4.0.484",
     "react": "^19.0.0",

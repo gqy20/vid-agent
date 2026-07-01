@@ -3,7 +3,7 @@
 ## 环境
 
 - Python 仅通过 **uv** 管理。`manim` 装在 `.venv`；PATH 里没有 `manim`。永远 `uv run manim ...`。
-- `pdflatex` / `latex` **未安装**。用 `Text` + Unicode 上标，禁止 `MathTex` / `Tex` / `DecimalNumber` / `Axes.get_axis_labels`（那些 API 内部 spawn `pdflatex` 子进程，而 `pdflatex` 不存在）。
+- **LaTeX 按 `check_latex.sh` 检测结果走，不写死**：当前机器 TeX Live 2025 装在 `~/workspace/soft/texlive/2025/`，pdflatex/latex/dvisvgm 三件套齐全，`MathTex`/`Tex` 可用；换环境若检测不可用则回退 `Text`+Unicode 上标。CJK 中文**始终**用 `Text`（Tex 无中文字体支持）。检测：`.claude/skills/manim-viz/scripts/check_latex.sh [--probe]`（exit 0 可用 / 1 不可用）。
 - `ffmpeg` 在 PATH 里（manim 透明调用）。
 - 调试默认质量 `-ql`（480p15）。`-qh` / `-qk` 留作最终导出。
 
@@ -20,7 +20,7 @@
 ```
 vid-agent/
 ├── .claude/
-│   ├── skills/manim-viz/                       # manim skill（SKILL.md + references/(7) + scripts/(5)）
+│   ├── skills/manim-viz/                       # manim skill（SKILL.md + references/(8) + scripts/(8)）
 │   ├── skills/remotion-vid/        # Remotion skill（SKILL.md + references/(8) + scripts/(6)）
 │   └── CLAUDE.md                                # 本文件
 ├── pyproject.toml                                # uv 项目（dependencies: manim>=0.20.1）
@@ -67,10 +67,11 @@ rm -rf renders/debug/_build
 uv run manim --version
 ```
 
-写公式前显式检查 LaTeX 状态：
+写公式前检测 LaTeX 是否可用（决定用 `MathTex` 还是 `Text`+Unicode）：
 
 ```bash
-which pdflatex latex
+.claude/skills/manim-viz/scripts/check_latex.sh            # exit 0 可用 / 1 不可用
+.claude/skills/manim-viz/scripts/check_latex.sh --probe    # 试渲染权威确认
 ```
 
 ## 这个 skill 怎么写出来的（历史）

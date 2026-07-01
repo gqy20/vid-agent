@@ -1,4 +1,4 @@
-import {C} from '../../../theme';
+import {C, FZ} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 import {Reveal} from '../../../components/Reveal';
 import {Terminal} from '../../../components/Terminal';
@@ -12,7 +12,7 @@ export const SceneTok: React.FC = () => (
     <Terminal title="cc-insights — Token" width={1220} appear={0}>
       <Typed text="cc-insights tok -p 30d" start={6} />
       <div style={{height: 16}} />
-      <Reveal delay={42} style={{color: C.dim, fontSize: 20}}>TOKEN · 最近 30 天 · 共 12.4M tokens</Reveal>
+      <Reveal delay={42} style={{color: C.dim, fontSize: FZ.termDim}}>TOKEN · 最近 30 天 · 共 12.4M tokens</Reveal>
       <div style={{height: 20}} />
       <Bar label="article-mcp" io="4.1M / 0.9M" pct={61} delay={56} color={C.cyan} />
       <Bar label="cc-insights" io="1.2M / 0.4M" pct={18} delay={70} color={C.purple} />

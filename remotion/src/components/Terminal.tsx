@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {C, MONO, EASE_OUT, CLAMP} from '../theme';
+import {C, MONO, EASE_OUT, CLAMP, FZ} from '../theme';
 
 /* 终端窗口外壳（eased 入场，独立 scale 属性） */
 export const Terminal: React.FC<{
@@ -41,9 +41,9 @@ export const Terminal: React.FC<{
         <span style={{width: 13, height: 13, borderRadius: 7, background: '#ff5f56'}} />
         <span style={{width: 13, height: 13, borderRadius: 7, background: '#ffbd2e'}} />
         <span style={{width: 13, height: 13, borderRadius: 7, background: '#27c93f'}} />
-        <span style={{marginLeft: 16, color: C.dim, fontSize: 17}}>{title}</span>
+        <span style={{marginLeft: 16, color: C.dim, fontSize: FZ.micro}}>{title}</span>
       </div>
-      <div style={{padding: '28px 36px', fontSize: 24, lineHeight: 1.62}}>{children}</div>
+      <div style={{padding: '28px 36px', fontSize: FZ.term, lineHeight: 1.62}}>{children}</div>
     </div>
   );
 };

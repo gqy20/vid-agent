@@ -4,7 +4,7 @@
   "created": "2026-07-01T00:42:00+08:00",
   "description": "72s 终端风宣传片：痛点(乱码JSONL)→品牌→rec/tok/cmd/web 四段演示→四张卖点卡→CTA。",
   "composition_id": "CCInsightsPromo",
-  "source": "src/CCInsights.tsx",
+  "source": "src/videos/cc-insights-promo/",
   "theme_tags": ["promo", "terminal", "cli", "data-viz"],
 
   "env": {
@@ -12,6 +12,9 @@
     "node": "25.8.0",
     "browser_executable": "/opt/google/chrome/chrome",
     "fonts": "local: JetBrainsMono Nerd Font + Noto Sans CJK SC (零联网)",
+    "audio_voice": "mmx Chinese (Mandarin)_Male_Announcer / speech-2.8-hd, 218字 60.9s → atrim+adelay 对齐 68.3s",
+    "audio_bgm": "mmx music generate --instrumental --mood calm --bpm 72, Audio volume 0.22 fade-in/out",
+    "audio_captions": "@remotion/captions 句级 Sequence + 句内逐字高亮 (src/components/KaraokeCaptions.tsx)",
     "pnpm_lock_sha": null
   },
 
@@ -30,6 +33,20 @@
       "bit_rate_bps": 1098236,
       "size_bytes": 9553196,
       "render_wall_s": 208
+    },
+    {
+      "role": "final-with-audio",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "pnpm exec remotion render CCInsightsPromo renders/2026-07-01-cc-insights-promo/renders/final/cc-insights-promo_1080p30_20260701-094829.mp4 --concurrency=4",
+      "output": "renders/final/cc-insights-promo_1080p30_20260701-094829.mp4",
+      "duration_s": 69.59,
+      "fps_actual": 30,
+      "nb_frames": 2086,
+      "bit_rate_bps": 1110430,
+      "size_bytes": 9659264,
+      "audio": "aac stereo 48kHz, mean_volume -23.8dB / max_volume -5.6dB (配音+BGM,原片为 -91dB 静音占位轨)",
+      "render_wall_s": null
     }
   ],
 

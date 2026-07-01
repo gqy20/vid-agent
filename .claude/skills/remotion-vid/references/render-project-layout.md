@@ -32,8 +32,14 @@ Remotion 必须有 bundler 入口 + node_modules，**每条视频自带一份依
         ├── thumbnail.png                # 中点帧预览（final 质量）
         └── renders/
             ├── debug/<slug>_720p30_<YYYYMMDD-HHMMSS>.mp4
+            ├── segments/<YYYYMMDD-HHMMSS>/001_000000-000599.mp4
             └── final/<slug>_1080p30_<YYYYMMDD-HHMMSS>.mp4
 ```
+
+`final/` 只放明确对外发布的成片。失败、实验、旧版、range 分片、临时导出不要放进
+`final/`:放 `debug/`、`archive/`、`tmp/`、`segments/`,或在文件名中带
+`draft` / `experiment` / `test` / `tmp`。`.gitignore` 应按这些目录/命名规则忽略,
+不要为每个发布 mp4 写 `!` 白名单。
 
 slug：小写、连字符、≤ 32 字符，匹配视频**讲什么**（如 `cc-insights-promo`、
 `brand-intro`，不是 `video1`）。`<Slug>.tsx` 用大驼峰，对应 Composition id。
@@ -88,6 +94,28 @@ scripts/render-final.sh <Slug> <slug>            # 1080p 渲入 final/ + ffprobe
 
 `render-final.sh` 自动:带时间戳命名、建目录、渲染 `--concurrency=4`、ffprobe 校验;
 final 角色还会抽中点帧到 `renders/<id>/thumbnail.png`。手动等价命令见脚本内注释。
+
+### 5b. 分片并发渲染（实验性）
+
+超过 90s 或单片渲染超过 5 分钟时,可先 smoke test 按 frame range 分片完整
+Composition:
+
+```bash
+JOBS=2 CONCURRENCY=4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh <Slug> <slug> <total_frames> 600
+```
+
+这会生成:
+
+```
+out/ranges/<slug>_<YYYYMMDD-HHMMSS>/
+├── segments/001_000000-000599.mp4
+├── segments.ffconcat
+└── <slug>_chunked_<YYYYMMDD-HHMMSS>.mp4
+```
+
+确认不会卡在分片最后一帧后,再把最终 mp4 归档到 `renders/<id>/renders/final/`,并把
+`segments.ffconcat` 或分片命令写入 `meta.json:renders[*].command`。若当前 Remotion
+版本下 mp4 分片不稳定,回退到单进程高 `--concurrency` 或 image sequence 分片。
 
 ### 6.（thumbnail 已由 render-final.sh 在 final 阶段自动生成）
 

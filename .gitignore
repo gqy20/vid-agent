@@ -53,6 +53,14 @@ remotion/out/                # remotion build 产物
 remotion/.next/              # next.js 缓存
 remotion/dist/
 remotion/renders/*/renders/debug/   # 调试渲染
+remotion/renders/*/renders/archive/ # 旧版/失败/实验成片
+remotion/renders/*/renders/tmp/
+remotion/renders/*/renders/segments/
+remotion/renders/*/renders/final/*draft*.mp4
+remotion/renders/*/renders/final/*experiment*.mp4
+remotion/renders/*/renders/final/*test*.mp4
+remotion/renders/*/renders/final/*tmp*.mp4
+remotion/renders/*/renders/final/*60fps-test*.mp4
 
 # ── 密钥 / 本地配置 ──
 .env

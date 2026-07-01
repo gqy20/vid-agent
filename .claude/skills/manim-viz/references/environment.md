@@ -53,41 +53,40 @@ manim -ql scene.py SceneName
 uv run manim -qh ...    # 做 30 帧测试场景时
 ```
 
-## LaTeX 探测
+## LaTeX 探测（先检测，再选路）
 
-写公式或轴标签前：
+写公式或轴标签前，先跑检测脚本（**不写死"有/无"，按运行环境自适应**）：
 
 ```bash
-which pdflatex latex
-# 如都返回 "not found"，每个 MathTex/Tex/DecimalNumber 都会崩
-# FileNotFoundError: [Errno 2] No such file or directory: 'latex'
+scripts/check_latex.sh             # 快检 which pdflatex/latex/dvisvgm（exit 0 可用 / 1 不可用）
+scripts/check_latex.sh --probe     # 慢检：试渲染 MathTex 权威确认（~10s）
 ```
 
-### 两种工作模式
+manim 的 `Tex`/`MathTex` 走 `latex` → `dvisvgm` → SVG，所以三件套（pdflatex/latex/dvisvgm）齐全才算可用。**退出码决定工作模式：**
 
-**无 LaTeX（本项目默认）：**
-- `Text("x²")` Unicode 上标
-- `Axes.get_axis_labels()` → 手动 `Text("x") + next_to`
-- `Axes.add_coordinates()` → 手动 `Text(f"{x}")` 刻度
+### LaTeX 可用（exit 0）
+
+- `MathTex` / `Tex` / `Axes.get_axis_labels` / `Axes.add_coordinates` / `DecimalNumber` 正常用
+- 真公式（积分、矩阵、分式）比 Unicode 上标专业
+- **CJK 中文仍用 `Text`**（Pango）——Tex 无中文字体
+
+### LaTeX 不可用（exit 1）
+
+- `Text("x²")` Unicode 上标（`² ³ √ ± − π ∑ ∫ ≈ ≠`）
+- `Axes.get_axis_labels()` → 手动 `Text("x").next_to(...)`
+- `Axes.add_coordinates()` → 手动 `Text(f"{x}").next_to(...)`
 - `DecimalNumber(v)` → `Text(f"{v:.2f}")`
+- 见 `anti-patterns.md` #3-6 #13
 
-**有 LaTeX 装好后：**
+### 装法（让 exit 1 变 0）
 
 ```bash
 # Linux
 sudo apt install texlive-latex-extra texlive-fonts-recommended texlive-science dvisvgm
-
 # macOS（MacTeX ~5GB）
 brew install --cask mactex
-
-# 社区推荐轻量：tectonic
-# https://tectonic-typesetting.github.io/
-
-# 验证
-which pdflatex && pdflatex --version
+# 轻量替代：tectonic  https://tectonic-typesetting.github.io/
 ```
-
-只有 `pdflatex --version` 退出码 0 时才能切回 `MathTex` / `Tex`。
 
 ## ffmpeg 探测
 

@@ -50,6 +50,12 @@ if [[ ! -f "$script" ]]; then
     exit 1
 fi
 
+# ---- 让 scene.py 能 import skill 自带的 Python helper（bbox_audit 等）----
+# render_scene.sh 自己就在 skill/scripts/ 下；把它加进 PYTHONPATH，用户的
+# scene.py 即可 `from bbox_audit import AuditedScene`，无需拷贝、无需改 sys.path。
+SKILL_SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export PYTHONPATH="${SKILL_SCRIPTS}:${PYTHONPATH:-}"
+
 # ---- 准备输出目录与临时 build ----
 mkdir -p "$output_dir"
 build_dir=$(mktemp -d -t manim-build-XXXXXX)

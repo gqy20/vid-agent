@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {C, MONO, SANS, EASE_OUT, CLAMP} from '../../../theme';
+import {C, MONO, SANS, EASE_OUT, CLAMP, FZ} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 import {Reveal} from '../../../components/Reveal';
 import {Logo} from '../Logo';
@@ -20,7 +20,7 @@ export const SceneBrand: React.FC = () => {
         <div
           style={{
             fontFamily: MONO,
-            fontSize: 92,
+            fontSize: FZ.hero,
             fontWeight: 700,
             color: C.white,
             opacity: nameOp,
@@ -30,7 +30,7 @@ export const SceneBrand: React.FC = () => {
         >
           cc-insights
         </div>
-        <Reveal delay={52} style={{fontFamily: SANS, fontSize: 36, color: C.cyan, textAlign: 'center'}}>
+        <Reveal delay={52} style={{fontFamily: SANS, fontSize: FZ.subtitle, color: C.cyan, textAlign: 'center'}}>
           把使用历史变成可解释的<span style={{color: C.white, fontWeight: 600}}>证据 · 判断 · 改进方向</span>
         </Reveal>
       </div>

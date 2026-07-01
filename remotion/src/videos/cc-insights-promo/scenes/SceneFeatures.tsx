@@ -1,4 +1,4 @@
-import {C, MONO, SANS} from '../../../theme';
+import {C, MONO, SANS, FZ} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 import {Reveal} from '../../../components/Reveal';
 
@@ -13,7 +13,7 @@ export const SceneFeatures: React.FC = () => {
   return (
     <Backdrop>
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 54}}>
-        <Reveal delay={4} dur={16} style={{fontFamily: SANS, fontSize: 58, fontWeight: 800, color: C.white}}>
+        <Reveal delay={4} dur={16} style={{fontFamily: SANS, fontSize: FZ.title, fontWeight: 800, color: C.white}}>
           为诊断而生，不只是统计
         </Reveal>
         <div style={{display: 'flex', gap: 30}}>
@@ -21,12 +21,12 @@ export const SceneFeatures: React.FC = () => {
             <Reveal key={c.t} delay={18 + i * 12} y={28}
               style={{width: 292, background: C.termBg, border: `1px solid ${C.border}`, borderRadius: 16, padding: '34px 28px', boxShadow: '0 24px 56px rgba(0,0,0,0.42)'}}>
               <div style={{fontSize: 52, color: c.c, marginBottom: 18}}>{c.i}</div>
-              <div style={{fontFamily: SANS, fontSize: 32, fontWeight: 700, color: C.white, marginBottom: 14}}>{c.t}</div>
-              <div style={{fontFamily: SANS, fontSize: 22, color: C.dim, lineHeight: 1.55, whiteSpace: 'pre-line'}}>{c.d}</div>
+              <div style={{fontFamily: SANS, fontSize: FZ.label, fontWeight: 700, color: C.white, marginBottom: 14}}>{c.t}</div>
+              <div style={{fontFamily: SANS, fontSize: FZ.term, color: C.dim, lineHeight: 1.55, whiteSpace: 'pre-line'}}>{c.d}</div>
             </Reveal>
           ))}
         </div>
-        <Reveal delay={82} style={{fontFamily: MONO, fontSize: 24, color: C.dim}}>
+        <Reveal delay={82} style={{fontFamily: MONO, fontSize: FZ.term, color: C.dim}}>
           Go 1.21+ · MIT License · macOS / Linux / Windows
         </Reveal>
       </div>

@@ -1,4 +1,4 @@
-import {C, SANS} from '../theme';
+import {C, SANS, FZ} from '../theme';
 import {Reveal} from './Reveal';
 
 /* 字幕条 */
@@ -7,7 +7,7 @@ export const Caption: React.FC<{delay: number; text: string}> = ({delay, text}) 
     <span
       style={{
         fontFamily: SANS,
-        fontSize: 34,
+        fontSize: FZ.caption,
         fontWeight: 500,
         color: C.white,
         background: 'rgba(13,17,23,0.72)',

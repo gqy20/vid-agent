@@ -1,7 +1,7 @@
 import {interpolate, useCurrentFrame} from 'remotion';
 import {EASE_OUT, CLAMP} from '../theme';
 
-/* 揭示动画（官方缓动 + 独立 transform 属性） */
+/* 揭示动画（官方缓动 + 独立 transform 属性）。dur 默认 14 帧（@30fps ≈ 0.47s）。 */
 export const Reveal: React.FC<{
   delay: number;
   dur?: number;

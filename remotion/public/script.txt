@@ -1,0 +1,8 @@
+Claude Code 越用越慢、Token 越烧越多还老失败，别再手工翻日志了。
+cc-insights，把使用历史变成证据、判断和改进方向。
+一条 rec 命令，七天三个结论：超时拖慢会话、Token 集中在单一项目，先给根因再给下钻命令。
+tok 按项目拆 Token，三十天一千两百万，六成花在 article-mcp。
+cmd 看 Bash 调用，一千两百八十四次里 go test 失败率近一成五，高风险命令逐段解析。
+web 一条命令本地起 Dashboard，零数据库零依赖，KPI 和趋势一目了然。
+为诊断而生：诊断优先、AI 友好三种输出、两点七兆单文件、YAML 可配。
+一条命令给你根因，Star 一下 gqy20 cc-insights。

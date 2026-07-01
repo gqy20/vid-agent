@@ -20,6 +20,11 @@
 from manim import UP, DOWN, LEFT, RIGHT, ORIGIN, UR, UL, DR, DL
 ```
 
+## LaTeX 类 API 的统一前置（#3-6 通用）
+
+`#3-6` 只在 **`scripts/check_latex.sh` 报不可用（exit 1）** 时适用——此时 `Axes.get_axis_labels` / `add_coordinates` / `NumberLine.add_labels` / `DecimalNumber` 内部的 `MathTex` 会崩，需手动用 `Text` 替代。
+若 `check_latex.sh` 报可用（exit 0），这些 API 直接用，跳过 #3-6。
+
 ## 3. `Axes.get_axis_labels()`
 
 **症状：** 即使代码里没用 `MathTex`，渲染时崩 `FileNotFoundError: [Errno 2] No such file or directory: 'latex'`。
@@ -125,7 +130,7 @@ self.play(ReplacementTransform(flash, original.copy().set_color(GREEN)))
 
 **症状：** `MathTex(r"x^2")` 在 pdflatex 缺失时渲染崩。
 
-**修法：** `which pdflatex` 没结果就用 `Text("x²")`（Unicode 上标）。覆盖 Unicode 字符：`² ³ √ ± − π ∑ ∫ ≈ ≠`。
+**修法：** 先跑 `scripts/check_latex.sh`（exit 0 可用 / 1 不可用）。不可用就用 `Text("x²")`（Unicode 上标）。覆盖 Unicode 字符：`² ³ √ ± − π ∑ ∫ ≈ ≠`。
 
 ## 14. `axes.plot(...)` 不传 `x_range`
 
@@ -209,7 +214,7 @@ uv run manim -ql --disable_caching --media_dir /tmp/media scene.py SceneName
 | 诱惑 | 反驳 |
 | --- | --- |
 | "我就 `pip install` 一次测环境，回头切 uv" | uv 项目里 `pip install` 永久污染 .venv。直接用 `uv add`。 |
-| "我们组都用 MathTex，LaTeX 肯定装了" | `which pdflatex` 是唯一权威——去查。 |
+| "我们组都用 MathTex，LaTeX 肯定装了" | `scripts/check_latex.sh` 是唯一权威——去跑。 |
 | "默认 `-qh`，好看点" | 迭代时间宝贵。先 `-ql`，只终版 `-qh`。 |
 | "`from manim import *` 让 import 区简洁" | 是，等 `construct` 撞 `NameError` 你就后悔。显式 import 扩展性好。 |
 | "把 `dt` 改名 `dt_secs` 更清楚" | manim 0.20.x 改名静默冻结。字面 `dt` 不动。 |
