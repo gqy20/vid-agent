@@ -18,8 +18,33 @@ __pycache__/                 # Python bytecode
 media/                       # manim 默认输出
 **/_build/                   # render_scene.sh 临时 build 目录
 **/partial_movie_files/      # manim partial-movie 缓存
-**/frames/                   # 抽帧调试临时
-**/frames_v2/
+
+# ── 项目作品产物约定（CLAUDE.md）──
+# 注：用 renders/*/X/ 单层通配，不用 **/X/。** 通配在多层目录 + 多规则
+# 共存时，git 对某些短目录名（frames 等）的匹配有 quirk；单层通配稳定可靠。
+# 当前对外成片 mp4 在各项目级 .gitignore 用 ! 例外放行。
+
+# 调试渲染一律不入
+renders/*/renders/debug/
+
+# 抽帧调试临时
+renders/*/frames/
+renders/*/frames_v2/
+
+# 媒体资产不入（voice/bgm 可由脚本重新生成）
+renders/*/tts/*.wav
+renders/*/bgm/*.wav
+
+# 迭代副本（统一改名前的命名约定）
+*-V2.mp4
+*-V2.png
+*-fix.mp4
+*-fix.png
+*-concat*.mp4
+thumbnail-V2.png
+thumbnail-final.png
+thumbnail-fix.png
+thumbnail-*.png
 
 # ── Remotion 工作项目 ──
 remotion/node_modules/       # pnpm 装包（GB 级）
@@ -27,6 +52,7 @@ remotion/node_modules.pnp
 remotion/out/                # remotion build 产物
 remotion/.next/              # next.js 缓存
 remotion/dist/
+remotion/renders/*/renders/debug/   # 调试渲染
 
 # ── 密钥 / 本地配置 ──
 .env
