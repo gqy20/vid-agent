@@ -22,8 +22,9 @@ Remotion 必须有 bundler 入口 + node_modules，**每条视频自带一份依
 │   ├── theme.ts                         # 全局 COLORS/FONTS/EASE
 │   ├── components/                      # 跨视频复用：Terminal/Reveal/Typed/Bar
 │   └── videos/
-│       └── <slug>/                      # ← 每条视频的源码（加的那一层）
-│           ├── <Slug>.tsx               # 该视频主组件（被 Root 注册）
+│       └── <slug>/                      # ← 每条视频的源码（加的那一层，自包含）
+│           ├── <Slug>.tsx               # 该视频主组件
+│           ├── index.ts                 # 导出 registration（Root 自动聚合发现，见 SKILL.md）
 │           └── scenes/                  # 该视频的场景组件
 └── renders/
     └── <YYYY-MM-DD>-<slug>/             # ← 每条视频的产物目录（带日期层级）
@@ -68,7 +69,8 @@ cd <remotion-project>
 ```bash
 ID="$(date +%Y-%m-%d)-<slug>"
 mkdir -p "src/videos/<slug>/scenes" "renders/$ID/renders/debug" "renders/$ID/renders/final"
-# 写 src/videos/<slug>/<Slug>.tsx + scenes/*；在 Root.tsx 注册 <Composition id="<Slug>">
+# 写 src/videos/<slug>/<Slug>.tsx + scenes/* + index.ts(导出 registration)
+# Root 用 require.context 自动聚合——无需改 Root（见 SKILL.md「Composition 自动聚合」）
 ```
 
 或用 `scripts/new-video.sh <slug>` 一键建上面两处骨架。

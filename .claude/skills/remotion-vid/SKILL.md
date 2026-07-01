@@ -18,6 +18,10 @@ bug。
 (`SKILL.md` + `rules/*`)。里面有具体的缓动 bezier、字体规则、转场时长、字号层级、
 安全边距。跳过它是"不精致"的头号原因。
 
+如果用户指出"品味差"、"不高级"、"像 PPT"、"字幕重复"、"整体要优化",先读
+`references/taste.md`,再改代码。它规定叙事结构、字体、截图、动效、Lottie 使用边界和
+交付前检查。
+
 ## 必备环境
 
 ```bash
@@ -39,10 +43,69 @@ import {Config} from '@remotion/cli/config';
 Config.setOverwriteOutput(true);
 Config.setBrowserExecutable('/opt/google/chrome/chrome'); // 跳过 150MB 下载
 
-// src/index.ts     → registerRoot(RemotionRoot)
-// src/Root.tsx     → 一个视频一个 <Composition>
-// src/scenes/*.tsx → 一场景一组件；文案/配色/字体/缓动都做成常量
+// src/index.ts        → registerRoot(RemotionRoot)
+// src/Root.tsx        → require.context 扫描 ./videos/*/index.ts 自动聚合（见下）
+// src/videos/<slug>/  → 一视频一目录：主组件 + scenes/ + index.ts(registration)
+// src/videos/<slug>/scenes/*.tsx → 一场景一组件；文案/配色/字体/缓动都做成常量
 ```
+
+## Composition 自动聚合（多视频并行友好）—— 必须这样做
+
+一个 Remotion bundle 只有一个 Root，所有 `<Composition>` 必须出现在 Root 树里。
+**不要每加一条视频就手动改 `Root.tsx`**——多视频并行时会撞同一个文件、git 冲突。
+让 Root 用 `require.context` 扫描聚合：加视频 = 新建 `src/videos/<slug>/index.ts`，
+**零改 Root**，不同视频源码彻底隔离，可并行。
+
+```ts
+// src/videos/types.ts
+import type {ComponentType} from 'react';
+export type CompositionDescriptor = {
+  id: string;
+  component: ComponentType<any>;
+  durationInFrames: number;
+  fps: number;
+  width: number;
+  height: number;
+  defaultProps?: Record<string, unknown>;
+  calculateMetadata?: (args: {props: Record<string, unknown>}) =>
+    {durationInFrames?: number} & Record<string, unknown>;
+};
+export type VideoRegistration = {slug: string; compositions: CompositionDescriptor[]};
+```
+
+```ts
+// src/videos/<slug>/index.ts —— 每条视频导出自己的 registration
+import {MyVideo} from './MyVideo';
+import type {VideoRegistration} from '../types';
+export const registration: VideoRegistration = {
+  slug: 'my-video',
+  compositions: [
+    {id: 'MyVideo', component: MyVideo, durationInFrames: 900, fps: 30, width: 1080, height: 1920},
+    // 单场景预览 Composition（抽帧自检用）按需加，带 calculateMetadata 读场景时长
+  ],
+};
+```
+
+```tsx
+// src/Root.tsx —— 写一次，永不再改
+import {Composition} from 'remotion';
+import type {CompositionDescriptor, VideoRegistration} from './videos/types';
+declare const require: {context: (d: string, sub?: boolean, re?: RegExp) =>
+  {keys: () => string[]; (k: string): unknown}};
+const ctx = require.context('./videos', true, /\/index\.ts$/);
+const COMPOSITIONS: CompositionDescriptor[] = ctx.keys().sort()
+  .map((k) => (ctx(k) as {registration: VideoRegistration}).registration)
+  .flatMap((r) => r.compositions);
+export const RemotionRoot: React.FC = () => (
+  <>{COMPOSITIONS.map((c) => <Composition key={c.id} {...c} />)}</>
+);
+```
+
+**陷阱**：① 注释里**别出现 `*/`**（例如写 `*/index.ts`）——会提前闭合块注释，esbuild 报
+"Expected ; but found 中文符号"。用行注释 `//` 或 `<slug>` 占位。② Remotion 用 webpack 5，
+原生支持 `require.context`（vid-agent 工程已验证，`remotion compositions` 正确列出全部）。
+③ 工程未装 `@types/webpack-env` 时，顶部 `declare const require` 局部声明即可，无需装包。
+④ 验证聚合：`pnpm exec remotion compositions` 应列出所有视频的 Composition。
 
 ## 工作流(第一遍——跑通,廉价验证)
 
@@ -76,6 +139,7 @@ transform 属性。代码见 references/api-cheatsheet.md 与 references/anti-pa
 | 文件 | 用途 |
 |------|------|
 | references/environment.md | pnpm、Chrome 下载修复、本地字体、排错 |
+| references/taste.md | **品味标准**:Awwwards 式叙事/动效原则、Lottie 使用边界、字幕去重、截图和交付检查 |
 | references/render-project-layout.md | **产物布局** `renders/<日期>-<slug>/`、meta.json、debug/final、命名 |
 | references/still-check.md | 渲染前抽帧自检 SOP(`scripts/check-frames.sh`) |
 | references/api-cheatsheet.md | 核心 API:interpolate / spring / Sequence / TransitionSeries / Easing |
