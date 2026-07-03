@@ -11,9 +11,12 @@
 #   AUDIO_FILE=public/mix-cc-insights-52s.m4a
 #   CHUNK_FRAMES=600
 #   JOBS=1
-#   CONCURRENCY=8
+#   CONCURRENCY=4
 #   TIMEOUT=120000
+#   COMMAND_TIMEOUT_SECONDS=900
 #   CRF=18
+#   RENDER_MODE=sequence  sequence is safer than direct mp4 chunks on unstable tail frames
+#   REMOTION_VIDEO_FILTER=<slug>  only load the target video registration
 #   END_FRAME_OFFSET=1   render 0..duration-1-END_FRAME_OFFSET, avoids unstable tail frame
 #   RESUME=1             reuse already valid chunks in the same TS work dir
 #   SKIP_AUDIO=0         set 1 to only keep visual output
@@ -26,9 +29,12 @@ OUT_ROOT="${OUT_ROOT:-renders/2026-07-01-cc-insights-promo/renders/final}"
 AUDIO_FILE="${AUDIO_FILE:-public/mix-cc-insights-52s.m4a}"
 CHUNK_FRAMES="${CHUNK_FRAMES:-600}"
 JOBS="${JOBS:-1}"
-CONCURRENCY="${CONCURRENCY:-8}"
+CONCURRENCY="${CONCURRENCY:-4}"
 TIMEOUT="${TIMEOUT:-120000}"
+COMMAND_TIMEOUT_SECONDS="${COMMAND_TIMEOUT_SECONDS:-900}"
 CRF="${CRF:-18}"
+RENDER_MODE="${RENDER_MODE:-sequence}"
+REMOTION_VIDEO_FILTER="${REMOTION_VIDEO_FILTER:-$SLUG}"
 END_FRAME_OFFSET="${END_FRAME_OFFSET:-1}"
 RESUME="${RESUME:-1}"
 SKIP_AUDIO="${SKIP_AUDIO:-0}"
@@ -58,7 +64,7 @@ need_cmd ffmpeg
 need_cmd ffprobe
 
 probe_comp_line() {
-  pnpm exec remotion compositions "$ENTRY" --timeout="$TIMEOUT" |
+  REMOTION_VIDEO_FILTER="$REMOTION_VIDEO_FILTER" pnpm exec remotion compositions "$ENTRY" --timeout="$TIMEOUT" |
     awk -v comp="$COMP" '$1 == comp {print $0; found=1; exit} END {if (!found) exit 1}'
 }
 
@@ -102,11 +108,15 @@ fi
 
 echo "== render visual chunks =="
 ENTRY="$ENTRY" \
+REMOTION_VIDEO_FILTER="$REMOTION_VIDEO_FILTER" \
 JOBS="$JOBS" \
 CONCURRENCY="$CONCURRENCY" \
 TIMEOUT="$TIMEOUT" \
+COMMAND_TIMEOUT_SECONDS="$COMMAND_TIMEOUT_SECONDS" \
 MUTED=1 \
 CRF="$CRF" \
+FPS="$FPS" \
+RENDER_MODE="$RENDER_MODE" \
 RESUME="$RESUME" \
 OUT_ROOT="$RUN_DIR/ranges" \
 TS="$TS" \
@@ -119,10 +129,10 @@ if [ "$SKIP_AUDIO" = "1" ]; then
   FINAL="$VISUAL"
 else
   echo "== trim audio =="
-  ffmpeg -y -i "$AUDIO_FILE" -t "$DURATION" -c:a aac -b:a 192k "$AUDIO_TRIMMED"
+  ffmpeg -nostdin -y -i "$AUDIO_FILE" -t "$DURATION" -c:a aac -b:a 192k "$AUDIO_TRIMMED"
 
   echo "== mux final =="
-  ffmpeg -y \
+  ffmpeg -nostdin -y \
     -i "$VISUAL" \
     -i "$AUDIO_TRIMMED" \
     -map 0:v:0 -map 1:a:0 \
@@ -139,7 +149,7 @@ ffprobe -v error \
 echo "== extract check frames =="
 MID_FRAME=$((RENDER_FRAMES / 2))
 LAST_FRAME=$((RENDER_FRAMES - 1))
-ffmpeg -y -i "$FINAL" \
+ffmpeg -nostdin -y -i "$FINAL" \
   -vf "select='eq(n,20)+eq(n,$((FPS * 7)))+eq(n,$MID_FRAME)+eq(n,$((RENDER_FRAMES * 3 / 4)))+eq(n,$LAST_FRAME)',scale=960:-1" \
   -vsync 0 "$FRAMES_DIR/frame_%03d.jpg"
 
@@ -171,7 +181,10 @@ cat > "$REPORT" <<EOF
     "jobs": $JOBS,
     "concurrency": $CONCURRENCY,
     "timeout": $TIMEOUT,
+    "commandTimeoutSeconds": $COMMAND_TIMEOUT_SECONDS,
     "crf": "$CRF",
+    "renderMode": "$RENDER_MODE",
+    "remotionVideoFilter": "$REMOTION_VIDEO_FILTER",
     "resume": "$RESUME",
     "skipAudio": "$SKIP_AUDIO"
   },

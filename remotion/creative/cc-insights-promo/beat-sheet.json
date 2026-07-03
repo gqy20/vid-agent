@@ -1,0 +1,89 @@
+{
+  "composition": "CCInsightsPromo",
+  "fps": 30,
+  "durationSeconds": 52.7,
+  "strategy": "Hook with local JSONL noise, collapse into a generated finding, then prove the workflow through real dashboard evidence and end on a runnable command.",
+  "beats": [
+    {
+      "time": "0.0-3.0",
+      "scene": "hook",
+      "purpose": "Cold open with trace noise and a CLI entry point.",
+      "voiceSays": "Claude Code usage has patterns hiding in local history.",
+      "screenShows": "Floating JSONL events, timeout/error rows, ingest command.",
+      "textSays": "cc-insights ingest ~/.claude/*.jsonl --trace",
+      "risk": "Opening can be too dark if the command panel is not dominant."
+    },
+    {
+      "time": "3.0-7.0",
+      "scene": "hook",
+      "purpose": "Convert raw traces into an explicit finding.",
+      "voiceSays": "The tool turns noisy traces into a concrete diagnosis.",
+      "screenShows": "scan jsonl -> group traces -> detect cluster -> emit finding",
+      "textSays": "finding.generated",
+      "risk": "Do not show too many JSON snippets once the finding appears."
+    },
+    {
+      "time": "7.0-14.0",
+      "scene": "brand",
+      "purpose": "First product proof: real finding and dashboard context.",
+      "voiceSays": "Slow calls are not a feeling; they are grouped evidence.",
+      "screenShows": "Diagnostics cards with a Bash timeout cluster.",
+      "textSays": "第一条结论：慢调用不是感觉。",
+      "risk": "The screenshot text is small, so the title must carry the point."
+    },
+    {
+      "time": "14.0-22.0",
+      "scene": "rec",
+      "purpose": "Show the product goes from diagnosis to action.",
+      "voiceSays": "A useful report must recommend the next command.",
+      "screenShows": "Recommendation flow and command-line action.",
+      "textSays": "先判断，再给下一步动作。",
+      "risk": "Avoid explaining every feature; keep it as one workflow."
+    },
+    {
+      "time": "22.0-29.0",
+      "scene": "tok",
+      "purpose": "Prove drilldown behavior.",
+      "voiceSays": "The same filter follows failures, tokens, sessions, and tools.",
+      "screenShows": "Filtered table under one condition.",
+      "textSays": "证据跟着同一组过滤条件走。",
+      "risk": "A table-only shot needs a visual highlight or scan layer."
+    },
+    {
+      "time": "29.0-36.0",
+      "scene": "cmd",
+      "purpose": "Tie failures back to commands.",
+      "voiceSays": "Repeated command families reveal where the loop starts.",
+      "screenShows": "Command attribution dashboard.",
+      "textSays": "命令归因，不只是错误列表。",
+      "risk": "Keep command labels legible at 1080p."
+    },
+    {
+      "time": "36.0-43.0",
+      "scene": "web",
+      "purpose": "Cost lands on model/session/project, not a global number.",
+      "voiceSays": "Cost becomes useful only when it lands on model and session.",
+      "screenShows": "Token tab and cost table.",
+      "textSays": "成本最后要落到模型和会话。",
+      "risk": "Do not repeat one cost number across voice, title, and table."
+    },
+    {
+      "time": "43.0-47.0",
+      "scene": "features",
+      "purpose": "Open the output to downstream AI/debugging workflows.",
+      "voiceSays": "The diagnosis can move into JSON, Markdown, or tables.",
+      "screenShows": "Output formats and integration cards.",
+      "textSays": "把诊断交给下一步工具。",
+      "risk": "This can feel like a feature list; keep it transitional."
+    },
+    {
+      "time": "47.0-52.7",
+      "scene": "cta",
+      "purpose": "End with a runnable command and repo.",
+      "voiceSays": "Run one command and inspect the last seven days.",
+      "screenShows": "Logo, command, GitHub URL.",
+      "textSays": "cc-insights rec -p 7d",
+      "risk": "CTA should stay quiet and concrete, not slogan-heavy."
+    }
+  ]
+}

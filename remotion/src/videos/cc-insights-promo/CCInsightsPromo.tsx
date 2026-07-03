@@ -3,6 +3,7 @@ import {TransitionSeries, linearTiming} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
 import {C} from '../../theme';
 import {SceneRenderer} from './SceneRenderer';
+import {TransitionOverlay} from './TransitionOverlay';
 import {SCENES} from './timeline';
 
 const renderTransition = (scene: (typeof SCENES)[number]) => {
@@ -40,6 +41,7 @@ export const CCInsightsPromo: React.FC = () => {
         {/* 混音轨：人声 + BGM 已合成（mix-cc-insights-52s.m4a），整体音量在素材里定好 */}
         <Audio src={staticFile('mix-cc-insights-52s.m4a')} />
       </AbsoluteFill>
+      <TransitionOverlay />
     </AbsoluteFill>
   );
 };

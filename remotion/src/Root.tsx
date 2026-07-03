@@ -12,13 +12,16 @@ declare const require: {
     (key: string): unknown;
   };
 };
+declare const process: {env: Record<string, string | undefined>};
 
 // 自动聚合：扫描每个 src/videos/<slug>/index.ts，收集其导出的 registration。
 // 加新视频只需新建 src/videos/<slug>/index.ts，无需改本文件 → 多视频可并行。
 const ctx = require.context('./videos', true, /\/index\.ts$/);
+const videoFilter = process.env.REMOTION_VIDEO_FILTER;
 const REGISTRATIONS: VideoRegistration[] = ctx
   .keys()
   .sort()
+  .filter((k) => (videoFilter ? k.includes(`/${videoFilter}/`) : true))
   .map((k) => (ctx(k) as {registration: VideoRegistration}).registration);
 
 const COMPOSITIONS: CompositionDescriptor[] = REGISTRATIONS.flatMap(
