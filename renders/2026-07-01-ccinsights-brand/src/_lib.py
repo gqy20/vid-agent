@@ -61,6 +61,12 @@ def terminal_frame(width, height, title="~/cc-insights — zsh", status=None):
     Pass status= for a dim bottom status bar (git branch / cwd / shell) —
     the IDE-feel detail that lifts the mock window toward a real screenshot.
     """
+    # soft outer glow — TERM_BG halo bleeding into the black scene background,
+    # gives the window weight without a real drop shadow (manim has no blur).
+    glow = RoundedRectangle(
+        width=width + 0.4, height=height + 0.4, corner_radius=0.32,
+        color=TERM_BG, fill_color=TERM_BG, fill_opacity=0.22, stroke_width=0,
+    ).move_to(ORIGIN)
     body = RoundedRectangle(
         width=width, height=height, corner_radius=0.18,
         color=TERM_DIM, stroke_width=1.5,
@@ -74,7 +80,7 @@ def terminal_frame(width, height, title="~/cc-insights — zsh", status=None):
     ])
     title_t = Text(title, font=FONT_MONO, font_size=TINY_SIZE,
                    color=TERM_DIM).move_to([0, bar_y, 0])
-    group = VGroup(body, dots, title_t)
+    group = VGroup(glow, body, dots, title_t)
     if status:
         status_y = -height / 2 + 0.32
         sep = Line([-width / 2 + 0.3, status_y + 0.28, 0],
