@@ -1,7 +1,7 @@
 # cc-insights CLI 宣传片
 
 43 秒终端风宣传片,介绍 [cc-insights](https://github.com/gqy20/cc-insights)
-(Claude Code 使用诊断 CLI)。**含中文男声配音 + 科技冷静 ambient BGM + 顶部逐字高亮字幕**
+(Claude Code 使用诊断 CLI)。**含中文男声配音 + 科技冷静 ambient BGM；主推版不叠加全片字幕**
 (Remotion 内嵌音轨,非后端 mux)。
 
 ![thumbnail](thumbnail.png)
@@ -24,7 +24,8 @@
 - **配音**:`public/script-52s.txt` → `public/voiceover-52s.mp3` / `public/voiceover-52s.srt`。
   实际语音到 42.6s 结束，因此视频重排为 43.17s，避免旧版 52.7s 后半段音画错位。
 - **混音**:`public/mix-cc-insights-52s.m4a`，渲染脚本按当前视频长度 trim 到 43.17s。
-- **字幕**:`@remotion/captions` 解析 `voiceover-52s.srt`，`KaraokeCaptions` 顶部逐字高亮。
+- **字幕**:主推版不挂载全片字幕，避免和 Manim 标题、截图标注争夺顶部层级；
+  `voiceover-52s.srt` 和 `KaraokeCaptions` 保留给可选 captioned 版本。
 - 详见 skill `remotion-vid/references/audio-mmx.md` 附 A(音画对齐)/B(中文逐字)/C(静音轨)。
 
 ## Manim 混合版(2026-07-04)
@@ -35,10 +36,10 @@ Remotion：
 - `hook`: JSONL 事件 → 聚类维度 → finding，使用 `public/manim/cc-jsonl-to-finding.mp4`。
 - `rec`: symptom → evidence → root cause → next cmd，使用 `public/manim/cc-rec-chain.mp4`。
 
-这样保留 Remotion 对场景节奏、字幕、截图和音轨的统一控制，同时让因果链/数据流动画更稳。
+这样保留 Remotion 对场景节奏、截图和音轨的统一控制，同时让因果链/数据流动画更稳。
 Manim 源码在 `../../../renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py`；
 生成的 `media/` 目录不入库，只提交 Remotion 消费的两个 mp4 资产。最终混合版输出：
-`renders/final/cc-insights-promo_20260704-manim2_final.mp4`。
+`renders/final/cc-insights-promo_20260704-nocaptions_final.mp4`。
 
 ## 重现
 
@@ -58,8 +59,8 @@ mmx music generate --prompt "Calm cinematic tech ambient, 45 seconds, no vocals"
 # 3) 终渲
 pnpm render
 
-# 4) Manim 混合版终渲
-TS=20260704-manim2 END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
+# 4) Manim 混合 + 无全片字幕主推版终渲
+TS=20260704-nocaptions END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
 ```
 
 源码:`src/videos/cc-insights-promo/`(主合成 `CCInsightsPromo.tsx` + 8 场景),主题常量在
