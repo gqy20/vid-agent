@@ -117,7 +117,9 @@ export const RemotionRoot: React.FC = () => (
 4. **本地字体** —— `fc-list`;按字族名引用(references/environment.md)。
 5. **抽帧自检循环** —— 全片渲染前,逐场景代表帧 + 转场前后帧都要检查
    (references/still-check.md)。一帧只要几秒,全片渲染要几分钟。用户指出具体秒点时,
-   先抽 `t-0.5/t/t+0.5/t+1.0`,不要凭感觉改。
+   先从**最终 mp4**抽 `t-0.5/t/t+0.5/t+1.0`,不要凭感觉改。检查截图/图表标注时,
+   不只看“有没有框”,还要确认框的语义是否准确:圈过滤条件就不要带表头,圈命令归因就要覆盖
+   命令名和相关指标,不要只圈一列数字或空白区域。
 6. **长视频先数据化时间线** —— 超过 90s 或未来可能到 5min 时,把场景时长、
    转场、fps、尺寸抽进 `timeline.ts`,Composition 的 `durationInFrames` 从常量计算
    (references/long-video-rendering.md)。
@@ -144,7 +146,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | references/environment.md | pnpm、Chrome 下载修复、本地字体、排错 |
 | references/taste.md | **品味标准**:Awwwards 式叙事/动效原则、Lottie 使用边界、字幕去重、截图和交付检查 |
 | references/render-project-layout.md | **产物布局** `renders/<日期>-<slug>/`、meta.json、debug/final、命名 |
-| references/still-check.md | 渲染前抽帧自检 SOP(`scripts/check-frames.sh`) |
+| references/still-check.md | 渲染前/成片后抽帧自检 SOP(`scripts/check-frames.sh`),含用户点名秒点复核 |
 | references/api-cheatsheet.md | 核心 API:interpolate / spring / Sequence / TransitionSeries / Easing |
 | references/examples.md | 可复用组件模式(Terminal、打字机、Reveal、动态 Bar) |
 | references/terminal-scenes.md | 模拟终端场景:配色、打字命令、输出形态、spinner/进度条 |
@@ -166,6 +168,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | 首次渲染无进度卡死 | Chrome Headless Shell 在下载 —— `setBrowserExecutable` 指向本地 Chrome |
 | 成片"不够精致" | 跳过了官方 remotion-dev/skills;套用其字体/缓动/转场 |
 | 全片渲染后才发现排版 bug | 先逐场景抽帧自检(references/still-check.md) |
+| 用户指出某秒框位不准 | 从 final mp4 抽该秒附近帧,按语义重定框位,不要只微调像素 |
 | 渲染卡住 / 字体不对 | `@remotion/google-fonts` 渲染时联网;改用 `fc-list` 本地字体 |
 | 加转场后结尾被截 | `durationInFrames` = Σ场景 − Σ转场 |
 | 转场中两套 UI 糊在一起 | 高密度场景不做 crossfade;改硬切/短黑场/先退场 |
