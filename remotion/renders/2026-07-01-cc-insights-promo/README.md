@@ -39,7 +39,9 @@ Remotion：
 这样保留 Remotion 对场景节奏、截图和音轨的统一控制，同时让因果链/数据流动画更稳。
 Manim 源码在 `../../../renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py`；
 生成的 `media/` 目录不入库，只提交 Remotion 消费的两个 mp4 资产。最终混合版输出：
-`renders/final/cc-insights-promo_20260704-nocaptions_final.mp4`。
+`renders/final/cc-insights-promo_20260704-cutfix2_final.mp4`。
+
+`rec → tok` 使用硬切，不做 crossfade；这两个高密度画面叠化会产生严重信息重影。
 
 ## 重现
 
@@ -60,7 +62,7 @@ mmx music generate --prompt "Calm cinematic tech ambient, 45 seconds, no vocals"
 pnpm render
 
 # 4) Manim 混合 + 无全片字幕主推版终渲
-TS=20260704-nocaptions END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
+TS=20260704-cutfix2 END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
 ```
 
 源码:`src/videos/cc-insights-promo/`(主合成 `CCInsightsPromo.tsx` + 8 场景),主题常量在

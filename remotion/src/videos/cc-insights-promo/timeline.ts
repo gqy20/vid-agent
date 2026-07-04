@@ -40,8 +40,7 @@ export const SCENES = [
   {
     id: 'rec',
     label: '判断到动作',
-    durationInFrames: 165,
-    transitionAfter: {kind: 'fade', durationInFrames: 10},
+    durationInFrames: 155,
   },
   {
     id: 'tok',

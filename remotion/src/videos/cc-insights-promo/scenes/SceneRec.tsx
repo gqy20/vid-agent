@@ -18,6 +18,7 @@ export const SceneRec: React.FC = () => (
     >
       <div
         style={{
+          position: 'relative',
           width: 1120,
           aspectRatio: '16 / 9',
           borderRadius: 16,
@@ -32,6 +33,16 @@ export const SceneRec: React.FC = () => (
           muted
           playbackRate={0.82}
           style={{width: '100%', height: '100%', objectFit: 'cover'}}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 330,
+            background: `linear-gradient(180deg, rgba(26,25,23,0), ${C.bg0} 22%, ${C.bg0})`,
+          }}
         />
       </div>
     </StoryStage>
