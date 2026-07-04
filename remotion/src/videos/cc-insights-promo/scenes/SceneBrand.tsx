@@ -15,8 +15,7 @@ export const SceneBrand: React.FC = () => (
       }
       body={
         <>
-          真实 finding 直接给出工具、项目、Session、耗时和建议动作。诊断不是 Top N
-          排行，而是可修复对象。
+          不再看 Top N 排行。先锁定可修复对象，再看证据和下一条命令。
         </>
       }
     >

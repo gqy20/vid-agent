@@ -40,6 +40,13 @@ const STATUS_LINES = [
   '> finding generated',
 ];
 
+const LOCK_ITEMS = [
+  ['project', 'article-mcp'],
+  ['tool', 'Bash'],
+  ['reason', 'timeout'],
+  ['action', 'cmd --reason'],
+] as const;
+
 const LogRow: React.FC<{line: string; index: number; collapse: number; drift: number}> = ({
   line,
   index,
@@ -227,10 +234,12 @@ const Pipeline: React.FC<{progress: number; opacity: number}> = ({progress, opac
   </div>
 );
 
-const FindingCard: React.FC<{progress: number}> = ({progress}) => {
+const FindingCard: React.FC<{progress: number; frame: number}> = ({progress, frame}) => {
   const y = interpolate(progress, [0, 1], [28, 0], {easing: EASE_OUT, ...CLAMP});
   const scale = interpolate(progress, [0, 1], [0.97, 1], {easing: EASE_OUT, ...CLAMP});
-  const opacity = interpolate(progress, [0, 0.25, 1], [0, 0.85, 1], CLAMP);
+  const enterOpacity = interpolate(progress, [0, 0.25, 1], [0, 0.85, 1], CLAMP);
+  const exitOpacity = interpolate(frame, [176, 194], [1, 0], CLAMP);
+  const opacity = enterOpacity * exitOpacity;
 
   return (
     <div
@@ -320,6 +329,110 @@ const FindingCard: React.FC<{progress: number}> = ({progress}) => {
   );
 };
 
+const TraceLock: React.FC<{progress: number; frame: number}> = ({progress, frame}) => {
+  const opacity = interpolate(progress, [0, 0.16, 0.72, 1], [0, 1, 1, 0], CLAMP);
+  const scan = interpolate(progress, [0, 1], [-18, 118], CLAMP);
+  const pulse = Math.sin(frame * 0.42) * 0.5 + 0.5;
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: 1130,
+        top: 124,
+        width: 590,
+        height: 332,
+        opacity,
+        pointerEvents: 'none',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          border: '1px solid rgba(143,189,182,0.38)',
+          borderRadius: 6,
+          background: 'rgba(13,14,13,0.26)',
+          boxShadow: `0 0 ${28 + pulse * 28}px rgba(143,189,182,0.22)`,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: `${scan}%`,
+          top: -18,
+          bottom: -18,
+          width: 2,
+          background: 'rgba(143,189,182,0.78)',
+          boxShadow: '0 0 22px rgba(143,189,182,0.62)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 18,
+          top: 18,
+          fontFamily: MONO,
+          fontSize: 16,
+          color: C.cyan,
+          textTransform: 'uppercase',
+          textShadow: '0 0 14px rgba(143,189,182,0.62)',
+        }}
+      >
+        anomaly.locked
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          right: 18,
+          top: 18,
+          fontFamily: MONO,
+          fontSize: 16,
+          color: C.text,
+        }}
+      >
+        confidence 0.91
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          left: 18,
+          right: 18,
+          bottom: 18,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 8,
+        }}
+      >
+        {LOCK_ITEMS.map(([label, value], index) => {
+          const itemIn = interpolate(progress, [0.22 + index * 0.08, 0.34 + index * 0.08], [0, 1], {
+            easing: EASE_OUT,
+            ...CLAMP,
+          });
+          return (
+            <div
+              key={label}
+              style={{
+                padding: '10px 11px',
+                borderRadius: 5,
+                background: 'rgba(13,14,13,0.86)',
+                border: '1px solid rgba(143,189,182,0.18)',
+                opacity: itemIn,
+                translate: `0 ${interpolate(itemIn, [0, 1], [8, 0], CLAMP)}px`,
+              }}
+            >
+              <div style={{fontFamily: MONO, fontSize: 13, color: C.cyan, marginBottom: 4}}>
+                {label}
+              </div>
+              <div style={{fontFamily: MONO, fontSize: 17, color: C.text}}>{value}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export const SceneHook: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -331,6 +444,7 @@ export const SceneHook: React.FC = () => {
   });
   const scanIn = interpolate(frame, [4, 22], [0, 1], {easing: EASE_OUT, ...CLAMP});
   const scanFade = interpolate(frame, [108, 142], [1, 0.06], CLAMP);
+  const lockProgress = interpolate(frame, [28, 92], [0, 1], {easing: EASE_OUT, ...CLAMP});
   const pipelineProgress = interpolate(frame, [58, 122], [0, 1], CLAMP);
   const pipelineOpacity = interpolate(frame, [52, 74, 132, 146], [0, 1, 1, 0], CLAMP);
   const cardIn = interpolate(frame, [134, 166], [0, 1], {easing: EASE_OUT, ...CLAMP});
@@ -373,8 +487,9 @@ export const SceneHook: React.FC = () => {
       />
 
       <ScanPanel progress={scanIn} fade={scanFade} frame={frame} />
+      <TraceLock progress={lockProgress} frame={frame} />
       <Pipeline progress={pipelineProgress} opacity={pipelineOpacity} />
-      <FindingCard progress={cardIn} />
+      <FindingCard progress={cardIn} frame={frame} />
     </Backdrop>
   );
 };

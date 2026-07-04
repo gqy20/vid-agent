@@ -37,6 +37,14 @@ const getPulse = (frame: number) => {
   return {pulse: strongest, label};
 };
 
+const formatCutId = (label: string) =>
+  label
+    .split('')
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+    .toString(16)
+    .padStart(4, '0')
+    .slice(-4);
+
 export const TransitionOverlay: React.FC = () => {
   const frame = useCurrentFrame();
   const {pulse, label} = getPulse(frame);
@@ -46,10 +54,10 @@ export const TransitionOverlay: React.FC = () => {
   }
 
   const scanX = interpolate(pulse, [0, 1], [-12, 108], CLAMP);
-  const flash = interpolate(pulse, [0, 1], [0, 0.18], CLAMP);
-  const lineOpacity = interpolate(pulse, [0, 0.3, 1], [0.08, 0.18, 0.42], CLAMP);
-  const labelOpacity = interpolate(pulse, [0, 0.35, 1], [0, 0.55, 0.82], CLAMP);
-  const jitter = Math.sin(frame * 0.87) * 7 * pulse;
+  const flash = interpolate(pulse, [0, 1], [0, 0.08], CLAMP);
+  const lineOpacity = interpolate(pulse, [0, 0.3, 1], [0.06, 0.12, 0.26], CLAMP);
+  const labelOpacity = interpolate(pulse, [0, 0.35, 1], [0, 0.42, 0.64], CLAMP);
+  const jitter = Math.sin(frame * 0.87) * 3 * pulse;
 
   return (
     <div style={{position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden'}}>
@@ -57,9 +65,9 @@ export const TransitionOverlay: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.06 + flash,
+          opacity: 0.03 + flash,
           background:
-            'repeating-linear-gradient(0deg, rgba(250,249,245,0.055) 0px, rgba(250,249,245,0.055) 1px, transparent 1px, transparent 7px)',
+            'repeating-linear-gradient(0deg, rgba(250,249,245,0.04) 0px, rgba(250,249,245,0.04) 1px, transparent 1px, transparent 8px)',
           mixBlendMode: 'screen',
         }}
       />
@@ -69,9 +77,9 @@ export const TransitionOverlay: React.FC = () => {
           top: 0,
           bottom: 0,
           left: `${scanX}%`,
-          width: pulse > 0.04 ? 160 : 80,
+          width: pulse > 0.04 ? 92 : 48,
           transform: `translateX(${jitter}px) skewX(-12deg)`,
-          opacity: pulse > 0.04 ? 0.55 : 0.11,
+          opacity: pulse > 0.04 ? 0.36 : 0.08,
           background: `linear-gradient(90deg, transparent, rgba(143,189,182,${lineOpacity}), transparent)`,
         }}
       />
@@ -87,17 +95,21 @@ export const TransitionOverlay: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          right: 72,
-          bottom: 54,
+          right: 76,
+          bottom: 58,
           fontFamily: MONO,
-          fontSize: 16,
+          fontSize: 13,
           color: C.cyan,
           opacity: labelOpacity,
           transform: `translateX(${interpolate(pulse, [0, 1], [20, 0], CLAMP)}px)`,
           textTransform: 'uppercase',
+          padding: '7px 9px',
+          border: '1px solid rgba(143,189,182,0.22)',
+          background: 'rgba(13,14,13,0.38)',
+          borderRadius: 4,
         }}
       >
-        trace.cut / {label}
+        cut:{formatCutId(label)} / {label}
       </div>
     </div>
   );
