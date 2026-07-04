@@ -1,9 +1,12 @@
 import {Easing} from 'remotion';
 
-/* 字体：本地更纱黑体（基于思源黑体），零联网。标题用 SemiBold 变体族 */
+/* 字体：本地更纱黑体（基于思源黑体）+ Noto Serif CJK SC 标题层级，零联网。
+ * 标题用 serif（HUD 数字、品牌大字、CTA 主标），正文用 sans，标签用 mono。 */
 export const SANS = '"Sarasa UI SC", "更纱黑体 UI SC", "Noto Sans CJK SC", system-ui, sans-serif';
 export const SANS_BOLD =
   '"Sarasa UI SC SemiBold", "更纱黑体 UI SC SemiBold", "Sarasa UI SC", sans-serif';
+export const SERIF = '"Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", serif';
+export const SERIF_BOLD = '"Noto Serif CJK SC", "Source Han Serif SC Bold", "Songti SC Bold", serif';
 export const MONO = '"Sarasa Mono SC", "等距更纱黑体 SC", ui-monospace, monospace';
 
 /* 官方推荐缓动（与全局 theme.ts 一致） */

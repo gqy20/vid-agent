@@ -1,13 +1,6 @@
 export type TransitionKind = 'fade' | 'slide-from-bottom';
 
-export type SceneId =
-  | 'hook'
-  | 'brand'
-  | 'map'
-  | 'future'
-  | 'simulator'
-  | 'features'
-  | 'cta';
+export type SceneId = 'hook' | 'brand' | 'map' | 'future' | 'simulator' | 'cta';
 
 export type SceneSpec = {
   id: SceneId;
@@ -23,7 +16,8 @@ export const FPS = 30;
 export const WIDTH = 1080; // 9:16 竖版
 export const HEIGHT = 1920;
 
-/* 总场景帧 906 − 转场 84 = 822 帧 ≈ 27.4s。配音字数按 ≤ 秒数×3.5 严守预算。 */
+/* 6 场景（删 features，命中 taste.md "功能点罗列" 禁用）。
+ * Σ场景 816 − Σ转场 70 = 746 帧 ≈ 24.87s。配音字数按 ≤ 秒数×3.5 严守预算。 */
 export const SCENES = [
   {
     id: 'hook',
@@ -53,12 +47,6 @@ export const SCENES = [
     id: 'simulator',
     label: '模拟器',
     durationInFrames: 150,
-    transitionAfter: {kind: 'fade', durationInFrames: 14},
-  },
-  {
-    id: 'features',
-    label: '卖点',
-    durationInFrames: 90,
     transitionAfter: {kind: 'fade', durationInFrames: 14},
   },
   {

@@ -1,13 +1,12 @@
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Ck, FZ, SANS, SANS_BOLD, CLAMP, EASE_OUT} from '../theme';
-import {CaptionBar, Eyebrow, Rise, VBackdrop, VStage} from '../primitives';
+import {Rise, VBackdrop, VStage} from '../primitives';
 
 const SCENARIOS = [
   {q: '大一报到日', a: '室友来自五湖四海'},
   {q: '期末复习周', a: '图书馆抢座是日常'},
+  {q: '社团招新', a: '百团大战眼花缭乱'},
 ];
-
-const CAPTION = '甚至，模拟你真实的大学生活。';
 
 const Tag: React.FC<{children: React.ReactNode}> = ({children}) => (
   <div
@@ -29,10 +28,6 @@ export const SceneSimulator: React.FC = () => {
   return (
     <VBackdrop>
       <VStage gap={28}>
-        <Rise delay={0}>
-          <Eyebrow color={Ck.brand}>大学模拟器</Eyebrow>
-        </Rise>
-
         {/* 人设卡 */}
         <Rise delay={4} style={{width: 820}}>
           <div
@@ -79,7 +74,7 @@ export const SceneSimulator: React.FC = () => {
         {/* 情境卡 */}
         <div style={{width: 820, display: 'flex', flexDirection: 'column', gap: 18}}>
           {SCENARIOS.map((s, i) => {
-            const d = 16 + i * 14;
+            const d = 14 + i * 12;
             const o = interpolate(frame - d, [0, 10], [0, 1], CLAMP);
             const x = interpolate(frame - d, [0, 12], [32, 0], {
               ...CLAMP,
@@ -113,7 +108,7 @@ export const SceneSimulator: React.FC = () => {
         </div>
 
         {/* 分享按钮 */}
-        <Rise delay={48}>
+        <Rise delay={60}>
           <div
             style={{
               fontFamily: SANS_BOLD,
@@ -128,7 +123,6 @@ export const SceneSimulator: React.FC = () => {
           </div>
         </Rise>
       </VStage>
-      <CaptionBar text={CAPTION} delay={24} />
     </VBackdrop>
   );
 };

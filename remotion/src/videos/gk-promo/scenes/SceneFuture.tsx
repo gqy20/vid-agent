@@ -1,6 +1,6 @@
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Ck, FZ, SANS, SANS_BOLD, CLAMP, EASE_OUT} from '../theme';
-import {CaptionBar, Eyebrow, Rise, VBackdrop, VStage} from '../primitives';
+import {Eyebrow, Rise, VBackdrop, VStage} from '../primitives';
 
 const NODES = [
   {y: '大一', t: '通识学习 · 校园生活'},
@@ -8,8 +8,6 @@ const NODES = [
   {y: '大三', t: '实习竞赛 · 方向选择'},
   {y: '大四', t: '毕业设计 · 就业深造'},
 ];
-
-const CAPTION = '选学校、选专业，预演大学四年。';
 
 const Row: React.FC<{label: string; value: string}> = ({label, value}) => (
   <div style={{display: 'flex', alignItems: 'baseline', gap: 20}}>
@@ -123,7 +121,6 @@ export const SceneFuture: React.FC = () => {
           })}
         </div>
       </VStage>
-      <CaptionBar text={CAPTION} delay={20} />
     </VBackdrop>
   );
 };

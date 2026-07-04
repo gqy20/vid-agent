@@ -1,7 +1,5 @@
-import {Ck, FZ, SANS, SANS_BOLD} from '../theme';
-import {CaptionBar, LogoMark, Rise, VBackdrop, VStage} from '../primitives';
-
-const CAPTION = 'GK，让志愿看得见。';
+import {Ck, FZ, SANS, SERIF_BOLD} from '../theme';
+import {LogoMark, Rise, VBackdrop, VStage} from '../primitives';
 
 export const SceneBrand: React.FC = () => (
   <VBackdrop>
@@ -12,7 +10,7 @@ export const SceneBrand: React.FC = () => (
       <Rise delay={8} y={20}>
         <div
           style={{
-            fontFamily: SANS_BOLD,
+            fontFamily: SERIF_BOLD,
             fontSize: FZ.hero,
             color: Ck.ink,
             letterSpacing: 3,
@@ -37,7 +35,7 @@ export const SceneBrand: React.FC = () => (
       <Rise delay={20}>
         <div
           style={{
-            fontFamily: SANS,
+            fontFamily: SERIF_BOLD,
             fontSize: FZ.body,
             color: Ck.brandDeep,
             marginTop: 10,
@@ -47,6 +45,5 @@ export const SceneBrand: React.FC = () => (
         </div>
       </Rise>
     </VStage>
-    <CaptionBar text={CAPTION} delay={18} />
   </VBackdrop>
 );

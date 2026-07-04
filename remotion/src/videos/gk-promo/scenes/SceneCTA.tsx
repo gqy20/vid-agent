@@ -1,7 +1,5 @@
-import {Ck, FZ, SANS, SANS_BOLD} from '../theme';
-import {CaptionBar, LogoMark, Rise, VBackdrop, VStage} from '../primitives';
-
-const CAPTION = '现在，去看见你的未来。';
+import {Ck, FZ, SANS, SERIF_BOLD} from '../theme';
+import {LogoMark, Rise, VBackdrop, VStage} from '../primitives';
 
 export const SceneCTA: React.FC = () => (
   <VBackdrop>
@@ -9,7 +7,7 @@ export const SceneCTA: React.FC = () => (
       <Rise delay={2} y={24}>
         <div
           style={{
-            fontFamily: SANS_BOLD,
+            fontFamily: SERIF_BOLD,
             fontSize: FZ.hero,
             color: Ck.ink,
             lineHeight: 1.12,
@@ -23,15 +21,20 @@ export const SceneCTA: React.FC = () => (
       <Rise delay={12}>
         <div
           style={{
-            fontFamily: SANS_BOLD,
+            fontFamily: SERIF_BOLD,
             fontSize: FZ.subtitle,
             color: Ck.bg1,
             background: Ck.brand,
             padding: '22px 56px',
             borderRadius: 999,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 18,
+            boxShadow: '0 6px 24px rgba(63,143,155,0.32)',
           }}
         >
           gk.gqy20.top
+          <span style={{fontSize: FZ.label, lineHeight: 1}}>↗</span>
         </div>
       </Rise>
       <Rise delay={20}>
@@ -50,6 +53,5 @@ export const SceneCTA: React.FC = () => (
         </div>
       </Rise>
     </VStage>
-    <CaptionBar text={CAPTION} delay={16} />
   </VBackdrop>
 );

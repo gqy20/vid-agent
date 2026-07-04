@@ -1,0 +1,63 @@
+{
+  "id": "2026-07-01-gk-promo",
+  "title": "gk-promo 中国高校信息地图 宣传片",
+  "created": "2026-07-01T20:02:45+08:00",
+  "description": "25s 9:16 竖版宣传片：642 分钩子（serif）→ GK 品牌（serif）→ 34 城双一流加权地图 → 大一-大四预演 → 大学模拟器(3 情境)→ CTA（serif）。",
+  "composition_id": "GkPromo",
+  "source": "src/videos/gk-promo/",
+  "theme_tags": ["promo", "vertical", "education", "map-viz", "warm-cream", "serif-hero"],
+
+  "env": {
+    "remotion_version": "4.0.484",
+    "node": "25.8.0",
+    "browser_executable": "/opt/google/chrome/chrome",
+    "fonts": "local: Sarasa UI SC (正文) + Noto Serif CJK SC (hero/品牌大字) — 零联网",
+    "audio_voice": "mmx speech synthesize Male_Announcer / speech-2.8-hd，6 句配音 19.18s → atrim+adelay 对齐 25.85s",
+    "audio_bgm": "mmx music generate --instrumental --mood calm --bpm 72，178s，Audio volume 0.16",
+    "audio_mix": "ffmpeg amix voiceover_aligned + bgm@0.16，atrim 到视频长 24.87s，192kbps",
+    "captions": "src/videos/gk-promo/captions.tsx：仅 hook + map 2 个 SceneCaption（其它 4 场景画面自足）",
+    "pnpm_lock_sha": null
+  },
+
+  "composition": {"width": 1080, "height": 1920, "fps": 30, "durationInFrames": 746},
+
+  "renders": [
+    {
+      "role": "silent",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "command": "pnpm exec remotion render GkPromo renders/2026-07-01-gk-promo/renders/final/gk-promo_1080p30_20260701-200245.mp4 --concurrency=4",
+      "output": "renders/final/gk-promo_1080p30_20260701-200245.mp4",
+      "duration_s": 24.87,
+      "fps_actual": 30,
+      "nb_frames": 746,
+      "bit_rate_bps": 740000,
+      "size_bytes": 2300000,
+      "render_wall_s": 40,
+      "note": "silent mp4（Remotion 容器自带 -91dB 占位音轨，mux 时用 -map 1:a 显式选 mix.mp3 替换）"
+    },
+    {
+      "role": "final-with-audio",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "command": "ffmpeg -y -i final/gk-promo_1080p30_*.mp4 -i mix.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest final/gk-promo_with-audio_*.mp4",
+      "output": "renders/final/gk-promo_with-audio_20260701-200521.mp4",
+      "duration_s": 24.87,
+      "fps_actual": 30,
+      "nb_frames": 746,
+      "bit_rate_bps": 538000,
+      "size_bytes": 1634000,
+      "audio": "aac mono 32kHz 110kbps, mean_volume -32.6dB / max_volume -14.8dB (voiceover + bgm@0.16)",
+      "render_wall_s": null
+    }
+  ],
+
+  "thumbnail": "thumbnail.png",
+
+  "reproduce": {
+    "still_check": "scripts/check-frames.sh GkPromo 30 90 250 400 600 700",
+    "final": "pnpm exec remotion render GkPromo <final-path> --concurrency=4 && ffmpeg -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest <with-audio-path>"
+  },
+
+  "notes": "9:16 竖版（1080x1920），6 场景 hook→brand→map→future→simulator→cta。Σ场景816 − Σ转场70 = 746 渲染帧 ≈ 24.87s。\n\n**v3 改进 (2026-07-01 20:02)**：\n- Map 真实双一流数据：60 个抽象散点 → 34 个真实城市（2022 第二轮 双一流 名单 147 所），按入选数分 4 档 (mega≥10 / major 5-9 / mid 2-4 / single 1)，半径 20/14/9/6，mega 加琥珀色 halo。删去无双一流的纯地理城市（港澳台/三亚/喀什等）\n- Simulator 删 eyebrow：5 元素 → 4 元素（人设卡已自明）\n- Hero 改 Serif：Hook 642 / Brand GK / Brand slogan / CTA 去看见你的未来 切 Noto Serif CJK SC（taste.md \"标题可以用 serif, 正文用 sans\"）。副标/标签保持 sans。\n- Caption 文字："34 城 · 147 所 双一流 高校 · 圆点按城市入选数加权" 替代原"中国双一流高校 · 按省份分布"——前者具体可验证，后者虚。\n\n**v2 改进 (2026-07-01 19:40)**：\n- 删除 SceneFeatures 场景（命中 taste.md \"功能点罗列\" 禁用）→ 7→6 场景，时长 28.5s→24.9s\n- 字幕去冗余：原 6 个场景都配字幕，画面自足的 4 个删掉（brand/future/simulator/cta），仅保留 hook 和 map 2 个\n- Hook 删除 4 个飘问号（装饰动效违反 taste.md），保留圆环作为 642 的视觉框架\n- BGM 音量 0.22→0.16 落入推荐区间\n- mix.mp3 trim 到视频全时长\n\n配音 19.18s vs 视频 24.87s：剩余 5.7s 视觉与配音时间窗弱相关（旁白结束后 BGM 持续 + CTA 收尾），默认接受。\n\nsilence 占位音轨陷阱（remotion-vid/audio-mmx.md 附 C）：silent render 输出看似有音轨实则 -91dB，必须 `-map 1:a` 显式选 mix.mp3 才能合入真声音。\n\nSRT 时长映射进 SceneCaption.from/durFrames，按场景前半铺字幕。\n\n配色/缓动/字体常量在 src/videos/gk-promo/theme.ts。"
+}

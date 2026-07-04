@@ -1,7 +1,6 @@
 import type {SceneId} from './timeline';
 import {SceneBrand} from './scenes/SceneBrand';
 import {SceneCTA} from './scenes/SceneCTA';
-import {SceneFeatures} from './scenes/SceneFeatures';
 import {SceneFuture} from './scenes/SceneFuture';
 import {SceneHook} from './scenes/SceneHook';
 import {SceneMap} from './scenes/SceneMap';
@@ -19,8 +18,6 @@ export const SceneRenderer: React.FC<{id: SceneId}> = ({id}) => {
       return <SceneFuture />;
     case 'simulator':
       return <SceneSimulator />;
-    case 'features':
-      return <SceneFeatures />;
     case 'cta':
       return <SceneCTA />;
   }

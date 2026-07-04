@@ -1,72 +1,59 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {Ck, FZ, SANS, SANS_BOLD, CLAMP} from '../theme';
-import {CaptionBar, Eyebrow, Rise, VBackdrop, VStage} from '../primitives';
-
-const QUESTIONS = [
-  {text: '选哪所？', x: -300, y: -150, delay: 16},
-  {text: '学什么？', x: 300, y: -90, delay: 28},
-  {text: '去哪座城市？', x: 250, y: 180, delay: 40},
-  {text: '以后干嘛？', x: -240, y: 230, delay: 52},
-];
-
-const CAPTION = '分数出来了。然后呢？全是未知。';
+import {Ck, FZ, SANS, SERIF_BOLD, CLAMP, EASE_OUT} from '../theme';
+import {Rise, VBackdrop, VStage} from '../primitives';
+import {SceneCaption} from '../captions';
 
 export const SceneHook: React.FC = () => {
   const frame = useCurrentFrame();
+  const score = Math.round(
+    interpolate(frame, [6, 66], [0, 642], {...CLAMP, easing: EASE_OUT}),
+  );
   return (
     <VBackdrop tone="cream">
       <VStage gap={26}>
-        <Rise delay={0}>
-          <Eyebrow color={Ck.ink3}>2026 · 高考志愿</Eyebrow>
-        </Rise>
         <Rise delay={6} y={18}>
           <div
             style={{
-              fontFamily: SANS_BOLD,
+              fontFamily: SERIF_BOLD,
               fontSize: FZ.metric,
               color: Ck.ink,
               lineHeight: 1,
               letterSpacing: -3,
             }}
           >
-            642
+            {score}
           </div>
         </Rise>
         <Rise delay={14}>
-          <div style={{fontFamily: SANS, fontSize: FZ.subtitle, color: Ck.ink2}}>
+          <div style={{fontFamily: SERIF_BOLD, fontSize: FZ.subtitle, color: Ck.ink2}}>
             分数出来了。
           </div>
         </Rise>
       </VStage>
 
-      {/* 飘浮问句：缓慢上浮 + 淡入淡出，半透明 */}
+      {/* 642 的视觉框架：虚线圆环。删除了原 4 个飘问号（装饰动效违反 taste.md）。
+       *  ring 给数字一个位置，旁白与底部字幕承担语义，让画面只回答 "642" 一件事。 */}
       <AbsoluteFill style={{pointerEvents: 'none'}}>
-        {QUESTIONS.map((q, i) => {
-          const prog = (frame - q.delay) / 70;
-          const o = interpolate(prog, [0, 0.2, 0.8, 1], [0, 1, 1, 0], CLAMP);
-          const ty = interpolate(prog, [0, 1], [0, -46], CLAMP);
-          return (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: `translate(calc(-50% + ${q.x}px), calc(-50% + ${q.y}px + ${ty}px))`,
-                fontFamily: SANS,
-                fontSize: 46,
-                color: Ck.brandDeep,
-                opacity: o * 0.42,
-                fontWeight: 600,
-              }}
-            >
-              {q.text}
-            </div>
-          );
-        })}
+        <svg
+          width="1080"
+          height="1920"
+          viewBox="0 0 1080 1920"
+          style={{position: 'absolute', inset: 0}}
+        >
+          <circle
+            cx="540"
+            cy="900"
+            r="290"
+            fill="none"
+            stroke={Ck.brandDeep}
+            strokeWidth="1.5"
+            strokeDasharray="6 10"
+            opacity="0.32"
+          />
+        </svg>
       </AbsoluteFill>
 
-      <CaptionBar text={CAPTION} delay={20} />
+      <SceneCaption id="hook" />
     </VBackdrop>
   );
 };
