@@ -2,7 +2,7 @@
   "id": "2026-07-01-cc-insights-promo",
   "title": "cc-insights CLI 宣传片",
   "created": "2026-07-01T00:42:00+08:00",
-  "description": "72s 终端风宣传片：痛点(乱码JSONL)→品牌→rec/tok/cmd/web 四段演示→四张卖点卡→CTA。",
+  "description": "43s 终端风宣传片：痛点证据→finding→rec/tok/cmd/web 快速下钻→AI 可消费输出→CTA。",
   "composition_id": "CCInsightsPromo",
   "source": "src/videos/cc-insights-promo/",
   "theme_tags": ["promo", "terminal", "cli", "data-viz"],
@@ -12,40 +12,27 @@
     "node": "25.8.0",
     "browser_executable": "/opt/google/chrome/chrome",
     "fonts": "local: JetBrainsMono Nerd Font + Noto Sans CJK SC (零联网)",
-    "audio_voice": "mmx Chinese (Mandarin)_Male_Announcer / speech-2.8-hd, 218字 60.9s → atrim+adelay 对齐 68.3s",
-    "audio_bgm": "mmx music generate --instrumental --mood calm --bpm 72, Audio volume 0.22 fade-in/out",
-    "audio_captions": "@remotion/captions 句级 Sequence + 句内逐字高亮 (src/components/KaraokeCaptions.tsx)",
+    "audio_voice": "mmx Chinese (Mandarin)_Male_Announcer / speech-2.8-hd, public/script-52s.txt → voiceover-52s.mp3/srt，实际语音 42.6s",
+    "audio_bgm": "mix-cc-insights-52s.m4a 内含人声+BGM，render-final.sh 按视频长度 trim 到 43.17s",
+    "audio_captions": "@remotion/captions 解析 voiceover-52s.srt，KaraokeCaptions 顶部逐字高亮",
     "pnpm_lock_sha": null
   },
 
-  "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 2086},
+  "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 1295},
 
   "renders": [
     {
-      "role": "final",
+      "role": "final-optimized",
       "resolution": "1920x1080",
       "fps": 30,
-      "command": "pnpm exec remotion render CCInsightsPromo renders/2026-07-01-cc-insights-promo/renders/final/cc-insights-promo_1080p30_20260701-004200.mp4 --concurrency=4",
-      "output": "renders/final/cc-insights-promo_1080p30_20260701-004200.mp4",
-      "duration_s": 69.59,
+      "command": "TS=20260704-ccopt END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm --dir remotion render",
+      "output": "renders/final/cc-insights-promo_20260704-ccopt_final.mp4",
+      "duration_s": 43.166,
       "fps_actual": 30,
-      "nb_frames": 2086,
-      "bit_rate_bps": 1098236,
-      "size_bytes": 9553196,
-      "render_wall_s": 208
-    },
-    {
-      "role": "final-with-audio",
-      "resolution": "1920x1080",
-      "fps": 30,
-      "command": "pnpm exec remotion render CCInsightsPromo renders/2026-07-01-cc-insights-promo/renders/final/cc-insights-promo_1080p30_20260701-094829.mp4 --concurrency=4",
-      "output": "renders/final/cc-insights-promo_1080p30_20260701-094829.mp4",
-      "duration_s": 69.59,
-      "fps_actual": 30,
-      "nb_frames": 2086,
-      "bit_rate_bps": 1110430,
-      "size_bytes": 9659264,
-      "audio": "aac stereo 48kHz, mean_volume -23.8dB / max_volume -5.6dB (配音+BGM,原片为 -91dB 静音占位轨)",
+      "nb_frames": 1295,
+      "bit_rate_bps": 2759076,
+      "size_bytes": 14887290,
+      "audio": "aac stereo 48kHz, mean_volume -28.2dB / max_volume -9.9dB",
       "render_wall_s": null
     }
   ],
@@ -53,9 +40,9 @@
   "thumbnail": "thumbnail.png",
 
   "reproduce": {
-    "still_check": "scripts/check-frames.sh CCInsightsPromo 90 470 880 1200 1500 1800",
-    "final": "pnpm exec remotion render CCInsightsPromo <final-path> --concurrency=4"
+    "still_check": "render-final.sh auto extracts frames 20, 7s, middle, 3/4, final",
+    "final": "pnpm --dir remotion render"
   },
 
-  "notes": "本地字体零联网；durationInFrames = Σ场景2202 − Σ转场116 = 2086。配色/缓动/字体常量在 src/CCInsights.tsx 顶部。"
+  "notes": "2026-07-04 优化：总长 52.7s→43.17s，按 voiceover-52s.srt 重排场景起点，恢复顶部逐字字幕，并给 tok/web 截图增加焦点标注。durationInFrames = Σ场景1365 − Σ转场70 = 1295。配色/缓动/字体常量在 src/theme.ts。"
 }

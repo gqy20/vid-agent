@@ -82,7 +82,7 @@ const CaptionLine: React.FC<{line: Caption}> = ({line}) => {
   );
 };
 
-export const KaraokeCaptions: React.FC = () => {
+export const KaraokeCaptions: React.FC<{srtSrc?: string}> = ({srtSrc = 'voiceover.srt'}) => {
   const [captions, setCaptions] = useState<Caption[] | null>(null);
   const {delayRender, continueRender} = useDelayRender();
   const [handle] = useState(() => delayRender('load srt'));
@@ -90,7 +90,7 @@ export const KaraokeCaptions: React.FC = () => {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(staticFile('voiceover.srt'));
+      const res = await fetch(staticFile(srtSrc));
       const {captions: caps} = parseSrt({input: await res.text()});
       setCaptions(caps.flatMap(splitLongLine)); // 长句二次切分
     } catch {
@@ -99,7 +99,7 @@ export const KaraokeCaptions: React.FC = () => {
     } finally {
       continueRender(handle);
     }
-  }, [continueRender, handle]);
+  }, [continueRender, handle, srtSrc]);
   useEffect(() => {
     load();
   }, [load]);
