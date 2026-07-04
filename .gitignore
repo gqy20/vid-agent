@@ -7,17 +7,22 @@
 # ==============================
 
 # ── Python (uv-managed) ──
-.venv/                       # uv 虚拟环境
-__pycache__/                 # Python bytecode
+# uv 虚拟环境
+.venv/
+# Python bytecode
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.egg-info/
 
 # ── manim 渲染产物 ──
-media/                       # manim 默认输出
-**/_build/                   # render_scene.sh 临时 build 目录
-**/partial_movie_files/      # manim partial-movie 缓存
+# manim 默认输出
+media/
+# render_scene.sh 临时 build 目录
+**/_build/
+# manim partial-movie 缓存
+**/partial_movie_files/
 
 # ── 项目作品产物约定（CLAUDE.md）──
 # 注：用 renders/*/X/ 单层通配，不用 **/X/。** 通配在多层目录 + 多规则
@@ -47,15 +52,28 @@ thumbnail-fix.png
 thumbnail-*.png
 
 # ── Remotion 工作项目 ──
-remotion/node_modules/       # pnpm 装包（GB 级）
+# pnpm 装包（GB 级）
+remotion/node_modules/
 remotion/node_modules.pnp
-remotion/out/                # remotion build 产物
-remotion/.next/              # next.js 缓存
+# remotion build 产物
+remotion/out/
+# next.js 缓存
+remotion/.next/
 remotion/dist/
-remotion/renders/*/renders/debug/   # 调试渲染
-remotion/renders/*/renders/archive/ # 旧版/失败/实验成片
+# mmx CLI 示例/临时生成视频
+mmx-renders/
+# 调试渲染
+remotion/renders/*/renders/debug/
+# 局部 hook 预览
+remotion/renders/*/renders/hook/
+# 旧版/失败/实验成片
+remotion/renders/*/renders/archive/
 remotion/renders/*/renders/tmp/
 remotion/renders/*/renders/segments/
+remotion/renders/*/renders/mix.mp3
+remotion/renders/*/renders/final/*_work/
+remotion/renders/*/renders/final/*_analysis_*/
+remotion/renders/*/renders/final/*_visual*.mp4
 remotion/renders/*/renders/final/*draft*.mp4
 remotion/renders/*/renders/final/*experiment*.mp4
 remotion/renders/*/renders/final/*test*.mp4
@@ -70,8 +88,10 @@ remotion/renders/*/renders/final/*60fps-test*.mp4
 *.secret
 
 # ── 编辑器 / IDE 个人设置 ──
-.idea/                        # PyCharm/IntelliJ
-.vscode/                      # VSCode（个人偏好，不入库）
+# PyCharm/IntelliJ
+.idea/
+# VSCode（个人偏好，不入库）
+.vscode/
 *.swp
 *.swo
 *~

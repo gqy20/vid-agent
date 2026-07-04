@@ -7,11 +7,16 @@ dist/
 
 # 调试渲染一律不入
 renders/*/renders/debug/
+renders/*/renders/hook/
 
 # final/ 只放明确发布成片；实验/旧版/失败产物放 archive/tmp/segments 或用临时命名
 renders/*/renders/archive/
 renders/*/renders/tmp/
 renders/*/renders/segments/
+renders/*/renders/mix.mp3
+renders/*/renders/final/*_work/
+renders/*/renders/final/*_analysis_*/
+renders/*/renders/final/*_visual*.mp4
 renders/*/renders/final/*draft*.mp4
 renders/*/renders/final/*experiment*.mp4
 renders/*/renders/final/*test*.mp4
