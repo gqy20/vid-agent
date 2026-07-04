@@ -1,10 +1,10 @@
-"""Brand 07 — Highlight (3s)
+"""Brand 07 — Highlight (3.0s)
 
-Layout: a single high-impact finding card rises and pulses its peak.
-    "Agent 单调用 24.5min"   — matches the dashboard 'high' tag
+Giant "24.5min" headline (the peak finding) over a comparison baseline
+(行业均值 2.1min, ⬆ 11.6×), with a red 'high' tag. The number now carries
+the frame — replaces the small single-card version that read as empty.
 
-Wall-clock budget
-    0.4 (intro) + 1.2 (rise) + 1.4 (pulse x2) = 3.0s
+Beat × run_time: 0.3 label + 1.0 big number + 0.7 avg + 0.6 delta + 0.4 hold = 3.0s
 """
 
 import os
@@ -14,41 +14,42 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(_HERE))
 
 from manim import (
-    Scene, Text, Rectangle, Circle, VGroup,
-    BLACK, WHITE, GREY, BLUE,
-    UP, DOWN, ORIGIN,
+    Scene, Text, RoundedRectangle, VGroup,
+    WHITE, GREY, ORIGIN, RIGHT,
     FadeIn,
-    rate_functions,
 )
 
-from _lib import BRAND, BRAND_DARK, HIGH_RED, SUBTITLE_SIZE, BODY_SIZE
+from _lib import (
+    BRAND, HIGH_RED, FONT_GOTHIC, TERM_DIM,
+    SUBTITLE_SIZE, BODY_SIZE,
+)
 
 
 class Highlight(Scene):
     def construct(self):
-        box = Rectangle(width=8, height=2.0, color=GREY, stroke_width=2,
-                        fill_color=BLACK, fill_opacity=0.6)
-        title = Text("高耗时样例",
-                     font_size=BODY_SIZE, color=GREY).move_to([0, 0.45, 0])
-        body = Text("Agent 单调用 24.5min",
-                    font_size=SUBTITLE_SIZE, color=WHITE, weight="BOLD").move_to([0, -0.1, 0])
-        tag = Text("high", font_size=BODY_SIZE, color=BLACK, weight="BOLD")
-        tag_bg = Rectangle(width=1.2, height=0.55,
-                           color=HIGH_RED, fill_color=HIGH_RED, fill_opacity=1.0).move_to([3.3, 0.45, 0])
-        tag.move_to(tag_bg.get_center())
+        label = Text("Agent 单调用峰值", font=FONT_GOTHIC, font_size=BODY_SIZE,
+                     color=TERM_DIM).move_to([0, 1.9, 0])
 
-        # Peak dot — the brand spot like the logo
-        peak = Circle(radius=0.18, color=BRAND, fill_color=BRAND, fill_opacity=1.0).move_to([-3.5, 0, 0])
-        peak_glow = Circle(radius=0.42, color=BRAND, fill_color=BRAND, fill_opacity=0.20).move_to(peak.get_center())
+        big = Text("24.5", font=FONT_GOTHIC, font_size=120, color=BRAND,
+                   weight="BOLD").move_to(ORIGIN)
+        unit = Text("min", font=FONT_GOTHIC, font_size=BODY_SIZE + 8,
+                    color=WHITE).next_to(big, RIGHT, buff=0.18)
+        VGroup(big, unit).move_to([0, 0.4, 0])
 
-        group = VGroup(box, title, tag_bg, tag, body, peak_glow, peak).move_to(ORIGIN)
+        avg = Text("行业均值 2.1min", font=FONT_GOTHIC, font_size=BODY_SIZE,
+                   color=GREY).move_to([0, -1.0, 0])
 
-        self.play(FadeIn(group, shift=UP * 0.4), run_time=1.2)
+        delta_bg = RoundedRectangle(width=2.8, height=0.75, corner_radius=0.12,
+                                    color=HIGH_RED, stroke_width=2,
+                                    fill_color=HIGH_RED, fill_opacity=0.18)
+        delta = Text("⬆ 11.6×", font=FONT_GOTHIC, font_size=SUBTITLE_SIZE,
+                     color=HIGH_RED, weight="BOLD")
+        delta_bg.move_to([0, -1.95, 0])
+        delta.move_to(delta_bg.get_center())
 
-        # Peak pulses
-        self.play(peak_glow.animate.scale(1.6),
-                  rate_func=rate_functions.there_and_back, run_time=0.7)
-        self.play(peak_glow.animate.scale(1.6),
-                  rate_func=rate_functions.there_and_back, run_time=0.7)
+        self.play(FadeIn(label), run_time=0.3)
+        self.play(FadeIn(big), FadeIn(unit), run_time=1.0)
+        self.play(FadeIn(avg), run_time=0.7)
+        self.play(FadeIn(delta_bg), FadeIn(delta), run_time=0.6)
         self.wait(0.4)
-        # total: 1.2 + 0.7 + 0.7 + 0.4 = 3.0s
+        # 0.3 + 1.0 + 0.7 + 0.6 + 0.4 = 3.0s

@@ -3,7 +3,13 @@
   "title": "cc-insights 品牌叙事宣传片",
   "created": "2026-07-01T00:27:00+08:00",
   "description": "Two deliverable assets: (1) a 3.4-second hero shot at 1080p60; (2) a 30.2-second brand narrative video at 1080p60 with shaonv Mandarin voice + ambient BGM muxed in. Suitable for README banner, Twitter video, and a feature share.",
-  "theme_tags": ["brand", "narrative", "promo", "diagnostics", "claude-code"],
+  "theme_tags": [
+    "brand",
+    "narrative",
+    "promo",
+    "diagnostics",
+    "claude-code"
+  ],
   "env": {
     "manim_version": "0.20.1",
     "python": "3.13.5",
@@ -77,6 +83,38 @@
     "music": "mmx music generate --prompt 'calm tech ambient, soft pad, educational, gentle pulse, no lyrics' --instrumental --format wav --out bgm/bgm.wav",
     "final": "ffmpeg filter_complex atempo(voice) + atrim/bgm + amix → brand-final-1080p.mp4"
   },
-  "notes": "Skill anti-patterns followed throughout: explicit grouped imports, no MathTex, no Axes.get_axis_labels, brand color centralized in src/_lib.py. One real bug: manim 0.20.1 has no `Polyline` — used `VMobject.set_points_as_corners(...)` instead in hero.py and s10_end.py."
+  "notes": "Skill anti-patterns followed throughout: explicit grouped imports, no MathTex, no Axes.get_axis_labels, brand color centralized in src/_lib.py. One real bug: manim 0.20.1 has no `Polyline` — used `VMobject.set_points_as_corners(...)` instead in hero.py and s10_end.py.",
+  "v6_polish": {
+    "date": "2026-07-04",
+    "final": "renders/final/brand-final-1080p-V6.mp4",
+    "silent_concat": "renders/final/brand-concat-1080p-V6.mp4",
+    "duration_s": 30.5,
+    "fonts": {
+      "terminal": "JetBrains Mono",
+      "cjk": "Sarasa Mono SC"
+    },
+    "changes": [
+      "s02/s09 real terminal (Catppuccin Mocha, JetBrains Mono, status bar, ✓ echo)",
+      "s05 5-stage brand pipeline",
+      "s06 hero metric 消息数 in brand color, larger bold values",
+      "s07 giant 24.5min + 行业均值 2.1min baseline",
+      "s08 brand badge wall",
+      "s10 ★ Star on GitHub CTA button + slogan",
+      "s04 white underline anchor"
+    ],
+    "frame_audit_scores": {
+      "s01": 7.75,
+      "s02": 8.0,
+      "s03": 6.0,
+      "s04": 8.8,
+      "s05": 9.1,
+      "s06": 8.0,
+      "s07": 8.3,
+      "s08": 7.0,
+      "s09": 8.7,
+      "s10": 7.5
+    },
+    "mean_score_before": 4.55,
+    "mean_score_after": 7.9
+  }
 }
-

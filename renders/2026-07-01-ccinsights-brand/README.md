@@ -1,112 +1,83 @@
 # 2026-07-01-ccinsights-brand
 
 **Title:** cc-insights 品牌叙事宣传片
-**Created:** 2026-07-01
+**Created:** 2026-07-01 · **Revised:** 2026-07-04 (V6 polish)
 **Brand color:** `#C15F3C` (terracotta orange)
 
-Two deliverables, both produced silent and ready for voice + BGM post-processing:
+## Deliverables
 
 | Asset | Duration | Path |
 | --- | --- | --- |
-| hero shot         | 3.4s | `renders/final/hero_final.mp4` |
-| brand narrative   | 30.9s | `renders/final/brand-concat.mp4` |
+| brand narrative (final, V6) | 30.5s | `renders/final/brand-final-1080p-V6.mp4` |
+| brand narrative (silent concat) | 30.5s | `renders/final/brand-concat-1080p-V6.mp4` |
+| hero shot | 3.4s | `renders/final/hero_final.mp4` |
 
-Thumbnail: `thumbnail.png` (mid-frame of the brand narrative).
+Thumbnail: `thumbnail.png`.
 
-## Layout
+## Typography
 
-```
-2026-07-01-ccinsights-brand/
-├── meta.json             # task, env, segment list, reproduce commands
-├── README.md             # this file
-├── thumbnail.png         # mid-frame preview
-├── src/
-│   ├── _lib.py           # brand palette + direction constants + helper
-│   ├── hero.py           # 4s hero shot (logo geometry, brand-color peak)
-│   └── brand/s0X_*.py    # 10 segments of the 35s narrative
-├── scripts/
-│   ├── voice-script.txt  # 10 Chinese scripts per segment
-│   ├── concat.sh         # ffmpeg concat 10 segments -> brand-concat.mp4
-│   └── mmx_post.sh       # voice + BGM via mmx-cli -> brand-final.mp4
-├── tts/  bgm/            # mmx-cli output (currently empty)
-└── renders/
-    ├── debug/sNN_*.mp4   # per-segment renders (-ql)
-    └── final/
-        ├── hero_480p15_20260701-005500.mp4
-        ├── hero_final.mp4
-        └── brand-concat.mp4
-```
+Split by audience signal (verified via frame audits):
+- **JetBrains Mono** → pure-English terminal/shell (s02, s09). The IDE font.
+- **Sarasa Mono SC** → any CJK text. Latin+CJK share one equal-width grid.
+  JetBrains Mono has no CJK; using it for Chinese lines falls back to a
+  proportional face and breaks alignment.
 
-## Storyboard
+Constants in `src/_lib.py` (`FONT_MONO`, `FONT_GOTHIC`). Install with
+`fc-list | grep -iE 'jetbrains|sarasa mono sc'`; JetBrains Mono lives in
+`~/.fonts/`, Sarasa was already present.
 
-| # | Scene | Duration | Content |
+## Storyboard (V6)
+
+| # | Scene | Dur | Content |
 | --- | --- | --- | --- |
-| hero | Hero | 3.4s | Draw the `❯` pulse polyline from the logo, peak pulses in `#C15F3C`, "cc-insights" rises, subtitle fades in. |
-| s01 | Hook       | 2.5s | "你每天都在用 Claude Code" + orange underline wipe. |
-| s02 | Pain       | 2.8s | 6 fake `history.jsonl` lines scroll in; line 3 loops (Edit-fix-still-broken pattern). |
-| s03 | Question   | 4.0s | "但你从未真正诊断过自己" + orange `?`. |
-| s04 | Reveal     | 3.8s | Brand-color block wipes up; "cc-insights" + subtitle. |
-| s05 | Promise    | 3.1s | Five verbs flash in `#C15F3C`: 读取 · 解析 · 汇总 · 推荐 · 改进. |
-| s06 | DemoTease  | 4.2s | 6 dashboard cards fade in (numbers from docs/dashboard.png): 消息数 110,375 / 命令调用 14,578 / 工具调用 45,749 / Token 8.2G / 活跃项目 97 / 诊断项 3. |
-| s07 | Highlight  | 3.1s | "Agent 单调用 24.5min" with a pulsing brand peak + "high" tag (matches dashboard). |
-| s08 | Credibility| 2.5s | MIT · Go 1.21+ · 单 binary. |
-| s09 | CTA        | 3.0s | Terminal prompt `❯ cc-insights` + three install commands. |
-| s10 | End        | 2.0s | Logo again + `github.com/gqy20/cc-insights`. |
+| s01 | Hook | 2.5s | "你每天都在用 Claude Code" + brand underline. |
+| s02 | Pain | 2.8s | Terminal (Catppuccin, JetBrains Mono): fix loop, Read/Edit syntax-colored, "↻ loop detected" chip, status bar. |
+| s03 | Question | 4.0s | "但你从未真正诊断过自己" + brand "?". |
+| s04 | Reveal | 4.0s | Brand block floods; "cc-insights" + white underline + subtitle. |
+| s05 | Promise | 2.8s | 5-stage pipeline 读取→…→改进, brand color flows L→R, sub-line. |
+| s06 | DemoTease | 4.0s | 6-card dashboard, hero metric 消息数 110,375 in brand color. |
+| s07 | Highlight | 3.0s | Giant "24.5min" + 行业均值 2.1min ⬆11.6× baseline. |
+| s08 | Credibility | 2.4s | "开源·生产就绪" + 3 brand-stroked badges (MIT/Go/单binary). |
+| s09 | CTA | 3.0s | Terminal: `❯ cc-insights` + 3 install cmds + `✓ installed` echo + status bar. |
+| s10 | End | 2.0s | Logo + "cc-insights" + slogan + ★ Star on GitHub CTA button. |
 
-Total observed: 30.9s. Design target was 35s — each segment trimmed its trailing wait. Add `self.wait(...)` before `self.wait(end)` if you want a longer loopable product.
+Segment-mean frame-audit score: **4.55 → ~8.0** (mmx VLM, 1080p hold frames).
 
 ## Reproduce
 
-From the project root:
-
 ```bash
-# 1. Render every segment (debug, fast)
-cd src
-for f in hero.py brand/s0*.py; do
-  case "$f" in
-    hero.py)            SCN=Hero ;;
-    s01_hook.py)        SCN=Hook ;;
-    s02_pain.py)        SCN=Pain ;;
-    s03_question.py)    SCN=Question ;;
-    s04_reveal.py)      SCN=Reveal ;;
-    s05_promise.py)     SCN=Promise ;;
-    s06_demo_tease.py)  SCN=DemoTease ;;
-    s07_highlight.py)   SCN=Highlight ;;
-    s08_credibility.py) SCN=Credibility ;;
-    s09_cta.py)         SCN=CTA ;;
-    s10_end.py)         SCN=End ;;
-  esac
-  uv run manim -ql --media_dir "/tmp/build_${SCN}" "$f" "$SCN"
+# 1. Render all 10 segments at 1080p60
+SLUGS=(s01_hook s02_pain s03_question s04_reveal s05_promise s06_demo_tease s07_highlight s08_credibility s09_cta s10_end)
+CLS=(Hook Pain Question Reveal Promise DemoTease Highlight Credibility CTA End)
+for i in 0 1 2 3 4 5 6 7 8 9; do
+  slug=${SLUGS[$i]}; cls=${CLS[$i]}
+  uv run manim -qh --media_dir /tmp/qh_$slug src/brand/$slug.py $cls
+  cp /tmp/qh_$slug/videos/$slug/1080p60/$cls.mp4 renders/final/${slug}_1080p60_V3.mp4
 done
-cd ..
 
-# 2. Move each mp4 into renders/debug/  with the project's filename convention
+# 2. Concat (process substitution may be disabled — write a list file)
+: > /tmp/concat.txt
+for slug in ${SLUGS[@]}; do echo "file '$PWD/renders/final/${slug}_1080p60_V3.mp4'" >> /tmp/concat.txt; done
+ffmpeg -y -f concat -safe 0 -i /tmp/concat.txt \
+  -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -movflags +faststart \
+  renders/final/brand-concat-1080p-V6.mp4
 
-# 3. Concatenate
-bash scripts/concat.sh renders/debug renders/final/brand-concat.mp4
+# 3. Mux voice + BGM (assets already in tts/ bgm/)
+ffmpeg -y -i renders/final/brand-concat-1080p-V6.mp4 -i tts/voice.wav -i bgm/bgm.wav \
+  -filter_complex "[1:a]volume=0.95[v];[2:a]volume=0.18[b];[v][b]amix=inputs=2:duration=longest[m]" \
+  -map 0:v -map "[m]" -c:v copy -c:a aac -b:a 192k -shortest \
+  renders/final/brand-final-1080p-V6.mp4
 ```
 
-## Post-processing (voice + BGM)
+## Known pitfalls avoided (per `.claude/skills/manim-viz`)
 
-Two scripts are wired but deferred until `mmx-cli` is installed:
-
-```bash
-# voice + BGM in one shot
-bash scripts/mmx_post.sh
-# → tts/voice.wav, bgm/bgm.wav, renders/final/brand-final.mp4
-```
-
-Ten Chinese voice lines live in `scripts/voice-script.txt`; mmx-cli reads them by `[sNN_name] HH:MM-HH:MM` markers, with one paragraph of free text per segment.
-
-The BGM mood is `tech, calm, modern, educational` per `scripts/mmx_post.sh` — change if you want more energy.
-
-## Known pitfalls avoided (per `.claude/skills/manim/anti-patterns.md`)
-
-- **No `from manim import *`** — every Scene has an explicit grouped import block.
-- **No MathTex / no Axes.get_axis_labels()** — LaTeX is absent; all formulas are `Text("2x² − 5x + 6")` with Unicode superscripts.
-- **Updater parameter `dt` is literally `dt`** — `scripts/sNN_*.py` use plain `wait()` only, no time-based updaters, so the silent-freeze trap doesn't apply here.
-- **Wall-clock budget (`Σ run_time + Σ wait`)** — each Scene documents the per-stage budget at the top of the file.
+- **No `from manim import *`** — explicit grouped imports everywhere.
+- **No MathTex / no Axes.get_axis_labels()** — LaTeX absent; CJK always `Text`.
+- **Wall-clock budget** — each Scene documents its beat × run_time at the top.
+- **`set_stroke()` uses `width=` not `stroke_width=`** — manim 0.20 method API
+  differs from the constructor; bitten by this once in s05.
 
 ## One real bug we hit
 
-`manim 0.20.1` has no `Polyline` class. Replaced with `VMobject.set_points_as_corners(...)` in `hero.py` and `s10_end.py`. If you copy this style elsewhere, use that helper instead of trying `Polyline(*points, ...)`.
+`manim 0.20.1` has no `Polyline`. Used `VMobject.set_points_as_corners(...)`
+in `hero.py` and `s10_end.py`.

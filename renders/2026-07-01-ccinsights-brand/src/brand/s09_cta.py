@@ -1,12 +1,11 @@
-"""Brand 09 — CTA (3s)
+"""Brand 09 — CTA (3.0s)
 
-Layout
-    0.0–0.3s   black
-    0.3–1.5s   terminal prompt: `❯ cc-insights` (in green + bright brand-orange cursor)
-    1.5–3.0s   three install commands appear in a vertical list
+Terminal window titled ~/projects — zsh. Prompt runs `cc-insights`, three
+install commands appear, then a green "✓ installed" echo lands — the echo
+is what turns the mock window into something that reads as a real
+screenshot. Status bar along the bottom (git branch / cwd / shell).
 
-Wall-clock budget
-    0.2 (intro) + 1.0 (prompt) + 1.8 (3 commands) = 3.0s
+Beat × run_time: 0.4 frame + 0.55 prompt + 3*0.35 cmds + 0.35 echo + 0.2 cursor + 0.25 blink + 0.2 hold = 3.0s
 """
 
 import os
@@ -17,12 +16,16 @@ sys.path.insert(0, os.path.dirname(_HERE))
 
 from manim import (
     Scene, Text, VGroup,
-    BLACK, WHITE, GREY, GREEN,
-    UP, DOWN, LEFT,
-    FadeIn, Write,
+    LEFT,
+    FadeIn,
+    rate_functions,
 )
 
-from _lib import BRAND, BODY_SIZE, TINY_SIZE
+from _lib import (
+    FONT_MONO, terminal_frame,
+    TERM_FG, TERM_DIM, TERM_GREEN,
+    TINY_SIZE, BODY_SIZE,
+)
 
 
 INSTALL_COMMANDS = [
@@ -34,20 +37,40 @@ INSTALL_COMMANDS = [
 
 class CTA(Scene):
     def construct(self):
-        # Prompt
-        prompt_text = "❯ cc-insights"
-        prompt = Text(prompt_text, font_size=36, color=GREEN).to_edge(UP, buff=1.6)
+        win_w, win_h = 11.0, 4.8
+        frame, bar_y = terminal_frame(
+            win_w, win_h, "~/projects — zsh",
+            status="main   ~/projects/cc-insights   zsh 5.9")
 
-        # Three install commands
-        lines = VGroup(*[
-            Text(f"$ {c}", font_size=TINY_SIZE, color=WHITE)
-                .to_edge(LEFT, buff=1.0)
-                .shift(DOWN * (1.0 - 0.5 * i))
-            for i, c in enumerate(INSTALL_COMMANDS)
-        ])
+        content_top = bar_y - 0.8
+        x_left = -win_w / 2 + 0.4
 
-        self.play(FadeIn(prompt, shift=LEFT * 0.3), run_time=0.8)
-        for line in lines:
-            self.play(FadeIn(line, shift=LEFT * 0.2), run_time=0.55)
-        self.wait(0.4)
-        # 0.8 + 3*0.55 + 0.4 = 2.85s, fits 3s
+        prompt = Text("❯ cc-insights", font=FONT_MONO, font_size=BODY_SIZE,
+                      color=TERM_GREEN)
+        prompt.move_to([x_left + prompt.width / 2, content_top, 0])
+
+        cmds = []
+        for i, c in enumerate(INSTALL_COMMANDS):
+            t = Text("$ " + c, font=FONT_MONO, font_size=TINY_SIZE, color=TERM_FG)
+            t.move_to([x_left + t.width / 2, content_top - 0.75 - i * 0.55, 0])
+            cmds.append(t)
+
+        echo = Text("✓ installed cc-insights v1.2.0", font=FONT_MONO,
+                    font_size=TINY_SIZE, color=TERM_GREEN)
+        echo.move_to([x_left + echo.width / 2,
+                      cmds[-1].get_center()[1] - 0.55, 0])
+
+        cursor = Text("_", font=FONT_MONO, font_size=TINY_SIZE,
+                      color=TERM_FG).move_to(
+            [cmds[-1].get_right()[0] + 0.12, cmds[-1].get_center()[1], 0])
+
+        self.play(FadeIn(frame), run_time=0.4)
+        self.play(FadeIn(prompt, shift=LEFT * 0.2), run_time=0.55)
+        for c in cmds:
+            self.play(FadeIn(c, shift=LEFT * 0.15), run_time=0.35)
+        self.play(FadeIn(echo), run_time=0.35)
+        self.play(FadeIn(cursor), run_time=0.2)
+        self.play(cursor.animate.set_opacity(0.2),
+                  rate_func=rate_functions.there_and_back, run_time=0.25)
+        self.wait(0.2)
+        # 0.4 + 0.55 + 3*0.35 + 0.35 + 0.2 + 0.25 + 0.2 = 3.0s
