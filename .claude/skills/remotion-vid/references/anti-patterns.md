@@ -17,9 +17,11 @@ Remotion 首次渲染会下约 150 MB 的 Chrome Headless Shell;慢网下无进�
 **修法:** `style={{scale: s, translate: \`0px ${y}px\`, rotate: \`${r}deg\`}}`。`transform`
 字符串只留给 `skew`/`perspective`/顺序敏感的组合。
 
-## 5. 场景间硬切
-裸的连续 `<Sequence>` 直接跳,显得没做完。
-**修法:** 用 `@remotion/transitions` 的 `TransitionSeries` + `fade()`/`slide()`。
+## 5. 不分密度地给场景加 crossfade
+两个高密度 UI / 截图 / 图表 / Manim 流程场景 crossfade,会把两套信息叠在一起,
+中间帧像脏的双曝光。
+**修法:** 低密度/情绪过渡才用 `TransitionSeries` + `fade()`/`slide()`。高密度到高密度
+优先硬切、短黑场、wipe,或让前一场景先退场到低密度状态再切。
 
 ## 6. 把 `TransitionSeries.Transition` 包进组件
 返回 `<TransitionSeries.Transition>` 的 `<TFade />` 会报错——父级检查直接子元素类型。
@@ -64,3 +66,19 @@ Web UI 式的密度让视频显得杂乱。
 ## 16. 编造数据
 虚构的指标会毁掉宣传片的可信度。
 **修法:** 先从仓库/文档(`gh`)取真实数字。
+
+## 17. 全片 karaoke 字幕压在产品画面上
+有配音时又叠全片逐字字幕,会和场景标题、截图标注、Manim 标题争夺层级,把产品片变成教程录屏。
+**修法:** 画面已有大标题和证据截图时默认不挂载字幕。需要无声版时做单独 captioned 版本,
+用底部弱字幕,不要逐字高亮抢主视觉。
+
+## 18. 直接把 Manim/Lottie/视频资产当最终画面
+外部动画资产自带标题、底部指标、长句说明或背景,嵌入 Remotion 后可能和场景文案重复,
+也可能在转场里叠成脏画面。
+**修法:** 先抽嵌入后的 still,不只看资产单独输出。必要时裁切、遮罩、调整 playbackRate,
+或回到 Manim/Lottie 源头重渲一个低文字版本。
+
+## 19. 绝对定位 overlay 没有锚定父容器
+给截图/视频面板加遮罩或高亮时,子元素 `position: absolute`,但父容器没有 `position: relative`,
+overlay 会锚到页面或别的祖先,看似“没生效”。
+**修法:** 凡是面板内部 overlay,父容器同时设 `position: relative`、稳定宽高、`overflow: hidden`。

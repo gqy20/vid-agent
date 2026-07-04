@@ -9,6 +9,8 @@
 
 - 写完或重构任何场景后,首次全片渲染前。
 - 精修一遍(字体/缓动/转场)后——再检查同样几帧。
+- 改过时间线、转场、外部视频资产、字幕层、截图遮罩后,必须抽转场前后连续帧。
+- 用户指出具体秒点“效果差”时,先抽该秒点附近帧,再判断是场景本身还是转场叠层。
 - 仅在 Studio 里已确认过的琐碎常量改动可跳过。
 
 ## 操作流程
@@ -26,12 +28,32 @@
    - 有没有一个明确的视觉焦点?
    - 有无元素互相贴着、重叠、或溢出安全边距?
    - 这一帧若只看不到 1 秒,还说得通吗?
-4. 也抽一帧**转场**(重叠中点)确认淡入/滑动正常,而不只是看静态场景。
-5. 修 → 再抽 → 重复。通过后才跑全片渲染。
+4. 对每个转场不只抽中点,至少抽 `cut-6 / cut / cut+6 / cut+12`。高密度 UI 到高密度 UI
+   还要做 contact sheet,确认没有双曝光、文字重影、截图互相压住。
+5. 外部资产(Manim/Lottie/Video)要抽**嵌入 Remotion 后**的 still。只看资产单独输出不够。
+6. 修 → 再抽 → 重复。通过后才跑全片渲染。
+
+用户给出具体秒点时,用 encoded mp4 先复现问题:
+
+```bash
+mkdir -p /tmp/check
+for t in 19.5 20.0 20.5 21.0; do
+  ffmpeg -hide_banner -loglevel error -y -ss "$t" -i out.mp4 -frames:v 1 "/tmp/check/t${t}.jpg"
+done
+```
+
+如果要看连续变化,用 frame select + tile 做 contact sheet:
+
+```bash
+ffmpeg -hide_banner -loglevel error -y -i out.mp4 \
+  -vf "select='eq(n,594)+eq(n,600)+eq(n,609)+eq(n,618)',scale=640:-1,tile=4x1" \
+  -frames:v 1 /tmp/check/contact.jpg
+```
 
 ## 全片渲染之后
 
-从编码好的 mp4 抽开头/中间/结尾帧,确认没有结尾被截或溢出残留到编码后:
+从编码好的 mp4 抽开头/中间/结尾帧和关键转场帧,确认没有结尾被截、溢出残留、
+转场双曝光或字幕/overlay 编码后变脏:
 
 ```bash
 ffmpeg -ss 0  -i out.mp4 -frames:v 1 out/check/start.png -y
@@ -46,3 +68,5 @@ ffmpeg -ss 35 -i out.mp4 -frames:v 1 out/check/mid.png   -y
 | 文字溢出画面边缘 | 字号超出安全边距;缩短文案或拆分场景 |
 | 某揭示出现太早/和别的一起出现 | 嵌套 `Reveal` 的 delay 小于其父级 |
 | 转场帧出现硬跳 | 把 `TransitionSeries.Transition` 包进了组件(必须是直接字面子元素) |
+| 转场帧出现双重标题/双重截图 | 高密度场景用了 crossfade;改硬切、短黑场或先退场 |
+| 遮罩/高亮没有压到目标区域 | 父容器缺 `position: relative` 或稳定宽高 |

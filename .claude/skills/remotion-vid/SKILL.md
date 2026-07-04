@@ -115,8 +115,9 @@ export const RemotionRoot: React.FC = () => (
    (references/render-project-layout.md)。
 3. **修掉 Chrome 下载** —— 在首次渲染前(references/environment.md)。
 4. **本地字体** —— `fc-list`;按字族名引用(references/environment.md)。
-5. **抽帧自检循环** —— 全片渲染前,逐场景渲一帧检查
-   (references/still-check.md)。一帧只要几秒,全片渲染要几分钟。
+5. **抽帧自检循环** —— 全片渲染前,逐场景代表帧 + 转场前后帧都要检查
+   (references/still-check.md)。一帧只要几秒,全片渲染要几分钟。用户指出具体秒点时,
+   先抽 `t-0.5/t/t+0.5/t+1.0`,不要凭感觉改。
 6. **长视频先数据化时间线** —— 超过 90s 或未来可能到 5min 时,把场景时长、
    转场、fps、尺寸抽进 `timeline.ts`,Composition 的 `durationInFrames` 从常量计算
    (references/long-video-rendering.md)。
@@ -129,8 +130,10 @@ export const RemotionRoot: React.FC = () => (
 
 ## 第二遍——按官方 skill 精修(按收益排序)
 
-本地专业字体 → 官方缓动 → `TransitionSeries` 转场 → 字号层级与安全边距 → 独立
-transform 属性。代码见 references/api-cheatsheet.md 与 references/anti-patterns.md。
+本地专业字体 → 官方缓动 → 转场策略 → 字号层级与安全边距 → 独立 transform 属性。
+低密度/情绪过渡用 `TransitionSeries` fade/slide;高密度 UI、截图、图表、Manim 流程之间
+优先硬切、短黑场、wipe,或让前一场景先退到低密度状态。代码见
+references/api-cheatsheet.md 与 references/anti-patterns.md。
 
 ## 参考文件
 
@@ -165,4 +168,6 @@ transform 属性。代码见 references/api-cheatsheet.md 与 references/anti-pa
 | 全片渲染后才发现排版 bug | 先逐场景抽帧自检(references/still-check.md) |
 | 渲染卡住 / 字体不对 | `@remotion/google-fonts` 渲染时联网;改用 `fc-list` 本地字体 |
 | 加转场后结尾被截 | `durationInFrames` = Σ场景 − Σ转场 |
+| 转场中两套 UI 糊在一起 | 高密度场景不做 crossfade;改硬切/短黑场/先退场 |
+| Manim/Lottie/视频资产嵌入后遮挡 | 先抽嵌入后的 still;必要时裁切、遮罩或重渲资产 |
 | 想一遍到位 | 两遍:先跑通+验证,再精修 |
