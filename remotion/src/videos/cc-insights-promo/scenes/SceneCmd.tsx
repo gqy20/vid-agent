@@ -24,18 +24,15 @@ export const SceneCmd: React.FC = () => (
         <div
           style={{
             position: 'absolute',
-            right: 30,
-            bottom: 28,
-            padding: '16px 20px',
-            borderRadius: 10,
-            background: 'rgba(224,133,96,0.94)',
-            color: C.white,
-            fontSize: 28,
-            fontWeight: 700,
+            right: 102,
+            bottom: 148,
+            width: 206,
+            height: 56,
+            borderRadius: 8,
+            border: `2px solid ${C.terracotta}`,
+            boxShadow: '0 0 26px rgba(224,133,96,0.24)',
           }}
-        >
-          test 失败率 39.4%
-        </div>
+        />
       </div>
     </StoryStage>
   </Backdrop>

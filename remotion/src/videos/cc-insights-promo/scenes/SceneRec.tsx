@@ -32,7 +32,22 @@ export const SceneRec: React.FC = () => (
           src={staticFile('manim/cc-rec-chain.mp4')}
           muted
           playbackRate={0.82}
-          style={{width: '100%', height: '100%', objectFit: 'cover'}}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            transform: 'scale(1.18) translateY(-4%)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 180,
+            background: `linear-gradient(180deg, ${C.bg0}, ${C.bg0} 66%, rgba(26,25,23,0))`,
+          }}
         />
         <div
           style={{
@@ -40,8 +55,8 @@ export const SceneRec: React.FC = () => (
             left: 0,
             right: 0,
             bottom: 0,
-            height: 330,
-            background: `linear-gradient(180deg, rgba(26,25,23,0), ${C.bg0} 22%, ${C.bg0})`,
+            height: 190,
+            background: `linear-gradient(180deg, rgba(26,25,23,0), ${C.bg0} 48%, ${C.bg0})`,
           }}
         />
       </div>

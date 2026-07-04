@@ -97,6 +97,38 @@
       ],
       "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
       "render_wall_s": null
+    },
+    {
+      "role": "final-overlay-clean",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "TS=20260704-overlayfix END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm --dir remotion render",
+      "output": "renders/final/cc-insights-promo_20260704-overlayfix_final.mp4",
+      "duration_s": 43.166,
+      "fps_actual": 30,
+      "nb_frames": 1295,
+      "bit_rate_bps": 2475173,
+      "size_bytes": 13355626,
+      "audio": "aac stereo 48kHz, same mix as final-optimized",
+      "captions": "disabled in CCInsightsPromo",
+      "fixes": [
+        "SceneRec masks the Manim title area so the right panel no longer repeats the left-side copy",
+        "SceneTok removes the red explanatory badge from the screenshot and keeps only the filter-condition outline",
+        "SceneCmd replaces the failure-rate text badge with a thin screenshot outline",
+        "SceneWeb removes the teal explanatory badge from the dashboard screenshot and keeps only the table outline"
+      ],
+      "check_frames": [
+        "19.0s: rec chain has no repeated title",
+        "22.0s: tok screenshot has outline-only focus",
+        "24.5s: command evidence has outline-only focus",
+        "27.0s/30.0s: web/cost screenshot has no overlaid explanatory text"
+      ],
+      "video_assets": [
+        "public/manim/cc-jsonl-to-finding.mp4",
+        "public/manim/cc-rec-chain.mp4"
+      ],
+      "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
+      "render_wall_s": null
     }
   ],
 
@@ -107,5 +139,5 @@
     "final": "pnpm --dir remotion render"
   },
 
-  "notes": "2026-07-04 优化：总长 52.7s→43.17s，按 voiceover-52s.srt 重排场景起点，并给 tok/web 截图增加焦点标注。Manim 混合版把 hook 的 JSONL→finding 和 rec 的证据链预渲染为本地 mp4，再用 Remotion Video 嵌入；试过 OffthreadVideo，但本地渲染吞吐明显偏低，因此改用 Video。无字幕主推版移除全片顶部 KaraokeCaptions，避免和 Manim 标题、截图标注争夺顶部层级；SRT/组件保留给可选 captioned 版本。20-21s 修复：rec→tok 改硬切，rec 底部拥挤指标 rail 用面板内遮罩压掉，只保留核心四段链路。durationInFrames = Σ场景1355 − Σ转场60 = 1295。配色/缓动/字体常量在 src/theme.ts。"
+  "notes": "2026-07-04 优化：总长 52.7s→43.17s，按 voiceover-52s.srt 重排场景起点，并给 tok/web 截图增加焦点标注。Manim 混合版把 hook 的 JSONL→finding 和 rec 的证据链预渲染为本地 mp4，再用 Remotion Video 嵌入；试过 OffthreadVideo，但本地渲染吞吐明显偏低，因此改用 Video。无字幕主推版移除全片顶部 KaraokeCaptions，避免和 Manim 标题、截图标注争夺顶部层级；SRT/组件保留给可选 captioned 版本。20-21s 修复：rec→tok 改硬切，rec 底部拥挤指标 rail 用面板内遮罩压掉，只保留核心四段链路。19s/22s/24.5s/27s 覆核后清理截图和 Manim 面板上的解释性文字贴片：图内只保留框线/高亮，叙事文字统一放左侧文案区。durationInFrames = Σ场景1355 − Σ转场60 = 1295。配色/缓动/字体常量在 src/theme.ts。"
 }

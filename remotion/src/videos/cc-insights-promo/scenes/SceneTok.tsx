@@ -1,4 +1,3 @@
-import {C} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 import {DashboardShot, StoryStage, shot} from '../StoryPrimitives';
 
@@ -29,21 +28,6 @@ export const SceneTok: React.FC = () => (
             boxShadow: '0 0 28px rgba(224,133,96,0.24)',
           }}
         />
-        <div
-          style={{
-            position: 'absolute',
-            left: 42,
-            top: 188,
-            padding: '12px 16px',
-            borderRadius: 8,
-            background: 'rgba(205,92,92,0.94)',
-            color: C.white,
-            fontSize: 24,
-            fontWeight: 700,
-          }}
-        >
-          同一过滤条件，带着证据下钻
-        </div>
       </div>
     </StoryStage>
   </Backdrop>

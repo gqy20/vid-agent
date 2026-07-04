@@ -1,4 +1,3 @@
-import {C} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 import {DashboardShot, StoryStage, shot} from '../StoryPrimitives';
 
@@ -17,21 +16,6 @@ export const SceneWeb: React.FC = () => (
     >
       <div style={{position: 'relative'}}>
         <DashboardShot src={shot('drilldown-tokens')} width={1120} cropY={100} />
-        <div
-          style={{
-            position: 'absolute',
-            right: 34,
-            top: 96,
-            padding: '14px 18px',
-            borderRadius: 9,
-            background: 'rgba(143,189,182,0.94)',
-            color: '#0d0e0d',
-            fontSize: 26,
-            fontWeight: 800,
-          }}
-        >
-          按模型 / Session / 项目定位
-        </div>
         <div
           style={{
             position: 'absolute',
