@@ -27,6 +27,19 @@
 - **字幕**:`@remotion/captions` 解析 `voiceover-52s.srt`，`KaraokeCaptions` 顶部逐字高亮。
 - 详见 skill `remotion-vid/references/audio-mmx.md` 附 A(音画对齐)/B(中文逐字)/C(静音轨)。
 
+## Manim 混合版(2026-07-04)
+
+这版把两类“解释性强、适合几何化”的片段交给 Manim 预渲染，再作为本地视频资产嵌入
+Remotion：
+
+- `hook`: JSONL 事件 → 聚类维度 → finding，使用 `public/manim/cc-jsonl-to-finding.mp4`。
+- `rec`: symptom → evidence → root cause → next cmd，使用 `public/manim/cc-rec-chain.mp4`。
+
+这样保留 Remotion 对场景节奏、字幕、截图和音轨的统一控制，同时让因果链/数据流动画更稳。
+Manim 源码在 `../../../renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py`；
+生成的 `media/` 目录不入库，只提交 Remotion 消费的两个 mp4 资产。最终混合版输出：
+`renders/final/cc-insights-promo_20260704-manim2_final.mp4`。
+
 ## 重现
 
 ```bash
@@ -44,6 +57,9 @@ mmx music generate --prompt "Calm cinematic tech ambient, 45 seconds, no vocals"
 
 # 3) 终渲
 pnpm render
+
+# 4) Manim 混合版终渲
+TS=20260704-manim2 END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
 ```
 
 源码:`src/videos/cc-insights-promo/`(主合成 `CCInsightsPromo.tsx` + 8 场景),主题常量在

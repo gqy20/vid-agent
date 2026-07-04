@@ -1,4 +1,12 @@
-import {interpolate, random, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  Video,
+  interpolate,
+  random,
+  spring,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import {C, CLAMP, EASE_OUT, MONO, SANS} from '../../../theme';
 import {Backdrop} from '../../../components/Backdrop';
 
@@ -433,6 +441,35 @@ const TraceLock: React.FC<{progress: number; frame: number}> = ({progress, frame
   );
 };
 
+const ManimJsonlOverlay: React.FC<{frame: number}> = ({frame}) => {
+  const opacity = interpolate(frame, [12, 30, 222, 250], [0, 0.96, 0.96, 0], CLAMP);
+  const scale = interpolate(frame, [12, 58], [0.985, 1], {easing: EASE_OUT, ...CLAMP});
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        opacity,
+        transform: `scale(${scale})`,
+        overflow: 'hidden',
+      }}
+    >
+      <Video
+        src={staticFile('manim/cc-jsonl-to-finding.mp4')}
+        muted
+        playbackRate={0.72}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transform: 'translateY(74px) scale(0.92)',
+        }}
+      />
+    </div>
+  );
+};
+
 export const SceneHook: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -486,10 +523,7 @@ export const SceneHook: React.FC = () => {
         }}
       />
 
-      <ScanPanel progress={scanIn} fade={scanFade} frame={frame} />
-      <TraceLock progress={lockProgress} frame={frame} />
-      <Pipeline progress={pipelineProgress} opacity={pipelineOpacity} />
-      <FindingCard progress={cardIn} frame={frame} />
+      <ManimJsonlOverlay frame={frame} />
     </Backdrop>
   );
 };
