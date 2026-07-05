@@ -5,8 +5,11 @@
   "description": "5s 诗意科技风品牌片头：青紫渐变 + 粒子 + 羽毛飘落 + 名称辉光浮现。",
   "composition_id": "BrandIntro",
   "source": "src/BrandIntro.tsx",
-  "theme_tags": ["brand-intro", "particles", "poetic"],
-
+  "theme_tags": [
+    "brand-intro",
+    "particles",
+    "poetic"
+  ],
   "env": {
     "remotion_version": "4.0.484",
     "node": "25.8.0",
@@ -14,9 +17,12 @@
     "fonts": "system sans-serif (片头早于字体升级，未用本地专业字体)",
     "pnpm_lock_sha": null
   },
-
-  "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 150},
-
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 150
+  },
   "renders": [
     {
       "role": "final",
@@ -31,12 +37,21 @@
       "render_wall_s": 20
     }
   ],
-
   "thumbnail": "thumbnail.png",
-
   "reproduce": {
     "final": "pnpm exec remotion render BrandIntro <final-path> --concurrency=4"
   },
-
-  "notes": "defaultProps: name/tagline/sub 可改。早于字体与缓动升级；如需对齐 cc-insights 的精致度，按 skill pass-2 升级。"
+  "notes": "defaultProps: name/tagline/sub 可改。早于字体与缓动升级；如需对齐 cc-insights 的精致度，按 skill pass-2 升级。",
+  "current": {
+    "label": "initial",
+    "path": "renders/current/brand-intro.mp4",
+    "sha256": "35374052b3016a15980b9f12e2b78d25ee5d50e1ea5654e84f6791f5743ee89f",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 5.056000,
+    "bit_rate_bps": 790954,
+    "size_bytes": 499883,
+    "promoted_at": "2026-07-05T16:48:00+0800",
+    "promoted_from": "legacy-migration (was: final/brand-intro_1080p30_20260630-235300.mp4)"
+  }
 }
