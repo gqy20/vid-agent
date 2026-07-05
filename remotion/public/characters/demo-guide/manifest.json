@@ -1,0 +1,20 @@
+{
+  "id": "demo-guide",
+  "name": "Demo Guide",
+  "generator": "mmx image generate",
+  "source": "source/demo-guide-reference_001.jpg",
+  "directions": {
+    "s": "directions/demo-guide-s_001.jpg",
+    "sw": "directions/demo-guide-sw_001.jpg",
+    "w": "directions/demo-guide-w_001.jpg",
+    "nw": "directions/demo-guide-nw_001.jpg",
+    "n": "directions/demo-guide-n_001.jpg",
+    "ne": "directions/demo-guide-ne_001.jpg",
+    "e": "directions/demo-guide-e_001.jpg",
+    "se": "directions/demo-guide-se_001.jpg"
+  },
+  "notes": [
+    "Prototype asset set generated from one subject reference.",
+    "Background removal and consistency curation are still required before production use."
+  ]
+}

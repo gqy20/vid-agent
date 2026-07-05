@@ -5,23 +5,18 @@ out/
 dist/
 .DS_Store
 
-# 调试渲染一律不入
+# 调试和中间产物一律不入，只保留 renders/current/*.mp4 作为发布版。
 renders/*/renders/debug/
-renders/*/renders/hook/
-
-# final/ 只放明确发布成片；实验/旧版/失败产物放 archive/tmp/segments 或用临时命名
-renders/*/renders/archive/
 renders/*/renders/tmp/
+renders/*/renders/candidates/
+renders/*/renders/archive/
 renders/*/renders/segments/
+renders/*/renders/hook/
+renders/*/renders/final/
 renders/*/renders/mix.mp3
-renders/*/renders/final/*_work/
-renders/*/renders/final/*_analysis_*/
-renders/*/renders/final/*_visual*.mp4
-renders/*/renders/final/*draft*.mp4
-renders/*/renders/final/*experiment*.mp4
-renders/*/renders/final/*test*.mp4
-renders/*/renders/final/*tmp*.mp4
-renders/*/renders/final/*60fps-test*.mp4
+renders/*/renders/*.mp4
+renders/*/renders/*/*.mp4
+!renders/*/renders/current/*.mp4
 
 # 工具过程产物（impeccable skill critique 报告，不入库）
 .impeccable/

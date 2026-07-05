@@ -1,0 +1,10 @@
+{
+  "id": "ops-analyst",
+  "name": "Ops Analyst",
+  "generator": "mmx image generate",
+  "source": "source/ops-analyst-front_001.jpg",
+  "notes": [
+    "Prototype front-facing full body character for the 30s character story.",
+    "Background removal and watermark cleanup are still required before production use."
+  ]
+}

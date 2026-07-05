@@ -184,17 +184,4 @@ class RecChain(MovingCameraScene):
         for arrow, node in zip(arrows, nodes[1:]):
             self.play(Create(arrow), FadeIn(node, scale=0.96), run_time=0.45)
 
-        rail = Line(LEFT * 5.8 + DOWN * 1.35, RIGHT * 5.8 + DOWN * 1.35, color="#3a3833", stroke_width=2)
-        metric_a = label("28 failed commands", 28, RED, MONO).next_to(rail, DOWN, buff=0.32).shift(LEFT * 3.5)
-        metric_b = label("61% token hotspot", 28, WARN, MONO).next_to(rail, DOWN, buff=0.32)
-        metric_c = label("local evidence", 28, CYAN, MONO).next_to(rail, DOWN, buff=0.32).shift(RIGHT * 3.5)
-        ticks = VGroup()
-        for x, color in [(-4.5, RED), (0, WARN), (4.4, CYAN)]:
-            ticks.add(Rectangle(width=0.08, height=0.42, stroke_width=0, fill_color=color, fill_opacity=1).move_to(rail.get_center() + RIGHT * x))
-
-        self.play(Create(rail), FadeIn(ticks), run_time=0.45)
-        self.play(FadeIn(metric_a, shift=UP * 0.1), FadeIn(metric_b, shift=UP * 0.1), FadeIn(metric_c, shift=UP * 0.1), run_time=0.55)
-
-        final = label("不是多一张报表，而是可执行路径", 34, TEXT).to_edge(DOWN, buff=0.62)
-        self.play(Write(final), run_time=0.55)
-        self.wait(0.6)
+        self.wait(2.6)

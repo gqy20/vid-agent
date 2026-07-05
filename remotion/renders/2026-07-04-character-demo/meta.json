@@ -1,0 +1,57 @@
+{
+  "id": "2026-07-04-character-demo",
+  "title": "Character Demo",
+  "created": "2026-07-04T22:30:00+08:00",
+  "description": "8s Remotion probe for generated eight-direction character assets.",
+  "composition_id": "CharacterDemo",
+  "source": "src/videos/character-demo/",
+  "theme_tags": ["character", "asset-probe", "remotion"],
+  "env": {
+    "remotion_version": "4.0.484",
+    "git_rev": "391b175"
+  },
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 240,
+    "durationSeconds": 8
+  },
+  "assets": {
+    "character": "public/characters/demo-guide"
+  },
+  "current": {
+    "label": "probe",
+    "path": "renders/current/character-demo.mp4",
+    "sha256": "90832a68959a680324e1f3c3fdb0c4623250fb5bac88a373831aabec7970fa97",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 8.0,
+    "bit_rate_bps": 619377,
+    "size_bytes": 619377,
+    "promoted_at": "2026-07-05T00:00:00+08:00",
+    "promoted_from": "renders/candidates/character-demo_probe.mp4",
+    "command": "REMOTION_VIDEO_FILTER=character-demo pnpm exec remotion render src/index.ts CharacterDemo ... --muted"
+  },
+  "history": [],
+  "thumbnail": "thumbnail.png",
+  "checks": {
+    "stills": [
+      "renders/tmp/stills/frame-000.png",
+      "renders/tmp/stills/frame-090.png",
+      "renders/tmp/stills/frame-180.png"
+    ],
+    "ffprobe": {
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "frames": 240,
+        "fps": "30/1"
+      }
+    }
+  },
+  "knownIssues": [
+    "Generated directional images are prototype quality and vary in crop, costume, and background."
+  ]
+}

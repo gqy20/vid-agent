@@ -20,9 +20,9 @@ export const SceneTok: React.FC = () => (
           style={{
             position: 'absolute',
             left: 34,
-            top: 122,
+            top: 116,
             width: 1048,
-            height: 56,
+            height: 30,
             border: '2px solid rgba(224,133,96,0.88)',
             borderRadius: 8,
             boxShadow: '0 0 28px rgba(224,133,96,0.24)',

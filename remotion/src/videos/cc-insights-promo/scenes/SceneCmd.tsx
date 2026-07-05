@@ -24,10 +24,10 @@ export const SceneCmd: React.FC = () => (
         <div
           style={{
             position: 'absolute',
-            right: 102,
-            bottom: 148,
-            width: 206,
-            height: 56,
+            left: 34,
+            top: 432,
+            width: 884,
+            height: 64,
             borderRadius: 8,
             border: `2px solid ${C.terracotta}`,
             boxShadow: '0 0 26px rgba(224,133,96,0.24)',

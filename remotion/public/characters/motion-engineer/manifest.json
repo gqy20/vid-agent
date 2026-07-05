@@ -1,0 +1,10 @@
+{
+  "id": "motion-engineer",
+  "name": "Motion Engineer",
+  "generator": "mmx image generate",
+  "source": "source/motion-engineer-front_001.jpg",
+  "notes": [
+    "Prototype front-facing full body character for the 30s character story.",
+    "Background removal and watermark cleanup are still required before production use."
+  ]
+}

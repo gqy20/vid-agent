@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stable final-render pipeline for Remotion compositions.
+# Stable render pipeline for Remotion compositions.
 # Run from the Remotion project root.
 #
 # Usage:
@@ -7,7 +7,7 @@
 #
 # Environment:
 #   ENTRY=src/index.ts
-#   OUT_ROOT=renders/2026-07-01-cc-insights-promo/renders/final
+#   OUT_ROOT=renders/<YYYY-MM-DD>-<slug>/renders/tmp
 #   AUDIO_FILE=public/mix-cc-insights-52s.m4a
 #   CHUNK_FRAMES=600
 #   JOBS=1
@@ -19,14 +19,14 @@
 #   REMOTION_VIDEO_FILTER=<slug>  only load the target video registration
 #   END_FRAME_OFFSET=1   render 0..duration-1-END_FRAME_OFFSET, avoids unstable tail frame
 #   RESUME=1             reuse already valid chunks in the same TS work dir
-#   SKIP_AUDIO=0         set 1 to only keep visual output
+#   SKIP_AUDIO=1         set 0 with AUDIO_FILE to mux audio
 set -euo pipefail
 
 COMP="${1:-CCInsightsPromo}"
 SLUG="${2:-cc-insights-promo}"
 ENTRY="${ENTRY:-src/index.ts}"
-OUT_ROOT="${OUT_ROOT:-renders/2026-07-01-cc-insights-promo/renders/final}"
-AUDIO_FILE="${AUDIO_FILE:-public/mix-cc-insights-52s.m4a}"
+OUT_ROOT="${OUT_ROOT:-renders/$(date +%Y-%m-%d)-$SLUG/renders/tmp}"
+AUDIO_FILE="${AUDIO_FILE:-}"
 CHUNK_FRAMES="${CHUNK_FRAMES:-600}"
 JOBS="${JOBS:-1}"
 CONCURRENCY="${CONCURRENCY:-4}"
@@ -37,7 +37,7 @@ RENDER_MODE="${RENDER_MODE:-sequence}"
 REMOTION_VIDEO_FILTER="${REMOTION_VIDEO_FILTER:-$SLUG}"
 END_FRAME_OFFSET="${END_FRAME_OFFSET:-1}"
 RESUME="${RESUME:-1}"
-SKIP_AUDIO="${SKIP_AUDIO:-0}"
+SKIP_AUDIO="${SKIP_AUDIO:-$([ -n "$AUDIO_FILE" ] && echo 0 || echo 1)}"
 TS="${TS:-$(date +%Y%m%d-%H%M%S)}"
 
 RUN_DIR="$OUT_ROOT/${SLUG}_${TS}_work"

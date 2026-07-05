@@ -49,16 +49,6 @@ export const SceneRec: React.FC = () => (
             background: `linear-gradient(180deg, ${C.bg0}, ${C.bg0} 66%, rgba(26,25,23,0))`,
           }}
         />
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 190,
-            background: `linear-gradient(180deg, rgba(26,25,23,0), ${C.bg0} 48%, ${C.bg0})`,
-          }}
-        />
       </div>
     </StoryStage>
   </Backdrop>

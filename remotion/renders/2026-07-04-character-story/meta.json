@@ -1,0 +1,92 @@
+{
+  "id": "2026-07-04-character-story",
+  "title": "Character Story 30",
+  "created": "2026-07-04T23:00:00+08:00",
+  "description": "30s Remotion character video: five scenes, three generated characters, eight-direction asset probe, Chinese voiceover and BGM.",
+  "composition_id": "CharacterStory30",
+  "source": "src/videos/character-story/",
+  "theme_tags": ["character", "remotion", "prototype", "voiceover"],
+  "env": {
+    "remotion_version": "4.0.484",
+    "git_rev": "391b175",
+    "audio_generator": "mmx speech synthesize"
+  },
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 900,
+    "durationSeconds": 30
+  },
+  "requirements": {
+    "scenes": 5,
+    "characters": 3,
+    "hasAudio": true,
+    "hasVoiceover": true,
+    "hasEightDirectionSegment": true
+  },
+  "assets": {
+    "characters": [
+      "public/characters/demo-guide",
+      "public/characters/ops-analyst",
+      "public/characters/motion-engineer"
+    ],
+    "bgm": "public/bgm.mp3",
+    "voiceoverScript": "script/voiceover.txt",
+    "voiceover": "renders/tmp/audio/voiceover.mp3",
+    "voiceoverSubtitles": "renders/tmp/audio/voiceover.srt",
+    "mixedAudio": "renders/tmp/audio/mix-voice-bgm.m4a"
+  },
+  "current": {
+    "label": "voiceover",
+    "path": "renders/current/character-story.mp4",
+    "sha256": "71133593ad3993fa05b9829c344f522c44b06ec02efabc9f39e23cf16e00b919",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 30.0,
+    "bit_rate_bps": 1580318,
+    "size_bytes": 5926196,
+    "promoted_at": "2026-07-05T00:00:00+08:00",
+    "promoted_from": "renders/candidates/character-story_voiceover.mp4",
+    "command": "REMOTION_VIDEO_FILTER=character-story pnpm exec remotion render src/index.ts CharacterStory30 ... --muted; mmx speech synthesize ...; ffmpeg mux voiceover+BGM"
+  },
+  "history": [
+    {
+      "label": "silent",
+      "path": "renders/tmp/visual/character-story_silent.mp4",
+      "archived": false
+    },
+    {
+      "label": "bgm-only",
+      "path": "renders/tmp/visual/character-story_bgm-only.mp4",
+      "archived": false
+    }
+  ],
+  "thumbnail": "thumbnail.png",
+  "checks": {
+    "typecheck": "pnpm typecheck",
+    "compositionProbe": "REMOTION_VIDEO_FILTER=character-story pnpm exec remotion compositions src/index.ts --timeout=120000",
+    "stills": "renders/tmp/stills/contact-sheet.jpg",
+    "ffprobe": {
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "frames": 900,
+        "fps": "30/1"
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 32000,
+        "channels": 1,
+        "meanVolume": "-21.7 dB",
+        "maxVolume": "-6.3 dB"
+      }
+    }
+  },
+  "knownIssues": [
+    "Generated character source images still include inconsistent backgrounds.",
+    "Some generated assets contain small model/provider markings near the image edge.",
+    "Eight-direction consistency is prototype quality and needs curation before production use."
+  ]
+}

@@ -20,7 +20,6 @@ from manim import (
 
 from _lib import (
     BRAND, BLACK, WHITE,
-    UP, DOWN, LEFT, RIGHT, ORIGIN,
     FONT_GOTHIC, TERM_DIM,
     SMALL_SIZE,
 )
@@ -54,12 +53,12 @@ class DemoTease(Scene):
                             color=BRAND, stroke_width=1.5,
                             fill_color=BLACK, fill_opacity=0.5)
             label_t = Text(label, font=FONT_GOTHIC, font_size=SMALL_SIZE,
-                           color=TERM_DIM).move_to([x, y + 0.34, 0])
+                           color=TERM_DIM).move_to([0, 0.34, 0])
             value_t = Text(
                 value, font=FONT_GOTHIC,
                 font_size=40 if hero else 32,
                 color=BRAND if hero else WHITE, weight="BOLD",
-            ).move_to([x, y - 0.18, 0])
+            ).move_to([0, -0.18, 0])
             grp = VGroup(box, label_t, value_t).move_to([x, y, 0])
             cards.append(grp)
 

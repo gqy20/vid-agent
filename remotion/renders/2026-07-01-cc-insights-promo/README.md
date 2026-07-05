@@ -8,16 +8,16 @@
 
 ## 分镜(8 场景,1295 帧 @ 30fps)
 
-| 时间 | 场景 | 内容 |
-|------|------|------|
-| 0–9s | 痛点钩子 | 乱码 JSONL 滚动 → 证据锁定 |
-| 9–15.5s | 品牌亮相 | 第一条 finding: 慢调用不是感觉 |
-| 15.5–20.7s | `rec` | 判断 / 证据 / 动作三段式 |
-| 20.7–23.3s | `tok` | 同一过滤条件继续下钻 |
-| 23.3–26s | `cmd` | 命令族失败率 + 高风险命令告警 |
-| 26–31.1s | `web` | 本地 Dashboard，定位模型 / Session / 项目 |
-| 31.1–38.5s | 输出 | JSON / Markdown / Table 交给 AI 继续处理 |
-| 38.5–43.2s | CTA | logo + 命令 + GitHub 地址 |
+| 时间 | 帧 | 场景 | 内容 |
+|------|----|------|------|
+| 0.000–9.000s | 0–269 | 痛点钩子 | 乱码 JSONL 滚动 → 证据锁定 |
+| 8.667–15.667s | 260–469 | 品牌亮相 | 第一条 finding: 慢调用不是感觉 |
+| 15.333–20.500s | 460–614 | `rec` | 判断 / 证据 / 动作三段式 |
+| 20.500–23.500s | 615–704 | `tok` | 同一过滤条件继续下钻 |
+| 23.167–26.167s | 695–784 | `cmd` | 命令族失败率 + 高风险命令告警 |
+| 25.833–31.333s | 775–939 | `web` | 本地 Dashboard，定位模型 / Session / 项目 |
+| 31.000–38.500s | 930–1154 | 输出 | JSON / Markdown / Table 交给 AI 继续处理 |
+| 38.167–43.167s | 1145–1294 | CTA | logo + 命令 + GitHub 地址 |
 
 ## 音轨(2026-07-04 优化版)
 
@@ -39,10 +39,12 @@ Remotion：
 这样保留 Remotion 对场景节奏、截图和音轨的统一控制，同时让因果链/数据流动画更稳。
 Manim 源码在 `../../../renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py`；
 生成的 `media/` 目录不入库，只提交 Remotion 消费的两个 mp4 资产。最终混合优化版输出：
-`renders/final/cc-insights-promo_20260704-overlayfix_final.mp4`。
+`renders/final/cc-insights-promo_20260704-tokbox_final.mp4`。
 
 `rec → tok` 使用硬切，不做 crossfade；这两个高密度画面叠化会产生严重信息重影。
 图上标注只保留框线/高亮，不再把解释性文字压在截图或 Manim 画面上。
+18–20s 的 `rec` 链路面板已改为只保留四段链路；Manim 底部指标 rail 已从源素材删除，19s 不再出现右侧文字重叠。
+20.5–23s 的 `tok` 标注只圈过滤条件行，框线不压文字；24s 的 `cmd` 标注横向圈住 echo/grep 两行，覆盖命令名、调用、失败和失败率。
 
 ## 重现
 
@@ -62,8 +64,8 @@ mmx music generate --prompt "Calm cinematic tech ambient, 45 seconds, no vocals"
 # 3) 终渲
 pnpm render
 
-# 4) Manim 混合 + 无全片字幕 + 截图标注清理主推版终渲
-TS=20260704-overlayfix END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
+# 4) Manim 混合 + 无全片字幕 + tok 框位修正主推版终渲
+TS=20260704-tokbox END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm render
 ```
 
 源码:`src/videos/cc-insights-promo/`(主合成 `CCInsightsPromo.tsx` + 8 场景),主题常量在
