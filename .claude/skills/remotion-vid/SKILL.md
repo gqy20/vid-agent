@@ -153,6 +153,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | references/anti-patterns.md | 让视频显廉价或出错的反模式及修法 |
 | references/audio-mmx.md | 用 mmx-cli 生成配音/BGM + ffmpeg 混音 + Remotion 音视频合流 |
 | references/long-video-rendering.md | 长视频 timeline 数据化、frame-range 分片并发、scene segment 取舍 |
+| references/renderer-internals.md | **源码层**:Remotion 五层架构、项目做法↔源码模块对照、chunk/sequence/音频三条绕开路径、升级影响 |
 | scripts/check-env.sh | 探测 Chrome/字体/工具链,打印建议配置行 |
 | scripts/new-video.sh | 一键建一条视频的源码 + 带日期的产物目录 |
 | scripts/check-frames.sh | 批量渲抽帧,供自检循环用 |

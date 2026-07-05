@@ -35,9 +35,13 @@ Remotion 首次渲染会下约 150 MB 的 Chrome Headless Shell;慢网下无进�
 逐字符动 opacity 又重又难看。
 **修法:** 用 `text.slice(0, shown)`,`shown` 由帧推导(见 examples.md)。
 
-## 9. CSS `transition` / `animation` / Tailwind `animate-*`
-它们在 Remotion 里不渲染——帧是离散快照。
-**修法:** 一切动画值都从 `useCurrentFrame()` 驱动。
+## 9. CSS `transition` / `animation` / Tailwind `animate-*` / GSAP imperative tween
+它们在 Remotion 里不渲染——帧是离散快照。GSAP 的 `gsap.to`/`timeline` 是同类问题的
+进阶版:靠 wall-clock tick 持续改 DOM,Remotion 截图时还没 tick 到位,且并行渲染时
+全局 timeline 状态会冲突。
+**修法:** 一切动画值都从 `useCurrentFrame()` 驱动。馋 GSAP 某条曲线时手抄
+`Easing.bezier(cp1x, cp1y, cp2x, cp2y)`,不要引入 gsap 包。详见
+[`renderer-internals.md`](renderer-internals.md)「动画子系统」节。
 
 ## 10. 组件里用 `Math.random()` / `Date.now()`
 逐帧非确定 → 闪烁。

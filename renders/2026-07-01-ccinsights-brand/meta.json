@@ -116,5 +116,17 @@
     },
     "mean_score_before": 4.55,
     "mean_score_after": 7.9
+  },
+  "current": {
+    "label": "final-v8",
+    "path": "renders/current/ccinsights-brand.mp4",
+    "sha256": "52e540fc7b209bc442626bc57543b8b74d646e39371f30f217b02f8e8c4ffb7b",
+    "resolution": "1920x1080",
+    "fps": 60,
+    "duration_s": 30.466667,
+    "bit_rate_bps": 472941,
+    "size_bytes": 1801118,
+    "promoted_at": "2026-07-05T16:18:40+0800",
+    "promoted_from": "legacy-migration (was: final/brand-final-1080p-V8.mp4)"
   }
 }

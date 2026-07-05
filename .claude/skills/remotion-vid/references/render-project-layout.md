@@ -4,6 +4,12 @@
 > 每条视频的**源码**隔离在 `src/videos/<slug>/`，**产物**归档到 `renders/<YYYY-MM-DD>-<slug>/`。
 > 让视频可重现、可分享、易跨版本对比，且根目录不被 mp4 堆乱。
 
+## 产物管理三原则（先记住）
+
+1. **`current/` 是唯一发布版**——目录里永远只有 1 个 `<slug>.mp4`，文件名固定。CI/部署/分享都指这里。
+2. **命名固化**——候选版 `<slug>_<label>.mp4`，label 是语义短词（`cutfix`/`ccopt`/`manim-hybrid`）。**禁止 ts-only、禁止 `V<n>`、禁止分辨率前缀**。
+3. **`meta.json` 是真相源**——`current` 字段指向发布版 + sha256 + 生成命令；脚本和人都从这找答案。
+
 ## 与 manim 的差异（为什么不能每条视频一个独立目录）
 
 manim 每条动画是自洽的 `.py`，共用 `.venv`，所以整条放进 `renders/<id>/src/`。
@@ -22,37 +28,38 @@ Remotion 必须有 bundler 入口 + node_modules，**每条视频自带一份依
 │   ├── theme.ts                         # 全局 COLORS/FONTS/EASE
 │   ├── components/                      # 跨视频复用：Terminal/Reveal/Typed/Bar
 │   └── videos/
-│       └── <slug>/                      # ← 每条视频的源码（加的那一层，自包含）
+│       └── <slug>/                      # ← 每条视频的源码（自包含）
 │           ├── <Slug>.tsx               # 该视频主组件
-│           ├── index.ts                 # 导出 registration（Root 自动聚合发现，见 SKILL.md）
+│           ├── index.ts                 # 导出 registration（Root 自动聚合）
 │           └── scenes/                  # 该视频的场景组件
 └── renders/
     └── <YYYY-MM-DD>-<slug>/             # ← 每条视频的产物目录（带日期层级）
-        ├── meta.json                    # 机读：任务 + 环境 + 渲染信息
+        ├── meta.json                    # 机读：任务 + 环境 + current + history
         ├── README.md                    # 人读：摘要 + 重现步骤
-        ├── thumbnail.png                # 中点帧预览（final 质量）
+        ├── thumbnail.png                # 当前发布版的中点帧预览
         └── renders/
-            ├── debug/<slug>_720p30_<YYYYMMDD-HHMMSS>.mp4
-            ├── segments/<YYYYMMDD-HHMMSS>/001_000000-000599.mp4
-            └── final/<slug>_1080p30_<YYYYMMDD-HHMMSS>.mp4
+            ├── debug/                   # -ql 草稿迭代（gitignored）
+            ├── tmp/                     # 高质量中间产物：_work/_visual/_analysis/segments（gitignored）
+            ├── candidates/              # 候选发布版 <slug>_<label>.mp4（gitignored，待评审）
+            ├── current/                 # ★ 唯一发布版 <slug>.mp4（tracked，固定名）
+            └── archive/                 # 历史发布版 <slug>_<label>_<date>.mp4（gitignored）
 ```
 
-`final/` 只放明确对外发布的成片。失败、实验、旧版、range 分片、临时导出不要放进
-`final/`:放 `debug/`、`archive/`、`tmp/`、`segments/`,或在文件名中带
-`draft` / `experiment` / `test` / `tmp`。`.gitignore` 应按这些目录/命名规则忽略,
-不要为每个发布 mp4 写 `!` 白名单。
+`current/` 只放**当前发布版**这一个文件，名字永远是 `<slug>.mp4`（无版本后缀）。
+渲染产物、实验、旧版、分片、工作目录**绝不**直接进 `current/`——它们进 `tmp/`（中间）
+或 `candidates/`（待评审），评审通过才 `promote` 到 `current/`，旧 `current/` 自动归档到 `archive/`。
 
 slug：小写、连字符、≤ 32 字符，匹配视频**讲什么**（如 `cc-insights-promo`、
 `brand-intro`，不是 `video1`）。`<Slug>.tsx` 用大驼峰，对应 Composition id。
 
 ## 布局原因
 
-- **可重现：** `meta.json:renders[*].command` 是产 mp4 的准确命令。
-- **可版本：** 迭代时把带时间戳的 mp4 加到 `debug/`；`final/` 是要发的版本。
-- **自描述：** `meta.json` 带任务、Composition id、尺寸/fps/时长、码率、环境（含
-  浏览器路径与字体策略）。不跑也能读懂。
-- **根目录干净：** mp4 不散落工程根；`out/` 临时输出渲染后归档到 `renders/<id>/`。
-- **日期层级：** `renders/<YYYY-MM-DD>-<slug>/` 让几十条视频不互相淹没。
+- **一眼定位发布版：** `current/<slug>.mp4` 是唯一答案，不用扫目录猜。
+- **可重现：** `meta.json:current.command` 是产 mp4 的准确命令；`sha256` 验证未被改过。
+- **可版本：** 候选 → 评审 → 发布有流程（`promote.sh`）；历史进 `archive/` 不丢。
+- **自描述：** `meta.json` 带任务、Composition id、尺寸/fps/时长、码率、环境。
+- **根目录干净：** mp4 不散落工程根；中间产物全在 `tmp/`（gitignored + 可随时删）。
+- **gitignore 永不漏：** 白名单制——默认忽略所有 mp4，只追踪 `current/*.mp4`。
 
 ## 工作流
 
@@ -68,18 +75,20 @@ cd <remotion-project>
 
 ```bash
 ID="$(date +%Y-%m-%d)-<slug>"
-mkdir -p "src/videos/<slug>/scenes" "renders/$ID/renders/debug" "renders/$ID/renders/final"
+mkdir -p "src/videos/<slug>/scenes" \
+         "renders/$ID/renders/debug" "renders/$ID/renders/tmp" \
+         "renders/$ID/renders/candidates" "renders/$ID/renders/current" \
+         "renders/$ID/renders/archive"
 # 写 src/videos/<slug>/<Slug>.tsx + scenes/* + index.ts(导出 registration)
-# Root 用 require.context 自动聚合——无需改 Root（见 SKILL.md「Composition 自动聚合」）
 ```
 
-或用 `scripts/new-video.sh <slug>` 一键建上面两处骨架。
+或用 `scripts/new-video.sh <slug>` 一键建骨架。
 
 ### 3. 抽帧调试（**必经**，见 still-check.md）
 
 ```bash
 scripts/check-frames.sh <Slug> 90 300 470 880 1200   # 逐场景看 out/check/*.png
-# 关键：still-check 通过 → 才进 debug/final 渲染
+# 关键：still-check 通过 → 才进 debug/最终渲染
 ```
 
 ### 4. debug 渲染（草稿，快）
@@ -88,42 +97,48 @@ scripts/check-frames.sh <Slug> 90 300 470 880 1200   # 逐场景看 out/check/*.
 scripts/render-final.sh <Slug> <slug> --debug    # 720p 草稿渲入 renders/<id>/renders/debug/
 ```
 
-### 5. final 渲染（debug 通过后）
+### 5. 最终渲染 → 进 tmp/（不是 final/）
 
 ```bash
-scripts/render-final.sh <Slug> <slug>            # 1080p 渲入 final/ + ffprobe + 抽 thumbnail
+# render-final.sh 默认渲到 tmp/（高质量，含 _work/_visual 中间产物）
+OUT_ROOT="renders/<id>/renders/tmp" scripts/render-final.sh <Slug> <slug>
 ```
 
-`render-final.sh` 自动:带时间戳命名、建目录、渲染 `--concurrency=4`、ffprobe 校验;
-final 角色还会抽中点帧到 `renders/<id>/thumbnail.png`。手动等价命令见脚本内注释。
+`render-final.sh` 自动：带时间戳命名、建目录、渲染 `--concurrency=4`、ffprobe 校验。
+产物落在 `tmp/`，等待 promote。
 
 ### 5b. 分片并发渲染（实验性）
 
-超过 90s 或单片渲染超过 5 分钟时,可先 smoke test 按 frame range 分片完整
-Composition:
+超过 90s 或单片渲染超过 5 分钟时，按 frame range 分片（见 [`long-video-rendering.md`](long-video-rendering.md)）：
 
 ```bash
 JOBS=2 CONCURRENCY=4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh <Slug> <slug> <total_frames> 600
 ```
 
-这会生成:
+分片产物（`segments/`、`*.ffconcat`）落 `tmp/`，确认稳定后 promote 合并后的 mp4。
 
+### 6. promote：tmp/ → candidates/ → current/（**关键新步骤**）
+
+```bash
+# 候选：把 tmp/ 里满意的版本提名为候选，带语义 label
+scripts/promote.sh <slug> <label> --candidate <input.mp4>
+#   → renders/<id>/renders/candidates/<slug>_<label>.mp4
+
+# 评审通过：发布。旧 current/ 自动移到 archive/，meta.json 自动更新
+scripts/promote.sh <slug> <label> --publish
+#   → renders/<id>/renders/current/<slug>.mp4（旧版进 archive/）
 ```
-out/ranges/<slug>_<YYYYMMDD-HHMMSS>/
-├── segments/001_000000-000599.mp4
-├── segments.ffconcat
-└── <slug>_chunked_<YYYYMMDD-HHMMSS>.mp4
-```
 
-确认不会卡在分片最后一帧后,再把最终 mp4 归档到 `renders/<id>/renders/final/`,并把
-`segments.ffconcat` 或分片命令写入 `meta.json:renders[*].command`。若当前 Remotion
-版本下 mp4 分片不稳定,回退到单进程高 `--concurrency` 或 image sequence 分片。
+label 必须是语义短词（`cutfix`/`ccopt`/`manim-hybrid`），描述这版改了什么。
+**禁止** ts-only、`V2`/`V3`、分辨率前缀这种无语义或可推断的命名。
 
-### 6.（thumbnail 已由 render-final.sh 在 final 阶段自动生成）
+### 7. thumbnail（promote --publish 自动从 current/ 抽中点帧）
 
-如需指定非中点帧:`ffmpeg -y -ss <秒> -i <final.mp4> -frames:v 1 renders/<id>/thumbnail.png`。
+如需指定非中点帧：`ffmpeg -y -ss <秒> -i renders/<id>/renders/current/<slug>.mp4 -frames:v 1 renders/<id>/thumbnail.png`。
 
-### 7. 写 `meta.json` 与 `README.md`（见下 schema）
+### 8. 写/更新 `meta.json` 与 `README.md`
+
+`promote --publish` 会自动更新 `meta.json` 的 `current` + `history` 字段；`README.md` 手写。
 
 ## meta.json schema
 
@@ -147,42 +162,54 @@ out/ranges/<slug>_<YYYYMMDD-HHMMSS>/
 
   "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 2086},
 
-  "renders": [
-    {
-      "role": "final",
-      "resolution": "1920x1080",
-      "fps": 30,
-      "command": "pnpm exec remotion render CCInsightsPromo renders/.../final/cc-insights-promo_1080p30_20260701-004200.mp4 --concurrency=4",
-      "output": "renders/final/cc-insights-promo_1080p30_20260701-004200.mp4",
-      "duration_s": 69.53,
-      "bit_rate_bps": 1098000,
-      "size_bytes": 9553196,
-      "render_wall_s": 208
-    }
+  "current": {
+    "label": "ccopt",
+    "path": "renders/current/cc-insights-promo.mp4",
+    "sha256": "<文件 sha256>",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 69.53,
+    "bit_rate_bps": 1098000,
+    "size_bytes": 9553196,
+    "promoted_at": "2026-07-04T22:00:00+08:00",
+    "promoted_from": "candidates/cc-insights-promo_ccopt.mp4",
+    "command": "TS=20260704-ccopt END_FRAME_OFFSET=0 ... pnpm render"
+  },
+
+  "history": [
+    {"label": "cutfix2", "path": "renders/archive/cc-insights-promo_cutfix2_20260704.mp4",
+     "promoted_at": "2026-07-04T18:00:00+08:00", "archived": true}
   ],
 
   "thumbnail": "thumbnail.png",
-  "reproduce": {
-    "still_check": "scripts/check-frames.sh CCInsightsPromo 90 470 880 1200 1500 1800",
-    "final": "pnpm exec remotion render CCInsightsPromo <final-path> --concurrency=4"
-  },
   "notes": "本地字体零联网；durationInFrames = Σ场景2202 − Σ转场116。"
 }
 ```
 
 `pnpm_lock_sha` 记 `pnpm-lock.yaml` 的 SHA256，便于逐位重现。
+`current.sha256` 让任何人验证 `current/<slug>.mp4` 没被悄悄替换。
 
 ## 命名规则
 
 - **产物目录：** `YYYY-MM-DD-<slug>` —— 创建日期。
 - **源码目录：** `src/videos/<slug>/`，主组件 `<Slug>.tsx`（大驼峰 = Composition id）。
-- **渲染产物：** `<slug>_<质量>_<时间戳>.mp4`，质量后缀 `720p30`(debug `--scale`)/
-  `1080p30`(final)；时间戳 `YYYYMMDD-HHMMSS` 本地时间。
+- **`candidates/`：** `<slug>_<label>.mp4` —— label 是**语义短词**（`cutfix`/`ccopt`/`manim-hybrid`）。
+- **`current/`：** `<slug>.mp4` —— **永远固定名**，无任何后缀。
+- **`archive/`：** `<slug>_<label>_<YYYYMMDD>.mp4` —— 归档时加日期防重名。
+- **禁止：** ts-only（`_20260704-203613`）、`V<n>`（`-V8`）、分辨率前缀（`_1080p30_`）。
+  这些看不出改了啥，且让 `current/` 的固定名无法稳定。
 
 ## 清理
 
-- 工程根的 `out/`（含 `out/check/` 抽帧）是临时——归档进 `renders/<id>/` 后可删:
-  `scripts/cleanup.sh [--dry-run] [--force]`。`.gitignore` 已排除 `out/`。
-- `renders/<id>/renders/debug/*.mp4` 旧版本是历史，磁盘紧张时只留最新。
-- `final/` 最新版是核心产物，至少保留。
-- `node_modules/` 永远 gitignore。
+- **`tmp/`** 全是可重建的中间产物（`_work`/`_visual`/`_analysis`/`segments`），
+  随时可删：`scripts/cleanup.sh [--dry-run] [--force]`。
+- **`debug/`** 旧草稿是迭代历史，磁盘紧张时只留最新。
+- **`archive/`** 历史发布版，30 天以上的可清（`cleanup.sh --archive-older-than 30`）。
+- **`current/`** 永远只有 1 个文件，不用清。
+- **工程根 `out/`** 临时——归档后可删。
+- **`node_modules/`** 永远 gitignore。
+
+## gitignore 策略（白名单）
+
+默认忽略所有 mp4 + 中间目录，**只追踪 `current/*.mp4`** + 元数据。新增任何命名
+自动被忽略，永远不用再改 gitignore。详见项目根 `.gitignore`。

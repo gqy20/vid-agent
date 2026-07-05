@@ -131,6 +131,7 @@ ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:no
 | [`references/examples.md`](references/examples.md) | 写第一个 Scene 需要 NL→代码范例 |
 | [`references/environment.md`](references/environment.md) | uv 装包、ffmpeg 探测、LaTeX 状态排查 |
 | [`references/anti-patterns.md`](references/anti-patterns.md) | 撞错或抽帧不通过：22 条反模式 + 修法 |
+| [`references/manim-internals.md`](references/manim-internals.md) | **源码层**：silent freeze 的 `inspect.signature("dt")` 根因、LaTeX subprocess 链、质量档定义、partial_movie_files 分片 |
 | [`references/frame-check.md`](references/frame-check.md) | **写完每个 Scene 必读** 13 条视觉检查清单 |
 | [`references/geometry-math.md`](references/geometry-math.md) | 文字偏心 / 卡片溢出 / 中心错时：坐标 + 字符宽度公式 |
 | [`references/style-guide.md`](references/style-guide.md) | 配色语义 / 1080p 字号层级 / 屏幕分区：让画面"好看"，不只"能跑" |

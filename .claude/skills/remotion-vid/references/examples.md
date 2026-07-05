@@ -98,3 +98,48 @@ export const SceneRec: React.FC = () => (
   </AbsoluteFill>
 );
 ```
+
+## 分层与遮罩(layering / mask)
+
+Remotion 分层 = web 分层(Chrome 渲染 DOM 再截图)。`AbsoluteFill` = `position:absolute; inset:0`,
+多个 AbsoluteFill 叠放就是多层。三种高频形态:
+
+### 形态 A:覆盖式分层(透明遮罩 + 内容层)
+
+```tsx
+<AbsoluteFill>
+  <Video src={bg} />                                              {/* 底:主画面 */}
+  <AbsoluteFill style={{background: 'rgba(0,0,0,0.5)'}} />        {/* 中:半透明暗化 */}
+  <AbsoluteFill style={{zIndex: 10}}><InfoCard /></AbsoluteFill>  {/* 顶:内容 */}
+</AbsoluteFill>
+```
+
+最常用。透明层(`rgba`)几乎零渲染成本。
+
+### 形态 B:mask reveal(形状遮罩揭显 / 聚光灯)
+
+```tsx
+const r = interpolate(frame, [0, 30], [80, 400]);   // 光圈半径动画
+<AbsoluteFill>
+  <Dashboard />                                                   {/* 底:被聚焦的内容 */}
+  <AbsoluteFill style={{
+    background: 'rgba(0,0,0,0.6)',
+    WebkitMaskImage: `radial-gradient(circle at 50% 50%, transparent ${r}px, black ${r + 40}px)`,
+  }} />
+</AbsoluteFill>
+```
+
+### 形态 C:overflow 揭显(窗口式 reveal)
+
+```tsx
+<AbsoluteFill style={{overflow: 'hidden'}}>                       {/* 外层当裁剪窗口 */}
+  <div style={{width: interpolate(frame, [0, 30], [0, 1000]), overflow: 'hidden'}}>
+    <RevealedContent />                                           {/* 内层从窗口被刷出来 */}
+  </div>
+</AbsoluteFill>
+```
+
+**注意**:`transform` 会创建新 stacking context(`z-index` 要设在 transformed 元素上);
+CSS `mask-image` 在 Chrome Headless 截图通常 OK,但引入后**必须抽帧验证**(Studio 预览
+和编码帧偶有亚像素差异,见 [`still-check.md`](still-check.md))。透明度/尺寸动画一律用
+`interpolate` 驱动,不要用 CSS transition(见 [`anti-patterns.md`](anti-patterns.md) #9)。

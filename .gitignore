@@ -16,31 +16,51 @@ __pycache__/
 *.pyd
 *.egg-info/
 
-# ── manim 渲染产物 ──
-# manim 默认输出
+# ── 视频产物（白名单：只追踪 current/*.mp4 + 元数据）──
+# 原则：默认 ignore 所有视频产物目录，只白名单 renders/*/renders/current/*.mp4。
+# 新增任何命名/目录自动被忽略，永不漏。
+# 详见 .claude/skills/{remotion-vid,manim-viz}/references/render-project-layout.md
+# 注：用单层通配 renders/*/X/，不用 **/X/（多层 + 多规则共存时 git 对短目录名有 quirk）。
+
+# manim 默认输出 + 中间产物
 media/
-# render_scene.sh 临时 build 目录
 **/_build/
-# manim partial-movie 缓存
 **/partial_movie_files/
 
-# ── 项目作品产物约定（CLAUDE.md）──
-# 注：用 renders/*/X/ 单层通配，不用 **/X/。** 通配在多层目录 + 多规则
-# 共存时，git 对某些短目录名（frames 等）的匹配有 quirk；单层通配稳定可靠。
-# 当前对外成片 mp4 在各项目级 .gitignore 用 ! 例外放行。
-
-# 调试渲染一律不入
+# 非 current 的产物目录一律 ignore（manim: renders/<id>/renders/...）
 renders/*/renders/debug/
+renders/*/renders/tmp/
+renders/*/renders/candidates/
+renders/*/renders/archive/
+renders/*/renders/segments/
+renders/*/renders/hook/
+renders/*/renders/final/        # 旧布局过渡期保留
 
-# 抽帧调试临时
+# remotion: remotion/renders/<id>/renders/...
+remotion/renders/*/renders/debug/
+remotion/renders/*/renders/tmp/
+remotion/renders/*/renders/candidates/
+remotion/renders/*/renders/archive/
+remotion/renders/*/renders/segments/
+remotion/renders/*/renders/hook/
+remotion/renders/*/renders/final/
+remotion/renders/*/renders/mix.mp3
+
+# 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
+renders/*/renders/*.mp4
+renders/*/renders/*/*.mp4
+remotion/renders/*/renders/*.mp4
+remotion/renders/*/renders/*/*.mp4
+!renders/*/renders/current/*.mp4
+!remotion/renders/*/renders/current/*.mp4
+
+# 抽帧调试临时 + 媒体资产（可由脚本重新生成）
 renders/*/frames/
 renders/*/frames_v2/
-
-# 媒体资产不入（voice/bgm 可由脚本重新生成）
 renders/*/tts/*.wav
 renders/*/bgm/*.wav
 
-# 迭代副本（统一改名前的命名约定）
+# 旧命名存量（promote.sh 强制新规范后不再产生，过渡期兜底）
 *-V2.mp4
 *-V2.png
 *-fix.mp4
@@ -51,34 +71,13 @@ thumbnail-final.png
 thumbnail-fix.png
 thumbnail-*.png
 
-# ── Remotion 工作项目 ──
-# pnpm 装包（GB 级）
+# ── Remotion 工程临时（非视频产物）──
 remotion/node_modules/
 remotion/node_modules.pnp
-# remotion build 产物
 remotion/out/
-# next.js 缓存
 remotion/.next/
 remotion/dist/
-# mmx CLI 示例/临时生成视频
 mmx-renders/
-# 调试渲染
-remotion/renders/*/renders/debug/
-# 局部 hook 预览
-remotion/renders/*/renders/hook/
-# 旧版/失败/实验成片
-remotion/renders/*/renders/archive/
-remotion/renders/*/renders/tmp/
-remotion/renders/*/renders/segments/
-remotion/renders/*/renders/mix.mp3
-remotion/renders/*/renders/final/*_work/
-remotion/renders/*/renders/final/*_analysis_*/
-remotion/renders/*/renders/final/*_visual*.mp4
-remotion/renders/*/renders/final/*draft*.mp4
-remotion/renders/*/renders/final/*experiment*.mp4
-remotion/renders/*/renders/final/*test*.mp4
-remotion/renders/*/renders/final/*tmp*.mp4
-remotion/renders/*/renders/final/*60fps-test*.mp4
 
 # ── 密钥 / 本地配置 ──
 .env

@@ -5,8 +5,12 @@
   "description": "43s 终端风宣传片：痛点证据→finding→rec/tok/cmd/web 快速下钻→AI 可消费输出→CTA。",
   "composition_id": "CCInsightsPromo",
   "source": "src/videos/cc-insights-promo/",
-  "theme_tags": ["promo", "terminal", "cli", "data-viz"],
-
+  "theme_tags": [
+    "promo",
+    "terminal",
+    "cli",
+    "data-viz"
+  ],
   "env": {
     "remotion_version": "4.0.484",
     "node": "25.8.0",
@@ -17,9 +21,12 @@
     "audio_captions": "voiceover-52s.srt / KaraokeCaptions 保留给可选字幕版；主推版不挂载全片字幕",
     "pnpm_lock_sha": null
   },
-
-  "composition": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 1295},
-
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 1295
+  },
   "renders": [
     {
       "role": "final-optimized",
@@ -129,15 +136,138 @@
       ],
       "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
       "render_wall_s": null
+    },
+    {
+      "role": "final-rec-18s-fix",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "TS=20260704-rec18fix END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm --dir remotion render",
+      "output": "renders/final/cc-insights-promo_20260704-rec18fix_final.mp4",
+      "duration_s": 43.166667,
+      "fps_actual": 30,
+      "nb_frames": 1295,
+      "bit_rate_bps": 2497007,
+      "size_bytes": 13473438,
+      "audio": "aac stereo 48kHz, same mix as final-optimized",
+      "captions": "disabled in CCInsightsPromo",
+      "fixes": [
+        "SceneRec scales and raises the embedded Manim chain so the 18s frame reads as the main panel content",
+        "SceneRec reduces the lower mask from 330px to 190px so it hides only the metric rail instead of flattening the lower half of the panel",
+        "SceneRec keeps the top mask to prevent the Manim title from duplicating the left-side narrative copy"
+      ],
+      "check_frames": [
+        "18.0s: rec chain is enlarged and no longer appears as a thin strip in an over-masked panel"
+      ],
+      "video_assets": [
+        "public/manim/cc-jsonl-to-finding.mp4",
+        "public/manim/cc-rec-chain.mp4"
+      ],
+      "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
+      "render_wall_s": 357
+    },
+    {
+      "role": "final-frame-focus-fix",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "TS=20260704-framefix END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm --dir remotion render",
+      "output": "renders/final/cc-insights-promo_20260704-framefix_final.mp4",
+      "duration_s": 43.166667,
+      "fps_actual": 30,
+      "nb_frames": 1295,
+      "bit_rate_bps": 2481948,
+      "size_bytes": 13392181,
+      "audio": "aac stereo 48kHz, same mix as final-optimized",
+      "captions": "disabled in CCInsightsPromo",
+      "fixes": [
+        "SceneTok tightens the 23s outline to the filter-condition row only, avoiding the table header",
+        "SceneCmd changes the 24s outline from a narrow failure-rate column box to a row-level box over echo/grep, covering command, calls, failures, and failure rate"
+      ],
+      "check_frames": [
+        "23.0s: tok outline covers only the filter condition row",
+        "24.0s/24.5s: cmd outline covers echo and grep rows without floating over blank table space"
+      ],
+      "video_assets": [
+        "public/manim/cc-jsonl-to-finding.mp4",
+        "public/manim/cc-rec-chain.mp4"
+      ],
+      "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
+      "render_wall_s": null
+    },
+    {
+      "role": "final-rec-clean",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "TS=20260704-rec-clean END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm --dir remotion render",
+      "output": "renders/final/cc-insights-promo_20260704-rec-clean_final.mp4",
+      "duration_s": 43.166667,
+      "fps_actual": 30,
+      "nb_frames": 1295,
+      "bit_rate_bps": 2488551,
+      "size_bytes": 13427810,
+      "audio": "aac stereo 48kHz, same mix as final-optimized",
+      "captions": "disabled in CCInsightsPromo",
+      "fixes": [
+        "RecChain Manim source removes the metric rail and bottom conclusion text so 19s/20s no longer contain overlapping right-panel labels",
+        "SceneRec removes the lower Remotion mask because the Manim source no longer needs metric-rail hiding",
+        "README scene ranges are corrected to exact frame-derived times, including rec ending at 20.500s and tok starting at frame 615"
+      ],
+      "check_frames": [
+        "18.0s: rec chain is visible without lower-panel masking artifacts",
+        "19.0s: right panel has no overlapping metric labels",
+        "20.0s: right panel remains clean before the hard cut",
+        "20.533s: tok has started, matching frame 616"
+      ],
+      "video_assets": [
+        "public/manim/cc-jsonl-to-finding.mp4",
+        "public/manim/cc-rec-chain.mp4"
+      ],
+      "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
+      "render_wall_s": 346
+    },
+    {
+      "role": "final-tokbox",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "command": "TS=20260704-tokbox END_FRAME_OFFSET=0 CONCURRENCY=4 JOBS=1 CHUNK_FRAMES=600 pnpm --dir remotion render",
+      "output": "renders/final/cc-insights-promo_20260704-tokbox_final.mp4",
+      "duration_s": 43.166667,
+      "fps_actual": 30,
+      "nb_frames": 1295,
+      "bit_rate_bps": 2485510,
+      "size_bytes": 13411401,
+      "audio": "aac stereo 48kHz, same mix as final-optimized",
+      "captions": "disabled in CCInsightsPromo",
+      "fixes": [
+        "SceneTok moves the filter-condition outline from top=122 height=32 to top=116 height=30 so the 20.5s-23s box surrounds the text row without crossing it"
+      ],
+      "check_frames": [
+        "21.0s: tok outline sits outside the filter-condition text and does not touch the table header",
+        "23.0s: tok outline remains aligned before the transition into cmd"
+      ],
+      "video_assets": [
+        "public/manim/cc-jsonl-to-finding.mp4",
+        "public/manim/cc-rec-chain.mp4"
+      ],
+      "manim_source": "renders/2026-07-04-cc-insights-manim/src/cc_manim_overlays.py",
+      "render_wall_s": 296
     }
   ],
-
   "thumbnail": "thumbnail.png",
-
   "reproduce": {
     "still_check": "render-final.sh auto extracts frames 20, 7s, middle, 3/4, final",
     "final": "pnpm --dir remotion render"
   },
-
-  "notes": "2026-07-04 优化：总长 52.7s→43.17s，按 voiceover-52s.srt 重排场景起点，并给 tok/web 截图增加焦点标注。Manim 混合版把 hook 的 JSONL→finding 和 rec 的证据链预渲染为本地 mp4，再用 Remotion Video 嵌入；试过 OffthreadVideo，但本地渲染吞吐明显偏低，因此改用 Video。无字幕主推版移除全片顶部 KaraokeCaptions，避免和 Manim 标题、截图标注争夺顶部层级；SRT/组件保留给可选 captioned 版本。20-21s 修复：rec→tok 改硬切，rec 底部拥挤指标 rail 用面板内遮罩压掉，只保留核心四段链路。19s/22s/24.5s/27s 覆核后清理截图和 Manim 面板上的解释性文字贴片：图内只保留框线/高亮，叙事文字统一放左侧文案区。durationInFrames = Σ场景1355 − Σ转场60 = 1295。配色/缓动/字体常量在 src/theme.ts。"
+  "notes": "2026-07-04 优化：总长 52.7s→43.17s，按 voiceover-52s.srt 重排场景起点，并给 tok/web 截图增加焦点标注。Manim 混合版把 hook 的 JSONL→finding 和 rec 的证据链预渲染为本地 mp4，再用 Remotion Video 嵌入；试过 OffthreadVideo，但本地渲染吞吐明显偏低，因此改用 Video。无字幕主推版移除全片顶部 KaraokeCaptions，避免和 Manim 标题、截图标注争夺顶部层级；SRT/组件保留给可选 captioned 版本。20-21s 修复：rec→tok 改硬切。19s/22s/24.5s/27s 覆核后清理截图和 Manim 面板上的解释性文字贴片：图内只保留框线/高亮，叙事文字统一放左侧文案区。18s 覆核后修正 rec 面板：嵌入 Manim 链路放大并上移。23s/24s 覆核后收紧标注框：tok 只圈过滤条件行，cmd 改为横向圈住 echo/grep 两行。再次核对 19s 后，RecChain Manim 源素材删除底部 metric rail 和结论文字，SceneRec 删除底部遮罩；最终片 18s/19s/20s 均无右侧重叠。README 分镜表改为精确帧时间：rec 为 15.333–20.500s，tok 从 20.500s/frame 615 开始。再次核对 20.5–23s 后，SceneTok 过滤条件框调整为 top=116 height=30，最终片 21s/23s 框线不压文字且不碰表头。最新主推输出为 renders/final/cc-insights-promo_20260704-tokbox_final.mp4。durationInFrames = Σ场景1355 − Σ转场60 = 1295。配色/缓动/字体常量在 src/theme.ts。",
+  "current": {
+    "label": "tokbox",
+    "path": "renders/current/cc-insights-promo.mp4",
+    "sha256": "79e75aff8eb8128ea49ea705b13af9c75d250c988ebaf86faf3102551115a5c4",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 43.166667,
+    "bit_rate_bps": 2485510,
+    "size_bytes": 13411401,
+    "promoted_at": "2026-07-05T16:18:37+0800",
+    "promoted_from": "legacy-migration (was: final/cc-insights-promo_20260704-tokbox_final.mp4)"
+  }
 }

@@ -1,81 +1,81 @@
 #!/usr/bin/env bash
-# cleanup.sh — 扫 `_build/` 与 `partial_movie_files/` 删
+# cleanup.sh —— 视频项目产物生命周期清理（配合 promote.sh 的 current/candidates/archive/tmp 布局）。
+# 在 renders/<date>-<slug>/ 项目目录内运行（pwd = 项目目录，含 renders/ + meta.json）。
 #
 # 用法:
-#   scripts/cleanup.sh [PROJECT_ROOT] [--dry-run] [--force]
+#   scripts/cleanup.sh [--dry-run] [--force] [--archive-older-than N]
 #
-# 参数:
-#   PROJECT_ROOT    默认 cwd。可指定一个具体项目根。
-#   --dry-run       只列要删的不真删
-#   --force         不询问直接删
+# 默认 --dry-run（只列要删的，不真删）。确认后加 --force 真删。
+# --archive-older-than N: 同时清 archive/ 里 N 天前的历史发布版。
 #
-# 例:
-#   scripts/cleanup.sh                       # 在 renders/<project>/ 跑
-#   scripts/cleanup.sh /path/to/project --dry-run
-#   scripts/cleanup.sh . --force             # 一键扫当前 cwd
-#
-# 找:
-#   **/_build/                  # 我们 `-media_dir /tmp/build_<X>` 后留的临时
-#   **/partial_movie_files/     # manim 留的 partial（防 disk 涨）
-#   **/*.pyc                    # __pycache__/ 下生成的 bytecode
+# 清理对象:
+#   renders/tmp/     全删（_build/partial_movie_files/抽帧临时，全是可重建的中间产物）
+#   renders/debug/   只保留最新 1 个 mp4，删其余（迭代草稿历史）
+#   renders/archive/ 仅当 --archive-older-than 给定时才动
 
 set -euo pipefail
 
-# ---- 解析参数 ----
-ROOT="."
-DRY_RUN=0
-FORCE=0
+DRY_RUN=1
+ARCHIVE_DAYS=0
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --dry-run) DRY_RUN=1; shift ;;
-        --force)   FORCE=1;   shift ;;
-        -h|--help)
-            echo "用法: $0 [PROJECT_ROOT] [--dry-run] [--force]"
-            exit 0 ;;
-        *)         ROOT="$1"; shift ;;
-    esac
+  case "$1" in
+    --force) DRY_RUN=0 ;;
+    --dry-run) DRY_RUN=1 ;;
+    --archive-older-than) ARCHIVE_DAYS="${2:?missing days}"; shift ;;
+    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
+    *) echo "未知参数: $1" >&2; exit 1 ;;
+  esac
+  shift
 done
 
-if [[ ! -d "$ROOT" ]]; then
-    echo "错误: 不是目录: $ROOT" >&2
-    exit 1
-fi
+PROJ_DIR="$(pwd)"
+RENDERS_DIR="$PROJ_DIR/renders"
+[[ -d "$RENDERS_DIR" ]] || { echo "renders/ 不存在（应在项目目录内运行）" >&2; exit 1; }
 
-cd "$ROOT"
+rm_path() {
+  if [[ "$DRY_RUN" = "1" ]]; then
+    echo "  [dry-run] 会删 $1"
+  else
+    rm -rf "$1"
+    echo "  ✓ removed $1"
+  fi
+}
 
-# ---- 找目标 ----
-echo "扫 $ROOT 找 _build/、partial_movie_files/、*.pyc ..."
-
-# 在 GNU 与 BSD find 之间兼容
-targets=$(find . \( -type d \( -name '_build' -o -name 'partial_movie_files' -o -name '__pycache__' \) -o -name '*.pyc' \) 2>/dev/null)
-
-if [[ -z "$targets" ]]; then
-    echo "没找到要清的。干净。"
-    exit 0
-fi
-
-# ---- 报告 ----
-echo "以下条目将被删除："
-total=0
-while IFS= read -r path; do
-    [[ -z "$path" ]] && continue
-    size=$(du -sh "$path" 2>/dev/null | cut -f1)
-    printf "  %-12s  %s\n" "$size" "$path"
-    total=$((total + 1))
-done <<< "$targets"
-
-echo "共 $total 条。"
-
-# ---- 询问 ----
-if [[ $FORCE -eq 0 && $DRY_RUN -eq 0 ]]; then
-    read -r -p "确认删除？ [y/N] " ans
-    [[ "$ans" == "y" || "$ans" == "Y" ]] || { echo "取消。"; exit 0; }
-fi
-
-# ---- 执行 ----
-if [[ $DRY_RUN -eq 1 ]]; then
-    echo "(dry-run 不真删)"
+echo "=== renders/tmp/（中间产物，可重建）==="
+if [[ -d "$RENDERS_DIR/tmp" ]]; then
+  sz=$(du -sh "$RENDERS_DIR/tmp" 2>/dev/null | cut -f1)
+  echo "  tmp/ 共 $sz"
+  rm_path "$RENDERS_DIR/tmp"
 else
-    echo "$targets" | xargs rm -rf
-    echo "✓ 已删 $total 条。"
+  echo "  (无 tmp/)"
+fi
+
+echo "=== renders/debug/（保留最新 1 个草稿，删其余）==="
+if compgen -G "$RENDERS_DIR/debug/*.mp4" > /dev/null; then
+  mapfile -t OLD < <(ls -t "$RENDERS_DIR/debug"/*.mp4 2>/dev/null | tail -n +2)
+  if [[ ${#OLD[@]} -gt 0 ]]; then
+    for f in "${OLD[@]}"; do rm_path "$f"; done
+  else
+    echo "  (仅 1 个或更少，全保留)"
+  fi
+else
+  echo "  (无 debug/*.mp4)"
+fi
+
+if [[ "$ARCHIVE_DAYS" -gt 0 ]]; then
+  echo "=== renders/archive/（${ARCHIVE_DAYS} 天前的历史发布版）==="
+  if [[ -d "$RENDERS_DIR/archive" ]]; then
+    found=0
+    while IFS= read -r f; do
+      rm_path "$f"; found=1
+    done < <(find "$RENDERS_DIR/archive" -name '*.mp4' -mtime +"$ARCHIVE_DAYS" 2>/dev/null)
+    [[ "$found" = "0" ]] && echo "  (无符合条件的)"
+  else
+    echo "  (无 archive/)"
+  fi
+fi
+
+if [[ "$DRY_RUN" = "1" ]]; then
+  echo ""
+  echo "(dry-run 模式，未真删。确认后加 --force)"
 fi
