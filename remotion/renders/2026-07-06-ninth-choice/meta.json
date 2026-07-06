@@ -1,0 +1,69 @@
+{
+  "id": "2026-07-06-ninth-choice",
+  "title": "第九个志愿",
+  "created": "2026-07-06T00:00:00+08:00",
+  "description": "3-minute character-driven Remotion short for the gk university-life simulator: a student discovers that college choice is also a sequence of actions.",
+  "composition_id": "NinthChoice",
+  "source": "src/videos/ninth-choice/",
+  "theme_tags": ["gk", "simulator", "character", "story", "remotion"],
+  "env": {
+    "remotion_version": "4.0.484",
+    "audio_generator": "mmx speech synthesize",
+    "node_renderer": "Remotion React component layers"
+  },
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 5670,
+    "durationSeconds": 189
+  },
+  "assets": {
+    "narrationScript": "public/ninth-choice/audio/narration.txt",
+    "narration": "public/ninth-choice/audio/narration.mp3",
+    "bgm": "public/bgm.mp3",
+    "characterSheets": "public/ninth-choice/characters/**/*.jpg",
+    "characterCutouts": "public/ninth-choice/characters/**/cutouts/*.png",
+    "manimActionPattern": "public/ninth-choice/manim/action-pattern.mp4",
+    "sourceProduct": "gqy20/gk simulator"
+  },
+  "current": {
+    "label": "vector-rig-manim",
+    "path": "renders/current/ninth-choice.mp4",
+    "sha256": "476f043c06a248f64fb76e4b392630ad87f96b2bd31a1268db31f0ad1fc6c67b",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 189.056,
+    "bit_rate_bps": 715727,
+    "size_bytes": 16914075,
+    "promoted_at": "2026-07-06T00:00:00+08:00",
+    "command": "REMOTION_VIDEO_FILTER=ninth-choice pnpm exec remotion render src/index.ts NinthChoice ../remotion/renders/2026-07-06-ninth-choice/renders/current/ninth-choice.mp4 --overwrite --timeout=120000 --concurrency=8"
+  },
+  "checks": {
+    "typecheck": "pnpm typecheck",
+    "layoutAudit": "renders/tmp/final-check/contact-sheet.jpg",
+    "ffprobe": {
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "frames": 5670,
+        "fps": "30/1"
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2
+      }
+    }
+  },
+  "thumbnail": "thumbnail.png",
+  "history": [],
+  "knownIssues": [
+    "LinChe, mother, and shadow/background characters now use simplified procedural vector rigs instead of image cutouts in the main render.",
+    "LinChe has greet/write/reach/forward pose cycles, step trails, and action pulses, but not full facial acting or lip sync yet.",
+    "The previous mmx-generated subject-reference sheets and cutouts remain archived as references, not as the primary character renderer.",
+    "The action-pattern explanation is a Manim cutaway embedded into the simulator pause scene.",
+    "The narration track is longer than the final video and is intentionally clipped by the composition duration."
+  ]
+}
