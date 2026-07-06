@@ -1,0 +1,131 @@
+{
+  "id": "2026-07-05-deadline-cut",
+  "title": "Deadline Cut",
+  "created": "2026-07-05T00:00:00+08:00",
+  "description": "3-minute story-driven Remotion short: three characters turn imperfect character direction assets into a real story before deadline.",
+  "composition_id": "DeadlineCut",
+  "source": "src/videos/deadline-cut/",
+  "theme_tags": ["character", "story", "deadline", "remotion", "mmx"],
+  "env": {
+    "remotion_version": "4.0.484",
+    "story_generator": "mmx text chat",
+    "image_generator": "mmx image generate",
+    "audio_generator": "mmx speech synthesize"
+  },
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 5400,
+    "durationSeconds": 180,
+    "actorDemo": {
+      "compositionId": "DeadlineCutActors",
+      "durationInFrames": 2250,
+      "durationSeconds": 75
+    },
+    "storyboardFilm": {
+      "compositionId": "DeadlineCutStoryboard",
+      "durationInFrames": 5400,
+      "durationSeconds": 180
+    }
+  },
+  "story": {
+    "slugReason": "deadline-cut names the plot conflict instead of a revision number.",
+    "beats": [
+      "倒计时启动",
+      "八向图的代价",
+      "质检员的质疑",
+      "导演的坚持",
+      "时间出现裂痕",
+      "错误的修复",
+      "灵感来自坏帧",
+      "重新诠释角色",
+      "真正的协作开始",
+      "最后一帧落定",
+      "截止前交付",
+      "留下来的不是完美"
+    ]
+  },
+  "assets": {
+    "characters": [
+      "public/characters/demo-guide",
+      "public/characters/ops-analyst",
+      "public/characters/motion-engineer"
+    ],
+    "storyPlates": "public/deadline-cut/story-plates/*.jpg",
+    "bgm": "public/bgm.mp3",
+    "voiceoverScript": "public/deadline-cut/audio/deadline-cut-voiceover.txt",
+    "voiceover": "public/deadline-cut/audio/deadline-cut-voiceover.mp3",
+    "voiceoverSubtitles": "public/deadline-cut/audio/deadline-cut-voiceover.srt",
+    "actorDialogue": "public/deadline-cut/actors/audio/*.mp3",
+    "candidateDirectionSheets": [
+      "public/characters/ops-analyst/directions16/contact-sheet.jpg",
+      "public/characters/motion-engineer/directions16/contact-sheet.jpg",
+      "public/characters/ops-analyst/sheet16/ops-analyst-16way-sheet_001.jpg",
+      "public/characters/motion-engineer/sheet16/motion-engineer-16way-sheet_001.jpg"
+    ],
+    "storyboardPlates": "public/deadline-cut/storyboard-plates/*.jpg",
+    "storyboardNarration": "public/deadline-cut/storyboard-audio/narration.mp3",
+    "manimCutaway": "public/deadline-cut/manim/direction-to-action.mp4"
+  },
+  "current": {
+    "label": "story-3min",
+    "path": "renders/current/deadline-cut.mp4",
+    "sha256": "a54fee68f65c29ec29ac4a4a26fc7ad10a14d4867968ebadfc4cd75234a767f4",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 180.053333,
+    "size_bytes": 22004777,
+    "promoted_at": "2026-07-05T00:00:00+08:00",
+    "command": "REMOTION_VIDEO_FILTER=deadline-cut pnpm exec remotion render src/index.ts DeadlineCut ../remotion/renders/2026-07-05-deadline-cut/renders/current/deadline-cut.mp4 --overwrite --timeout=120000 --concurrency=8"
+  },
+  "actorDemo": {
+    "label": "actor-driven-story",
+    "path": "renders/current/deadline-cut-actors.mp4",
+    "sha256": "4a45e532f1d0d58b574f2ac0cd742b3ea132529847762e5053409bd82c663632",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 75.050667,
+    "size_bytes": 14784499,
+    "layoutAudit": "renders/tmp/actor-story-audit/contact-sheet.jpg",
+    "thumbnail": "thumbnail-actors.png"
+  },
+  "storyboardFilm": {
+    "label": "storyboard-driven-film",
+    "path": "renders/current/deadline-cut-storyboard.mp4",
+    "sha256": "2228297ce90a8d78d870bf2d42f139b538d12a57d567c5931093c5a74dcc835f",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 180.053333,
+    "size_bytes": 66310210,
+    "layoutAudit": "renders/tmp/storyboard-film/contact-sheet.jpg",
+    "thumbnail": "thumbnail-storyboard.png"
+  },
+  "history": [],
+  "thumbnail": "thumbnail.png",
+  "checks": {
+    "typecheck": "pnpm typecheck",
+    "layoutAudit": "renders/tmp/story-audit/contact-sheet.jpg",
+    "actorLayoutAudit": "renders/tmp/actor-story-audit/contact-sheet.jpg",
+    "ffprobe": {
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "frames": 5400,
+        "fps": "30/1"
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2
+      }
+    }
+  },
+  "knownIssues": [
+    "Source character assets still include inconsistent backgrounds and occasional provider markings.",
+    "The storyboard-driven film now has a clearer causal arc around a failed 16-direction fix, but it is still a composited storyboard rather than full skeletal or pose-driven character animation.",
+    "The pin-board and 16-direction failure shots have clearer story function than the previous version, though generated plates still contain minor in-world marks.",
+    "The next quality jump should composite clean UI/story props into generated plates instead of asking the image model to render readable cards directly."
+  ]
+}

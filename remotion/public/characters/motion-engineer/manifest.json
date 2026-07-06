@@ -3,8 +3,15 @@
   "name": "Motion Engineer",
   "generator": "mmx image generate",
   "source": "source/motion-engineer-front_001.jpg",
+  "candidateDirections": {
+    "singleImageBatch": "directions16/contact-sheet.jpg",
+    "sheet": "sheet16/motion-engineer-16way-sheet_001.jpg",
+    "status": "needs-regeneration",
+    "reason": "Single-image batch drifts into different characters; sheet candidate is more consistent but does not rotate enough."
+  },
   "notes": [
     "Prototype front-facing full body character for the 30s character story.",
-    "Background removal and watermark cleanup are still required before production use."
+    "Background removal and watermark cleanup are still required before production use.",
+    "16-direction candidates are archived for review but are not wired into the production actor manifest."
   ]
 }
