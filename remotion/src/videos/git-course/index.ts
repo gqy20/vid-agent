@@ -1,7 +1,7 @@
 import type {VideoRegistration} from '../types';
 import {ComponentGallery} from './ComponentGallery';
 import {Ep04BranchIsPointer} from './episodes/Ep04BranchIsPointer';
-import {RefLightboxIntro} from './kit';
+import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {DURATION_IN_FRAMES, FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
 export const registration: VideoRegistration = {
@@ -11,6 +11,14 @@ export const registration: VideoRegistration = {
       id: 'GitCourseVisibleSystemIntro',
       component: RefLightboxIntro,
       durationInFrames: seconds(7),
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseVisibleSystemOutro',
+      component: RefLightboxOutro,
+      durationInFrames: seconds(6),
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

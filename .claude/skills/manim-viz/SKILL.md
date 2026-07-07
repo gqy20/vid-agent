@@ -156,3 +156,27 @@ helper 脚本（8 个，缺哪个调哪个）：
 - **Remotion**（`remotion-vid` skill）：**React 组件驱动**视频，营销 / 产品展示，rich motion design
 
 两个 skill 互补不同范式——选对工具再开始写。
+
+## 课程类视频中的 Manim 边界
+
+技术课程中，先判断镜头表达是否需要 Manim，而不是先看本地有没有现成场景。
+
+优先用 Manim：
+
+- 对象关系：blob / tree / commit、parent 指针、内容寻址。
+- 图结构：DAG、merge base、three-way merge、rebase 复制提交。
+- 抽象过程：快照流、hash 变化传播、状态机、算法步骤。
+- 需要构建期几何检查：节点、箭头、标签不能重叠，方向必须稳定。
+
+不要用 Manim：
+
+- 课程品牌片头/片尾、标题、字幕、进度条。
+- 终端输入、代码窗口、diff、文件树。
+- 大段解释文字或 bullet 总结。
+
+如果一个镜头适合 Manim 但没有现成 scene，应新增 scene，而不是让 Remotion 临时硬画复杂关系。Manim 输出低文字结构动画，Remotion 用 `ManimClip` 合成字幕、进度和课程包装。
+
+Manim scene 完成后必须做两层检查：
+
+- Manim 内部：`assert_no_overlap`、`assert_inside_frame` 检查对象几何。
+- Remotion 合成后：抽最终成片 still，确认字幕、标题、进度条没有压住 Manim 图形。

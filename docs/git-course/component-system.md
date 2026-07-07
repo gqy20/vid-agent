@@ -7,6 +7,49 @@
 
 原则：Remotion 做可复用的视频系统，Manim 做专题原理动画。不要让 Manim 编排整集，也不要让 Remotion 硬画复杂数学结构。
 
+## 技术选型规则
+
+每个镜头先判断表达目标，再决定用 Remotion、Manim 或外部素材。不能只因为当前库里已有或没有某个场景就改变教学表达。
+
+### 默认使用 Remotion 的情况
+
+- 课程包装：片头、片尾、标题、章节进度、底部进度条。
+- 旁白字幕：`NarrationSubtitle`、`ActionCaption`、`QuestionCaption`。
+- 终端输入、命令输出、代码块、diff、文件树。
+- UI 状态流转：Working Tree、Index、Repository、refs 表。
+- 轻量 Git 图：commit 链、branch 标签、HEAD 指针、ref 写入。
+- 需要和字幕、终端、代码严格对齐的因果动作链。
+
+### 优先使用 Manim 的情况
+
+- 对象关系需要精密几何：blob、tree、commit、parent 指针。
+- 图结构需要清晰拓扑：DAG、merge base、three-way merge、rebase 复制提交。
+- 抽象模型需要逐步构造：快照流、内容寻址、Merkle-like tree、hash 传播。
+- 需要构建期几何检查的图：箭头、节点、标签不能重叠，且关系方向必须稳定。
+
+如果镜头适合 Manim 但本地还没有场景，不降级为随手写 Remotion SVG；应在分集文档中列为新增 Manim 场景资产，例如：
+
+```text
+scripts/manim/git-course/scenes/snapshot_stream_scene.py
+```
+
+### 外部图片和网络素材规则
+
+Git 课程优先使用自制矢量/Manim/Remotion 图形。只有这些情况才考虑外部图片或网络素材：
+
+- 需要展示真实界面或真实产品，例如 Git 官网、GitHub 页面、终端真实截图。
+- 需要历史语境，例如集中式版本控制、分布式协作的真实资料图。
+- 需要观众能立即识别的真实对象，而自制抽象图会降低理解效率。
+
+使用外部素材必须在分集文档中说明：
+
+- 用途：为什么需要真实图片，而不是自制图。
+- 来源：URL、许可或截图生成方式。
+- 存放位置：`remotion/public/git-course/assets/<episode-id>/`。
+- 替代方案：无法使用网络素材时，使用 Remotion/Manim 自制图。
+
+不允许把网络图片当作装饰背景。外部素材必须服务解释，不负责风格。
+
 ## Remotion 组件库
 
 路径：`remotion/src/videos/git-course/kit/`
@@ -18,6 +61,8 @@
 - `Intro`: 统一片头。
 - `EpisodeTitleCard`: 单集开头 hook 内使用的标题卡，不等同于全局品牌片头 `Intro`。
 - `Outro`: 统一片尾和本集总结。
+- `RefLightboxIntro`: 全课程统一品牌片头，独立 composition，默认 7 秒。
+- `RefLightboxOutro`: 全课程统一品牌片尾，独立 composition，默认 6 秒；不绑定具体分集，不放下集预告。
 - `ChapterProgress`: 顶部只显示当前章节编号和名称，避免观众迷失。
 - `VideoProgress`: 底部全局进度条，支持章节节点。视频内不需要 hover、预览或交互状态。
 - `PositionedMotion`: 统一绝对定位、透明度和位移动画容器，避免 episode 内反复散写定位 wrapper。

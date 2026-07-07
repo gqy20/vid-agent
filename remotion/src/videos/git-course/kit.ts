@@ -2,6 +2,7 @@ export {Intro} from './kit/brand/Intro';
 export {EpisodeTitleCard} from './kit/brand/EpisodeTitleCard';
 export {Outro} from './kit/brand/Outro';
 export {RefLightboxIntro} from './kit/brand/RefLightboxIntro';
+export {RefLightboxOutro} from './kit/brand/RefLightboxOutro';
 export {CodeBlock} from './kit/code/CodeBlock';
 export {CodeDiff} from './kit/code/CodeDiff';
 export type {DiffLine} from './kit/code/CodeDiff';

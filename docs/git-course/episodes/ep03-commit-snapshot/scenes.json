@@ -1,0 +1,138 @@
+{
+  "episodeId": "ep03-commit-snapshot",
+  "title": "Commit 不是保存按钮",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "script": "docs/git-course/episodes/ep03-commit-snapshot/script.md",
+    "beats": "docs/git-course/episodes/ep03-commit-snapshot/beats.md",
+    "references": [
+      "docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc",
+      "docs/references/progit2-zh/book/10-git-internals/sections/objects.asc"
+    ]
+  },
+  "productionPolicy": {
+    "remotionOwns": ["course packaging", "subtitles", "terminal", "state panel", "commit field card", "final composition"],
+    "manimOwns": ["blob/tree/commit object relation", "parent chain geometry", "hash identity transformation"],
+    "newManimScenes": [
+      {
+        "name": "CommitParentChainScene",
+        "path": "scripts/manim/git-course/scenes/commit_parent_chain_scene.py",
+        "requiredFor": "parent-chain",
+        "reason": "需要稳定表达普通 commit 的 parent 指针方向，并与后续 branch 图衔接。"
+      }
+    ],
+    "existingManimScenesToUpgrade": [
+      {
+        "name": "GitObjectModelScene",
+        "path": "scripts/manim/git-course/scenes/git_object_model_scene.py",
+        "requiredFor": "object-model",
+        "reason": "当前可用，但需要把关系方向调整为 commit -> tree -> blob，并统一中文字幕外置到 Remotion。"
+      },
+      {
+        "name": "HashScene",
+        "path": "scripts/manim/git-course/scenes/hash_scene.py",
+        "requiredFor": "hash-identity",
+        "reason": "当前可用，但需要统一课程配色、中文语义和 Remotion 合成方式。"
+      }
+    ],
+    "externalAssets": {
+      "needed": false,
+      "policy": "不使用网络 Git object model 图片；对象关系必须自制，以便控制箭头方向、术语、动画节奏和重叠检查。"
+    }
+  },
+  "states": {
+    "indexSnapshot": {
+      "index": ["README.md", "app.js", "style.css"],
+      "snapshot": "T1"
+    },
+    "objectModel": {
+      "blobs": ["B1", "B2", "B3"],
+      "tree": "T1",
+      "commit": "C1"
+    },
+    "commitFields": {
+      "commit": "C1",
+      "tree": "T1",
+      "parent": "C0",
+      "author": "user",
+      "message": "update app"
+    },
+    "history": {
+      "commits": ["C0", "C1", "C2"],
+      "parents": {
+        "C1": "C0",
+        "C2": "C1"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion title + commit node",
+      "components": ["EpisodeTitleCard", "QuestionCaption", "CommitNode"],
+      "goal": "否定 commit 是保存按钮的误解。"
+    },
+    {
+      "id": "from-index",
+      "title": "来自 Index",
+      "start": 12,
+      "duration": 26,
+      "primaryTechnique": "Git state panel",
+      "components": ["GitStatePanel", "StagingArea", "FileMove", "CommitNode"],
+      "goal": "展示 commit 读取 Index。"
+    },
+    {
+      "id": "object-model",
+      "title": "对象模型",
+      "start": 38,
+      "duration": 36,
+      "primaryTechnique": "Upgraded Manim GitObjectModelScene + Remotion captions",
+      "components": ["GitObjectModelScene", "ManimClip", "NarrationSubtitle"],
+      "goal": "展示 blob/tree/commit 的指针关系。"
+    },
+    {
+      "id": "commit-fields",
+      "title": "提交字段",
+      "start": 74,
+      "duration": 30,
+      "primaryTechnique": "Remotion object card",
+      "components": ["CommitObjectCard", "LineHighlight", "ArrowLine"],
+      "goal": "解释 tree、parent、author、time、message。"
+    },
+    {
+      "id": "parent-chain",
+      "title": "父提交链",
+      "start": 104,
+      "duration": 28,
+      "primaryTechnique": "New Manim CommitParentChainScene, Remotion GitGraph fallback only for simple graph",
+      "components": ["CommitParentChainScene", "ManimClip", "GitGraph", "ArrowLine"],
+      "goal": "展示 commit 通过 parent 连成历史。"
+    },
+    {
+      "id": "hash-identity",
+      "title": "Hash 身份",
+      "start": 132,
+      "duration": 26,
+      "primaryTechnique": "Manim HashScene + Remotion captions",
+      "components": ["HashScene", "ManimClip", "HashBadge", "MorphText"],
+      "goal": "说明 hash 是 commit 身份。"
+    },
+    {
+      "id": "takeaway",
+      "title": "结论",
+      "start": 158,
+      "duration": 22,
+      "primaryTechnique": "Commit graph conclusion",
+      "components": ["CenterGraph", "CommitNode", "BranchLabel", "ArrowLine"],
+      "goal": "收束并铺垫 branch 指向 commit。"
+    }
+  ]
+}

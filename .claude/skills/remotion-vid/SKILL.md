@@ -22,6 +22,10 @@ bug。
 `references/taste.md`,再改代码。它规定叙事结构、字体、截图、动效、Lottie 使用边界和
 交付前检查。
 
+如果用户在做系列课程、品牌片头/片尾、Remotion + Manim 混合课程包装，先读
+`references/course-branding.md`。它规定统一片头片尾、Concept Outro、Remotion/Manim
+分工、外部素材说明和最终抽帧对齐检查。
+
 ## 必备环境
 
 ```bash
@@ -147,6 +151,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 |------|------|
 | references/environment.md | pnpm、Chrome 下载修复、本地字体、排错 |
 | references/taste.md | **品味标准**:Awwwards 式叙事/动效原则、Lottie 使用边界、字幕去重、截图和交付检查 |
+| references/course-branding.md | **系列课程包装**:统一片头/片尾、Concept Outro、Remotion/Manim 分工、外部素材规则 |
 | references/render-project-layout.md | **产物布局** `renders/<日期>-<slug>/`、meta.json、debug/final、命名 |
 | references/still-check.md | 渲染前/成片后抽帧自检 SOP(`scripts/check-frames.sh`),含用户点名秒点复核 |
 | references/api-cheatsheet.md | 核心 API:interpolate / spring / Sequence / TransitionSeries / Easing |

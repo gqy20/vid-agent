@@ -1,0 +1,119 @@
+{
+  "episodeId": "ep02-working-tree-index-repo",
+  "title": "工作区、暂存区、仓库",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "script": "docs/git-course/episodes/ep02-working-tree-index-repo/script.md",
+    "beats": "docs/git-course/episodes/ep02-working-tree-index-repo/beats.md",
+    "references": [
+      "docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc",
+      "docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc"
+    ]
+  },
+  "productionPolicy": {
+    "remotionOwns": ["course packaging", "subtitles", "terminal", "code", "Working Tree / Index / Repository state motion", "final composition"],
+    "manimOwns": [],
+    "newManimScenes": [],
+    "externalAssets": {
+      "needed": false,
+      "policy": "不使用网络流程图或真实终端截图；终端、代码和三层状态全部用 Remotion 组件重建。"
+    }
+  },
+  "states": {
+    "clean": {
+      "workingTree": ["app.js"],
+      "index": [],
+      "repository": ["C0"]
+    },
+    "modified": {
+      "workingTree": ["app.js:modified"],
+      "index": [],
+      "repository": ["C0"]
+    },
+    "staged": {
+      "workingTree": ["app.js:v1"],
+      "index": ["app.js:v1"],
+      "repository": ["C0"]
+    },
+    "stagedAndModified": {
+      "workingTree": ["app.js:v2"],
+      "index": ["app.js:v1"],
+      "repository": ["C0"]
+    },
+    "committed": {
+      "workingTree": ["app.js:v2:uncommitted"],
+      "index": [],
+      "repository": ["C0", "C1:v1"]
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion title + file motion",
+      "components": ["EpisodeTitleCard", "QuestionCaption", "FileMove"],
+      "goal": "提出文件不是直接进入 commit。"
+    },
+    {
+      "id": "three-areas",
+      "title": "三层结构",
+      "start": 12,
+      "duration": 26,
+      "primaryTechnique": "Git state panel",
+      "components": ["GitStatePanel", "WorkingTree", "StagingArea", "RepositoryBox"],
+      "goal": "建立 Working Tree / Index / Repository。"
+    },
+    {
+      "id": "modify",
+      "title": "修改",
+      "start": 38,
+      "duration": 30,
+      "primaryTechnique": "Code diff + state highlight",
+      "components": ["CodeBlock", "LineHighlight", "FileMove"],
+      "goal": "展示修改只先发生在工作区。"
+    },
+    {
+      "id": "add",
+      "title": "暂存",
+      "start": 68,
+      "duration": 36,
+      "primaryTechnique": "Terminal command + file move",
+      "components": ["TerminalPanel", "TerminalTyping", "CommandStep", "FileMove"],
+      "goal": "展示 git add 暂存当前内容。"
+    },
+    {
+      "id": "edit-after-add",
+      "title": "再次修改",
+      "start": 104,
+      "duration": 30,
+      "primaryTechnique": "Split state comparison",
+      "components": ["CodeDiff", "CompareTable", "TerminalPanel"],
+      "goal": "说明同一文件可同时存在 staged 和 unstaged 变化。"
+    },
+    {
+      "id": "commit",
+      "title": "提交",
+      "start": 134,
+      "duration": 30,
+      "primaryTechnique": "Commit from index",
+      "components": ["TerminalTyping", "RepositoryBox", "CommitNode", "DataPacket"],
+      "goal": "展示 commit 读取 Index 写入 Repository。"
+    },
+    {
+      "id": "takeaway",
+      "title": "结论",
+      "start": 164,
+      "duration": 16,
+      "primaryTechnique": "Flow diagram",
+      "components": ["FlowDiagram", "ArrowLine", "DefinitionCard"],
+      "goal": "收束为修改、暂存、提交。"
+    }
+  ]
+}

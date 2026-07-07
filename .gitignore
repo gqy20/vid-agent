@@ -70,6 +70,9 @@ remotion/renders/*/*/renders/*/*.mp4
 # 抽帧调试临时 + 媒体资产（可由脚本重新生成）
 renders/*/frames/
 renders/*/frames_v2/
+renders/*/current/stills/
+remotion/renders/*/current/stills/
+remotion/renders/*/*/current/stills/
 renders/*/tts/*.wav
 renders/*/bgm/*.wav
 
@@ -117,6 +120,7 @@ docs/references/progit2-zh/
 .idea/
 # VSCode（个人偏好，不入库）
 .vscode/
+.codex/
 *.swp
 *.swo
 *~

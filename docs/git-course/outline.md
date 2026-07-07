@@ -2,16 +2,16 @@
 
 ## 第一季：Git 的对象和指针
 
-1. `ep01-what-git-stores`
+1. [`ep01-what-git-stores`](episodes/ep01-what-git-stores.md)
    Git 到底记录什么：版本控制不是文件夹复制，而是提交历史。
 
-2. `ep02-working-tree-index-repo`
+2. [`ep02-working-tree-index-repo`](episodes/ep02-working-tree-index-repo.md)
    工作区、暂存区、仓库：一次 commit 前，文件经过哪三层。
 
-3. `ep03-commit-snapshot`
+3. [`ep03-commit-snapshot`](episodes/ep03-commit-snapshot.md)
    commit 不是保存按钮：快照、parent、hash 和 message。
 
-4. `ep04-branch-is-pointer`
+4. [`ep04-branch-is-pointer`](episodes/ep04-branch-is-pointer.md)
    branch 只是一个指针：创建分支为什么几乎瞬间完成。
 
 5. `ep05-head`
