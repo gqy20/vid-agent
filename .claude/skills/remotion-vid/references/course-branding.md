@@ -94,7 +94,15 @@ scripts/manim/<course>/scenes/<scene_name>.py
 
 ## 抽帧检查
 
-统一片头/片尾至少抽这些帧：
+统一片头/片尾和每个课程片段,默认先从 encoded mp4 按**每秒 2 帧**抽连续帧:
+
+```bash
+.claude/skills/remotion-vid/scripts/check-frames.sh --video out.mp4 /tmp/check
+```
+
+contact sheet 每页最多 5 帧,保证能看清字幕、箭头、节点和小字重叠。
+
+如果只做片头/片尾的锁点复核,还要额外看这些关键帧：
 
 - 0s：是否空白或突兀。
 - 25%：节点/线条是否重叠。

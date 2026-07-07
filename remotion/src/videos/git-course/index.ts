@@ -1,5 +1,19 @@
 import type {VideoRegistration} from '../types';
 import {ComponentGallery} from './ComponentGallery';
+import {
+  EP01_DURATION_IN_FRAMES,
+  EP01_SCENES,
+  Ep01BadModelPreview,
+  Ep01IntegrityPreview,
+  Ep01LocalHistoryPreview,
+  Ep01SnapshotModelPreview,
+  Ep01TakeawayPreview,
+  Ep01VersionControlPreview,
+  Ep01WhatGitStores,
+  Ep01WhatGitStoresHook,
+} from './episodes/Ep01WhatGitStores';
+import {EP02_DURATION_IN_FRAMES, Ep02WorkingTreeIndexRepo} from './episodes/Ep02WorkingTreeIndexRepo';
+import {EP03_DURATION_IN_FRAMES, Ep03CommitSnapshot} from './episodes/Ep03CommitSnapshot';
 import {Ep04BranchIsPointer} from './episodes/Ep04BranchIsPointer';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {DURATION_IN_FRAMES, FPS, HEIGHT, seconds, WIDTH} from './timeline';
@@ -19,6 +33,86 @@ export const registration: VideoRegistration = {
       id: 'GitCourseVisibleSystemOutro',
       component: RefLightboxOutro,
       durationInFrames: seconds(6),
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01WhatGitStoresHook',
+      component: Ep01WhatGitStoresHook,
+      durationInFrames: EP01_SCENES[0].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01BadModel',
+      component: Ep01BadModelPreview,
+      durationInFrames: EP01_SCENES[1].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01VersionControl',
+      component: Ep01VersionControlPreview,
+      durationInFrames: EP01_SCENES[2].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01SnapshotModel',
+      component: Ep01SnapshotModelPreview,
+      durationInFrames: EP01_SCENES[3].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01LocalHistory',
+      component: Ep01LocalHistoryPreview,
+      durationInFrames: EP01_SCENES[4].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01Integrity',
+      component: Ep01IntegrityPreview,
+      durationInFrames: EP01_SCENES[5].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01Takeaway',
+      component: Ep01TakeawayPreview,
+      durationInFrames: EP01_SCENES[6].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp01WhatGitStores',
+      component: Ep01WhatGitStores,
+      durationInFrames: EP01_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp02WorkingTreeIndexRepo',
+      component: Ep02WorkingTreeIndexRepo,
+      durationInFrames: EP02_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp03CommitSnapshot',
+      component: Ep03CommitSnapshot,
+      durationInFrames: EP03_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

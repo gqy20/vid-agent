@@ -2,8 +2,11 @@
 
 ## 为什么有这一步
 
-全片渲染要几分钟,单帧抽帧只要几秒。等多分钟全片渲染**之后**才发现排版 bug
-(重叠、溢出、时机错、配色错),那一整次渲染就白费了。务必先逐场景检查一帧。
+全片渲染要几分钟,抽帧只要几十秒。等多分钟全片渲染**之后**才发现排版 bug
+(重叠、溢出、时机错、配色错),那一整次渲染就白费了。
+
+默认检查密度是**每秒 2 帧**。代表帧只能用于开发中快速定位,不能替代连续抽帧;动画、
+字幕、指针、终端缩放和转场都必须用 encoded mp4 的 2fps 抽帧检查。
 
 ## 何时抽帧
 
@@ -17,7 +20,7 @@
 
 ## 操作流程
 
-1. 每个场景挑一帧**代表帧**——该场景完全显示(非转场中)的时刻。若某场景在时间轴
+1. 开发中可先挑每个场景一帧**代表帧**——该场景完全显示(非转场中)的时刻。若某场景在时间轴
    偏移 `from`、入场约 40 帧完成,用 `from + 60`。
 2. 渲抽帧:
    ```bash
@@ -25,16 +28,31 @@
    # 官方廉价模式:加 --scale=0.25 出缩略图
    ```
    或批量:`scripts/check-frames.sh <CompId> 90 300 470 880 1200`。
-3. 逐张打开 PNG 检查(官方渲染前自查问题):
+3. 每个片段渲染成 mp4 后,必须按**每秒 2 帧**从 encoded mp4 抽连续帧:
+
+   ```bash
+   ffmpeg -hide_banner -loglevel error -y -i out.mp4 -vf fps=2 /tmp/check/f_%04d.jpg
+   ffmpeg -hide_banner -loglevel error -y -i out.mp4 \
+     -vf "fps=2,scale=960:-1,tile=5x1" /tmp/check/contact_2fps_%03d.jpg
+   ```
+
+   或用脚本:
+
+   ```bash
+   .claude/skills/remotion-vid/scripts/check-frames.sh --video out.mp4 /tmp/check
+   ```
+
+4. 逐张打开 PNG/JPG 和 contact sheet 检查。contact sheet 每页最多 5 帧,不要为了少文件把
+   单帧缩得太小:
    - 主信息能否被快速读到?
    - 有没有一个明确的视觉焦点?
    - 有无元素互相贴着、重叠、或溢出安全边距?
    - 这一帧若只看不到 1 秒,还说得通吗?
    - 高亮框是否圈住了正确语义单元,而不是只圈住相邻数字、表头或空白?
-4. 对每个转场不只抽中点,至少抽 `cut-6 / cut / cut+6 / cut+12`。高密度 UI 到高密度 UI
+5. 对每个转场不只抽中点,至少抽 `cut-6 / cut / cut+6 / cut+12`。高密度 UI 到高密度 UI
    还要做 contact sheet,确认没有双曝光、文字重影、截图互相压住。
-5. 外部资产(Manim/Lottie/Video)要抽**嵌入 Remotion 后**的 still。只看资产单独输出不够。
-6. 修 → 再抽 → 重复。通过后才跑全片渲染。
+6. 外部资产(Manim/Lottie/Video)要抽**嵌入 Remotion 后**的 still。只看资产单独输出不够。
+7. 修 → 再抽 → 重复。通过后才跑全片渲染。
 
 用户给出具体秒点时,用 encoded mp4 先复现问题:
 
@@ -54,7 +72,8 @@ done
 - 不在截图上放解释性文字 badge;需要说明时放到截图外的标题/正文区域。
 - 修改后先用 Remotion still 快速看,再从新 final mp4 抽同一组秒点确认。
 
-如果要看连续变化,用 frame select + tile 做 contact sheet:
+如果要看连续变化,默认用 2fps contact sheet。只在定位某个精确问题时,才用
+frame select + tile 做更小范围的 contact sheet:
 
 ```bash
 ffmpeg -hide_banner -loglevel error -y -i out.mp4 \

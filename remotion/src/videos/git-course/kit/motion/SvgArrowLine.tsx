@@ -16,11 +16,13 @@ export const SvgArrowLine: React.FC<{
   const p = clamp01(progress);
   const endX = mix(x1, x2, p);
   const endY = mix(y1, y2, p);
+  const angle = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
   return (
     <g data-audit-id={auditId} opacity={opacity}>
       <line x1={x1} y1={y1} x2={endX} y2={endY} stroke={color} strokeWidth={width} strokeLinecap="round" strokeDasharray={dash} />
       <path
-        d={`M${endX - 18} ${endY - 20} L${endX + 12} ${endY} L${endX - 18} ${endY + 20}`}
+        d="M-18 -20 L12 0 L-18 20"
+        transform={`translate(${endX} ${endY}) rotate(${angle})`}
         fill="none"
         stroke={color}
         strokeWidth={width}

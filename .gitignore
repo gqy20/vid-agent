@@ -16,8 +16,9 @@ __pycache__/
 *.pyd
 *.egg-info/
 
-# ── 视频产物（白名单：只追踪 current/*.mp4 + 元数据）──
-# 原则：默认 ignore 所有视频产物目录，只白名单 renders/*/renders/current/*.mp4。
+# ── 视频产物 ──
+# 原则：默认 ignore 可重新生成的视频、抽帧和审查产物。
+# 旧项目里已经追踪的 current/*.mp4 保持不动；新增 Remotion 成片不再自动入库。
 # 新增任何命名/目录自动被忽略，永不漏。
 # 详见 .claude/skills/{remotion-vid,manim-viz}/references/render-project-layout.md
 # 注：用单层通配 renders/*/X/，不用 **/X/（多层 + 多规则共存时 git 对短目录名有 quirk）。
@@ -55,6 +56,9 @@ remotion/renders/*/*/renders/segments/
 remotion/renders/*/*/renders/hook/
 remotion/renders/*/*/renders/final/
 remotion/renders/*/*/renders/mix.mp3
+remotion/renders/*/*/check/
+remotion/renders/*/*/check-*/
+remotion/renders/*/*/quality-audit.md
 
 # 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
 renders/*/renders/*.mp4
@@ -63,9 +67,11 @@ remotion/renders/*/renders/*.mp4
 remotion/renders/*/renders/*/*.mp4
 remotion/renders/*/*/renders/*.mp4
 remotion/renders/*/*/renders/*/*.mp4
+remotion/renders/*/*/*.mp4
+remotion/renders/*/*/*.png
+remotion/renders/*/*/*.jpg
+remotion/renders/*/*/*.jpeg
 !renders/*/renders/current/*.mp4
-!remotion/renders/*/renders/current/*.mp4
-!remotion/renders/*/*/renders/current/*.mp4
 
 # 抽帧调试临时 + 媒体资产（可由脚本重新生成）
 renders/*/frames/
@@ -73,6 +79,7 @@ renders/*/frames_v2/
 renders/*/current/stills/
 remotion/renders/*/current/stills/
 remotion/renders/*/*/current/stills/
+remotion/renders/*/*/stills/
 renders/*/tts/*.wav
 renders/*/bgm/*.wav
 
