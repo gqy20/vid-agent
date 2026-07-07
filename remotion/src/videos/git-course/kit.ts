@@ -26,6 +26,7 @@ export {Scene} from './kit/layout/Scene';
 export {PositionedMotion} from './kit/layout/PositionedMotion';
 export {SceneSequence} from './kit/layout/SceneSequence';
 export {VideoProgress} from './kit/layout/VideoProgress';
+export {ManimClip} from './kit/manim/ManimClip';
 export {ArrowLine, DrawLine, FocusPulse, MotionTitle, StrikeThrough, SvgArrowLine, TypewriterText} from './kit/motion';
 export {clamp01, easeOutBack, easeOutCubic, mix} from './kit/motion';
 export {GitStatePanel} from './kit/state/GitStatePanel';

@@ -146,7 +146,31 @@ Manim 可以原生检查自己的图形位置，因为每个 `Mobject` 都有包
 ### shared
 
 - `shared/palette.py`: 与 Remotion 对齐的语义色。
-- `shared/primitives.py`: commit node 等基础图元。
+- `shared/primitives.py`: Manim 基础图元和构建期检查。
+
+当前基础图元：
+
+- `label_text`: 统一 Manim 中文/英文文字样式。
+- `commit_node`: commit 圆点。
+- `branch_label`: 分支标签。
+- `pointer_to`: 指向 commit 或对象的 ref 指针。
+- `object_box`: blob / tree / commit 等对象盒子。
+- `graph_edge`: commit 图连线。
+- `causal_arrow`: 因果箭头。
+- `assert_inside_frame`: 检查元素没有出画。
+- `assert_no_overlap`: 检查两个元素没有几何重叠。
+
+Remotion 合成 Manim 输出时统一使用 `ManimClip`：
+
+```tsx
+<ManimClip
+  src="git-course/manim/ep04/branch-pointer.mp4"
+  title="branch pointer"
+  caption="branch 是一个 ref，指向某个 commit"
+/>
+```
+
+Manim 片段不直接承担整集标题、章节进度、字幕系统；这些由 Remotion 的 `CourseLayout`、`SceneSequence` 和字幕组件统一处理。
 
 ### scenes
 
