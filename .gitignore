@@ -46,13 +46,26 @@ remotion/renders/*/renders/hook/
 remotion/renders/*/renders/final/
 remotion/renders/*/renders/mix.mp3
 
+# remotion series layout: remotion/renders/<series>/<episode>/renders/...
+remotion/renders/*/*/renders/debug/
+remotion/renders/*/*/renders/tmp/
+remotion/renders/*/*/renders/candidates/
+remotion/renders/*/*/renders/archive/
+remotion/renders/*/*/renders/segments/
+remotion/renders/*/*/renders/hook/
+remotion/renders/*/*/renders/final/
+remotion/renders/*/*/renders/mix.mp3
+
 # 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
 renders/*/renders/*.mp4
 renders/*/renders/*/*.mp4
 remotion/renders/*/renders/*.mp4
 remotion/renders/*/renders/*/*.mp4
+remotion/renders/*/*/renders/*.mp4
+remotion/renders/*/*/renders/*/*.mp4
 !renders/*/renders/current/*.mp4
 !remotion/renders/*/renders/current/*.mp4
+!remotion/renders/*/*/renders/current/*.mp4
 
 # 抽帧调试临时 + 媒体资产（可由脚本重新生成）
 renders/*/frames/
@@ -78,6 +91,19 @@ remotion/out/
 remotion/.next/
 remotion/dist/
 mmx-renders/
+.playwright-cli/
+remotion/.playwright-cli/
+fronts/candidates/
+fronts/*.otf
+fronts/*.ttf
+fronts/*.ttc
+remotion/public/fonts/
+remotion/src/font-assets/
+
+# ── 外部参考资料本地缓存 ──
+# 可通过 scripts/fetch-progit-references.sh 重新拉取；主仓库只提交索引和脚本。
+docs/references/progit2/
+docs/references/progit2-zh/
 
 # ── 密钥 / 本地配置 ──
 .env

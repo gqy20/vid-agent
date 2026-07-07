@@ -1,0 +1,294 @@
+{
+  "episodeId": "ep04-branch-is-pointer",
+  "title": "Branch 只是一个指针",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "timeline": "remotion/src/videos/git-course/timeline.ts",
+    "episode": "remotion/src/videos/git-course/episodes/Ep04BranchIsPointer.tsx",
+    "script": "docs/git-course/episodes/ep04-branch-is-pointer/script.md",
+    "beats": "docs/git-course/episodes/ep04-branch-is-pointer/beats.md"
+  },
+  "states": {
+    "base": {
+      "main": "C2",
+      "headBranch": "main",
+      "commits": ["C0", "C1", "C2"]
+    },
+    "withFeature": {
+      "main": "C2",
+      "feature": "C2",
+      "headBranch": "main",
+      "commits": ["C0", "C1", "C2"]
+    },
+    "switched": {
+      "main": "C2",
+      "feature": "C2",
+      "headBranch": "feature",
+      "commits": ["C0", "C1", "C2"]
+    },
+    "committed": {
+      "main": "C2",
+      "feature": "C3",
+      "headBranch": "feature",
+      "commits": ["C0", "C1", "C2", "C3"]
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion SVG + title animation",
+      "components": ["CourseLayout", "BranchPointerHookGraph", "VideoProgress"],
+      "goal": "抛出 branch 是什么的问题，并建立 main/HEAD/commit 的最小视觉词汇。",
+      "beats": [
+        {
+          "time": [0, 2],
+          "visual": "居中大标题",
+          "motion": "标题淡入，Branch 下划线展开",
+          "state": null,
+          "narration": "第四集，我们只讲 branch 到底是什么。",
+          "audit": ["标题独占画面", "不提前出现复杂图"]
+        },
+        {
+          "time": [2, 7.6],
+          "visual": "C0-C1-C2 极简提交链",
+          "motion": "commit 依次出现，main 落到 C2，C2 pulse 一次",
+          "state": "base",
+          "narration": "先看当前历史，main 指向 C2。",
+          "audit": ["main 箭头不压 C2", "pulse 不循环"]
+        },
+        {
+          "time": [8, 12],
+          "visual": "HEAD 与问题句",
+          "motion": "HEAD 出现，底部问题淡入",
+          "state": "base",
+          "narration": "如果只是一个名字，切换分支到底改变了什么？",
+          "audit": ["字幕不遮挡图", "HEAD 清晰指向 main"]
+        }
+      ]
+    },
+    {
+      "id": "mental-model",
+      "title": "模型",
+      "start": 12,
+      "duration": 18,
+      "primaryTechnique": "Remotion SVG + Git motion components",
+      "components": ["MotionTitle", "WorkingTreeCard", "SvgArrowLine", "StrikeThrough", "BranchRefMentalModelGraph", "CommitChain", "BranchTag", "ArrowLine", "RefWrite", "TypewriterText"],
+      "goal": "否定复制目录模型，建立 branch 是 ref 的模型。",
+      "beats": [
+        {
+          "time": [12, 15.5],
+          "visual": "main 工作区与 feature 工作区误解",
+          "motion": "feature 工作区滑入，红色斜线划过",
+          "state": null,
+          "narration": "创建分支不是复制一份目录。",
+          "audit": ["斜线不挡标题", "卡片不重叠", "动画只发生一次"]
+        },
+        {
+          "time": [15.5, 19.2],
+          "visual": "正确标题与 C0-C1-C2",
+          "motion": "误解模型淡出，commit 链依次生成",
+          "state": "base",
+          "narration": "真正发生的是，Git 多写一个名字。",
+          "audit": ["不能留下半透明残影", "节点居中"]
+        },
+        {
+          "time": [19.5, 22.4],
+          "visual": "main 指向 C2，ref 写入",
+          "motion": "main 落到 C2，RefWrite 逐字输入",
+          "state": "base-to-withFeature",
+          "narration": "写入 refs/heads/feature -> C2。",
+          "audit": ["RefWrite 不出现 ghost", "main 与 C2 间距 >= 44px"]
+        },
+        {
+          "time": [22.2, 30],
+          "visual": "feature 与 main 同指 C2",
+          "motion": "feature 从上方落到 C2，两个箭头保持，总结出现",
+          "state": "withFeature",
+          "narration": "branch 是一个 ref，可以和 main 指向同一个 commit。",
+          "audit": ["feature/main 都必须使用箭头", "字幕不遮挡图"]
+        }
+      ]
+    },
+    {
+      "id": "terminal",
+      "title": "命令",
+      "start": 30,
+      "duration": 18,
+      "primaryTechnique": "Remotion terminal component",
+      "components": ["TerminalFocusScene", "AnimatedTerminal"],
+      "goal": "展示真实命令顺序，为后续状态动画建立因果。",
+      "beats": [
+        {
+          "time": [30, 36],
+          "visual": "全屏终端输入 git branch feature",
+          "motion": "逐字输入",
+          "state": "base-to-withFeature",
+          "narration": "先创建 feature。",
+          "audit": ["输入阶段只保留终端", "不显示 refs 表"]
+        },
+        {
+          "time": [39, 48],
+          "visual": "继续输入 switch/commit 命令",
+          "motion": "逐字输入与停顿",
+          "state": "command-sequence",
+          "narration": "接下来切换过去，再提交一次。",
+          "audit": ["命令文本不溢出", "终端阴影克制"]
+        }
+      ]
+    },
+    {
+      "id": "branch-write",
+      "title": "写入 ref",
+      "start": 48,
+      "duration": 22,
+      "primaryTechnique": "Command + GitGraph + ref write panel",
+      "components": ["CommandPill", "CenterGraph", "GitGraph", "RefWriteBar", "SideLabel"],
+      "goal": "把 git branch feature 翻译成 refs/heads/feature -> C2。",
+      "beats": [
+        {
+          "time": [48, 55],
+          "visual": "命令胶囊、base 图、ref 写入条",
+          "motion": "ref 条从左向右填充",
+          "state": "base-to-withFeature",
+          "narration": "Git 写入一条 ref。",
+          "audit": ["ref 行可读", "命令不抢主视觉"]
+        },
+        {
+          "time": [55, 70],
+          "visual": "ref 行稳定与侧边解释",
+          "motion": "侧边说明淡入",
+          "state": "withFeature",
+          "narration": "feature 这个名字指向 C2。",
+          "audit": ["侧边文字不压图", "不同时高亮太多元素"]
+        }
+      ]
+    },
+    {
+      "id": "branch-result",
+      "title": "分支出现",
+      "start": 70,
+      "duration": 28,
+      "primaryTechnique": "GitGraph state display",
+      "components": ["CommandPill", "CenterGraph", "GitGraph", "MiniRefLine", "SideLabel"],
+      "goal": "让 feature 在图上出现，并证明 main 没有移动。",
+      "beats": [
+        {
+          "time": [70, 74],
+          "visual": "feature 出现在 C2",
+          "motion": "当前实现为状态切换，目标应升级为落点动画",
+          "state": "withFeature",
+          "narration": "feature 落到 C2。",
+          "audit": ["feature/main 指向关系清楚", "后续补真实 motion"]
+        },
+        {
+          "time": [74, 98],
+          "visual": "ref 小窗与 main/feature 说明",
+          "motion": "说明依次出现",
+          "state": "withFeature",
+          "narration": "两个名字，同一个 commit。",
+          "audit": ["信息层不要超过三层", "底部文字安全"]
+        }
+      ]
+    },
+    {
+      "id": "switch",
+      "title": "HEAD 切换",
+      "start": 98,
+      "duration": 24,
+      "primaryTechnique": "GitGraph headMotion",
+      "components": ["CommandPill", "CenterGraph", "GitGraph", "MiniRefLine", "SideLabel"],
+      "goal": "让 HEAD 成为唯一主角，解释 switch 不改变 commit。",
+      "beats": [
+        {
+          "time": [98, 106],
+          "visual": "HEAD 从 main 滑到 feature",
+          "motion": "headMotion",
+          "state": "withFeature-to-switched",
+          "narration": "HEAD 从 main 移到 feature。",
+          "audit": ["只高亮 HEAD", "commit 不要抢焦点"]
+        },
+        {
+          "time": [106, 122],
+          "visual": ".git/HEAD 小窗",
+          "motion": "HEAD -> feature 出现",
+          "state": "switched",
+          "narration": "改变的是当前所在分支。",
+          "audit": ["小窗不压 branch 标签"]
+        }
+      ]
+    },
+    {
+      "id": "commit",
+      "title": "feature 前进",
+      "start": 122,
+      "duration": 32,
+      "primaryTechnique": "GitGraph branchMotion",
+      "components": ["CommandPill", "CenterGraph", "GitGraph", "MiniRefLine", "SideLabel"],
+      "goal": "提交后让 feature 前进，main 留在原地。",
+      "beats": [
+        {
+          "time": [122, 128.2],
+          "visual": "C3 生成",
+          "motion": "当前实现为状态出现，目标应加强生成动画",
+          "state": "switched-to-committed",
+          "narration": "新 commit C3 出现。",
+          "audit": ["C3 不应突然硬切", "命令文本不溢出"]
+        },
+        {
+          "time": [128.3, 154],
+          "visual": "feature 前进到 C3，main 停在 C2",
+          "motion": "branchMotion",
+          "state": "committed",
+          "narration": "因为 HEAD 在 feature 上，所以前进的是 feature。",
+          "audit": ["main 必须停顿强调", "分叉关系清楚"]
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "title": "对比",
+      "start": 154,
+      "duration": 14,
+      "primaryTechnique": "Two GitGraph comparison",
+      "components": ["GitGraph"],
+      "goal": "对比刚创建和提交后的两种状态。",
+      "beats": [
+        {
+          "time": [154, 168],
+          "visual": "左右两个 GitGraph",
+          "motion": "标题和两图顺序出现",
+          "state": "withFeature-vs-committed",
+          "narration": "刚创建时同指 C2，提交后 feature 前进。",
+          "audit": ["左右说明不重叠", "避免课件感"]
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "结论",
+      "start": 168,
+      "duration": 12,
+      "primaryTechnique": "State recap",
+      "components": ["GitGraph"],
+      "goal": "用一句话和三步状态变化收束。",
+      "beats": [
+        {
+          "time": [168, 180],
+          "visual": "结论文字 + GitGraph 状态切换",
+          "motion": "withFeature -> switched -> committed",
+          "state": "recap",
+          "narration": "Branch 是名字，名字会移动。",
+          "audit": ["结论文字不遮图", "结束画面保持清楚"]
+        }
+      ]
+    }
+  ]
+}

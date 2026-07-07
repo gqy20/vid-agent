@@ -22,7 +22,8 @@ const REGISTRATIONS: VideoRegistration[] = ctx
   .keys()
   .sort()
   .filter((k) => (videoFilter ? k.includes(`/${videoFilter}/`) : true))
-  .map((k) => (ctx(k) as {registration: VideoRegistration}).registration);
+  .map((k) => (ctx(k) as {registration?: VideoRegistration}).registration)
+  .filter((registration): registration is VideoRegistration => registration !== undefined);
 
 const COMPOSITIONS: CompositionDescriptor[] = REGISTRATIONS.flatMap(
   (r) => r.compositions,
