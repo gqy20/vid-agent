@@ -44,33 +44,37 @@ export const GitRefWritePanel: React.FC<{
       style={{
         width: 800,
         height: 470,
-        borderRadius: 8,
+        borderRadius: 10,
         overflow: 'hidden',
         border: `1px solid ${COLOR.stroke.soft}`,
-        boxShadow: `0 10px 26px ${COLOR.effects.shadowSoft}`,
-        background: 'rgba(255,255,255,0.72)',
+        boxShadow: `0 24px 72px ${COLOR.effects.shadowSoft}`,
+        background: 'rgba(255,255,255,0.54)',
+        backdropFilter: 'blur(6px)',
         display: 'grid',
-        gridTemplateRows: '92px 1fr',
-        padding: '34px 48px',
+        gridTemplateRows: '86px 1fr',
+        padding: '30px 44px',
       }}
     >
       <div>
-        <div style={{...TYPE.title, fontSize: 36}}>{title}</div>
-        <div style={{...TYPE.body, color: COLOR.text.secondary, marginTop: 8}}>{description}</div>
+        <div style={{...TYPE.title, fontSize: 34, color: COLOR.text.primary}}>{title}</div>
+        <div style={{...TYPE.ui, color: COLOR.text.secondary, marginTop: 8}}>{description}</div>
       </div>
       <svg width="744" height="320" viewBox="0 0 744 320" style={{display: 'block'}}>
+        <path d="M70 100 H672" stroke={COLOR.stroke.soft} strokeWidth="1.5" strokeLinecap="round" opacity="0.58" />
         <line
           x1={lineStart}
           y1="255"
           x2={lineEnd}
           y2="255"
           stroke={COLOR.git.graphLine}
-          strokeWidth="8"
+          strokeWidth="7"
           strokeLinecap="round"
+          opacity="0.9"
         />
         {points.map((point) => (
           <g key={point.id}>
-            <circle cx={point.x} cy={point.y} r="32" fill={COLOR.canvas.base} stroke={COLOR.git.commit} strokeWidth="6" />
+            <circle cx={point.x} cy={point.y + 10} r="33" fill={COLOR.effects.shadowSoft} opacity="0.46" />
+            <circle cx={point.x} cy={point.y} r="31" fill={COLOR.canvas.base} stroke={COLOR.git.commit} strokeWidth="5.4" />
             <text
               x={point.x}
               y={point.y + 9}
@@ -85,7 +89,7 @@ export const GitRefWritePanel: React.FC<{
           </g>
         ))}
         <g opacity={write}>
-          <rect x="72" y="38" width={360 * write} height="52" rx="10" fill={COLOR.canvas.raised} />
+          <rect x="72" y="38" width={360 * write} height="52" rx="8" fill={COLOR.canvas.raised} stroke={COLOR.stroke.soft} />
           <text x="94" y="72" fontFamily={FONT.mono} fontSize={TYPE.codeSmall.fontSize} fill={accent}>
             {refName}
           </text>
@@ -101,10 +105,10 @@ export const GitRefWritePanel: React.FC<{
               x2={targetPoint.x}
               y2="220"
               stroke={accent}
-              strokeWidth="6"
+              strokeWidth="5"
               strokeLinecap="round"
             />
-            <rect x={targetPoint.x - 70} y="82" width="140" height="54" rx="10" fill={accent} />
+            <rect x={targetPoint.x - 70} y="82" width="140" height="54" rx="8" fill={accent} opacity="0.96" />
             <text
               x={targetPoint.x}
               y="116"

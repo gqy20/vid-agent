@@ -1,4 +1,4 @@
-import {COLOR} from '../../palette';
+import {COLOR, FONT} from '../../palette';
 import {TYPE} from '../../typography';
 
 export type GitArea = {
@@ -18,22 +18,55 @@ export const GitStatePanel: React.FC<{
   areas: readonly GitArea[];
 }> = ({areas}) => {
   return (
-    <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap: 18, width: '100%'}}>
+    <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap: 14, width: '100%'}}>
       {areas.map((area) => (
         <div
           key={area.id}
           style={{
             minHeight: 260,
-            borderRadius: 14,
-            border: `1px solid ${area.active ? AREA_ACCENT[area.id] : COLOR.stroke.default}`,
-            background: area.active ? COLOR.canvas.overlay : COLOR.canvas.raised,
-            boxShadow: area.active ? `0 18px 42px ${COLOR.effects.shadowSoft}` : undefined,
-            padding: '22px 24px',
+            borderRadius: 8,
+            border: `1px solid ${area.active ? AREA_ACCENT[area.id] : COLOR.stroke.soft}`,
+            background: area.active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.52)',
+            boxShadow: area.active ? `0 18px 54px ${COLOR.effects.shadowSoft}` : undefined,
+            padding: '20px 20px 18px',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          <div style={{display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18}}>
-            <span style={{width: 11, height: 32, borderRadius: 999, background: AREA_ACCENT[area.id], display: 'inline-block'}} />
-            <div style={{...TYPE.ui, color: COLOR.text.primary, fontWeight: 760}}>{area.title}</div>
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: '100%',
+              height: 4,
+              background: AREA_ACCENT[area.id],
+              opacity: area.active ? 1 : 0.42,
+            }}
+          />
+          <div style={{display: 'grid', gap: 7, marginBottom: 18}}>
+            <div
+              style={{
+                ...TYPE.ui,
+                color: COLOR.text.primary,
+                fontWeight: 760,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {area.title}
+            </div>
+            <div
+              style={{
+                ...TYPE.label,
+                fontFamily: FONT.mono,
+                color: area.active ? AREA_ACCENT[area.id] : COLOR.text.tertiary,
+                fontWeight: 780,
+              }}
+            >
+              {area.active ? 'active' : area.files.length}
+            </div>
           </div>
           <div style={{display: 'grid', gap: 10}}>
             {area.files.map((file) => (
@@ -41,13 +74,29 @@ export const GitStatePanel: React.FC<{
                 key={file}
                 style={{
                   ...TYPE.codeSmall,
+                  fontFamily: FONT.mono,
+                  fontSize: 19,
                   color: COLOR.text.secondary,
                   borderRadius: 8,
-                  background: COLOR.canvas.soft,
+                  border: `1px solid ${COLOR.stroke.soft}`,
+                  background: area.active ? COLOR.canvas.overlay : COLOR.canvas.soft,
                   padding: '8px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {file}
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 999,
+                    background: AREA_ACCENT[area.id],
+                    opacity: area.active ? 1 : 0.48,
+                    flex: '0 0 auto',
+                  }}
+                />
+                <span>{file}</span>
               </div>
             ))}
           </div>

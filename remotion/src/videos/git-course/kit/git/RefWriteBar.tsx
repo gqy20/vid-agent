@@ -30,13 +30,25 @@ export const RefWriteBar: React.FC<{
       top: y,
       width,
       height,
-      background: COLOR.canvas.raised,
+      background: 'rgba(255,255,255,0.68)',
       border: `1px solid ${COLOR.stroke.soft}`,
       borderRadius: 8,
       overflow: 'hidden',
+      boxShadow: `0 12px 34px ${COLOR.effects.shadowSoft}`,
     }}
   >
     <div style={{height: '100%', width: `${progress * 100}%`, background: 'rgba(164,95,73,0.12)'}} />
+    <div
+      style={{
+        position: 'absolute',
+        left: `${progress * 100}%`,
+        top: 10,
+        bottom: 10,
+        width: 2,
+        background: accent,
+        opacity: progress > 0 && progress < 1 ? 0.78 : 0,
+      }}
+    />
     <div
       style={{
         position: 'absolute',

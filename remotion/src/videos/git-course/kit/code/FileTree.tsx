@@ -33,11 +33,12 @@ export const FileTree: React.FC<{
     <div
       style={{
         width: '100%',
-        borderRadius: 14,
-        background: COLOR.canvas.raised,
-        border: `1px solid ${COLOR.stroke.default}`,
+        borderRadius: 8,
+        background: 'rgba(255,255,255,0.68)',
+        border: `1px solid ${COLOR.stroke.soft}`,
         overflow: 'hidden',
         fontFamily: FONT.mono,
+        boxShadow: `0 12px 32px ${COLOR.effects.shadowSoft}`,
       }}
     >
       <div
@@ -46,7 +47,7 @@ export const FileTree: React.FC<{
           display: 'flex',
           alignItems: 'center',
           padding: '0 18px',
-          borderBottom: `1px solid ${COLOR.stroke.default}`,
+          borderBottom: `1px solid ${COLOR.stroke.soft}`,
           fontFamily: FONT.sans,
           color: COLOR.text.secondary,
           ...TYPE.codeSmall,
@@ -63,18 +64,19 @@ export const FileTree: React.FC<{
               key={`${row.depth}-${row.name}`}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '28px 1fr auto',
+                gridTemplateColumns: '44px minmax(0, 1fr) auto',
                 alignItems: 'center',
-                gap: 10,
+                columnGap: 12,
                 padding: `5px 20px 5px ${20 + row.depth * 28}px`,
                 background: active ? COLOR.effects.headHighlight : 'transparent',
                 color: active ? COLOR.text.primary : COLOR.text.secondary,
+                borderLeft: active ? `3px solid ${COLOR.git.head}` : '3px solid transparent',
               }}
             >
-              <span style={{color: row.kind === 'folder' ? COLOR.git.main : COLOR.text.tertiary}}>
-                {row.kind === 'folder' ? 'dir' : 'doc'}
+              <span style={{color: row.kind === 'folder' ? COLOR.git.main : COLOR.text.tertiary, fontWeight: 760}}>
+                {row.kind === 'folder' ? 'dir' : 'blob'}
               </span>
-              <span>{row.name}</span>
+              <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{row.name}</span>
               {row.status ? <span style={{color: status, fontWeight: 760}}>{row.status}</span> : <span />}
             </div>
           );

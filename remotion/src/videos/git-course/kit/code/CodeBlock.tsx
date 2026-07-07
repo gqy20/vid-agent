@@ -10,11 +10,12 @@ export const CodeBlock: React.FC<{
     <div
       style={{
         width: '100%',
-        borderRadius: 14,
-        background: COLOR.canvas.raised,
-        border: `1px solid ${COLOR.stroke.default}`,
+        borderRadius: 8,
+        background: 'rgba(255,255,255,0.68)',
+        border: `1px solid ${COLOR.stroke.soft}`,
         overflow: 'hidden',
         fontFamily: FONT.mono,
+        boxShadow: `0 12px 32px ${COLOR.effects.shadowSoft}`,
       }}
     >
       {title ? (
@@ -24,7 +25,7 @@ export const CodeBlock: React.FC<{
             display: 'flex',
             alignItems: 'center',
             padding: '0 18px',
-            borderBottom: `1px solid ${COLOR.stroke.default}`,
+            borderBottom: `1px solid ${COLOR.stroke.soft}`,
             fontFamily: FONT.sans,
             color: COLOR.text.secondary,
             ...TYPE.codeSmall,
@@ -38,10 +39,11 @@ export const CodeBlock: React.FC<{
           <div
             key={`${idx}-${line}`}
             style={{
-              padding: '3px 24px',
+              padding: '4px 24px',
               background: highlight.includes(idx) ? COLOR.effects.headHighlight : 'transparent',
               color: highlight.includes(idx) ? COLOR.text.primary : COLOR.text.secondary,
               whiteSpace: 'pre',
+              borderLeft: highlight.includes(idx) ? `3px solid ${COLOR.git.head}` : '3px solid transparent',
             }}
           >
             <span style={{display: 'inline-block', width: 38, color: COLOR.text.tertiary}}>{idx + 1}</span>
