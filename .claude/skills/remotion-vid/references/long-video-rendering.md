@@ -40,14 +40,30 @@ Remotion 默认已经按帧并发渲染,`--concurrency` 控制单个 render 进�
 命令模板:
 
 ```bash
-JOBS=2 CONCURRENCY=4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh <CompId> <slug> <total_frames> 600
+OUT_ROOT="renders/<id>/renders/tmp/chunks" \
+JOBS=10 CONCURRENCY=2 TIMEOUT=120000 MUTED=1 \
+scripts/render-ranges.sh <CompId> <slug> <total_frames> 600
 ```
 
 如果 smoke test 不稳定,先使用:
 
 ```bash
-pnpm exec remotion render <CompId> out/video.mp4 --concurrency=8 --timeout=120000
+pnpm exec remotion render <CompId> renders/<id>/renders/tmp/smoke.mp4 --concurrency=8 --timeout=120000
 ```
+
+## 单段分析不需要合成全片
+
+分析具体场景时,直接渲染逻辑 range 并抽帧审查:
+
+```bash
+OUT_ROOT="renders/<id>/renders/tmp/scenes" \
+RANGES_FILE="scripts/ranges/<slug>-scenes.tsv" \
+SKIP_CONCAT=1 AUDIT_SEGMENTS=1 TIMEOUT=120000 MUTED=1 \
+scripts/render-ranges.sh <CompId> <slug> <total_frames> 600
+```
+
+`chunks` 是为了最终合成的等长 frame range；`scenes` 是为了导演审查的逻辑镜头。两者不要混放,
+否则很难判断一个目录里的 mp4 到底是生产分片、审查片段还是失败重试。
 
 ## 进阶方案:按 scene segment 渲染
 

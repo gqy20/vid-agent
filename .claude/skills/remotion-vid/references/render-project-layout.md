@@ -39,14 +39,14 @@ Remotion 必须有 bundler 入口 + node_modules，**每条视频自带一份依
         ├── thumbnail.png                # 当前发布版的中点帧预览
         └── renders/
             ├── debug/                   # -ql 草稿迭代（gitignored）
-            ├── tmp/                     # 高质量中间产物：_work/_visual/_analysis/segments（gitignored）
+            ├── tmp/                     # 高质量中间产物：chunks/scenes/audit/_work（gitignored）
             ├── candidates/              # 候选发布版 <slug>_<label>.mp4（gitignored，待评审）
             ├── current/                 # ★ 唯一发布版 <slug>.mp4（tracked，固定名）
             └── archive/                 # 历史发布版 <slug>_<label>_<date>.mp4（gitignored）
 ```
 
 `current/` 只放**当前发布版**这一个文件，名字永远是 `<slug>.mp4`（无版本后缀）。
-渲染产物、实验、旧版、分片、工作目录**绝不**直接进 `current/`——它们进 `tmp/`（中间）
+渲染产物、实验、旧版、分片、场景审查、工作目录**绝不**直接进 `current/`——它们进 `tmp/`（中间）
 或 `candidates/`（待评审），评审通过才 `promote` 到 `current/`，旧 `current/` 自动归档到 `archive/`。
 
 slug：小写、连字符、≤ 32 字符，匹配视频**讲什么**（如 `cc-insights-promo`、
@@ -77,7 +77,8 @@ cd <remotion-project>
 ID="$(date +%Y-%m-%d)-<slug>"
 mkdir -p "src/videos/<slug>/scenes" \
          "renders/$ID/renders/debug" "renders/$ID/renders/tmp" \
-         "renders/$ID/renders/candidates" "renders/$ID/renders/current" \
+         "renders/$ID/renders/tmp/chunks" "renders/$ID/renders/tmp/scenes" \
+         "renders/$ID/renders/tmp/audit" "renders/$ID/renders/candidates" "renders/$ID/renders/current" \
          "renders/$ID/renders/archive"
 # 写 src/videos/<slug>/<Slug>.tsx + scenes/* + index.ts(导出 registration)
 ```
@@ -112,10 +113,25 @@ OUT_ROOT="renders/<id>/renders/tmp" scripts/render-final.sh <Slug> <slug>
 超过 90s 或单片渲染超过 5 分钟时，按 frame range 分片（见 [`long-video-rendering.md`](long-video-rendering.md)）：
 
 ```bash
-JOBS=2 CONCURRENCY=4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh <Slug> <slug> <total_frames> 600
+OUT_ROOT="renders/<id>/renders/tmp/chunks" \
+JOBS=10 CONCURRENCY=2 TIMEOUT=120000 MUTED=1 \
+scripts/render-ranges.sh <Slug> <slug> <total_frames> 600
 ```
 
 分片产物（`segments/`、`*.ffconcat`）落 `tmp/`，确认稳定后 promote 合并后的 mp4。
+
+如果只要分析某几个逻辑场景，不必合成全片。用 TSV 声明 `index/start/end`，把结果放进
+`tmp/scenes/`：
+
+```bash
+OUT_ROOT="renders/<id>/renders/tmp/scenes" \
+RANGES_FILE="scripts/ranges/<slug>-scenes.tsv" \
+SKIP_CONCAT=1 AUDIT_SEGMENTS=1 TIMEOUT=120000 MUTED=1 \
+scripts/render-ranges.sh <Slug> <slug> <total_frames> 600
+```
+
+`tmp/chunks/` 用于最终分片合成，`tmp/scenes/` 用于按镜头审查，`tmp/audit/` 用于成片抽帧和
+质量报告。不要把这些目录散落到根 `out/`。
 
 ### 6. promote：tmp/ → candidates/ → current/（**关键新步骤**）
 
@@ -201,12 +217,13 @@ label 必须是语义短词（`cutfix`/`ccopt`/`manim-hybrid`），描述这版�
 
 ## 清理
 
-- **`tmp/`** 全是可重建的中间产物（`_work`/`_visual`/`_analysis`/`segments`），
+- **`tmp/`** 全是可重建的中间产物（`chunks`/`scenes`/`audit`/`_work`），
   随时可删：`scripts/cleanup.sh [--dry-run] [--force]`。
 - **`debug/`** 旧草稿是迭代历史，磁盘紧张时只留最新。
 - **`archive/`** 历史发布版，30 天以上的可清（`cleanup.sh --archive-older-than 30`）。
 - **`current/`** 永远只有 1 个文件，不用清。
-- **工程根 `out/`** 临时——归档后可删。
+- **工程根 `out/`** 只做一次性 scratch；项目脚本必须设置 `OUT_ROOT` 写入对应
+  `renders/<id>/renders/tmp/`，归档后可删。
 - **`node_modules/`** 永远 gitignore。
 
 ## gitignore 策略（白名单）

@@ -1,0 +1,72 @@
+{
+  "id": "git-course-ep04-branch-is-pointer",
+  "series": "看得见的 Git",
+  "title": "Branch 只是一个指针",
+  "created": "2026-07-06T00:00:00+08:00",
+  "description": "Remotion + Manim 原型集：解释 Git 分支是指向 commit 的可移动指针，不是项目副本。",
+  "composition_id": "GitCourseEp04BranchIsPointer",
+  "source": "src/videos/git-course/",
+  "theme_tags": [
+    "git",
+    "course",
+    "remotion",
+    "manim",
+    "education"
+  ],
+  "composition": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationInFrames": 2100,
+    "durationSeconds": 70
+  },
+  "assets": {
+    "manimBranchPointerReference": "public/git-course/manim/ep04/branch-pointer.mp4",
+    "manimSource": "scripts/manim/git-course/ep04_branch_pointer.py",
+    "references": [
+      "docs/references/progit2-zh/ch03-git-branching.asc",
+      "docs/references/progit2/ch03-git-branching.asc"
+    ]
+  },
+  "current": {
+    "label": "prototype-remotion-manim",
+    "path": "renders/current/ep04-branch-is-pointer.mp4",
+    "sha256": "7770408380f0fbcecbbad8546408818854719053c8465ec7cd5bb08e1dae87cc",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "duration_s": 180.000000,
+    "bit_rate_bps": 126461,
+    "size_bytes": 2845379,
+    "promoted_at": "2026-07-06T00:00:00+08:00",
+    "command": "pnpm run render:git:ep04",
+    "synced_at": "2026-07-07T11:02:35+0800"
+  },
+  "checks": {
+    "typecheck": "pnpm typecheck",
+    "layoutAudit": "renders/tmp/final-check/contact-sheet.jpg",
+    "visualAudit": "renders/tmp/audit-visual/contact-16.jpg",
+    "ffprobe": {
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "frames": 5400,
+        "fps": "30/1"
+      },
+      "audio": {
+        "codec": null,
+        "sampleRate": null,
+        "channels": 0,
+        "note": "no audio stream"
+      }
+    }
+  },
+  "thumbnail": "thumbnail.png",
+  "knownIssues": [
+    "当前原型约 70 秒；正式课程应扩展为 3-6 分钟，并加入完整旁白。",
+    "尚未生成真实配音或 BGM。",
+    "当前主视频已改用 Remotion 原生图形解释 branch 指针；Manim 资产保留为动作设计参考。",
+    "字体已集中到 src/videos/git-course/typography.ts；后续集数应使用 TYPE token，避免裸字号。",
+    "颜色已集中到 src/videos/git-course/palette.ts 的语义 COLOR token；组件不应直接写裸色值。"
+  ]
+}

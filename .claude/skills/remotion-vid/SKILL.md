@@ -123,12 +123,14 @@ export const RemotionRoot: React.FC = () => (
 6. **长视频先数据化时间线** —— 超过 90s 或未来可能到 5min 时,把场景时长、
    转场、fps、尺寸抽进 `timeline.ts`,Composition 的 `durationInFrames` 从常量计算
    (references/long-video-rendering.md)。
-7. **渲染 → 归档** —— 先用 `--concurrency=8` 起测,再按机器调到 12/16;渲进带日期的产物目录
-   `renders/<YYYY-MM-DD>-<slug>/renders/{debug,final}/`,补上 `thumbnail.png` +
-   `meta.json` + `README.md`;用 `ffprobe` 校验。绝不让 mp4 堆在工程根目录
+7. **渲染 → 归档** —— 先用 `--concurrency=8` 起测,再按机器调到 12/16;渲进产物目录
+   `renders/<id>/renders/{tmp,candidates,current,archive}/`,补上 `thumbnail.png` +
+   `meta.json` + `README.md`;用 `ffprobe` 校验。分片、场景审查、抽帧都必须放
+   `renders/<id>/renders/tmp/{chunks,scenes,audit}/`。绝不让 mp4 堆在工程根目录
    (references/render-project-layout.md)。
 8. **需要更快时先测再拆** —— 先尝试单进程高 `--concurrency`;frame range 分片必须先
-   smoke test 当前 Remotion 版本是否会卡在 mp4 分片末帧,稳定后才用于生产。
+   smoke test 当前 Remotion 版本是否会卡在 mp4 分片末帧,稳定后才用于生产。分析单段时
+   用 `SKIP_CONCAT=1 AUDIT_SEGMENTS=1`,不要为了看一个场景强行合成全片。
 
 ## 第二遍——按官方 skill 精修(按收益排序)
 
@@ -158,7 +160,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | scripts/new-video.sh | 一键建一条视频的源码 + 带日期的产物目录 |
 | scripts/check-frames.sh | 批量渲抽帧,供自检循环用 |
 | scripts/render-final.sh | 渲进带日期产物目录 + ffprobe + 抽 thumbnail |
-| scripts/render-ranges.sh | 按 frame range 并发渲染完整 Composition,再 ffmpeg concat |
+| scripts/render-ranges.sh | 按 frame range 并发渲染完整 Composition;支持 `OUT_ROOT`、`RANGES_FILE`、`AUDIT_SEGMENTS`、`SKIP_CONCAT` |
 | scripts/audio-mix.sh | 配音 + BGM 混音,并 mux 进视频成 with-audio 版本 |
 | scripts/cleanup.sh | 清理工程根临时 `out/` |
 
@@ -171,6 +173,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | 全片渲染后才发现排版 bug | 先逐场景抽帧自检(references/still-check.md) |
 | 用户指出某秒框位不准 | 从 final mp4 抽该秒附近帧,按语义重定框位,不要只微调像素 |
 | 渲染卡住 / 字体不对 | `@remotion/google-fonts` 渲染时联网;改用 `fc-list` 本地字体 |
+| 一个 episode 出现很多 `out/` 目录 | 给项目脚本显式设置 `OUT_ROOT=renders/<id>/renders/tmp/{chunks,scenes}`;根 `out/` 只可做短期 scratch |
 | 加转场后结尾被截 | `durationInFrames` = Σ场景 − Σ转场 |
 | 转场中两套 UI 糊在一起 | 高密度场景不做 crossfade;改硬切/短黑场/先退场 |
 | Manim/Lottie/视频资产嵌入后遮挡 | 先抽嵌入后的 still;必要时裁切、遮罩或重渲资产 |

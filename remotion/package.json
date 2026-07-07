@@ -8,7 +8,16 @@
     "render:analyze": "scripts/analyze-render.sh",
     "render:direct": "remotion render src/index.ts CCInsightsPromo out/video.mp4 --concurrency=4 --timeout=120000",
     "render:fast": "remotion render src/index.ts CCInsightsPromo out/video-fast.mp4 --concurrency=8 --timeout=120000 --muted",
-    "render:ranges": "JOBS=1 CONCURRENCY=8 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh CCInsightsPromo cc-insights-promo auto 600",
+    "render:ranges": "TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh CCInsightsPromo cc-insights-promo auto 600",
+    "render:git:ep04": "OUT_ROOT=renders/git-course/ep04-branch-is-pointer/renders/tmp/chunks FINAL_PATH=renders/git-course/ep04-branch-is-pointer/renders/current/ep04-branch-is-pointer.mp4 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh GitCourseEp04BranchIsPointer ep04-branch-is-pointer 5400 600",
+    "render:git:ep04:segments": "OUT_ROOT=renders/git-course/ep04-branch-is-pointer/renders/tmp/chunks SKIP_CONCAT=1 AUDIT_SEGMENTS=1 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh GitCourseEp04BranchIsPointer ep04-branch-is-pointer 5400 600",
+    "render:git:ep04:scenes": "OUT_ROOT=renders/git-course/ep04-branch-is-pointer/renders/tmp/scenes RANGES_FILE=scripts/ranges/git-course-ep04-scenes.tsv SKIP_CONCAT=1 AUDIT_SEGMENTS=1 TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh GitCourseEp04BranchIsPointer ep04-branch-is-pointer 5400 600",
+    "render:git:ep04:hook": "RUN_DIR=renders/git-course/ep04-branch-is-pointer/renders/tmp/scenes/hook CLEAN_RUN_DIR=1 RANGES_FILE=scripts/ranges/git-course-ep04-hook.tsv SKIP_CONCAT=1 AUDIT_SEGMENTS=1 TIMEOUT=120000 MUTED=1 JOBS=1 CONCURRENCY=2 scripts/render-ranges.sh GitCourseEp04BranchIsPointer ep04-branch-is-pointer 5400 600",
+    "render:git:ep04:mental-model": "RUN_DIR=renders/git-course/ep04-branch-is-pointer/renders/tmp/scenes/mental-model CLEAN_RUN_DIR=1 RANGES_FILE=scripts/ranges/git-course-ep04-mental-model.tsv SKIP_CONCAT=1 AUDIT_SEGMENTS=1 TIMEOUT=120000 MUTED=1 JOBS=1 CONCURRENCY=2 scripts/render-ranges.sh GitCourseEp04BranchIsPointer ep04-branch-is-pointer 5400 600",
+    "segments:audit": "scripts/audit-range-segments.sh",
+    "audit:overlaps": "scripts/audit-overlaps.sh",
+    "meta:sync": "scripts/sync-current-meta.sh",
+    "video:audit": "scripts/audit-video-stills.sh",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
