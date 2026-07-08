@@ -1,0 +1,1 @@
+所以记住这条线：Working Tree 负责修改，Index 负责选择，Repository 负责记录。下一集，我们拆开 commit，看它里面到底是什么。

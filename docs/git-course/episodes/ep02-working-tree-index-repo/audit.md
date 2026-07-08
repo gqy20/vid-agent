@@ -6,6 +6,7 @@
 - Remotion 实现：已完成 7 个 scene 的首版实现。
 - Manim 实现：不需要主线 Manim。
 - 渲染产物：7 个分段已全部按规范输出到 `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/`。
+- 完整成片：已生成 `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_with-audio.mp4`，包含 BGM 与分场景中文旁白。
 
 ## 当前分段输出
 
@@ -21,7 +22,31 @@
 
 ## 待继续
 
-- 进行全片合成渲染和整片抽帧审查。
+- 如需发布版，进行全片精听和字幕节奏微调。
+
+## 完整成片与音频
+
+输出文件：
+
+- 静音合成：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_silent.mp4`
+- 带音频成片：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_with-audio.mp4`
+- 分场景旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/segments/`
+- 对齐旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/voiceover-aligned.mp3`
+- BGM：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/bgm.mp3`
+- 混音：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/mix.m4a`
+
+校验结果：
+
+- 成片时长：180.000s。
+- 视频流：H.264，1920x1080，30fps。
+- 音频流：AAC，48kHz mono。
+- 音量检查：`max_volume -14.6 dB`，未爆音。
+- 抽帧检查点：6s、20s、48s、86s、116s、148s、172s，未发现拼接后画面异常。
+
+备注：
+
+- 直接渲染完整 Remotion composition 时，在最后一帧 `5399/5400` 长时间卡住且未写出目标 mp4；已停止该进程。
+- 最终成片采用已审查过的 7 个 current scene 通过 ffmpeg concat 拼接，再 mux 对齐后的配音和 BGM。
 
 ## 终端组件一致性
 
@@ -30,7 +55,7 @@
 - `CommandStrip` 已从 episode 内部局部组件迁移为 `kit/terminal/CommandStrip`。
 - `git status -s` 证据面板已改为 `kit/terminal/StatusTerminalPanel`。
 - Ep02 episode 文件不再直接引用 `COLOR.terminal` 或 `TerminalPanel`。
-- 已重新渲染 `04_add.mp4`、`05_edit_after_add.mp4`、`06_commit.mp4`，并抽帧复查终端证据层、状态板接管和字幕遮挡。
+- 已重新渲染 `04_add.mp4`、`05_edit-after-add.mp4`、`06_commit.mp4`，并抽帧复查终端证据层、状态板接管和字幕遮挡。
 
 ## 03_modify 抽帧分析
 

@@ -1,0 +1,1 @@
+如果 add 之后又继续编辑，Working Tree 会变成新版本，Index 里仍然是刚才 add 的旧版本。同一个文件就会同时有 staged 和 unstaged 的变化。要提交新版本，需要重新 add。

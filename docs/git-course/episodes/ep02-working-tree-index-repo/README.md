@@ -30,6 +30,8 @@
 
 - Remotion 主视频：已实现 7 个 scene 的首版。
 - 规范分段输出：7 个分段已全部生成到 `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/`。
+- 完整成片：已生成到 `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_with-audio.mp4`。
+- 音频：已生成分场景中文旁白、BGM 和混音文件，位于 `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/`。
 - 已完成分段：
   - `01_hook.mp4`：0-12s，12.000s。
   - `02_three-areas.mp4`：12-38s，26.000s。
@@ -38,4 +40,4 @@
   - `05_edit-after-add.mp4`：104-134s，30.000s。
   - `06_commit.mp4`：134-164s，30.000s。
   - `07_takeaway.mp4`：164-180s，16.000s。
-- 待继续：全片合成渲染和整片抽帧审查。
+- 待继续：如需发布版，可再做一次全片精听和字幕节奏微调。
