@@ -1,0 +1,20 @@
+01_hook
+第三集，我们拆开一个 commit。<#0.30#>它不是保存按钮。<#0.35#>保存只是把文件写到磁盘。<#0.25#>commit 是把一次项目状态，写进 Git 历史。
+
+02_from_index
+上一集我们看到，commit 读取的是暂存区。<#0.30#>Git 不会把工作区里所有当前内容都提交进去。<#0.30#>它会把 Index 里的内容，形成一个快照。
+
+03_object_model
+Git 内部会把文件内容保存成 blob。<#0.25#>把目录结构保存成 tree。<#0.30#>再创建一个 commit 对象，指向这棵 tree。<#0.30#>tree 代表项目结构，blob 代表文件内容，commit 代表这次历史记录。
+
+04_commit_fields
+一个 commit 不只是快照。<#0.25#>它还记录 parent、作者、时间和 message。<#0.30#>parent 说明它是从哪个 commit 走来的。<#0.25#>message 说明这次为什么提交。
+
+05_parent_chain
+当你连续提交，新的 commit 会指向上一个 commit。<#0.30#>C2 的 parent 是 C1。<#0.25#>C1 的 parent 是 C0。<#0.35#>Git 历史就是这样连起来的。
+
+06_hash_identity
+commit 会有自己的 hash。<#0.25#>它不是随机编号，而是由内容和元数据计算出来的身份。<#0.35#>快照、parent 或 message 变了，commit 的身份也会变。
+
+07_takeaway
+所以，commit 是一个带身份的历史节点。<#0.30#>它指向快照，也指向过去。<#0.35#>下一集，我们就可以解释，branch 为什么只需要指向某个 commit。

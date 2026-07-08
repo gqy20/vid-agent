@@ -135,6 +135,7 @@ remotion/src/font-assets/
 # 可通过 scripts/fetch-progit-references.sh 重新拉取；主仓库只提交索引和脚本。
 docs/references/progit2/
 docs/references/progit2-zh/
+ref/*
 
 # ── 密钥 / 本地配置 ──
 .env

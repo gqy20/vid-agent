@@ -1,0 +1,1 @@
+一个 commit 不只是快照。<#0.25#>它还记录 parent、作者、时间和 message。<#0.30#>parent 说明它是从哪个 commit 走来的。<#0.25#>message 说明这次为什么提交。

@@ -70,6 +70,7 @@
 - `GitCourseSans` / `GitCourseLatin` / `GitCourseMono` 通过 `remotion/src/fonts.css` 注册，并从 `remotion/public/fonts/` 加载；根目录 `fronts/` 保留同一批字体文件作为归档。
 - 字幕背景统一使用 `canvas.overlay`，描边使用 `stroke.soft`，文字使用 `text.primary`。
 - 字幕不负责重复画面信息；画面已经能表达的内容，字幕只写动作或结论。
+- SRT 字幕标点按观看节奏处理，不照搬讲稿。默认去掉句尾句号和分号；普通停顿用 `，`，短语并列用 `、`，问题句保留 `？`，解释或命令引出时少量使用 `：`。
 - 禁止为了强调做循环缩放、左右晃动或持续闪烁；字幕和高亮只允许一次性进入或状态切换。
 
 ## 动画规则

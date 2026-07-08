@@ -121,8 +121,11 @@ TTS 文稿按教学节拍写短句，不把一整段塞成一行。MiniMax TTS �
 生成后必须检查 `.srt`：
 
 - 停顿标记不能出现在 SRT 文字里。
+- SRT 默认不是逐字讲稿。句尾 `。`、`;`、`；` 和常见语气标签会由 `git-course-build-voiceover.sh` 清理；字幕里主要保留 `，`、`、`、`？` 和少量 `：`。
 - 每段旁白时长必须短于对应 scene 时长。
 - 句子级 cue 应能解释画面当前主视觉，不要跨到下一段。
+
+如确实需要保留原始 SRT 标点，可临时设置 `CLEAN_SRT_PUNCTUATION=0`，但 Git 课程默认不这样做。
 
 每集必须维护一份口播设计表，例如：
 
@@ -204,6 +207,7 @@ BGM 策略：
 
 - Git 课程集与集之间优先复用已确认 BGM。
 - BGM 使用固定低音量，不做 sidechain ducking，避免背景音乐随人声忽高忽低。
+- 如果 BGM 文件短于正片，混音时必须循环到 `EPISODE_DURATION`，再裁切到正片长度；不能让后半段只剩人声或静音。
 - 当前 EP01/EP02 使用 `volume=0.05`。
 
 混音示例：
@@ -211,8 +215,9 @@ BGM 策略：
 ```bash
 ffmpeg -y \
   -i voiceover-aligned.m4a \
+  -stream_loop -1 \
   -i bgm.mp3 \
-  -filter_complex "[0:a]aresample=44100,volume=1.0[vo];[1:a]volume=0.05[bg];[vo][bg]amix=inputs=2:duration=longest:dropout_transition=0,alimiter=limit=0.94,atrim=0:180[out]" \
+  -filter_complex "[0:a]aresample=44100,volume=1.0[vo];[1:a]aresample=44100,volume=0.05,atrim=0:${EPISODE_DURATION},asetpts=N/SR/TB[bg];[vo][bg]amix=inputs=2:duration=first:dropout_transition=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[out]" \
   -map "[out]" -ar 44100 -c:a aac -b:a 192k \
   mix.m4a
 ```
@@ -235,11 +240,11 @@ ffmpeg -y \
 
 ```text
 公共片头 7s
-正片 180s
+正片 N 秒
 公共片尾 6s
 ```
 
-当前 EP01/EP02 发布版总长为 `193s`，即 `5790` 帧。发布版固定输出到：
+发布版总长固定按 `7s + 正片时长 + 6s` 计算。例如 180 秒正片为 `193s` / `5790` 帧，210 秒正片为 `223s` / `6690` 帧。发布版固定输出到：
 
 ```text
 remotion/renders/git-course/<episode-id>/renders/current/published/<episode-id>_published.mp4
@@ -305,7 +310,7 @@ Manim 片段应该短，通常 8 到 20 秒。它解释一个抽象原理，然�
 - 颜色是否只表达语义，不做随意装饰。
 - 画面是否同时塞入太多信息。
 - 完整成片是否包含视频流和音频流，时长一致。
-- 发布版是否包含公共片头、正片、公共片尾，当前 180 秒正片集的发布版应为 `193s` / `5790` 帧。
+- 发布版是否包含公共片头、正片、公共片尾，时长是否等于 `正片时长 + 13s`。
 - 分段人声响度是否统一，BGM 是否固定低音量且低于人声。
 - `audio/alignment.md` 是否记录 scene 起点、旁白进入时间和使用的规范化文件。
 

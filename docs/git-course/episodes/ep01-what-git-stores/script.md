@@ -35,9 +35,10 @@
 | 12-34s bad-model | Remotion | 文件夹误解是 UI 隐喻，适合用可控卡片和一次性位移动画 | 需用现有 motion primitives 组合 | Remotion scene |
 | 34-64s version-control | Remotion | 三个价值点按旁白节奏逐个出现，字幕同步更重要 | 需组合 `FlowDiagram` 类本地组件，若缺失则先做轻量组件 | Remotion scene |
 | 64-96s snapshot-model | Manim + Remotion | 快照流、复用线、节点生成是抽象模型构造，Manim 更适合几何和关系检查 | 需新增 `SnapshotStreamScene` | Manim mp4 + Remotion captions |
-| 96-126s local-history | Remotion | 终端输入和本地数据库示意需要和旁白逐帧对齐 | 已有 `TerminalPanel`、`TerminalTyping`、`RepositoryBox` 可组合 | Remotion scene |
-| 126-156s integrity | Manim 或 Remotion | 若只讲短 hash 变化，用 Remotion 足够；若要展示内容寻址传播，用 Manim `HashScene` 更好 | 已有 `HashScene`，也可用 Remotion `HashBadge` | 优先 Remotion，必要时 Manim clip |
-| 156-180s takeaway | Remotion | 结论和下一集问题属于课程包装 | 已有 `CenterGraph`、字幕、进度条 | Remotion scene |
+| 96-126s practice-check | Remotion | 模型讲完后用最小终端实践验证 commit 可以被列出、打开和检查 | 已有 `TerminalPanel`、`GitGraph` | Remotion scene |
+| 126-156s local-history | Remotion | 终端输入和本地数据库示意需要和旁白逐帧对齐 | 已有 `TerminalPanel`、`TerminalTyping`、`RepositoryBox` 可组合 | Remotion scene |
+| 156-186s integrity | Manim 或 Remotion | 若只讲短 hash 变化，用 Remotion 足够；若要展示内容寻址传播，用 Manim `HashScene` 更好 | 已有 `HashScene`，也可用 Remotion `HashBadge` | 优先 Remotion，必要时 Manim clip |
+| 186-210s takeaway | Remotion | 结论和下一集问题属于课程包装 | 已有 `CenterGraph`、字幕、进度条 | Remotion scene |
 
 ## 外部图片需求
 
@@ -64,9 +65,10 @@ remotion/public/git-course/assets/ep01-what-git-stores/
 | 12-34s | bad-model | 22s | 否定手动复制目录模型 | Remotion file cards | `project-final-final` 混乱堆叠 |
 | 34-64s | version-control | 30s | 建立版本控制的作用 | Remotion timeline | 回退、比较、找责任点 |
 | 64-96s | snapshot-model | 32s | 建立 Git 快照流 | Manim `SnapshotStreamScene` + Remotion captions | C0-C1-C2 快照节点 |
-| 96-126s | local-history | 30s | 解释为什么 Git 操作快 | Remotion terminal + local database | 本地历史数据库 |
-| 126-156s | integrity | 30s | 介绍 hash 的必要性 | Remotion hash pulse | 内容变化导致 hash 变化 |
-| 156-180s | takeaway | 24s | 收束到后续课程 | Remotion graph + captions | 快照流变成 commit 链 |
+| 96-126s | practice-check | 30s | 用命令验证 commit 历史 | Remotion terminal + graph | `git log` / `git show` |
+| 126-156s | local-history | 30s | 解释为什么 Git 操作快 | Remotion terminal + local database | 本地历史数据库 |
+| 156-186s | integrity | 30s | 介绍 hash 的必要性 | Remotion hash pulse | 内容变化导致 hash 变化 |
+| 186-210s | takeaway | 24s | 收束到后续课程 | Remotion graph + captions | 快照流变成 commit 链 |
 
 ## 旁白草案
 
@@ -108,7 +110,17 @@ remotion/public/git-course/assets/ep01-what-git-stores/
 - `commit = 某一刻的项目状态`
 - `没变的内容可以复用`
 
-### 96-126s / local-history
+### 96-126s / practice-check
+
+> 现在用一个已有仓库验证刚才的模型。先运行 `git log --oneline`，你会看到一串 commit。再运行 `git show --stat HEAD` 和 `git show --name-only HEAD`。现在先不用理解所有字段，只看一件事：commit 可以被列出、打开和检查。
+
+字幕短句：
+
+- `git log：列出历史`
+- `git show：打开一次提交`
+- `commit 可以被检查`
+
+### 126-156s / local-history
 
 > 这也是为什么很多 Git 操作很快。查看历史、比较版本、创建提交，大部分时候都只需要读取本地仓库。你的机器上不是只有当前文件，还有完整历史。
 
@@ -117,7 +129,7 @@ remotion/public/git-course/assets/ep01-what-git-stores/
 - `完整历史在本地`
 - `很多操作不需要网络`
 
-### 126-156s / integrity
+### 156-186s / integrity
 
 > Git 还会给内容计算哈希。内容变了，哈希就变。这样 Git 不是靠文件名猜测版本，而是用内容本身来确认它保存的东西没有被悄悄改坏。
 
@@ -126,7 +138,7 @@ remotion/public/git-course/assets/ep01-what-git-stores/
 - `内容决定 hash`
 - `hash 让历史可验证`
 
-### 156-180s / takeaway
+### 186-210s / takeaway
 
 > 所以，先记住这一层：Git 保存的是一条快照历史。下一集我们再看，一次提交之前，文件为什么要经过工作区、暂存区和仓库这三层。
 

@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 180,
+  "durationSeconds": 210,
   "sourceOfTruth": {
     "script": "docs/git-course/episodes/ep01-what-git-stores/script.md",
     "beats": "docs/git-course/episodes/ep01-what-git-stores/beats.md",
@@ -69,9 +69,18 @@
       "goal": "建立 Git 记录快照流的心智模型。"
     },
     {
+      "id": "practice-check",
+      "title": "实践验证",
+      "start": 96,
+      "duration": 30,
+      "primaryTechnique": "Remotion terminal + commit graph",
+      "components": ["TerminalPanel", "GitGraph", "SceneCaption"],
+      "goal": "用 git log 和 git show 验证 commit 是可查询、可打开的历史节点。"
+    },
+    {
       "id": "local-history",
       "title": "本地历史",
-      "start": 96,
+      "start": 126,
       "duration": 30,
       "primaryTechnique": "Remotion terminal + repository diagram",
       "components": ["TerminalPanel", "TerminalTyping", "RepositoryBox", "ArrowLine"],
@@ -80,7 +89,7 @@
     {
       "id": "integrity",
       "title": "完整性",
-      "start": 126,
+      "start": 156,
       "duration": 30,
       "primaryTechnique": "Remotion hash animation, optional Manim HashScene if content-addressing propagation is expanded",
       "components": ["CodeBlock", "HashBadge", "LineHighlight", "HashScene"],
@@ -89,7 +98,7 @@
     {
       "id": "takeaway",
       "title": "结论",
-      "start": 156,
+      "start": 186,
       "duration": 24,
       "primaryTechnique": "Remotion graph conclusion",
       "components": ["CenterGraph", "DefinitionCard"],

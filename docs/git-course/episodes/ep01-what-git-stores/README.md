@@ -24,4 +24,4 @@ Git 的核心心智模型是：提交形成一个快照流。
 - `docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc:32`
 - `docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc:50`
 
-原则：EP01 只建立一个问题和一个模型。不要提前展开暂存区、branch、HEAD。它们只作为后续悬念出现。
+原则：EP01 只建立一个问题和一个模型。可以用 `git log` / `git show` 做最小实践验证 commit 历史，但不要提前展开暂存区、branch、HEAD。它们只作为后续悬念出现。

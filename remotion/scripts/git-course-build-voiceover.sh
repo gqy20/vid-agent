@@ -24,6 +24,7 @@
 #   SKIP_TTS=1
 #   SKIP_NORM=1
 #   SKIP_REMUX=1
+#   CLEAN_SRT_PUNCTUATION=0
 #   BGM_FILE=<path>
 #   OUT_VIDEO=<path>
 set -euo pipefail
@@ -107,6 +108,23 @@ done < "$MANIFEST"
   exit 1
 }
 
+clean_srt_punctuation() {
+  local srt_file="$1"
+  perl -0pi -e '
+    s/\r\n/\n/g;
+    my @lines = split /\n/, $_, -1;
+    for my $line (@lines) {
+      next if $line =~ /^\s*$/;
+      next if $line =~ /^\d+$/;
+      next if $line =~ /-->/;
+      $line =~ s/^\s*\((?:breath|sighs?|sigh|clear-throat|clears throat|laughs?|chuckles?)\)\s*//ig;
+      $line =~ s/[。；;]+\s*$//;
+      $line =~ s/(?<=[\p{Han}A-Za-z0-9])\.\s*$//;
+    }
+    $_ = join "\n", @lines;
+  ' "$srt_file"
+}
+
 if [ "${SKIP_TTS:-0}" != "1" ]; then
   for segment in "${SEGMENTS[@]}"; do
     text_file="${SEGMENTS_DIR}/${segment}.txt"
@@ -125,6 +143,17 @@ if [ "${SKIP_TTS:-0}" != "1" ]; then
       --out "$audio_file" \
       --non-interactive \
       --quiet
+  done
+fi
+
+if [ "${CLEAN_SRT_PUNCTUATION:-1}" != "0" ]; then
+  for segment in "${SEGMENTS[@]}"; do
+    srt_file="${SEGMENTS_DIR}/${segment}.srt"
+    [ -f "$srt_file" ] || {
+      echo "SRT file not found: $srt_file" >&2
+      exit 1
+    }
+    clean_srt_punctuation "$srt_file"
   done
 fi
 
@@ -185,8 +214,9 @@ ffmpeg -y -hide_banner -nostats \
 
 ffmpeg -y -hide_banner -nostats \
   -i "$VOICEOVER_OUT" \
+  -stream_loop -1 \
   -i "$BGM_FILE" \
-  -filter_complex "[0:a]aresample=44100,volume=1.0[vo];[1:a]volume=${BGM_VOLUME}[bg];[vo][bg]amix=inputs=2:duration=longest:dropout_transition=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[out]" \
+  -filter_complex "[0:a]aresample=44100,volume=1.0[vo];[1:a]aresample=44100,volume=${BGM_VOLUME},atrim=0:${EPISODE_DURATION},asetpts=N/SR/TB[bg];[vo][bg]amix=inputs=2:duration=first:dropout_transition=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[out]" \
   -map "[out]" -ar 44100 -c:a aac -b:a 192k \
   "$MIX_OUT"
 
