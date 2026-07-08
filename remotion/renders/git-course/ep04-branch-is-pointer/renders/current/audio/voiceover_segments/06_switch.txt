@@ -1,0 +1,4 @@
+接着执行 git switch feature。<#0.35#>
+这一步也没有改变提交历史。<#0.35#>
+改变的是 HEAD：HEAD 从 main 移到 feature。<#0.35#>
+也就是说，你现在站在 feature 这个名字上继续工作。

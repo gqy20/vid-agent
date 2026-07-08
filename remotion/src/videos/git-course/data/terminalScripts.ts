@@ -1,4 +1,4 @@
-import {FPS, sceneTime} from '../timeline';
+import {FPS, seconds} from '../timeline';
 
 export type TerminalEffect =
   | 'inspect-history'
@@ -18,30 +18,37 @@ export type TerminalStep = {
 const typeDuration = (command: string) =>
   Math.max(24, Math.min(54, Math.round(command.length * 1.35)));
 
+const EP04_SCENE_START_SECONDS = {
+  terminal: 30,
+  branchWrite: 48,
+  switch: 70 + 28,
+  commit: 98 + 24,
+} as const;
+
 const EP04_RAW_TERMINAL = [
   {
-    at: sceneTime('terminal', 22 / FPS),
+    at: seconds(EP04_SCENE_START_SECONDS.terminal + 22 / FPS),
     promptBranch: 'main',
     command: 'git log --oneline --graph',
     output: ['* C2 add login form', '* C1 create app shell', '* C0 initial commit'],
     effect: 'inspect-history',
   },
   {
-    at: sceneTime('branch-write', 36 / FPS),
+    at: seconds(EP04_SCENE_START_SECONDS.branchWrite + 36 / FPS),
     promptBranch: 'main',
     command: 'git branch feature',
     output: ['# feature now points to C2'],
     effect: 'create-feature-pointer',
   },
   {
-    at: sceneTime('switch', 34 / FPS),
+    at: seconds(EP04_SCENE_START_SECONDS.switch + 34 / FPS),
     promptBranch: 'main',
     command: 'git switch feature',
     output: ["Switched to branch 'feature'"],
     effect: 'move-head-to-feature',
   },
   {
-    at: sceneTime('commit', 38 / FPS),
+    at: seconds(EP04_SCENE_START_SECONDS.commit + 38 / FPS),
     promptBranch: 'feature',
     command: 'git commit -m "try new header"',
     output: ['[feature C3] try new header', '1 file changed, 3 insertions(+)'],

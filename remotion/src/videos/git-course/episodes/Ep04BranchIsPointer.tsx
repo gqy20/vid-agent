@@ -1,7 +1,7 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP04} from '../data/episodes';
 import {EP04_TERMINAL, type GitCourseState} from '../data/terminalScripts';
-import {getSceneDuration, getSceneStart, SCENES, seconds} from '../timeline';
+import {seconds} from '../timeline';
 import {
   BranchPointerHookGraph,
   BranchRefMentalModelGraph,
@@ -10,10 +10,10 @@ import {
   CourseLayout,
   EpisodeTitleCard,
   GitGraph,
+  SceneCaption,
   MiniRefLine,
   MotionTitle,
   PositionedMotion,
-  QuestionCaption,
   RefWrite,
   RefWriteBar,
   SceneSequence,
@@ -26,6 +26,37 @@ import {
 } from '../kit';
 import {COLOR} from '../palette';
 import {TYPE} from '../typography';
+
+export const EP04_SCENES = [
+  {id: 'hook', title: '问题', duration: seconds(12)},
+  {id: 'mental-model', title: '模型', duration: seconds(18)},
+  {id: 'terminal', title: '命令', duration: seconds(18)},
+  {id: 'branch-write', title: '写入 ref', duration: seconds(22)},
+  {id: 'branch-result', title: '分支出现', duration: seconds(28)},
+  {id: 'switch', title: 'HEAD 切换', duration: seconds(24)},
+  {id: 'commit', title: 'feature 前进', duration: seconds(32)},
+  {id: 'compare', title: '对比', duration: seconds(14)},
+  {id: 'takeaway', title: '结论', duration: seconds(12)},
+] as const;
+
+export const EP04_DURATION_IN_FRAMES = EP04_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+
+type Ep04SceneId = (typeof EP04_SCENES)[number]['id'];
+
+const getEp04SceneStart = (id: Ep04SceneId) => {
+  let cursor = 0;
+  for (const scene of EP04_SCENES) {
+    if (scene.id === id) return cursor;
+    cursor += scene.duration;
+  }
+  throw new Error(`Unknown EP04 scene: ${id}`);
+};
+
+const getEp04SceneDuration = (id: Ep04SceneId) => {
+  const scene = EP04_SCENES.find((item) => item.id === id);
+  if (!scene) throw new Error(`Unknown EP04 scene: ${id}`);
+  return scene.duration;
+};
 
 const graphState = (state: GitCourseState): GitGraphState => ({
   commits: state.commits.map((commit) => ({id: commit})),
@@ -74,12 +105,19 @@ const HookScene: React.FC = () => {
         underlineOpacity={branchUnderlineOpacity * 0.82}
         auditId="hook-episode-title"
       />
-      <QuestionCaption opacity={questionOpacity} translateY={questionY} auditId="hook-question">
-        如果只是一个名字，切换分支到底改变了什么？
-      </QuestionCaption>
-      <PositionedMotion x="50%" y={96} width={1500} opacity={graphOpacity} translateY={graphY} centerX auditId="hook-graph-frame">
+      <PositionedMotion
+        x={400}
+        y={96}
+        width={1080}
+        opacity={graphOpacity}
+        translateY={graphY}
+        auditId="hook-graph-frame"
+      >
         <BranchPointerHookGraph />
       </PositionedMotion>
+      <SceneCaption opacity={questionOpacity} width={980} fontSize={35} bottom={126} translateY={questionY} auditId="hook-caption">
+        如果只是一个名字，切换分支到底改变了什么？
+      </SceneCaption>
     </AbsoluteFill>
   );
 };
@@ -194,27 +232,21 @@ const MentalModelScene: React.FC = () => {
         accentUntil={'refs/heads/feature'.length}
         auditId="mental-ref-write"
       />
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 128,
-          width: 1060,
-          transform: `translateX(-50%) translateY(${interpolate(summaryIn, [0, 1], [18, 0])}px)`,
-          opacity: summaryIn,
-          textAlign: 'center',
-          ...TYPE.subtitle,
-          color: COLOR.text.primary,
-        }}
-        data-audit-id="mental-summary"
+      <SceneCaption
+        opacity={summaryIn}
+        width={1060}
+        fontSize={35}
+        bottom={126}
+        translateY={interpolate(summaryIn, [0, 1], [18, 0])}
+        auditId="mental-summary"
       >
         branch 是一个 ref。它可以和 main 指向同一个 commit。
-      </div>
+      </SceneCaption>
     </AbsoluteFill>
   );
 };
 
-const TerminalScene: React.FC = () => <TerminalFocusScene steps={EP04_TERMINAL} frameOffset={getSceneStart('terminal')} />;
+const TerminalScene: React.FC = () => <TerminalFocusScene steps={EP04_TERMINAL} frameOffset={getEp04SceneStart('terminal')} />;
 
 const BranchWriteScene: React.FC = () => {
   const frame = useSceneFrame();
@@ -259,9 +291,9 @@ const SwitchScene: React.FC = () => {
   return (
     <AbsoluteFill>
       <CommandPill command="git switch feature" branch="main" />
-      <CenterGraph state={graphState(STATES.switched)} top={350} width={1130} headMotion={{from: 'main', to: 'feature', progress}} />
+      <CenterGraph state={graphState(STATES.switched)} top={350} width={1130} headMotion={{from: 'main', to: 'feature', progress}} headMarkerOffsetX={126} />
       <MiniRefLine title=".git/HEAD" line="HEAD -> feature" top={736} left={700} />
-      <SideLabel x={1260} y={420} tone="head">
+      <SideLabel x={1360} y={420} tone="head">
         HEAD 从 main 滑到 feature。
       </SideLabel>
       <SideLabel x={220} y={690} tone="main">
@@ -284,9 +316,10 @@ const CommitScene: React.FC = () => {
         top={344}
         width={1160}
         branchMotion={state.feature === 'C3' ? {name: 'feature', from: 'C2', to: 'C3', progress: pointer} : undefined}
+        headMarkerOffsetX={126}
       />
       <MiniRefLine line="feature -> C3" top={742} left={700} />
-      <SideLabel x={1280} y={278} tone="feature">
+      <SideLabel x={1360} y={278} tone="feature">
         新 commit 生成后，feature 前进。
       </SideLabel>
       <SideLabel x={230} y={665} tone="main">
@@ -355,44 +388,44 @@ export const Ep04BranchIsPointer: React.FC = () => {
     <CourseLayout
       seriesTitle={EP04.seriesTitle}
       episodeTitle={EP04.title}
-      scenes={SCENES}
+      scenes={EP04_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getSceneStart('terminal')}
-      showEpisodeTitle={(current) => current >= getSceneStart('terminal')}
+      showHeader={(current) => current >= getEp04SceneStart('terminal')}
+      showEpisodeTitle={(current) => current >= getEp04SceneStart('terminal')}
     >
-      <SceneSequence from={getSceneStart('hook')} durationInFrames={getSceneDuration('hook')}>
+      <SceneSequence from={getEp04SceneStart('hook')} durationInFrames={getEp04SceneDuration('hook')}>
         <HookScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('mental-model')} durationInFrames={getSceneDuration('mental-model')}>
+      <SceneSequence from={getEp04SceneStart('mental-model')} durationInFrames={getEp04SceneDuration('mental-model')}>
         <MentalModelScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('terminal')} durationInFrames={getSceneDuration('terminal')}>
+      <SceneSequence from={getEp04SceneStart('terminal')} durationInFrames={getEp04SceneDuration('terminal')}>
         <TerminalScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('branch-write')} durationInFrames={getSceneDuration('branch-write')}>
+      <SceneSequence from={getEp04SceneStart('branch-write')} durationInFrames={getEp04SceneDuration('branch-write')}>
         <BranchWriteScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('branch-result')} durationInFrames={getSceneDuration('branch-result')}>
+      <SceneSequence from={getEp04SceneStart('branch-result')} durationInFrames={getEp04SceneDuration('branch-result')}>
         <BranchResultScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('switch')} durationInFrames={getSceneDuration('switch')}>
+      <SceneSequence from={getEp04SceneStart('switch')} durationInFrames={getEp04SceneDuration('switch')}>
         <SwitchScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('commit')} durationInFrames={getSceneDuration('commit')}>
+      <SceneSequence from={getEp04SceneStart('commit')} durationInFrames={getEp04SceneDuration('commit')}>
         <CommitScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('compare')} durationInFrames={getSceneDuration('compare')}>
+      <SceneSequence from={getEp04SceneStart('compare')} durationInFrames={getEp04SceneDuration('compare')}>
         <CompareScene />
       </SceneSequence>
 
-      <SceneSequence from={getSceneStart('takeaway')} durationInFrames={getSceneDuration('takeaway')}>
+      <SceneSequence from={getEp04SceneStart('takeaway')} durationInFrames={getEp04SceneDuration('takeaway')}>
         <TakeawayScene />
       </SceneSequence>
     </CourseLayout>

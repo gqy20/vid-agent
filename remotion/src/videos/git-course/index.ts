@@ -6,6 +6,7 @@ import {
   Ep01BadModelPreview,
   Ep01IntegrityPreview,
   Ep01LocalHistoryPreview,
+  Ep01PracticeCheckPreview,
   Ep01SnapshotModelPreview,
   Ep01TakeawayPreview,
   Ep01VersionControlPreview,
@@ -14,9 +15,9 @@ import {
 } from './episodes/Ep01WhatGitStores';
 import {EP02_DURATION_IN_FRAMES, Ep02WorkingTreeIndexRepo} from './episodes/Ep02WorkingTreeIndexRepo';
 import {EP03_DURATION_IN_FRAMES, Ep03CommitSnapshot} from './episodes/Ep03CommitSnapshot';
-import {Ep04BranchIsPointer} from './episodes/Ep04BranchIsPointer';
+import {EP04_DURATION_IN_FRAMES, Ep04BranchIsPointer} from './episodes/Ep04BranchIsPointer';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
-import {DURATION_IN_FRAMES, FPS, HEIGHT, seconds, WIDTH} from './timeline';
+import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
 export const registration: VideoRegistration = {
   slug: 'git-course',
@@ -70,9 +71,17 @@ export const registration: VideoRegistration = {
       height: HEIGHT,
     },
     {
+      id: 'GitCourseEp01PracticeCheck',
+      component: Ep01PracticeCheckPreview,
+      durationInFrames: EP01_SCENES[4].duration,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
       id: 'GitCourseEp01LocalHistory',
       component: Ep01LocalHistoryPreview,
-      durationInFrames: EP01_SCENES[4].duration,
+      durationInFrames: EP01_SCENES[5].duration,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,
@@ -80,7 +89,7 @@ export const registration: VideoRegistration = {
     {
       id: 'GitCourseEp01Integrity',
       component: Ep01IntegrityPreview,
-      durationInFrames: EP01_SCENES[5].duration,
+      durationInFrames: EP01_SCENES[6].duration,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,
@@ -88,7 +97,7 @@ export const registration: VideoRegistration = {
     {
       id: 'GitCourseEp01Takeaway',
       component: Ep01TakeawayPreview,
-      durationInFrames: EP01_SCENES[6].duration,
+      durationInFrames: EP01_SCENES[7].duration,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,
@@ -120,7 +129,7 @@ export const registration: VideoRegistration = {
     {
       id: 'GitCourseEp04BranchIsPointer',
       component: Ep04BranchIsPointer,
-      durationInFrames: DURATION_IN_FRAMES,
+      durationInFrames: EP04_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

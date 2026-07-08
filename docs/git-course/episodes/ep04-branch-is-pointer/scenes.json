@@ -8,10 +8,24 @@
   },
   "durationSeconds": 180,
   "sourceOfTruth": {
-    "timeline": "remotion/src/videos/git-course/timeline.ts",
     "episode": "remotion/src/videos/git-course/episodes/Ep04BranchIsPointer.tsx",
     "script": "docs/git-course/episodes/ep04-branch-is-pointer/script.md",
     "beats": "docs/git-course/episodes/ep04-branch-is-pointer/beats.md"
+  },
+  "renderStatus": {
+    "currentScenesDir": "remotion/renders/git-course/ep04-branch-is-pointer/renders/current/scenes",
+    "completed": [
+      {"id":"hook","file":"01_hook.mp4","frameRange":[0,359],"durationSeconds":12},
+      {"id":"mental-model","file":"02_mental-model.mp4","frameRange":[360,899],"durationSeconds":18},
+      {"id":"terminal","file":"03_terminal.mp4","frameRange":[900,1439],"durationSeconds":18},
+      {"id":"branch-write","file":"04_branch-write.mp4","frameRange":[1440,2099],"durationSeconds":22},
+      {"id":"branch-result","file":"05_branch-result.mp4","frameRange":[2100,2939],"durationSeconds":28},
+      {"id":"switch","file":"06_switch.mp4","frameRange":[2940,3659],"durationSeconds":24},
+      {"id":"commit","file":"07_commit.mp4","frameRange":[3660,4619],"durationSeconds":32},
+      {"id":"compare","file":"08_compare.mp4","frameRange":[4620,5039],"durationSeconds":14},
+      {"id":"takeaway","file":"09_takeaway.mp4","frameRange":[5040,5399],"durationSeconds":12}
+    ],
+    "pending": []
   },
   "states": {
     "base": {

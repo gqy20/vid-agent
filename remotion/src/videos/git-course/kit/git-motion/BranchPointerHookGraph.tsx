@@ -31,8 +31,8 @@ export const BranchPointerHookGraph: React.FC = () => {
   return (
     <svg data-audit-id="hook-main-graph" width="1120" height="520" viewBox="0 0 1120 520" style={{display: 'block', width: '100%', height: 'auto'}}>
       <g data-audit-id="hook-commit-chain">
-        <line x1="150" y1="226" x2={line01End} y2="226" stroke={COLOR.git.graphLine} strokeWidth="11" strokeLinecap="round" />
-        <line x1="410" y1="226" x2={line12End} y2="226" stroke={COLOR.git.graphLine} strokeWidth="11" strokeLinecap="round" />
+        <line x1={150} y1="226" x2={line01End} y2="226" stroke={COLOR.git.graphLine} strokeWidth="11" strokeLinecap="round" />
+        <line x1={410} y1="226" x2={line12End} y2="226" stroke={COLOR.git.graphLine} strokeWidth="11" strokeLinecap="round" />
         <circle cx="670" cy="226" r={landingRingRadius} fill="none" stroke={COLOR.git.head} strokeWidth="7" opacity={landingRingOpacity} />
         {commits.map((commit) => (
           <g key={commit.id} data-audit-id={`hook-commit-${commit.id}`} opacity={commit.opacity} transform={`translate(${commit.x} 226) scale(${commit.scale}) translate(${-commit.x} -226)`}>
