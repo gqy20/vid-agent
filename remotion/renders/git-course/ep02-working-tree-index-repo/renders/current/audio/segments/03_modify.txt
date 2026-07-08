@@ -1,1 +1,5 @@
-当你修改 app.js，变化先只在 Working Tree。Git 看见它变了，但 Index 和 Repository 都还没动。modified 的意思，就是还没进入下一次提交。
+当你修改 app.js，<#0.25#>变化首先只在 Working Tree。
+
+Git 知道它变了，<#0.3#>但 Index 和 Repository 都还没动。
+
+modified 的意思，就是它还没有进入下一次提交。

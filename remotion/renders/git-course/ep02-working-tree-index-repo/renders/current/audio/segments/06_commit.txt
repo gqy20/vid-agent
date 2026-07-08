@@ -1,1 +1,5 @@
-执行 git commit 时，Git 读取的是 Index，不是编辑器里最新那份 Working Tree。它把 Index 里的内容形成快照，写入 Repository。这里的新提交 C1 保存的是 v1，工作区的 v2 还没有进去。
+执行 git commit 时，<#0.25#>Git 读取的是 Index，<#0.25#>不是编辑器里最新那份 Working Tree。
+
+它把 Index 里的内容形成快照，写入 Repository。
+
+这里的新提交 C1 保存的是 v1，<#0.3#>工作区的 v2 还没有进去。

@@ -1,1 +1,5 @@
-执行 git add app.js。Git 把当前这一刻的 app.js 放进 Index。注意，是这一份内容，不是永远自动同步这个文件。所以 add 更像选择内容，加入下一次 commit。
+执行 git add app.js。<#0.3#>Git 把当前这一刻的 app.js 放进 Index。
+
+注意，是这一份内容，<#0.25#>不是永远自动同步这个文件。
+
+所以 add 更像是在选择内容，<#0.3#>把它加入下一次 commit。
