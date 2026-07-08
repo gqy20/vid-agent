@@ -23,6 +23,12 @@
 - 渲染后要审查：元素重叠、字幕遮挡、Git 状态歧义、语义色误用、过度运动、命令和状态变化不匹配。
 - 分段预览默认覆盖到 `remotion/renders/git-course/<episode-id>/renders/current/scenes/`，文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。不要每次修改都新建带日期或描述词的 mp4 输出目录；只有用户明确要求版本对比时才另存候选版本。
 - 抽帧检查可以临时放在 `renders/tmp/`，但检查完成后要清理，避免当前审查目录被临时文件污染。
+- 单集完整成片默认覆盖固定路径。优先使用 `renders/current/<episode-id>.mp4`；如果该集已有 `renders/current/final/<episode-id>_with-audio.mp4` 约定，则沿用该固定文件。不要输出 `new`、`v2`、`final-final` 之类临时成片。
+- 课程音频默认按分段流程制作：每个 scene 一个旁白 `.txt` 和 `.mp3`，生成同名 `.srt`，再按全片时间线拼成 `voiceover_aligned` / `voiceover-aligned`。
+- TTS 文稿应使用短句和 MiniMax 停顿标记控制节奏，例如 `<#0.25#>`、`<#0.35#>`；生成后必须检查 `.srt`，确认停顿标记没有被读成文字。
+- 分段人声不要只依赖 TTS 的 `--volume`。生成后用 FFmpeg 做响度规范化和轻压缩，目标约 `-20 LUFS`，峰值约 `-3 dBFS`；保留原始 `.mp3`，规范化文件使用 `_norm.mp3` 后缀。
+- BGM 在 Git 课程中保持集与集一致。优先复用已确认的课程 BGM；混音时使用固定低音量，不做 sidechain ducking，避免背景音乐随人声忽高忽低。当前 EP01/EP02 使用 BGM `volume=0.05`。
+- 每集音频目录需要保留对齐说明，例如 `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md`，写明 scene 时间窗、旁白进入时间、使用的规范化文件、BGM 策略和句子级 SRT 对齐公式。
 
 ## 结构与组件语法
 

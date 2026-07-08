@@ -28,7 +28,7 @@
 
 - `docs/git-course/`: 大纲、讲稿、术语、视觉语言
 - `docs/git-course/component-system.md`: Remotion 组件库与 Manim 场景库边界
-- `docs/git-course/production-workflow.md`: 每集从脚本到成片的生产流程
+- `docs/git-course/production-workflow.md`: 每集从脚本到成片的生产流程，包含分段配音、BGM 复用、响度规范化和固定输出约定
 - `scripts/manim/git-course/`: Manim 抽象动画资产
 - `remotion/src/videos/git-course/`: Remotion 最终课程编排
 - `remotion/public/git-course/`: Manim 导出、音频、图片等公开资产

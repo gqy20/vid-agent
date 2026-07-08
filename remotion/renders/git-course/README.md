@@ -18,6 +18,8 @@ remotion/renders/git-course/
 │   ├── thumbnail.png          # 可选：缩略图
 │   └── renders/
 │       ├── current/           # 已确认的当前成片
+│       │   ├── audio/         # 当前配音、BGM、混音和对齐说明
+│       │   └── scenes/        # 当前分段预览
 │       ├── candidates/        # 待评审候选版本
 │       ├── tmp/               # 临时渲染、抽帧、分段审查
 │       └── archive/           # 被替换的旧成片
@@ -42,12 +44,30 @@ remotion/renders/git-course/<episode-id>/renders/current/scenes/<NN>_<scene-id>.
 
 不要把单集专属的审查目录直接放在 `remotion/renders/git-course/` 根目录下；应该放到对应单集的 `renders/tmp/`。
 
+## 音频约定
+
+单集音频固定放在：
+
+```text
+remotion/renders/git-course/<episode-id>/renders/current/audio/
+```
+
+约定：
+
+- 每个 scene 单独生成 TTS 文稿、音频和 SRT；文件名必须带序号，例如 `01_hook.txt`、`01_hook.mp3`、`01_hook.srt`。
+- TTS 文稿可以使用 MiniMax 停顿标记，例如 `<#0.25#>`；生成后必须检查 SRT，确认标记没有被读出来。
+- 原始 TTS 文件保留，规范化人声使用 `_norm.mp3` 后缀。
+- 人声规范化目标约 `-20 LUFS`，峰值约 `-3 dBFS`。
+- BGM 在 Git 课程内优先复用已确认版本；当前 EP01/EP02 使用同一条 BGM。
+- BGM 使用固定低音量混入，当前为 `volume=0.05`；不做 sidechain ducking。
+- `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md` 记录 scene 时间窗、旁白进入时间、规范化文件和句子级 SRT 对齐公式。
+
 ## 当前输出
 
 | 项目 | 状态 | 当前输出 |
 | --- | --- | --- |
 | `ep01-what-git-stores` | 已有当前成片；旧抽帧和 hook 审查保留 | `ep01-what-git-stores/renders/current/ep01-what-git-stores.mp4` |
-| `ep02-working-tree-index-repo` | 只有候选渲染和检查产物；还没有发布 current | 无 |
+| `ep02-working-tree-index-repo` | 已有当前带音频成片，音频复用 EP01 BGM 并完成分段规范化 | `ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_with-audio.mp4` |
 | `ep03-commit-snapshot` | 已有当前成片 | `ep03-commit-snapshot/renders/current/ep03-commit-snapshot.mp4` |
 | `ep04-branch-is-pointer` | 已有当前成片，并有 README/meta/审查记录 | `ep04-branch-is-pointer/renders/current/ep04-branch-is-pointer.mp4` |
 | `visible-system-intro` | 公共片头渲染 | `visible-system-intro/renders/current/visible-system-intro.mp4` |
