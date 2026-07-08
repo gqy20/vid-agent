@@ -5,9 +5,13 @@
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 
 export const W = 1920;
 export const H = 1080;
+
+// 脚本位于 remotion/scripts/；据此定位 remotion 根，输出目录不再依赖 cwd。
+export const REMOTION_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 export const INK = '#17211f';
 export const PAPER = '#fffdf2';
@@ -107,7 +111,7 @@ export function render({outDir, name = '01_cover.svg', body}) {
   <defs>${DEFS}</defs>
 ${body}
 </svg>`;
-  const svgPath = resolve(outDir, name);
+  const svgPath = resolve(REMOTION_ROOT, outDir, name);
   mkdirSync(dirname(svgPath), {recursive: true});
   writeFileSync(svgPath, svg);
   const pngPath = svgPath.replace(/\.svg$/, '.png');
