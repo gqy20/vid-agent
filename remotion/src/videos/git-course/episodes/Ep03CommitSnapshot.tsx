@@ -5,6 +5,7 @@ import {
   CourseLayout,
   EpisodeTitleCard,
   GitStatePanel,
+  ManimClip,
   QuestionCaption,
   SceneSequence,
   SvgArrowLine,
@@ -268,70 +269,28 @@ const FromIndexScene: React.FC = () => {
   );
 };
 
-const ObjectModelScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const blob = interpolate(frame, [seconds(1.5), seconds(4.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const tree = interpolate(frame, [seconds(7.2), seconds(10.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const commit = interpolate(frame, [seconds(14.2), seconds(18.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const arrows = interpolate(frame, [seconds(18.2), seconds(24.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption = interpolate(frame, [seconds(27.2), seconds(29.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+const ManimSceneFrame: React.FC<{src: string; auditId: string}> = ({src, auditId}) => (
+  <AbsoluteFill>
+    <div
+      style={{
+        position: 'absolute',
+        left: 154,
+        top: 104,
+        width: 1612,
+        aspectRatio: '16 / 9',
+      }}
+    >
+      <ManimClip src={src} width="100%" height="100%" fit="contain" auditId={auditId} />
+    </div>
+  </AbsoluteFill>
+);
 
-  return (
-    <AbsoluteFill style={{padding: '154px 154px 112px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontSize: 62}}>Git 把快照拆成对象</div>
-      <ObjectBox
-        title="blob"
-        subtitle="文件内容"
-        tone={COLOR.git.workingTree}
-        x={220}
-        y={428}
-        width={360}
-        height={190}
-        opacity={blob}
-        scale={interpolate(blob, [0, 1], [0.82, 1])}
-        auditId="ep03-blob-box"
-      />
-      <ObjectBox
-        title="tree"
-        subtitle="目录结构"
-        tone={COLOR.git.head}
-        x={780}
-        y={392}
-        width={380}
-        height={250}
-        opacity={tree}
-        scale={interpolate(tree, [0, 1], [0.82, 1])}
-        auditId="ep03-tree-box"
-      />
-      <ObjectBox
-        title="commit"
-        subtitle="历史记录"
-        tone={COLOR.git.main}
-        x={1350}
-        y={428}
-        width={360}
-        height={190}
-        opacity={commit}
-        scale={interpolate(commit, [0, 1], [0.82, 1])}
-        auditId="ep03-commit-box"
-      />
-      <div style={{position: 'absolute', left: 824, top: 510, opacity: tree}}>
-        {['app.js -> blob', 'search.js -> blob'].map((line) => (
-          <div key={line} style={{...TYPE.codeSmall, color: COLOR.text.secondary, fontFamily: FONT.mono, marginTop: 14}}>
-            {line}
-          </div>
-        ))}
-      </div>
-      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={780} y1={516} x2={580} y2={524} progress={clamp(arrows * 1.7)} color={COLOR.git.graphLine} width={7} opacity={0.8} dash="none" />
-        <SvgArrowLine x1={1350} y1={524} x2={1160} y2={516} progress={clamp(arrows * 1.7 - 0.45)} color={COLOR.git.graphLine} width={7} opacity={0.8} dash="none" />
-      </svg>
-      <SceneCaption opacity={caption} auditId="ep03-object-model-caption">
-        commit 不直接塞满文件内容；它指向一棵 tree，tree 再指向 blob。
-      </SceneCaption>
-    </AbsoluteFill>
-  );
-};
+const ObjectModelScene: React.FC = () => (
+  <ManimSceneFrame
+    src="git-course/manim/ep03/object-model.mp4"
+    auditId="ep03-object-model-manim"
+  />
+);
 
 const CommitFieldsScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -408,108 +367,19 @@ const CommitFieldsScene: React.FC = () => {
   );
 };
 
-const ParentChainScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const c0 = interpolate(frame, [seconds(1), seconds(2.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const c1 = interpolate(frame, [seconds(4), seconds(5.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const c2 = interpolate(frame, [seconds(7), seconds(8.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const a1 = interpolate(frame, [seconds(8.6), seconds(10.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const a2 = interpolate(frame, [seconds(11.4), seconds(13.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption = interpolate(frame, [seconds(20), seconds(21.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+const ParentChainScene: React.FC = () => (
+  <ManimSceneFrame
+    src="git-course/manim/ep03/parent-chain.mp4"
+    auditId="ep03-parent-chain-manim"
+  />
+);
 
-  return (
-    <AbsoluteFill style={{padding: '154px 154px 112px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontSize: 62}}>历史靠 parent 连起来</div>
-      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <CommitNode id="C0" x={440} y={560} progress={c0} radius={92} />
-        <CommitNode id="C1" x={960} y={560} progress={c1} radius={92} />
-        <CommitNode id="C2" x={1480} y={560} progress={c2} radius={92} strong />
-        <SvgArrowLine x1={1390} y1={560} x2={1058} y2={560} progress={a1} color={COLOR.git.feature} width={9} opacity={0.8} dash="none" />
-        <SvgArrowLine x1={870} y1={560} x2={538} y2={560} progress={a2} color={COLOR.git.feature} width={9} opacity={0.8} dash="none" />
-        <text x="1224" y="494" textAnchor="middle" fontFamily={FONT.mono} fontSize="31" fontWeight="760" fill={COLOR.git.feature} opacity={a1}>
-          parent
-        </text>
-        <text x="704" y="494" textAnchor="middle" fontFamily={FONT.mono} fontSize="31" fontWeight="760" fill={COLOR.git.feature} opacity={a2}>
-          parent
-        </text>
-      </svg>
-      <SceneCaption opacity={caption} auditId="ep03-parent-caption">
-        C2 的 parent 是 C1，C1 的 parent 是 C0；Git 历史不是文件夹列表。
-      </SceneCaption>
-    </AbsoluteFill>
-  );
-};
-
-const HashIdentityScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const left = interpolate(frame, [seconds(0.6), seconds(1.8)], [0, 1], {extrapolateRight: 'clamp'});
-  const right = interpolate(frame, [seconds(7.8), seconds(9.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const diff = interpolate(frame, [seconds(10.2), seconds(12.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const hashes = interpolate(frame, [seconds(14.5), seconds(17.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption = interpolate(frame, [seconds(21), seconds(22.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-
-  const Panel = ({
-    x,
-    opacity,
-    title,
-    message,
-    hash,
-  }: {
-    x: number;
-    opacity: number;
-    title: string;
-    message: string;
-    hash: string;
-  }) => (
-    <div
-      style={{
-        position: 'absolute',
-        left: x,
-        top: 348,
-        width: 640,
-        borderRadius: 8,
-        border: `1px solid ${COLOR.stroke.default}`,
-        background: COLOR.canvas.overlay,
-        boxShadow: `0 22px 64px ${COLOR.effects.shadowPanel}`,
-        opacity,
-        padding: '42px 46px',
-        boxSizing: 'border-box',
-      }}
-    >
-      <div style={{...TYPE.title, fontSize: 41}}>{title}</div>
-      <div style={{...TYPE.code, fontSize: 30, fontFamily: FONT.mono, color: COLOR.text.primary, marginTop: 34}}>message: {message}</div>
-      <div style={{...TYPE.code, fontSize: 30, fontFamily: FONT.mono, color: COLOR.git.main, marginTop: 34, opacity: hashes}}>hash: {hash}</div>
-    </div>
-  );
-
-  return (
-    <AbsoluteFill style={{padding: '154px 154px 112px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontSize: 62}}>hash 是 commit 的身份</div>
-      <Panel x={188} opacity={left} title="commit A" message="add search" hash="9f31a2e" />
-      <Panel x={1092} opacity={right} title="commit B" message="add Search" hash="42c8d19" />
-      <div
-        style={{
-          position: 'absolute',
-          left: 770,
-          top: 472,
-          width: 350,
-          textAlign: 'center',
-          ...TYPE.subtitle,
-          color: COLOR.git.conflict,
-          opacity: diff,
-        }}
-      >
-        只改一处元数据
-      </div>
-      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={828} y1={570} x2={1092} y2={570} progress={diff} color={COLOR.git.conflict} width={7} opacity={0.7} dash="12 14" />
-      </svg>
-      <SceneCaption opacity={caption} auditId="ep03-hash-caption">
-        快照、parent、作者、时间或 message 变了，commit 的身份也会变。
-      </SceneCaption>
-    </AbsoluteFill>
-  );
-};
+const HashIdentityScene: React.FC = () => (
+  <ManimSceneFrame
+    src="git-course/manim/ep03/hash-identity.mp4"
+    auditId="ep03-hash-identity-manim"
+  />
+);
 
 const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
