@@ -23,6 +23,8 @@ INTRO_VIDEO="${INTRO_VIDEO:-renders/git-course/visible-system-intro/renders/curr
 INTRO_AUDIO="${INTRO_AUDIO:-renders/git-course/visible-system-intro/renders/current/audio/intro-bgm.m4a}"
 OUTRO_VIDEO="${OUTRO_VIDEO:-renders/git-course/outro/current/ref-lightbox-outro.mp4}"
 OUTRO_AUDIO="${OUTRO_AUDIO:-renders/git-course/outro/current/audio/outro-bgm.m4a}"
+INTRO_AUDIO_GAIN_DB="${INTRO_AUDIO_GAIN_DB:-0}"
+OUTRO_AUDIO_GAIN_DB="${OUTRO_AUDIO_GAIN_DB:--5}"
 
 OUT_DIR="renders/git-course/${EPISODE_ID}/renders/current/published"
 TMP_DIR="renders/git-course/${EPISODE_ID}/renders/tmp/published-build"
@@ -44,15 +46,19 @@ mkdir -p "$TMP_DIR" "$OUT_DIR"
 ffmpeg -y -hide_banner \
   -i "$INTRO_VIDEO" \
   -i "$INTRO_AUDIO" \
-  -map 0:v:0 -map 1:a:0 \
-  -c:v copy -c:a copy -shortest \
+  -filter_complex "[1:a]volume=${INTRO_AUDIO_GAIN_DB}dB[a]" \
+  -map 0:v:0 \
+  -map "[a]" \
+  -c:v copy -c:a aac -b:a 192k -shortest \
   "$INTRO_WITH_AUDIO"
 
 ffmpeg -y -hide_banner \
   -i "$OUTRO_VIDEO" \
   -i "$OUTRO_AUDIO" \
-  -map 0:v:0 -map 1:a:0 \
-  -c:v copy -c:a copy -shortest \
+  -filter_complex "[1:a]volume=${OUTRO_AUDIO_GAIN_DB}dB[a]" \
+  -map 0:v:0 \
+  -map "[a]" \
+  -c:v copy -c:a aac -b:a 192k -shortest \
   "$OUTRO_WITH_AUDIO"
 
 ffmpeg -y -hide_banner \

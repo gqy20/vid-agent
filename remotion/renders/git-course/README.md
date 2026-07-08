@@ -51,7 +51,7 @@ remotion/renders/git-course/<episode-id>/renders/current/scenes/<NN>_<scene-id>.
 
 不要把单集专属的审查目录直接放在 `remotion/renders/git-course/` 根目录下；应该放到对应单集的 `renders/tmp/`。
 
-发布版只在正片确认后生成。公共片头、正片、公共片尾合成时优先用 FFmpeg concat filter 重新编码，避免直接 copy 拼接在段落边界产生音频时间戳警告。片头片尾 BGM 从课程统一 BGM 截取低音量片段，不单独换歌。
+发布版只在正片确认后生成。公共片头、正片、公共片尾合成时优先用 FFmpeg concat filter 重新编码，避免直接 copy 拼接在段落边界产生音频时间戳警告。片头片尾 BGM 从课程统一 BGM 截取低音量片段，不单独换歌；发布封装默认片头增益 `0dB`、片尾增益 `-5dB`，让当前片尾 BGM 比片头约高 `2dB`。
 
 这些 mp4/mp3/m4a/srt 是本地生成产物，默认不由 git 管理；仓库保留源码、脚本、文稿、对齐说明和流程文档。
 
@@ -74,7 +74,7 @@ remotion/renders/git-course/<episode-id>/renders/current/audio/
 - BGM 在 Git 课程内优先复用已确认版本；当前 EP01/EP02 使用同一条 BGM。
 - BGM 使用固定低音量混入，当前为 `volume=0.05`；不做 sidechain ducking。
 - `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md` 记录 scene 时间窗、旁白进入时间、规范化文件和句子级 SRT 对齐公式。
-- 发布版统一使用 `remotion/scripts/git-course-publish-episode.sh` 生成。
+- 发布版统一使用 `remotion/scripts/git-course-publish-episode.sh` 生成；默认 `INTRO_AUDIO_GAIN_DB=0`、`OUTRO_AUDIO_GAIN_DB=-5`。
 
 ## 当前输出
 

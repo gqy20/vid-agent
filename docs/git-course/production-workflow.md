@@ -204,6 +204,13 @@ ffmpeg -y -i audio/bgm_180.mp3 \
   -ar 44100 -c:a aac -b:a 192k intro-bgm.m4a
 ```
 
+发布封装时统一在脚本里控制片头片尾增益，不手动改发布版音轨。默认值：
+
+- `INTRO_AUDIO_GAIN_DB=0`
+- `OUTRO_AUDIO_GAIN_DB=-5`
+
+以当前片头/片尾 BGM 素材计算，片尾封装后会比片头约高 `2dB`，允许片尾收束略更明显，但不能高出太多。
+
 最终三段拼接时优先使用 concat filter 重新编码并重置时间轴，不用 concat copy 直接拼接。直接 copy 容易在片头、正片、片尾边界产生音频 DTS/PTS 警告。
 
 统一发布命令：
