@@ -1,0 +1,8 @@
+# segment_id	voice_start_seconds	scene_end_seconds
+01_hook	0.3	12.0
+02_three-areas	12.9	38.0
+03_modify	38.9	68.0
+04_add	68.9	104.0
+05_edit-after-add	104.9	134.0
+06_commit	134.9	164.0
+07_takeaway	164.6	180.0

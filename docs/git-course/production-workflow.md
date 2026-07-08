@@ -93,6 +93,7 @@ remotion/renders/git-course/<episode-id>/renders/current/audio/
 ├── mix.m4a                         # 180s 最终混音，AAC/M4A
 ├── alignment.md                    # 音频对齐说明
 └── segments/
+    ├── manifest.tsv                # segment_id / voice_start / scene_end
     ├── 01_hook.txt
     ├── 01_hook.mp3                 # TTS 原始输出
     ├── 01_hook.srt                 # TTS 句子级时间轴
@@ -123,6 +124,39 @@ TTS 文稿按教学节拍写短句，不把一整段塞成一行。MiniMax TTS �
 - 每段旁白时长必须短于对应 scene 时长。
 - 句子级 cue 应能解释画面当前主视觉，不要跨到下一段。
 
+### 统一生成脚本
+
+分段 TTS、SRT、响度规范化、对齐人声和混音必须通过脚本生成，不手工散跑命令：
+
+```bash
+scripts/git-course-build-voiceover.sh \
+  <episode-id> \
+  renders/git-course/<episode-id>/renders/current/audio/segments/manifest.tsv \
+  renders/git-course/<episode-id>/renders/current/<main-with-audio>.mp4
+```
+
+如果单集沿用 EP01 的 `voiceover_segments/` 目录，把 manifest 路径改到该目录。脚本会优先使用 `voiceover_segments/`，否则使用 `segments/`。
+
+`manifest.tsv` 使用制表符分隔三列：
+
+```text
+segment_id	voice_start_seconds	scene_end_seconds
+01_hook	0.2	12.0
+```
+
+脚本会检查 `_norm.mp3` 时长是否超过 `scene_end_seconds`，超过就中止。修法优先是压缩文稿，而不是给单段单独换 voice 或大幅改 speed。
+
+默认 TTS 参数：
+
+```text
+model: speech-2.8-hd
+voice: Chinese (Mandarin)_Gentleman
+language: zh
+speed: 1.15
+```
+
+同一集必须固定同一组 `model / voice / language / speed`。如果要换音色，整集全部重生，并更新对应 `alignment.md`。
+
 ### 人声后期
 
 不要用 `mmx speech synthesize --volume` 当作响度标准化。`--volume` 是生成参数，不是测量后的 LUFS 控制。
@@ -145,7 +179,7 @@ ffmpeg -y -i 01_hook.mp3 \
 
 ### 对齐与混音
 
-先把 `_norm.mp3` 按 scene 起点拼成 180 秒人声轨，再混 BGM。对齐说明必须写进 `audio/alignment.md`：
+脚本会把 `_norm.mp3` 按 manifest 里的旁白进入时间拼成 180 秒人声轨，再混 BGM。对齐说明必须写进 `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md`：
 
 ```text
 absolute sentence time = Voice starts + cue time in segment .srt

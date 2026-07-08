@@ -1,0 +1,8 @@
+# segment_id	voice_start_seconds	scene_end_seconds
+01_hook	0.2	12.0
+02_bad_model	12.9	34.0
+03_version_control	34.4	64.0
+04_snapshot_model	64.5	96.0
+05_local_history	96.5	126.0
+06_integrity	126.0	156.0
+07_takeaway	156.7	180.0
