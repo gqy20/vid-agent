@@ -130,47 +130,18 @@ export const Ep01HookScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '118px 154px 112px', boxSizing: 'border-box'}}>
-      <div
-        data-audit-id="ep01-hook-title"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'grid',
-          placeItems: 'center',
-          opacity: titleOpacity,
-          transform: `translateY(${titleY}px)`,
-          textAlign: 'center',
-        }}
-      >
-        <div style={{...TYPE.display, fontSize: 132, lineHeight: 1.04, color: COLOR.text.primary, fontWeight: 880}}>
-          <span
-            style={{
-              position: 'relative',
-              display: 'inline-block',
-              color: COLOR.git.main,
-              opacity: interpolate(keywordIn, [0, 1], [0.48, 1]),
-              transform: `translateY(${interpolate(keywordIn, [0, 1], [10, 0])}px)`,
-            }}
-          >
-            Git
-            <span
-              style={{
-                position: 'absolute',
-                left: 5,
-                right: 3,
-                bottom: -11,
-                height: 6,
-                borderRadius: 999,
-                background: COLOR.git.main,
-                opacity: underline * titleOut * 0.72,
-                transform: `scaleX(${underline})`,
-                transformOrigin: 'left center',
-              }}
-            />
-          </span>{' '}
-          到底记录什么？
-        </div>
-      </div>
+      <EpisodeTitleCard
+        index="1."
+        keyword="Git"
+        suffix="到底记录什么？"
+        opacity={titleOpacity}
+        translateY={titleY}
+        keywordOpacity={interpolate(keywordIn, [0, 1], [0.48, 1])}
+        keywordTranslateY={interpolate(keywordIn, [0, 1], [10, 0])}
+        underlineScale={underline}
+        underlineOpacity={underline * titleOut * 0.72}
+        auditId="ep01-hook-title"
+      />
 
       <PositionedMotion
         x={0}

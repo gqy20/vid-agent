@@ -174,6 +174,36 @@ ffmpeg -y \
 
 根据单集既有路径调整文件名，但输出必须覆盖固定成片路径。
 
+### 发布版包装
+
+单集当前成片确认后，再生成对外发布版。发布版包含三段：
+
+```text
+公共片头 7s
+正片 180s
+公共片尾 6s
+```
+
+当前 EP01/EP02 发布版总长为 `193s`，即 `5790` 帧。发布版固定输出到：
+
+```text
+remotion/renders/git-course/<episode-id>/renders/current/published/<episode-id>_published.mp4
+```
+
+片头和片尾也要有 BGM，但不单独换音乐。优先从课程统一 BGM 中截取短片段，降低到固定低音量，并做短淡入淡出：
+
+```bash
+ffmpeg -y -i audio/bgm_180.mp3 \
+  -filter_complex "atrim=start=0:end=7,asetpts=PTS-STARTPTS,volume=0.08,afade=t=in:st=0:d=0.4,afade=t=out:st=6.2:d=0.8" \
+  -ar 44100 -c:a aac -b:a 192k intro-bgm.m4a
+```
+
+最终三段拼接时优先使用 concat filter 重新编码并重置时间轴，不用 concat copy 直接拼接。直接 copy 容易在片头、正片、片尾边界产生音频 DTS/PTS 警告。
+
+发布版和正片审查版分开：平时检查单集内容看 `renders/current/<episode-id>.mp4` 或单集既有 `final/*_with-audio.mp4`；确认发布完整包装时才看 `renders/current/published/*_published.mp4`。
+
+发布版 mp4、混音、分段 TTS、SRT 和 BGM 都是本地生成产物，默认不进 git。仓库只保留源码、脚本、TTS 文稿 `.txt`、对齐说明 `.md` 和生产流程文档。
+
 ## Manim
 
 Manim 负责：
@@ -197,6 +227,7 @@ Manim 片段应该短，通常 8 到 20 秒。它解释一个抽象原理，然�
 - 颜色是否只表达语义，不做随意装饰。
 - 画面是否同时塞入太多信息。
 - 完整成片是否包含视频流和音频流，时长一致。
+- 发布版是否包含公共片头、正片、公共片尾，当前 180 秒正片集的发布版应为 `193s` / `5790` 帧。
 - 分段人声响度是否统一，BGM 是否固定低音量且低于人声。
 - `audio/alignment.md` 是否记录 scene 起点、旁白进入时间和使用的规范化文件。
 

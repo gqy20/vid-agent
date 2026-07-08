@@ -19,6 +19,7 @@ remotion/renders/git-course/
 │   └── renders/
 │       ├── current/           # 已确认的当前成片
 │       │   ├── audio/         # 当前配音、BGM、混音和对齐说明
+│       │   ├── published/     # 带公共片头片尾的对外发布版
 │       │   └── scenes/        # 当前分段预览
 │       ├── candidates/        # 待评审候选版本
 │       ├── tmp/               # 临时渲染、抽帧、分段审查
@@ -28,10 +29,16 @@ remotion/renders/git-course/
 └── component-gallery/         # 组件和渲染实验
 ```
 
-新的单集成片应该发布到：
+新的单集成片应该输出到本地固定路径：
 
 ```text
 remotion/renders/git-course/<episode-id>/renders/current/<episode-id>.mp4
+```
+
+带公共片头和片尾的对外发布版固定覆盖到本地路径：
+
+```text
+remotion/renders/git-course/<episode-id>/renders/current/published/<episode-id>_published.mp4
 ```
 
 分段预览应该固定覆盖到：
@@ -43,6 +50,10 @@ remotion/renders/git-course/<episode-id>/renders/current/scenes/<NN>_<scene-id>.
 其中 `<NN>` 是两位数分段序号，文件名统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。除非明确需要版本对比，不要为每次修改新建带日期或描述词的 mp4 输出目录。抽帧检查可以短暂放在 `renders/tmp/`，检查完成后应清理，避免影响找当前版本。
 
 不要把单集专属的审查目录直接放在 `remotion/renders/git-course/` 根目录下；应该放到对应单集的 `renders/tmp/`。
+
+发布版只在正片确认后生成。公共片头、正片、公共片尾合成时优先用 FFmpeg concat filter 重新编码，避免直接 copy 拼接在段落边界产生音频时间戳警告。片头片尾 BGM 从课程统一 BGM 截取低音量片段，不单独换歌。
+
+这些 mp4/mp3/m4a/srt 是本地生成产物，默认不由 git 管理；仓库保留源码、脚本、文稿、对齐说明和流程文档。
 
 ## 音频约定
 
@@ -67,11 +78,13 @@ remotion/renders/git-course/<episode-id>/renders/current/audio/
 | 项目 | 状态 | 当前输出 |
 | --- | --- | --- |
 | `ep01-what-git-stores` | 已有当前成片；旧抽帧和 hook 审查保留 | `ep01-what-git-stores/renders/current/ep01-what-git-stores.mp4` |
+| `ep01-what-git-stores` 发布版 | 已加公共片头、片尾和统一 BGM，193s / 5790 帧 | `ep01-what-git-stores/renders/current/published/ep01-what-git-stores_published.mp4` |
 | `ep02-working-tree-index-repo` | 已有当前带音频成片，音频复用 EP01 BGM 并完成分段规范化 | `ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_with-audio.mp4` |
+| `ep02-working-tree-index-repo` 发布版 | 已加公共片头、片尾和统一 BGM，193s / 5790 帧 | `ep02-working-tree-index-repo/renders/current/published/ep02-working-tree-index-repo_published.mp4` |
 | `ep03-commit-snapshot` | 已有当前成片 | `ep03-commit-snapshot/renders/current/ep03-commit-snapshot.mp4` |
 | `ep04-branch-is-pointer` | 已有当前成片，并有 README/meta/审查记录 | `ep04-branch-is-pointer/renders/current/ep04-branch-is-pointer.mp4` |
-| `visible-system-intro` | 公共片头渲染 | `visible-system-intro/renders/current/visible-system-intro.mp4` |
-| `outro` | 公共片尾参考渲染 | `outro/current/ref-lightbox-outro.mp4` |
+| `visible-system-intro` | 公共片头本地渲染；发布封装时加入统一 BGM 片段 | `visible-system-intro/renders/current/visible-system-intro.mp4` |
+| `outro` | 公共片尾本地渲染；发布封装时加入统一 BGM 片段 | `outro/current/ref-lightbox-outro.mp4` |
 
 ## 备注
 
