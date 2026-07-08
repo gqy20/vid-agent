@@ -152,7 +152,7 @@ segment_id	voice_start_seconds	scene_end_seconds
 model: speech-2.8-hd
 voice: Chinese (Mandarin)_Gentleman
 language: zh
-speed: 1.15
+speed: 1.3
 ```
 
 同一集必须固定同一组 `model / voice / language / speed`。如果要换音色，整集全部重生，并更新对应 `alignment.md`。
