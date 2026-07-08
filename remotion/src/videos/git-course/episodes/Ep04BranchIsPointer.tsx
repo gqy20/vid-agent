@@ -291,7 +291,7 @@ const SwitchScene: React.FC = () => {
   return (
     <AbsoluteFill>
       <CommandPill command="git switch feature" branch="main" />
-      <CenterGraph state={graphState(STATES.switched)} top={350} width={1130} headMotion={{from: 'main', to: 'feature', progress}} headMarkerOffsetX={126} />
+      <CenterGraph state={graphState(STATES.switched)} top={350} width={1130} headMotion={{from: 'main', to: 'feature', progress}} headMarkerOffsetX={118} />
       <MiniRefLine title=".git/HEAD" line="HEAD -> feature" top={736} left={700} />
       <SideLabel x={1360} y={420} tone="head">
         HEAD 从 main 滑到 feature。
@@ -316,7 +316,7 @@ const CommitScene: React.FC = () => {
         top={344}
         width={1160}
         branchMotion={state.feature === 'C3' ? {name: 'feature', from: 'C2', to: 'C3', progress: pointer} : undefined}
-        headMarkerOffsetX={126}
+        headMarkerOffsetX={118}
       />
       <MiniRefLine line="feature -> C3" top={742} left={700} />
       <SideLabel x={1360} y={278} tone="feature">
