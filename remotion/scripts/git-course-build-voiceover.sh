@@ -20,7 +20,7 @@
 #   TTS_MODEL=speech-2.8-hd
 #   TTS_VOICE='Chinese (Mandarin)_Gentleman'
 #   TTS_LANGUAGE=zh
-#   TTS_SPEED=1.3
+#   TTS_SPEED=1.25
 #   SKIP_TTS=1
 #   SKIP_NORM=1
 #   SKIP_REMUX=1
@@ -54,7 +54,7 @@ fi
 TTS_MODEL="${TTS_MODEL:-speech-2.8-hd}"
 TTS_VOICE="${TTS_VOICE:-Chinese (Mandarin)_Gentleman}"
 TTS_LANGUAGE="${TTS_LANGUAGE:-zh}"
-TTS_SPEED="${TTS_SPEED:-1.3}"
+TTS_SPEED="${TTS_SPEED:-1.25}"
 EPISODE_DURATION="${EPISODE_DURATION:-180}"
 BGM_VOLUME="${BGM_VOLUME:-0.05}"
 BGM_FILE="${BGM_FILE:-}"

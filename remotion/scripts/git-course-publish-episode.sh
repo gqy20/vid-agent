@@ -23,7 +23,7 @@ INTRO_VIDEO="${INTRO_VIDEO:-renders/git-course/visible-system-intro/renders/curr
 INTRO_AUDIO="${INTRO_AUDIO:-renders/git-course/visible-system-intro/renders/current/audio/intro-bgm.m4a}"
 OUTRO_VIDEO="${OUTRO_VIDEO:-renders/git-course/outro/current/ref-lightbox-outro.mp4}"
 OUTRO_AUDIO="${OUTRO_AUDIO:-renders/git-course/outro/current/audio/outro-bgm.m4a}"
-INTRO_AUDIO_GAIN_DB="${INTRO_AUDIO_GAIN_DB:-0}"
+INTRO_AUDIO_GAIN_DB="${INTRO_AUDIO_GAIN_DB:-8}"
 OUTRO_AUDIO_GAIN_DB="${OUTRO_AUDIO_GAIN_DB:--5}"
 
 OUT_DIR="renders/git-course/${EPISODE_ID}/renders/current/published"

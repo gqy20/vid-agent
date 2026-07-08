@@ -124,6 +124,21 @@ TTS 文稿按教学节拍写短句，不把一整段塞成一行。MiniMax TTS �
 - 每段旁白时长必须短于对应 scene 时长。
 - 句子级 cue 应能解释画面当前主视觉，不要跨到下一段。
 
+每集必须维护一份口播设计表，例如：
+
+```text
+docs/git-course/episodes/<episode-id>/voiceover-design.md
+```
+
+这张表是“画面 beat -> 口播句子 -> 语气/停顿 -> 目标时间窗”的中间层。不要直接在
+`renders/current/audio/.../*.txt` 里来回试文案；先在设计表里确认每一句对应哪个画面动作，再同步到 TTS 文稿。
+
+MiniMax Speech 2.8 支持自然语气标签和口语填充词。Git 课程可以少量使用它来提升真人感，但必须克制：
+
+- 纠错点可用“注意”或极少量“嗯”作为转折。
+- `(breath)`、`(sighs)`、`(clear-throat)` 这类标签必须先单段试听，不能全片批量加入。
+- 定义句、术语句、命令句不要加语气词，避免削弱技术可信度。
+
 ### 统一生成脚本
 
 分段 TTS、SRT、响度规范化、对齐人声和混音必须通过脚本生成，不手工散跑命令：
@@ -152,7 +167,7 @@ segment_id	voice_start_seconds	scene_end_seconds
 model: speech-2.8-hd
 voice: Chinese (Mandarin)_Gentleman
 language: zh
-speed: 1.3
+speed: 1.25
 ```
 
 同一集必须固定同一组 `model / voice / language / speed`。如果要换音色，整集全部重生，并更新对应 `alignment.md`。
@@ -240,7 +255,7 @@ ffmpeg -y -i audio/bgm_180.mp3 \
 
 发布封装时统一在脚本里控制片头片尾增益，不手动改发布版音轨。默认值：
 
-- `INTRO_AUDIO_GAIN_DB=0`
+- `INTRO_AUDIO_GAIN_DB=8`
 - `OUTRO_AUDIO_GAIN_DB=-5`
 
 以当前片头/片尾 BGM 素材计算，片尾封装后会比片头约高 `2dB`，允许片尾收束略更明显，但不能高出太多。

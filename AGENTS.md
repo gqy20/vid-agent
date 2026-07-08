@@ -27,7 +27,7 @@
 - 课程音频默认按分段流程制作：每个 scene 一个旁白 `.txt`，通过 `remotion/scripts/git-course-build-voiceover.sh` 统一生成同名 `.mp3`、`.srt`、`_norm.mp3`，再按 manifest 时间线拼成 `voiceover-aligned.m4a`。不要手工散跑 TTS 和 FFmpeg 长命令。
 - 每集分段旁白目录必须保留 `manifest.tsv`，列出 `segment_id`、旁白进入时间和 scene 结束时间；脚本用它检查旁白是否跨段。
 - TTS 文稿应使用短句和 MiniMax 停顿标记控制节奏，例如 `<#0.25#>`、`<#0.35#>`；生成后必须检查 `.srt`，确认停顿标记没有被读成文字。
-- TTS 必须显式固定 `model`、`voice`、`language` 和 `speed`。当前 Git course 默认固定为 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.3`；同一集不要混用不同 voice 或 speed。
+- TTS 必须显式固定 `model`、`voice`、`language` 和 `speed`。当前 Git course 默认固定为 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`；同一集不要混用不同 voice 或 speed。
 - 分段人声不要只依赖 TTS 的 `--volume`。生成后用 FFmpeg 做响度规范化和轻压缩，目标约 `-20 LUFS`，峰值约 `-3 dBFS`；保留原始 `.mp3`，规范化文件使用 `_norm.mp3` 后缀。
 - BGM 在 Git 课程中保持集与集一致。优先复用已确认的课程 BGM；混音时使用固定低音量，不做 sidechain ducking，避免背景音乐随人声忽高忽低。当前 EP01/EP02 使用 BGM `volume=0.05`。
 - 每集音频目录需要保留对齐说明，例如 `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md`，写明 scene 时间窗、旁白进入时间、使用的规范化文件、BGM 策略和句子级 SRT 对齐公式。最终混音统一输出为 `audio/mix.m4a`。
