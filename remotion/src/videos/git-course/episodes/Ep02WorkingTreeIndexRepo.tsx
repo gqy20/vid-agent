@@ -66,6 +66,7 @@ const FileCard: React.FC<{
   auditId?: string;
 }> = ({name = 'app.js', label, tone, opacity = 1, scale = 1, auditId}) => {
   const accent = fileTone[tone];
+  const labelHasCjk = /[\u3400-\u9fff]/.test(label);
   return (
     <div
       data-audit-id={auditId}
@@ -87,25 +88,25 @@ const FileCard: React.FC<{
         <span style={{width: 9, height: 9, borderRadius: 99, background: accent}} />
         <span style={{...TYPE.code, fontFamily: FONT.mono, fontSize: 28, color: COLOR.text.primary}}>{name}</span>
       </div>
-      <div style={{...TYPE.label, fontFamily: FONT.mono, color: accent, marginTop: 9}}>{label}</div>
+      <div style={{...TYPE.label, fontFamily: labelHasCjk ? FONT.sans : FONT.mono, color: accent, marginTop: 9}}>{label}</div>
     </div>
   );
 };
 
 const Board: React.FC<{
-  workingFiles: readonly string[];
-  indexFiles: readonly string[];
-  repositoryFiles: readonly string[];
-  active?: 'working-tree' | 'index' | 'repository';
-  opacity?: number;
-  left?: number;
-  top?: number;
-  width?: number;
-}> = ({workingFiles, indexFiles, repositoryFiles, active = 'working-tree', opacity = 1, left = 154, top = 250, width = 1612}) => (
-  <div style={{position: 'absolute', left, top, width, opacity}} data-audit-id="ep02-state-board">
-    <GitStatePanel
-      areas={[
-        {id: 'working-tree', title: 'Working Tree', files: workingFiles, active: active === 'working-tree'},
+	  workingFiles: readonly string[];
+	  indexFiles: readonly string[];
+	  repositoryFiles: readonly string[];
+	  active?: 'working-tree' | 'index' | 'repository' | 'none';
+	  opacity?: number;
+	  left?: number;
+	  top?: number;
+	  width?: number;
+	}> = ({workingFiles, indexFiles, repositoryFiles, active = 'none', opacity = 1, left = 154, top = 250, width = 1612}) => (
+	  <div style={{position: 'absolute', left, top, width, opacity}} data-audit-id="ep02-state-board">
+	    <GitStatePanel
+	      areas={[
+	        {id: 'working-tree', title: 'Working Tree', files: workingFiles, active: active === 'working-tree'},
         {id: 'index', title: 'Index', files: indexFiles, active: active === 'index'},
         {id: 'repository', title: 'Repository', files: repositoryFiles, active: active === 'repository'},
       ]}
@@ -179,52 +180,99 @@ const FlowHint: React.FC<{
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleIn = interpolate(frame, [0, seconds(0.55)], [0, 1], {extrapolateRight: 'clamp'});
-  const titleOut = interpolate(frame, [seconds(1.8), seconds(2.35)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const fileIn = interpolate(frame, [seconds(2), seconds(3.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const zones = interpolate(frame, [seconds(3.2), seconds(5.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const question = interpolate(frame, [seconds(8.6), seconds(9.7)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const titleOut = interpolate(frame, [seconds(2.15), seconds(2.85)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const stage = interpolate(frame, [seconds(2.35), seconds(3.25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const attempt = interpolate(frame, [seconds(3.55), seconds(5.25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const block = interpolate(frame, [seconds(5.0), seconds(5.85)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const question = interpolate(frame, [seconds(6.55), seconds(7.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const diagramHold = interpolate(frame, [seconds(8.2), seconds(10.2)], [1, 0.22], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const blockHold = interpolate(frame, [seconds(6.05), seconds(7.0)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const intent = interpolate(attempt, [0.08, 0.82], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const blocked = interpolate(block, [0.2, 1], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill style={{padding: '118px 154px 112px', boxSizing: 'border-box'}}>
       <EpisodeTitleCard
         index="2."
         keyword="文件"
         suffix="不是直接进入 commit"
-        opacity={titleIn * titleOut}
-        translateY={interpolate(titleIn, [0, 1], [18, -44], {extrapolateRight: 'clamp'})}
-        keywordOpacity={0.55 + titleIn * 0.45}
-        keywordTranslateY={interpolate(titleIn, [0, 1], [8, 0], {extrapolateRight: 'clamp'})}
-        underlineScale={interpolate(frame, [seconds(0.55), seconds(1.15)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
+        opacity={titleOut}
+        translateY={interpolate(frame, [0, seconds(0.8)], [0, -28], {extrapolateRight: 'clamp'})}
+        keywordOpacity={1}
+        keywordTranslateY={0}
+        underlineScale={interpolate(frame, [seconds(0.2), seconds(0.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
         underlineOpacity={titleOut * 0.82}
         auditId="ep02-hook-title"
       />
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        {[
-          {x: 374, label: 'Working Tree'},
-          {x: 834, label: 'Index'},
-          {x: 1294, label: 'Repository'},
-        ].map((zone) => (
-          <g key={zone.label} opacity={zones * 0.72}>
-            <rect x={zone.x} y="362" width="252" height="214" rx="8" fill={COLOR.canvas.overlay} stroke={COLOR.stroke.soft} />
-            <text x={zone.x + 126} y="620" textAnchor="middle" fontFamily={FONT.mono} fontSize="23" fontWeight="760" fill={COLOR.text.tertiary}>
-              {zone.label}
-            </text>
-          </g>
-        ))}
-        <SvgArrowLine x1={626} y1={470} x2={834} y2={470} progress={zones} color={COLOR.git.graphLine} width={5} opacity={0.6} dash="12 16" />
-        <SvgArrowLine x1={1086} y1={470} x2={1294} y2={470} progress={zones} color={COLOR.git.graphLine} width={5} opacity={0.6} dash="12 16" />
+        <g opacity={stage * diagramHold}>
+          <rect x="282" y="340" width="390" height="286" rx="10" fill="rgba(255,255,255,0.58)" stroke={COLOR.stroke.soft} />
+          <text x="318" y="398" fontFamily={FONT.sans} fontSize="24" fontWeight="780" fill={COLOR.text.secondary}>
+            编辑器
+          </text>
+          <rect x="1258" y="354" width="366" height="258" rx="10" fill="rgba(255,255,255,0.68)" stroke={COLOR.git.main} strokeWidth="2" />
+          <text x="1441" y="456" textAnchor="middle" fontFamily={FONT.mono} fontSize="48" fontWeight="820" fill={COLOR.git.main}>
+            commit
+          </text>
+          <text x="1441" y="508" textAnchor="middle" fontFamily={FONT.sans} fontSize="22" fontWeight="700" fill={COLOR.text.tertiary}>
+            历史记录
+          </text>
+        </g>
+        <g opacity={stage * diagramHold}>
+          <SvgArrowLine
+            x1={650}
+            y1={532}
+            x2={928}
+            y2={532}
+            progress={clamp(intent)}
+            color={COLOR.git.graphLine}
+            width={7}
+            opacity={0.62}
+            dash="none"
+          />
+          <line
+            x1="1026"
+            y1="532"
+            x2="1236"
+            y2="532"
+            stroke={COLOR.git.graphLine}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray="12 17"
+            opacity="0.16"
+          />
+          <path
+            d="M1218 512 L1238 532 L1218 552"
+            fill="none"
+            stroke={COLOR.git.graphLine}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.16"
+          />
+        </g>
+        <g opacity={block * blockHold}>
+          <rect x="956" y="438" width="52" height="188" rx="26" fill="rgba(194, 79, 68, 0.08)" stroke={COLOR.git.conflict} strokeWidth="2" opacity={blocked} />
+          <line x1="982" y1="420" x2="982" y2="644" stroke={COLOR.git.conflict} strokeWidth="10" strokeLinecap="round" opacity={0.86 * blocked} />
+          <line x1="952" y1="456" x2="1012" y2="456" stroke={COLOR.git.conflict} strokeWidth="6" strokeLinecap="round" opacity={0.32 * blocked} />
+          <line x1="952" y1="608" x2="1012" y2="608" stroke={COLOR.git.conflict} strokeWidth="6" strokeLinecap="round" opacity={0.32 * blocked} />
+          <text x="982" y="704" textAnchor="middle" fontFamily={FONT.sans} fontSize="25" fontWeight="780" fill={COLOR.git.conflict}>
+            不能直接进
+          </text>
+        </g>
       </svg>
       <div
         style={{
           position: 'absolute',
-          left: interpolate(fileIn, [0, 1], [210, 504]),
-          top: interpolate(fileIn, [0, 1], [370, 416]),
-          opacity: fileIn,
+          left: 374,
+          top: 454,
+          opacity: stage * diagramHold,
+          transform: `scale(${interpolate(stage, [0, 1], [0.92, 1.1])})`,
+          transformOrigin: 'center',
         }}
       >
-        <FileCard label="editing" tone="modified" auditId="ep02-hook-file" />
+        <FileCard label="正在编辑" tone="modified" auditId="ep02-hook-file" />
       </div>
-      <QuestionCaption opacity={question} translateY={interpolate(question, [0, 1], [18, 0])} auditId="ep02-hook-question">
+      <QuestionCaption opacity={question} translateY={interpolate(question, [0, 1], [18, 0])} fontSize={42} auditId="ep02-hook-question">
         git add 到底做了什么？
       </QuestionCaption>
     </AbsoluteFill>
@@ -234,17 +282,50 @@ const HookScene: React.FC = () => {
 const ThreeAreasScene: React.FC = () => {
   const frame = useCurrentFrame();
   const board = interpolate(frame, [0, seconds(0.65)], [0.35, 1], {extrapolateRight: 'clamp'});
-  const caption = interpolate(frame, [seconds(6.2), seconds(7.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const workingNote = interpolate(frame, [seconds(5.2), seconds(6.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const indexNote = interpolate(frame, [seconds(7.6), seconds(8.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const repoNote = interpolate(frame, [seconds(10), seconds(11.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const file = interpolate(frame, [seconds(14), seconds(16.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const onlyWorking = interpolate(frame, [seconds(16.6), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const notes = [
+    {text: '正在编辑的真实文件', color: COLOR.git.workingTree, opacity: workingNote},
+    {text: '下一次提交的候选', color: COLOR.git.head, opacity: indexNote},
+    {text: '已经写入的历史', color: COLOR.git.main, opacity: repoNote},
+  ];
   return (
     <AbsoluteFill>
-      <Board workingFiles={file > 0.35 ? ['app.js'] : []} indexFiles={[]} repositoryFiles={['C0']} opacity={board} />
-      <div style={{position: 'absolute', left: 184, top: 592, width: 1550, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 42, opacity: caption}}>
-        {['正在编辑', '下一次提交', '已提交历史'].map((text, idx) => (
-          <div key={text} style={{...TYPE.subtitle, color: idx === 0 ? COLOR.git.workingTree : idx === 1 ? COLOR.git.head : COLOR.git.main, textAlign: 'center'}}>
-            {text}
+      <Board
+        workingFiles={file > 0.35 ? ['app.js:modified'] : []}
+        indexFiles={[]}
+        repositoryFiles={['C0']}
+        active={file > 0.35 ? 'working-tree' : 'none'}
+        opacity={board}
+      />
+      <div style={{position: 'absolute', left: 184, top: 592, width: 1550, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 42}}>
+        {notes.map((note) => (
+          <div key={note.text} style={{textAlign: 'center', opacity: note.opacity}}>
+            <div style={{...TYPE.subtitle, color: note.color}}>{note.text}</div>
+            <div style={{width: 68, height: 3, borderRadius: 99, background: note.color, opacity: 0.56, margin: '16px auto 0'}} />
           </div>
         ))}
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          left: 244,
+          top: 708,
+          width: 436,
+          borderRadius: 8,
+          border: `1px solid rgba(96, 118, 106, ${0.36 * onlyWorking})`,
+          background: `rgba(255, 255, 255, ${0.72 * onlyWorking})`,
+          boxShadow: `0 16px 42px rgba(24,35,33,${0.05 * onlyWorking})`,
+          padding: '16px 20px',
+          opacity: onlyWorking,
+          boxSizing: 'border-box',
+        }}
+      >
+        <div style={{...TYPE.ui, color: COLOR.git.workingTree, fontWeight: 780}}>这次变化只在 Working Tree</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, marginTop: 4}}>Index 还是空的，Repository 只有旧提交 C0。</div>
       </div>
       <SceneCaption opacity={interpolate(file, [0.2, 1], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-three-areas-caption">
         文件先出现在 Working Tree，Index 和 Repository 还没有这次变化。
@@ -255,27 +336,77 @@ const ThreeAreasScene: React.FC = () => {
 
 const ModifyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const code = interpolate(frame, [0, seconds(0.7)], [0.35, 1], {extrapolateRight: 'clamp'});
-  const modified = interpolate(frame, [seconds(7.4), seconds(10.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const editor = interpolate(frame, [seconds(2.2), seconds(3.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const edit = interpolate(frame, [seconds(6), seconds(7.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const state = interpolate(frame, [seconds(8.2), seconds(9.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const focus = interpolate(frame, [seconds(14), seconds(16.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const editorOut = interpolate(frame, [seconds(18.8), seconds(20.6)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', left: 170, top: 262, width: 610, opacity: code}} data-audit-id="ep02-modify-code">
-        <CodeBlock title="app.js" lines={['function App() {', '  return <Header />;', '}', '', 'render(App);']} highlight={[1]} />
-      </div>
       <Board
-        workingFiles={['app.js:modified']}
+        workingFiles={state > 0.25 ? ['app.js:modified'] : ['app.js']}
         indexFiles={[]}
         repositoryFiles={['C0']}
         active="working-tree"
-        opacity={interpolate(code, [0, 1], [0, 1])}
-        left={860}
-        top={258}
-        width={890}
+        opacity={1}
+        top={250}
       />
-      <div style={{position: 'absolute', left: interpolate(modified, [0, 1], [590, 475]), top: 654, opacity: modified}}>
-        <FileCard label="modified" tone="modified" auditId="ep02-modify-file" />
+      <div
+        style={{
+          position: 'absolute',
+          left: 216,
+          top: 418,
+          width: 470,
+          opacity: editor * editorOut,
+          transform: `translateY(${interpolate(editor, [0, 1], [18, 0])}px) scale(${interpolate(editor, [0, 1], [0.96, 1])})`,
+          transformOrigin: 'top left',
+        }}
+        data-audit-id="ep02-modify-code"
+      >
+        <CodeBlock
+          title="Working Tree / app.js"
+          lines={edit > 0.5 ? ['function App() {', '  return <Header title="Git" />;', '}'] : ['function App() {', '  return <Header />;', '}']}
+          highlight={edit > 0.5 ? [1] : []}
+        />
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(13), seconds(15)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
+      <div
+        style={{
+          position: 'absolute',
+          left: 214,
+          top: 694,
+          width: 500,
+          opacity: edit * editorOut,
+        }}
+      >
+        <div style={{...TYPE.subtitle, color: COLOR.git.workingTree, fontWeight: 760}}>修改发生在 Working Tree</div>
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          left: 742,
+          top: 604,
+          width: 1020,
+          height: 2,
+          background: COLOR.stroke.soft,
+          opacity: 0.24 * focus,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 818,
+          top: 648,
+          width: 840,
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 42,
+          opacity: focus,
+        }}
+      >
+        <div style={{...TYPE.subtitle, color: COLOR.text.tertiary, textAlign: 'center'}}>Index 没变</div>
+        <div style={{...TYPE.subtitle, color: COLOR.text.tertiary, textAlign: 'center'}}>Repository 没变</div>
+      </div>
+      <SceneCaption opacity={interpolate(frame, [seconds(13.2), seconds(15.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
         modified 说明文件变了，但还不是 staged。
       </SceneCaption>
     </AbsoluteFill>

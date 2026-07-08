@@ -6,8 +6,9 @@ export const SceneCaption: React.FC<{
   opacity?: number;
   bottom?: number;
   width?: number;
+  fontSize?: number;
   auditId?: string;
-}> = ({children, opacity = 1, bottom = 112, width = 1040, auditId}) => (
+}> = ({children, opacity = 1, bottom = 112, width = 1040, fontSize, auditId}) => (
   <div
     data-audit-id={auditId}
     style={{
@@ -18,6 +19,7 @@ export const SceneCaption: React.FC<{
       transform: 'translateX(-50%)',
       textAlign: 'center',
       ...TYPE.subtitle,
+      fontSize: fontSize ?? TYPE.subtitle.fontSize,
       color: COLOR.text.primary,
       opacity,
     }}

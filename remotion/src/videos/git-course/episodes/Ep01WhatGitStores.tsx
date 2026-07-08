@@ -64,16 +64,16 @@ const FileVersionCard: React.FC<{
         position: 'absolute',
         left: x,
         top: y,
-        width: 344,
-        height: 196,
+        width: 396,
+        height: 224,
         borderRadius: 12,
         background: COLOR.canvas.raised,
         border: `1px solid ${COLOR.stroke.default}`,
-        boxShadow: `0 20px 42px ${COLOR.effects.shadowSoft}`,
+        boxShadow: `0 24px 54px ${COLOR.effects.shadowSoft}`,
         opacity,
         transform: `rotate(${rotate}deg) scale(${scale})`,
         transformOrigin: 'center',
-        padding: '24px 26px',
+        padding: '28px 30px',
         boxSizing: 'border-box',
       }}
       data-audit-id={`ep01-hook-card-${label}`}
@@ -85,7 +85,7 @@ const FileVersionCard: React.FC<{
           borderRadius: 8,
           border: `2px solid ${accent}`,
           position: 'relative',
-          marginBottom: 18,
+          marginBottom: 20,
         }}
       >
         <div
@@ -101,8 +101,8 @@ const FileVersionCard: React.FC<{
           }}
         />
       </div>
-      <div style={{...TYPE.ui, color: COLOR.text.primary, fontSize: 31, fontWeight: 800, whiteSpace: 'nowrap'}}>{label}</div>
-      <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontSize: 21, marginTop: 8}}>{note}</div>
+      <div style={{...TYPE.ui, color: COLOR.text.primary, fontSize: 37, fontWeight: 820, whiteSpace: 'nowrap'}}>{label}</div>
+      <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontSize: 25, marginTop: 10}}>{note}</div>
     </div>
   );
 };
@@ -115,17 +115,17 @@ export const Ep01HookScene: React.FC = () => {
   const titleY = interpolate(frame, [0, seconds(0.5)], [18, -18], {extrapolateRight: 'clamp'});
   const keywordIn = interpolate(frame, [seconds(0.25), seconds(0.72)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const underline = interpolate(frame, [seconds(0.48), seconds(1.08)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const graphIn = interpolate(frame, [seconds(1.92), seconds(2.24)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const cardSpread = interpolate(frame, [seconds(2.65), seconds(4.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const stackTighten = interpolate(frame, [seconds(6.4), seconds(8.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const historyHint = interpolate(frame, [seconds(8.45), seconds(9.25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(1.82), seconds(2.12)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const cardSpread = interpolate(frame, [seconds(2.35), seconds(3.75)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const stackTighten = interpolate(frame, [seconds(6.05), seconds(8.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const historyHint = interpolate(frame, [seconds(7.85), seconds(8.9)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const questionIn = interpolate(frame, [seconds(9.55), seconds(10.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const questionMarkIn = interpolate(frame, [seconds(8.9), seconds(9.7)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   const cardBase = [
-    {label: 'project', note: '今天', x: 370, y: 390, rotate: -5, tone: 'main' as const},
-    {label: 'project-final', note: '昨天', x: 788, y: 424, rotate: 3, tone: 'feature' as const},
-    {label: 'project-final-2', note: '上周', x: 1206, y: 390, rotate: -2, tone: 'head' as const},
+    {label: '状态 A', note: '项目此刻', x: 300, y: 378, rotate: -5, tone: 'main' as const},
+    {label: '状态 B', note: '下一次改动', x: 762, y: 414, rotate: 3, tone: 'feature' as const},
+    {label: '状态 C', note: '再次改动', x: 1224, y: 378, rotate: -2, tone: 'head' as const},
   ];
 
   return (
@@ -187,11 +187,6 @@ export const Ep01HookScene: React.FC = () => {
           style={{position: 'absolute', inset: 0, overflow: 'visible', opacity: historyHint * 0.72}}
           data-audit-id="ep01-hook-history-hint"
         >
-          <line x1="690" y1="704" x2="890" y2="704" stroke={COLOR.stroke.default} strokeWidth="3" strokeDasharray="10 14" />
-          <line x1="1030" y1="704" x2="1230" y2="704" stroke={COLOR.stroke.default} strokeWidth="3" strokeDasharray="10 14" />
-          {[690, 960, 1230].map((x) => (
-            <circle key={x} cx={x} cy="704" r="6" fill={COLOR.canvas.raised} stroke={COLOR.stroke.default} strokeWidth="3" />
-          ))}
         </svg>
         {cardBase.map((card, idx) => {
           const appear = interpolate(frame, [seconds(2.15 + idx * 0.78), seconds(2.68 + idx * 0.78)], [0, 1], {
@@ -199,18 +194,22 @@ export const Ep01HookScene: React.FC = () => {
             extrapolateRight: 'clamp',
           });
           const entryY = interpolate(appear, [0, 1], [30, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-          const stackOpacity = idx === 2 ? 1 : 0.16 + idx * 0.08;
+          const stackOpacity = idx === 2 ? 1 : 0.18 + idx * 0.12;
+          const stackX = [690, 776, 878][idx];
+          const stackY = [340, 382, 424][idx];
+          const stackRotate = [-5, -1, 3][idx];
+          const stackScale = [0.96, 0.98, 1.02][idx];
           return (
             <FileVersionCard
               key={card.label}
               label={card.label}
               note={card.note}
               tone={card.tone}
-              x={interpolate(stackTighten, [0, 1], [interpolate(cardSpread, [0, 1], [788, card.x]), 792 + idx * 58])}
-              y={interpolate(stackTighten, [0, 1], [interpolate(cardSpread, [0, 1], [398, card.y]), 398 + idx * 34]) + entryY}
-              rotate={interpolate(stackTighten, [0, 1], [card.rotate, -4 + idx * 4])}
-              opacity={appear * interpolate(stackTighten, [0, 1], [0.96, stackOpacity])}
-              scale={interpolate(stackTighten, [0, 1], [1.08, 0.96 - idx * 0.02])}
+              x={interpolate(stackTighten, [0, 1], [interpolate(cardSpread, [0, 1], [762, card.x]), stackX])}
+              y={interpolate(stackTighten, [0, 1], [interpolate(cardSpread, [0, 1], [384, card.y]), stackY]) + entryY}
+              rotate={interpolate(stackTighten, [0, 1], [card.rotate, stackRotate])}
+              opacity={appear * interpolate(stackTighten, [0, 1], [0.98, stackOpacity])}
+              scale={interpolate(stackTighten, [0, 1], [1.12, stackScale])}
             />
           );
         })}
@@ -234,7 +233,7 @@ export const Ep01HookScene: React.FC = () => {
         ?
       </div>
 
-      <QuestionCaption opacity={questionIn} translateY={interpolate(questionIn, [0, 1], [16, 0])} width={860} auditId="ep01-hook-question">
+      <QuestionCaption opacity={questionIn} translateY={interpolate(questionIn, [0, 1], [16, 0])} width={980} fontSize={38} auditId="ep01-hook-question">
         保存文件，还是保存历史？
       </QuestionCaption>
     </AbsoluteFill>
@@ -274,14 +273,14 @@ const TinyFailMark: React.FC<{
 export const Ep01BadModelScene: React.FC = () => {
   const frame = useCurrentFrame();
   const titleOpacity = sceneTitleOpacity(frame);
-  const stack = interpolate(frame, [seconds(6), seconds(12)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const line = interpolate(frame, [seconds(12.2), seconds(16.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const failMark = interpolate(frame, [seconds(15), seconds(17.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const stack = interpolate(frame, [seconds(6), seconds(11.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const doubt = interpolate(frame, [seconds(12.4), seconds(14.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption = interpolate(frame, [seconds(17.4), seconds(19.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const cards = [
-    {label: 'project', note: 'v1?', x: 448, y: 388, sx: 748, sy: 418, rotate: -4, tone: 'main' as const},
-    {label: 'project-final', note: 'v2?', x: 788, y: 388, sx: 800, sy: 450, rotate: 3, tone: 'feature' as const},
-    {label: 'project-final-final', note: 'v3?', x: 1128, y: 388, sx: 852, sy: 482, rotate: -2, tone: 'head' as const},
+    {label: 'project', note: '原始目录', x: 202, y: 382, sx: 304, sy: 354, rotate: -4, stackRotate: -7, tone: 'main' as const},
+    {label: 'project-final', note: '第一次复制', x: 598, y: 404, sx: 390, sy: 402, rotate: 2, stackRotate: -2, tone: 'feature' as const},
+    {label: 'project-final-2', note: '又改了一版', x: 994, y: 382, sx: 486, sy: 448, rotate: -2, stackRotate: 4, tone: 'head' as const},
+    {label: 'project-final-final', note: '第三次复制', x: 1286, y: 424, sx: 592, sy: 500, rotate: 4, stackRotate: 8, tone: 'head' as const},
   ];
 
   return (
@@ -294,6 +293,8 @@ export const Ep01BadModelScene: React.FC = () => {
           extrapolateLeft: 'clamp',
           extrapolateRight: 'clamp',
         });
+        const stackScale = [0.88, 0.92, 0.96, 1.02][idx];
+        const stackOpacity = [0.18, 0.28, 0.48, 1][idx];
         return (
           <FileVersionCard
             key={card.label}
@@ -302,21 +303,48 @@ export const Ep01BadModelScene: React.FC = () => {
             tone={card.tone}
             x={interpolate(stack, [0, 1], [card.x, card.sx])}
             y={interpolate(stack, [0, 1], [card.y, card.sy])}
-            rotate={interpolate(stack, [0, 1], [0, card.rotate])}
-            opacity={appear * interpolate(stack, [0, 1], [1, idx === 2 ? 1 : 0.46])}
-            scale={interpolate(stack, [0, 1], [1, 0.96 - idx * 0.03])}
+            rotate={interpolate(stack, [0, 1], [card.rotate, card.stackRotate])}
+            opacity={appear * interpolate(stack, [0, 1], [1, stackOpacity])}
+            scale={interpolate(stack, [0, 1], [0.92, stackScale])}
           />
         );
       })}
-      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={632} y1={690} x2={1286} y2={690} progress={line} color={COLOR.stroke.strong} width={5} opacity={0.55} dash="18 20" />
-        <g opacity={interpolate(line, [0.25, 0.68], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
-          <circle cx="958" cy="690" r="13" fill={COLOR.canvas.base} stroke={COLOR.stroke.strong} strokeWidth="4" />
-          <path d="M956 650 L960 704" stroke={COLOR.git.conflict} strokeWidth="5" strokeLinecap="round" opacity="0.74" />
-        </g>
-        <TinyFailMark x={1324} y={690} progress={failMark} label="历史关系不清楚" auditId="ep01-bad-model-fail-mark" />
-      </svg>
-      <SceneCaption opacity={caption} bottom={126} width={980} auditId="ep01-bad-model-caption">
+      <div
+        style={{
+          position: 'absolute',
+          left: 1118,
+          top: 438,
+          opacity: doubt,
+          transform: `translateX(${interpolate(doubt, [0, 1], [28, 0])}px)`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 18,
+          maxWidth: 560,
+        }}
+        data-audit-id="ep01-bad-model-question"
+      >
+        <div
+          style={{
+            width: 54,
+            height: 54,
+            flex: '0 0 auto',
+            borderRadius: 999,
+            border: `3px solid ${COLOR.git.conflict}`,
+            color: COLOR.git.conflict,
+            display: 'grid',
+            placeItems: 'center',
+            ...TYPE.title,
+            fontSize: 34,
+            lineHeight: 1,
+          }}
+        >
+          ?
+        </div>
+        <div style={{...TYPE.title, fontSize: 48, lineHeight: 1.15, color: COLOR.git.conflict, fontWeight: 840}}>
+          哪个才是最终版？
+        </div>
+      </div>
+      <SceneCaption opacity={caption} bottom={126} width={1080} fontSize={35} auditId="ep01-bad-model-caption">
         保存结果，不等于保存历史。
       </SceneCaption>
     </AbsoluteFill>
@@ -398,7 +426,7 @@ export const Ep01VersionControlScene: React.FC = () => {
           </text>
         </g>
       </svg>
-      <SceneCaption opacity={caption} bottom={126} width={980} auditId="ep01-version-caption">
+      <SceneCaption opacity={caption} bottom={126} width={1080} fontSize={35} auditId="ep01-version-caption">
         {summaries[focus]}
       </SceneCaption>
     </AbsoluteFill>
@@ -478,7 +506,7 @@ export const Ep01SnapshotModelScene: React.FC = () => {
                   {files.map((file, fileIdx) => (
                     <g key={file} transform={`translate(${(fileIdx % 2) * 158} ${Math.floor(fileIdx / 2) * 76})`}>
                       <rect width="136" height="58" rx="8" fill={fileIdx === 1 && idx > 0 ? COLOR.effects.headHighlight : COLOR.canvas.raised} stroke={COLOR.stroke.soft} />
-                      <text x="68" y="37" textAnchor="middle" fontFamily={FONT.sans} fontSize="20" fontWeight="720" fill={COLOR.text.secondary}>
+                      <text x="68" y="38" textAnchor="middle" fontFamily={FONT.sans} fontSize="23" fontWeight="740" fill={COLOR.text.secondary}>
                         {file}
                       </text>
                     </g>
@@ -496,7 +524,7 @@ export const Ep01SnapshotModelScene: React.FC = () => {
           </g>
         </g>
       </svg>
-      <SceneCaption opacity={conclusion} bottom={126} width={980} auditId="ep01-snapshot-caption">
+      <SceneCaption opacity={conclusion} bottom={126} width={1080} fontSize={35} auditId="ep01-snapshot-caption">
         每次 commit 都指向一个项目状态。
       </SceneCaption>
     </AbsoluteFill>
@@ -524,7 +552,7 @@ export const Ep01LocalHistoryScene: React.FC = () => {
         data-audit-id="ep01-local-terminal"
       >
         <TerminalPanel title="local-history">
-          <div style={{padding: '30px 34px', ...TYPE.code, color: COLOR.terminal.output}}>
+          <div style={{padding: '30px 34px', ...TYPE.code, fontSize: 30, color: COLOR.terminal.output}}>
             {outputLines.slice(0, visible).map((line, idx) => (
               <div key={line} style={{marginBottom: 18, color: idx === 0 ? COLOR.text.inverse : COLOR.terminal.output}}>
                 {line}
@@ -562,7 +590,7 @@ export const Ep01LocalHistoryScene: React.FC = () => {
           auditId="ep01-local-link"
         />
       </svg>
-      <SceneCaption opacity={interpolate(frame, [seconds(23), seconds(25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={980} auditId="ep01-local-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(23), seconds(25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={1080} fontSize={35} auditId="ep01-local-caption">
         历史在本地，可以直接查询。
       </SceneCaption>
     </AbsoluteFill>
@@ -611,7 +639,7 @@ export const Ep01IntegrityScene: React.FC = () => {
           </text>
         </g>
       </svg>
-      <SceneCaption opacity={interpolate(frame, [seconds(20), seconds(22)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={980} auditId="ep01-integrity-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(20), seconds(22)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={1080} fontSize={35} auditId="ep01-integrity-caption">
         Git 用内容生成标识，所以历史可以被校验。
       </SceneCaption>
     </AbsoluteFill>
@@ -646,7 +674,7 @@ export const Ep01TakeawayScene: React.FC = () => {
                 border: `1px solid ${idx === 1 ? COLOR.git.main : COLOR.stroke.soft}`,
                 textAlign: 'center',
                 ...TYPE.title,
-                fontSize: 35,
+                fontSize: 39,
                 color: idx === 1 ? COLOR.git.main : COLOR.text.primary,
                 opacity: inP,
                 transform: `translateY(${interpolate(inP, [0, 1], [18, 0])}px)`,
@@ -665,7 +693,7 @@ export const Ep01TakeawayScene: React.FC = () => {
           transform: `translate(-50%, ${interpolate(conclusion, [0, 1], [24, 0])}px)`,
           opacity: conclusion,
           ...TYPE.title,
-          fontSize: 50,
+          fontSize: 56,
           color: COLOR.text.primary,
           textAlign: 'center',
           whiteSpace: 'nowrap',
@@ -674,7 +702,7 @@ export const Ep01TakeawayScene: React.FC = () => {
       >
         Git 保存的是一条可回看的项目历史。
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(19), seconds(20.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={980} auditId="ep01-takeaway-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(19), seconds(20.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={1080} fontSize={35} auditId="ep01-takeaway-caption">
         这就是理解 add、commit 和 branch 的起点。
       </SceneCaption>
     </AbsoluteFill>

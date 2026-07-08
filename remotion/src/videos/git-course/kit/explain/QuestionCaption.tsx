@@ -5,10 +5,11 @@ export const QuestionCaption: React.FC<{
   children: React.ReactNode;
   bottom?: number;
   width?: number;
+  fontSize?: number;
   opacity?: number;
   translateY?: number;
   auditId?: string;
-}> = ({children, bottom = 132, width = 920, opacity = 1, translateY = 0, auditId}) => (
+}> = ({children, bottom = 132, width = 920, fontSize, opacity = 1, translateY = 0, auditId}) => (
   <div
     data-audit-id={auditId}
     style={{
@@ -17,6 +18,7 @@ export const QuestionCaption: React.FC<{
       bottom,
       width,
       ...TYPE.subtitle,
+      fontSize: fontSize ?? TYPE.subtitle.fontSize,
       color: COLOR.text.primary,
       opacity,
       textAlign: 'center',

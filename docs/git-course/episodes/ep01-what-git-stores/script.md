@@ -60,7 +60,7 @@ remotion/public/git-course/assets/ep01-what-git-stores/
 
 | 全局时间 | Scene | 时长 | 目的 | 主技术 | 主视觉 |
 |---:|---|---:|---|---|---|
-| 0-12s | hook | 12s | 抛出“Git 到底存什么” | Remotion title + minimal file stack | 大标题、混乱备份目录 |
+| 0-12s | hook | 12s | 抛出“Git 到底存什么” | Remotion title + minimal state stack | 大标题、项目状态层 |
 | 12-34s | bad-model | 22s | 否定手动复制目录模型 | Remotion file cards | `project-final-final` 混乱堆叠 |
 | 34-64s | version-control | 30s | 建立版本控制的作用 | Remotion timeline | 回退、比较、找责任点 |
 | 64-96s | snapshot-model | 32s | 建立 Git 快照流 | Manim `SnapshotStreamScene` + Remotion captions | C0-C1-C2 快照节点 |
