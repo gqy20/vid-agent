@@ -7,9 +7,10 @@ import {
   GitStatePanel,
   ManimClip,
   QuestionCaption,
+  SceneCaption,
   SceneSequence,
   SvgArrowLine,
-  TerminalPanel,
+  TypedCommandTerminal,
 } from '../kit';
 import {COLOR, FONT} from '../palette';
 import {seconds, WIDTH} from '../timeline';
@@ -46,31 +47,6 @@ const getEp03SceneDuration = (id: Ep03SceneId) => {
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
-const SceneCaption: React.FC<{
-  children: React.ReactNode;
-  opacity?: number;
-  bottom?: number;
-  width?: number;
-  auditId?: string;
-}> = ({children, opacity = 1, bottom = 112, width = 1120, auditId}) => (
-  <div
-    data-audit-id={auditId}
-    style={{
-      position: 'absolute',
-      left: '50%',
-      bottom,
-      width,
-      transform: 'translateX(-50%)',
-      textAlign: 'center',
-      ...TYPE.subtitle,
-      color: COLOR.text.primary,
-      opacity,
-    }}
-  >
-    {children}
-  </div>
-);
-
 const ObjectBox: React.FC<{
   title: string;
   subtitle: string;
@@ -106,46 +82,6 @@ const ObjectBox: React.FC<{
     <div style={{...TYPE.ui, color: tone, marginTop: 13}}>{subtitle}</div>
   </div>
 );
-
-const MiniTerminal: React.FC<{
-  command: string;
-  output?: readonly string[];
-  branch?: 'main' | 'feature';
-  title?: string;
-}> = ({command, output = [], branch = 'main', title = 'git-course-demo'}) => {
-  const frame = useCurrentFrame();
-  const chars = Math.floor(interpolate(frame, [0, seconds(1.05)], [0, command.length], {extrapolateRight: 'clamp'}));
-  const showOutput = frame > seconds(1.4);
-  return (
-    <TerminalPanel title={title}>
-      <div style={{padding: '30px 34px', ...TYPE.code, color: COLOR.text.inverse}}>
-        <div style={{whiteSpace: 'pre'}}>
-          <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-          <span style={{color: COLOR.terminal.promptMuted}}> $ </span>
-          <span>{command.slice(0, chars)}</span>
-          <span
-            style={{
-              display: 'inline-block',
-              width: 11,
-              height: TYPE.code.fontSize,
-              marginLeft: 5,
-              transform: 'translateY(5px)',
-              background: COLOR.git.head,
-              opacity: Math.floor(frame / 12) % 2 === 0 ? 1 : 0.15,
-            }}
-          />
-        </div>
-        {showOutput
-          ? output.map((line) => (
-              <div key={line} style={{...TYPE.codeOutput, color: COLOR.terminal.output, paddingLeft: 26, marginTop: 12}}>
-                {line}
-              </div>
-            ))
-          : null}
-      </div>
-    </TerminalPanel>
-  );
-};
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -228,7 +164,12 @@ const FromIndexScene: React.FC = () => {
           zIndex: 8,
         }}
       >
-        <MiniTerminal command={'git commit -m "add search"'} output={['[main C2] add search', '2 files changed']} />
+        <TypedCommandTerminal
+          command={'git commit -m "add search"'}
+          output={['[main C2] add search', '2 files changed']}
+          commandEndFrame={seconds(1.05)}
+          outputStartFrame={seconds(1.4)}
+        />
       </div>
       <div style={{position: 'absolute', left: 106, top: 254, width: 1450, opacity: boardIn}} data-audit-id="ep03-index-board">
         <GitStatePanel
@@ -262,7 +203,7 @@ const FromIndexScene: React.FC = () => {
       >
         snapshot from Index
       </div>
-      <SceneCaption opacity={caption} auditId="ep03-from-index-caption">
+      <SceneCaption opacity={caption} width={1120} auditId="ep03-from-index-caption">
         commit 读取的是 Index，不是把 Working Tree 当前所有内容都打包进去。
       </SceneCaption>
     </AbsoluteFill>
@@ -360,7 +301,7 @@ const CommitFieldsScene: React.FC = () => {
           <CommitNode id="C2" x={180} y={180} progress={cardIn} radius={106} strong />
         </svg>
       </div>
-      <SceneCaption opacity={caption} auditId="ep03-fields-caption">
+      <SceneCaption opacity={caption} width={1120} auditId="ep03-fields-caption">
         parent 让 commit 知道自己从哪里来；message 记录这次为什么提交。
       </SceneCaption>
     </AbsoluteFill>

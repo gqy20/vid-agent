@@ -6,9 +6,11 @@ import {
   EpisodeTitleCard,
   GitStatePanel,
   QuestionCaption,
+  SceneCaption,
   SceneSequence,
   SvgArrowLine,
   TerminalPanel,
+  TypedCommandTerminal,
 } from '../kit';
 import {COLOR, FONT} from '../palette';
 import {seconds, WIDTH} from '../timeline';
@@ -90,31 +92,6 @@ const FileCard: React.FC<{
   );
 };
 
-const SceneCaption: React.FC<{
-  children: React.ReactNode;
-  opacity?: number;
-  bottom?: number;
-  width?: number;
-  auditId?: string;
-}> = ({children, opacity = 1, bottom = 112, width = 1040, auditId}) => (
-  <div
-    data-audit-id={auditId}
-    style={{
-      position: 'absolute',
-      left: '50%',
-      bottom,
-      width,
-      transform: 'translateX(-50%)',
-      textAlign: 'center',
-      ...TYPE.subtitle,
-      color: COLOR.text.primary,
-      opacity,
-    }}
-  >
-    {children}
-  </div>
-);
-
 const Board: React.FC<{
   workingFiles: readonly string[];
   indexFiles: readonly string[];
@@ -135,46 +112,6 @@ const Board: React.FC<{
     />
   </div>
 );
-
-const MiniTerminal: React.FC<{
-  command: string;
-  output?: readonly string[];
-  branch?: 'main' | 'feature';
-  title?: string;
-}> = ({command, output = [], branch = 'main', title = 'git-course-demo'}) => {
-  const frame = useCurrentFrame();
-  const chars = Math.floor(interpolate(frame, [0, seconds(1.1)], [0, command.length], {extrapolateRight: 'clamp'}));
-  const showOutput = frame > seconds(1.45);
-  return (
-    <TerminalPanel title={title}>
-      <div style={{padding: '30px 34px', ...TYPE.code, color: COLOR.text.inverse}}>
-        <div style={{whiteSpace: 'pre'}}>
-          <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-          <span style={{color: COLOR.terminal.promptMuted}}> $ </span>
-          <span>{command.slice(0, chars)}</span>
-          <span
-            style={{
-              display: 'inline-block',
-              width: 11,
-              height: TYPE.code.fontSize,
-              marginLeft: 5,
-              transform: 'translateY(5px)',
-              background: COLOR.git.head,
-              opacity: Math.floor(frame / 12) % 2 === 0 ? 1 : 0.15,
-            }}
-          />
-        </div>
-        {showOutput
-          ? output.map((line) => (
-              <div key={line} style={{...TYPE.codeOutput, color: COLOR.terminal.output, paddingLeft: 26, marginTop: 12}}>
-                {line}
-              </div>
-            ))
-          : null}
-      </div>
-    </TerminalPanel>
-  );
-};
 
 const CommandStrip: React.FC<{
   command: string;
@@ -360,7 +297,7 @@ const AddScene: React.FC = () => {
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', left: terminalLeft, top: terminalTop, width: terminalWidth, height: terminalHeight, zIndex: 9, opacity: terminalFullOpacity}}>
-        <MiniTerminal command="git add app.js" output={['# app.js is staged for the next commit']} />
+        <TypedCommandTerminal command="git add app.js" output={['# app.js is staged for the next commit']} />
       </div>
       <CommandStrip command="git add app.js" output="# staged current content" opacity={commandStrip} />
       <div style={{opacity: boardIn}}>
@@ -501,7 +438,7 @@ const CommitScene: React.FC = () => {
           opacity: terminalFullOpacity,
         }}
       >
-        <MiniTerminal command={'git commit -m "update app"'} output={['[main C1] update app', '1 file changed']} />
+        <TypedCommandTerminal command={'git commit -m "update app"'} output={['[main C1] update app', '1 file changed']} />
       </div>
       <CommandStrip command={'git commit -m "update app"'} output="commit reads Index" opacity={commandStrip} />
       <div style={{opacity: boardIn}}>

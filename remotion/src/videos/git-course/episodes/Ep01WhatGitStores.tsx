@@ -9,6 +9,7 @@ import {
   MotionTitle,
   PositionedMotion,
   QuestionCaption,
+  SceneCaption,
   SceneSequence,
   SvgArrowLine,
   TerminalPanel,
@@ -222,30 +223,6 @@ const ep01GraphState = (count: 3): GitGraphState => ({
   head: {target: `C${count - 1}`, branch: 'main'},
 });
 
-const SceneCaption: React.FC<{
-  children: React.ReactNode;
-  opacity?: number;
-  bottom?: number;
-  auditId?: string;
-}> = ({children, opacity = 1, bottom = 126, auditId}) => (
-  <div
-    data-audit-id={auditId}
-    style={{
-      position: 'absolute',
-      left: '50%',
-      bottom,
-      width: 980,
-      transform: 'translateX(-50%)',
-      textAlign: 'center',
-      ...TYPE.subtitle,
-      color: COLOR.text.primary,
-      opacity,
-    }}
-  >
-    {children}
-  </div>
-);
-
 const TinyFailMark: React.FC<{
   x: number;
   y: number;
@@ -315,7 +292,7 @@ export const Ep01BadModelScene: React.FC = () => {
         </g>
         <TinyFailMark x={1324} y={690} progress={failMark} label="历史关系不清楚" auditId="ep01-bad-model-fail-mark" />
       </svg>
-      <SceneCaption opacity={caption} auditId="ep01-bad-model-caption">
+      <SceneCaption opacity={caption} bottom={126} width={980} auditId="ep01-bad-model-caption">
         保存结果，不等于保存历史。
       </SceneCaption>
     </AbsoluteFill>
@@ -397,7 +374,7 @@ export const Ep01VersionControlScene: React.FC = () => {
           </text>
         </g>
       </svg>
-      <SceneCaption opacity={caption} auditId="ep01-version-caption">
+      <SceneCaption opacity={caption} bottom={126} width={980} auditId="ep01-version-caption">
         {summaries[focus]}
       </SceneCaption>
     </AbsoluteFill>
@@ -495,7 +472,7 @@ export const Ep01SnapshotModelScene: React.FC = () => {
           </g>
         </g>
       </svg>
-      <SceneCaption opacity={conclusion} auditId="ep01-snapshot-caption">
+      <SceneCaption opacity={conclusion} bottom={126} width={980} auditId="ep01-snapshot-caption">
         每次 commit 都指向一个项目状态。
       </SceneCaption>
     </AbsoluteFill>
@@ -561,7 +538,7 @@ export const Ep01LocalHistoryScene: React.FC = () => {
           auditId="ep01-local-link"
         />
       </svg>
-      <SceneCaption opacity={interpolate(frame, [seconds(23), seconds(25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep01-local-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(23), seconds(25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={980} auditId="ep01-local-caption">
         历史在本地，可以直接查询。
       </SceneCaption>
     </AbsoluteFill>
@@ -610,7 +587,7 @@ export const Ep01IntegrityScene: React.FC = () => {
           </text>
         </g>
       </svg>
-      <SceneCaption opacity={interpolate(frame, [seconds(20), seconds(22)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep01-integrity-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(20), seconds(22)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={980} auditId="ep01-integrity-caption">
         Git 用内容生成标识，所以历史可以被校验。
       </SceneCaption>
     </AbsoluteFill>
@@ -673,7 +650,7 @@ export const Ep01TakeawayScene: React.FC = () => {
       >
         Git 保存的是一条可回看的项目历史。
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(19), seconds(20.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep01-takeaway-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(19), seconds(20.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={980} auditId="ep01-takeaway-caption">
         这就是理解 add、commit 和 branch 的起点。
       </SceneCaption>
     </AbsoluteFill>
