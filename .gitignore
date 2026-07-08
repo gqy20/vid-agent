@@ -17,9 +17,9 @@ __pycache__/
 *.egg-info/
 
 # ── 视频产物 ──
-# 原则：默认 ignore 可重新生成的视频、抽帧和审查产物。
-# 旧项目里已经追踪的 current/*.mp4 保持不动；新增 Remotion 成片不再自动入库。
-# 新增任何命名/目录自动被忽略，永不漏。
+# 原则：默认 ignore 可重新生成的视频、音频、字幕、抽帧和审查产物。
+# 仓库只提交源码、脚本、文稿、对齐说明和生产文档；生成媒体保留在本地。
+# 新增任何生成媒体命名/目录自动被忽略，永不漏。
 # 详见 .claude/skills/{remotion-vid,manim-viz}/references/render-project-layout.md
 # 注：用单层通配 renders/*/X/，不用 **/X/（多层 + 多规则共存时 git 对短目录名有 quirk）。
 
@@ -59,6 +59,27 @@ remotion/renders/*/*/renders/mix.mp3
 remotion/renders/*/*/check/
 remotion/renders/*/*/check-*/
 remotion/renders/*/*/quality-audit.md
+
+# current 下可由脚本重新生成的音视频产物也默认不入库。
+# 保留 .txt/.md 等文稿和对齐说明。
+remotion/renders/*/*/renders/current/published/
+remotion/renders/*/*/renders/current/scenes/
+remotion/renders/*/*/renders/current/final/
+remotion/renders/*/*/renders/current/*.mp4
+remotion/renders/*/*/renders/current/*/*.mp4
+remotion/renders/*/*/renders/current/audio/**/*.mp3
+remotion/renders/*/*/renders/current/audio/**/*.m4a
+remotion/renders/*/*/renders/current/audio/**/*.wav
+remotion/renders/*/*/renders/current/audio/**/*.srt
+remotion/renders/*/*/renders/current/audio/*.mp3
+remotion/renders/*/*/renders/current/audio/*.m4a
+remotion/renders/*/*/renders/current/audio/*.wav
+remotion/renders/*/*/renders/current/audio/*.srt
+remotion/renders/*/*/current/audio/*.mp3
+remotion/renders/*/*/current/audio/*.m4a
+remotion/renders/*/*/current/audio/*.wav
+remotion/renders/*/*/current/audio/*.srt
+remotion/renders/*/*/current/*.mp4
 
 # 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
 renders/*/renders/*.mp4
