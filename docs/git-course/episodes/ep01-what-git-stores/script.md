@@ -77,7 +77,7 @@ remotion/public/git-course/assets/ep01-what-git-stores/
 字幕短句：
 
 - `Git 到底记录什么？`
-- `不是命令，是历史模型`
+- `保存文件，还是保存历史？`
 
 ### 12-34s / bad-model
 

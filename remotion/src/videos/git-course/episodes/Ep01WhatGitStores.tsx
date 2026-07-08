@@ -109,56 +109,67 @@ const FileVersionCard: React.FC<{
 
 export const Ep01HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleIn = interpolate(frame, [0, seconds(0.45)], [0, 1], {extrapolateRight: 'clamp'});
-  const titleOut = interpolate(frame, [seconds(1.72), seconds(2.12)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const titleIn = interpolate(frame, [0, seconds(0.38)], [0, 1], {extrapolateRight: 'clamp'});
+  const titleOut = interpolate(frame, [seconds(1.62), seconds(1.98)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const titleOpacity = titleIn * titleOut;
-  const titleY = interpolate(frame, [0, seconds(0.55)], [18, -46], {extrapolateRight: 'clamp'});
-  const gitAccent = interpolate(frame, [seconds(0.28), seconds(0.78)], [0.42, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const underline = interpolate(frame, [seconds(0.5), seconds(1.18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const graphIn = interpolate(frame, [seconds(2.05), seconds(2.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const promptIn = interpolate(frame, [seconds(2.65), seconds(3.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const cardsIn = interpolate(frame, [seconds(3.4), seconds(4.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const stackTighten = interpolate(frame, [seconds(7.1), seconds(9.25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const questionIn = interpolate(frame, [seconds(9.8), seconds(10.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const questionMarkIn = interpolate(frame, [seconds(9.45), seconds(10.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const titleY = interpolate(frame, [0, seconds(0.5)], [18, -18], {extrapolateRight: 'clamp'});
+  const keywordIn = interpolate(frame, [seconds(0.25), seconds(0.72)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const underline = interpolate(frame, [seconds(0.48), seconds(1.08)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(1.92), seconds(2.24)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const cardSpread = interpolate(frame, [seconds(2.65), seconds(4.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const stackTighten = interpolate(frame, [seconds(6.4), seconds(8.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const historyHint = interpolate(frame, [seconds(8.45), seconds(9.25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const questionIn = interpolate(frame, [seconds(9.55), seconds(10.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const questionMarkIn = interpolate(frame, [seconds(8.9), seconds(9.7)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   const cardBase = [
-    {label: 'project', note: '今天', x: 470, y: 394, rotate: -6, tone: 'main' as const},
-    {label: 'project-final', note: '昨天', x: 790, y: 440, rotate: 4, tone: 'feature' as const},
-    {label: 'project-final-2', note: '上周', x: 1110, y: 394, rotate: -3, tone: 'head' as const},
+    {label: 'project', note: '今天', x: 370, y: 390, rotate: -5, tone: 'main' as const},
+    {label: 'project-final', note: '昨天', x: 788, y: 424, rotate: 3, tone: 'feature' as const},
+    {label: 'project-final-2', note: '上周', x: 1206, y: 390, rotate: -2, tone: 'head' as const},
   ];
 
   return (
     <AbsoluteFill style={{padding: '118px 154px 112px', boxSizing: 'border-box'}}>
-      <EpisodeTitleCard
-        index="1."
-        keyword="Git"
-        suffix="到底记录什么？"
-        opacity={titleOpacity}
-        translateY={titleY}
-        keywordOpacity={gitAccent}
-        keywordTranslateY={interpolate(gitAccent, [0.42, 1], [8, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
-        underlineScale={underline}
-        underlineOpacity={underline * titleOut * 0.78}
-        auditId="ep01-hook-title"
-      />
-
       <div
-        data-audit-id="ep01-hook-prompt"
+        data-audit-id="ep01-hook-title"
         style={{
           position: 'absolute',
-          left: '50%',
-          top: 230,
-          transform: `translateX(-50%) translateY(${interpolate(promptIn, [0, 1], [18, 0])}px)`,
-          opacity: promptIn,
-          ...TYPE.title,
-          fontSize: 48,
-          color: COLOR.text.primary,
-          fontWeight: 820,
+          inset: 0,
+          display: 'grid',
+          placeItems: 'center',
+          opacity: titleOpacity,
+          transform: `translateY(${titleY}px)`,
           textAlign: 'center',
         }}
       >
-        大多数人第一次理解成：
+        <div style={{...TYPE.display, fontSize: 132, lineHeight: 1.04, color: COLOR.text.primary, fontWeight: 880}}>
+          <span
+            style={{
+              position: 'relative',
+              display: 'inline-block',
+              color: COLOR.git.main,
+              opacity: interpolate(keywordIn, [0, 1], [0.48, 1]),
+              transform: `translateY(${interpolate(keywordIn, [0, 1], [10, 0])}px)`,
+            }}
+          >
+            Git
+            <span
+              style={{
+                position: 'absolute',
+                left: 5,
+                right: 3,
+                bottom: -11,
+                height: 6,
+                borderRadius: 999,
+                background: COLOR.git.main,
+                opacity: underline * titleOut * 0.72,
+                transform: `scaleX(${underline})`,
+                transformOrigin: 'left center',
+              }}
+            />
+          </span>{' '}
+          到底记录什么？
+        </div>
       </div>
 
       <PositionedMotion
@@ -169,12 +180,25 @@ export const Ep01HookScene: React.FC = () => {
         translateY={interpolate(graphIn, [0, 1], [28, 0])}
         auditId="ep01-hook-card-area"
       >
+        <svg
+          width={1920}
+          height={1080}
+          viewBox="0 0 1920 1080"
+          style={{position: 'absolute', inset: 0, overflow: 'visible', opacity: historyHint * 0.72}}
+          data-audit-id="ep01-hook-history-hint"
+        >
+          <line x1="690" y1="704" x2="890" y2="704" stroke={COLOR.stroke.default} strokeWidth="3" strokeDasharray="10 14" />
+          <line x1="1030" y1="704" x2="1230" y2="704" stroke={COLOR.stroke.default} strokeWidth="3" strokeDasharray="10 14" />
+          {[690, 960, 1230].map((x) => (
+            <circle key={x} cx={x} cy="704" r="6" fill={COLOR.canvas.raised} stroke={COLOR.stroke.default} strokeWidth="3" />
+          ))}
+        </svg>
         {cardBase.map((card, idx) => {
-          const drift = Math.sin((frame + idx * 19) / 26) * 3 * (1 - stackTighten);
-          const appear = interpolate(cardsIn, [0, 0.33 + idx * 0.22, 0.66 + idx * 0.22], [0, 0, 1], {
+          const appear = interpolate(frame, [seconds(2.15 + idx * 0.78), seconds(2.68 + idx * 0.78)], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           });
+          const entryY = interpolate(appear, [0, 1], [30, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
           const stackOpacity = idx === 2 ? 1 : 0.16 + idx * 0.08;
           return (
             <FileVersionCard
@@ -182,11 +206,11 @@ export const Ep01HookScene: React.FC = () => {
               label={card.label}
               note={card.note}
               tone={card.tone}
-              x={interpolate(stackTighten, [0, 1], [card.x, 770 + idx * 58])}
-              y={interpolate(stackTighten, [0, 1], [card.y, 414 + idx * 34]) + drift}
+              x={interpolate(stackTighten, [0, 1], [interpolate(cardSpread, [0, 1], [788, card.x]), 792 + idx * 58])}
+              y={interpolate(stackTighten, [0, 1], [interpolate(cardSpread, [0, 1], [398, card.y]), 398 + idx * 34]) + entryY}
               rotate={interpolate(stackTighten, [0, 1], [card.rotate, -4 + idx * 4])}
               opacity={appear * interpolate(stackTighten, [0, 1], [0.96, stackOpacity])}
-              scale={interpolate(stackTighten, [0, 1], [1, 0.95 - idx * 0.02])}
+              scale={interpolate(stackTighten, [0, 1], [1.08, 0.96 - idx * 0.02])}
             />
           );
         })}
@@ -202,7 +226,7 @@ export const Ep01HookScene: React.FC = () => {
           fontSize: 142,
           fontWeight: 860,
           color: COLOR.git.head,
-          opacity: questionMarkIn * 0.62,
+          opacity: questionMarkIn * 0.42,
           transform: `scale(${interpolate(questionMarkIn, [0, 1], [0.72, 1])})`,
           textShadow: `0 20px 44px ${COLOR.effects.headHighlight}`,
         }}
@@ -210,8 +234,8 @@ export const Ep01HookScene: React.FC = () => {
         ?
       </div>
 
-      <QuestionCaption opacity={questionIn} translateY={interpolate(questionIn, [0, 1], [16, 0])} auditId="ep01-hook-question">
-        Git 到底是在保存文件，还是在保存一段可以回看的历史？
+      <QuestionCaption opacity={questionIn} translateY={interpolate(questionIn, [0, 1], [16, 0])} width={860} auditId="ep01-hook-question">
+        保存文件，还是保存历史？
       </QuestionCaption>
     </AbsoluteFill>
   );

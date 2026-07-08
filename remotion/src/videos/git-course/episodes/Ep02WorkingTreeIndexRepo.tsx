@@ -347,9 +347,9 @@ const AddScene: React.FC = () => {
 const EditAfterAddScene: React.FC = () => {
   const frame = useCurrentFrame();
   const diffIn = interpolate(frame, [0, seconds(0.55)], [0.42, 1], {extrapolateRight: 'clamp'});
-  const split = interpolate(frame, [seconds(6.5), seconds(9.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const status = interpolate(frame, [seconds(17.5), seconds(20.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const compareTitle = interpolate(frame, [seconds(8.4), seconds(10.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const split = interpolate(frame, [seconds(2.1), seconds(3.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const status = interpolate(frame, [seconds(8.8), seconds(10.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const compareTitle = interpolate(frame, [seconds(3.8), seconds(5.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', left: 150, top: 272, width: 520, opacity: diffIn}}>
