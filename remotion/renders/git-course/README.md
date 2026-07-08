@@ -38,7 +38,7 @@ remotion/renders/git-course/<episode-id>/renders/current/<episode-id>.mp4
 remotion/renders/git-course/<episode-id>/renders/current/scenes/<NN>_<scene-id>.mp4
 ```
 
-其中 `<NN>` 是两位数分段序号，例如 `01_hook.mp4`、`02_bad-model.mp4`。除非明确需要版本对比，不要为每次修改新建带日期或描述词的 mp4 输出目录。抽帧检查可以短暂放在 `renders/tmp/`，检查完成后应清理，避免影响找当前版本。
+其中 `<NN>` 是两位数分段序号，文件名统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。除非明确需要版本对比，不要为每次修改新建带日期或描述词的 mp4 输出目录。抽帧检查可以短暂放在 `renders/tmp/`，检查完成后应清理，避免影响找当前版本。
 
 不要把单集专属的审查目录直接放在 `remotion/renders/git-course/` 根目录下；应该放到对应单集的 `renders/tmp/`。
 

@@ -357,6 +357,11 @@ export const Ep01VersionControlScene: React.FC = () => {
   const line = interpolate(frame, [seconds(2), seconds(5.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const focus = Math.min(2, Math.max(0, Math.floor((frame - seconds(8)) / seconds(8))));
   const caption = interpolate(frame, [seconds(7.2), seconds(8.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const compareEvidence = interpolate(frame, [seconds(15.2), seconds(16.2), seconds(22.4), seconds(23.2)], [0, 1, 1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const traceEvidence = interpolate(frame, [seconds(23.2), seconds(24.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const concepts = ['回到过去', '比较变化', '追踪原因'];
   const summaries = ['可以回到任意版本。', '可以精确比较变化。', '可以追踪作者、时间和原因。'];
   const nodes = [
@@ -416,13 +421,28 @@ export const Ep01VersionControlScene: React.FC = () => {
             </g>
           );
         })}
-        <g opacity={interpolate(frame, [seconds(15.2), seconds(16.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
-          <path d="M904 356 L1016 356" stroke={COLOR.git.feature} strokeWidth="9" strokeLinecap="round" />
-          <path d="M904 408 L1092 408" stroke={COLOR.git.main} strokeWidth="9" strokeLinecap="round" />
+        <g opacity={compareEvidence} data-audit-id="ep01-version-compare-evidence">
+          <text x="1214" y="326" textAnchor="middle" fontFamily={FONT.mono} fontSize="26" fontWeight="760" fill={COLOR.text.secondary}>
+            v2 ↔ v3
+          </text>
+          <text x="1086" y="374" fontFamily={FONT.mono} fontSize="25" fontWeight="760" fill={COLOR.git.conflict}>
+            -
+          </text>
+          <path d="M1122 366 L1306 366" stroke={COLOR.git.conflict} strokeWidth="8" strokeLinecap="round" opacity="0.78" />
+          <text x="1086" y="424" fontFamily={FONT.mono} fontSize="25" fontWeight="760" fill={COLOR.git.main}>
+            +
+          </text>
+          <path d="M1122 416 L1366 416" stroke={COLOR.git.main} strokeWidth="8" strokeLinecap="round" opacity="0.86" />
         </g>
-        <g opacity={interpolate(frame, [seconds(23.2), seconds(24.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
-          <text x="1282" y="362" fontFamily={FONT.sans} fontSize="29" fontWeight="760" fill={COLOR.text.secondary}>
-            author · time · why
+        <g opacity={traceEvidence} data-audit-id="ep01-version-trace-evidence">
+          <text x="1638" y="438" fontFamily={FONT.sans} fontSize="29" fontWeight="780" fill={COLOR.text.secondary}>
+            作者
+          </text>
+          <text x="1638" y="492" fontFamily={FONT.sans} fontSize="29" fontWeight="780" fill={COLOR.text.secondary}>
+            时间
+          </text>
+          <text x="1638" y="546" fontFamily={FONT.sans} fontSize="29" fontWeight="780" fill={COLOR.text.secondary}>
+            原因
           </text>
         </g>
       </svg>
@@ -436,11 +456,11 @@ export const Ep01VersionControlScene: React.FC = () => {
 export const Ep01SnapshotModelScene: React.FC = () => {
   const frame = useCurrentFrame();
   const titleOpacity = sceneTitleOpacity(frame);
-  const deltaOut = interpolate(frame, [seconds(4.8), seconds(6.4)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const deltaScale = interpolate(frame, [seconds(4.8), seconds(6.4)], [1, 0.74], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const snapshotIn = interpolate(frame, [seconds(5.8), seconds(7.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const streamScale = interpolate(frame, [seconds(6.2), seconds(9)], [0.88, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const reuse = interpolate(frame, [seconds(22.5), seconds(26.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const deltaOut = interpolate(frame, [seconds(4.2), seconds(5.6)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const deltaScale = interpolate(frame, [seconds(4.2), seconds(5.6)], [1, 0.74], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const snapshotIn = interpolate(frame, [seconds(4.9), seconds(6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const streamScale = interpolate(frame, [seconds(5.2), seconds(7.6)], [0.88, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const reuse = interpolate(frame, [seconds(20.5), seconds(24.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const conclusion = interpolate(frame, [seconds(25.2), seconds(26.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const nodes = [
     {id: 'C0', x: 508},
@@ -470,32 +490,32 @@ export const Ep01SnapshotModelScene: React.FC = () => {
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <g opacity={snapshotIn} transform={`translate(${960 - 960 * streamScale} ${500 - 500 * streamScale}) scale(${streamScale})`}>
-          <text x="960" y="286" textAnchor="middle" fontFamily={FONT.sans} fontSize="38" fontWeight="820" fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(6.5), seconds(8.2), seconds(14), seconds(15.2)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
+          <text x="960" y="286" textAnchor="middle" fontFamily={FONT.sans} fontSize="38" fontWeight="820" fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(5.4), seconds(6.4), seconds(14), seconds(15.2)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
             commit 指向的是完整项目状态
           </text>
           <line
             x1="508"
             y1="430"
-            x2={508 + (1412 - 508) * interpolate(frame, [seconds(9.5), seconds(18.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
+              x2={508 + (1412 - 508) * interpolate(frame, [seconds(6), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
             y2="430"
             stroke={COLOR.git.graphLine}
             strokeWidth="12"
             strokeLinecap="round"
           />
           {nodes.map((node, idx) => {
-            const appear = interpolate(frame, [seconds(7.4 + idx * 4.2), seconds(8.4 + idx * 4.2)], [0, 1], {
+            const appear = interpolate(frame, [seconds(4.8 + idx * 4), seconds(5.7 + idx * 4)], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
             });
-            const pop = interpolate(frame, [seconds(7.4 + idx * 4.2), seconds(8.2 + idx * 4.2)], [0.72, 1], {
+            const pop = interpolate(frame, [seconds(4.8 + idx * 4), seconds(5.5 + idx * 4)], [0.72, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
             });
-            const expand = interpolate(frame, [seconds(8.8 + idx * 4.2), seconds(10.2 + idx * 4.2)], [0, 1], {
+            const expand = interpolate(frame, [seconds(5.8 + idx * 4), seconds(7 + idx * 4)], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
             });
-            const active = frame >= seconds(7.4 + idx * 4.2) && frame < seconds(11.6 + idx * 4.2);
+            const active = frame >= seconds(4.8 + idx * 4) && frame < seconds(9 + idx * 4);
             return (
               <g key={node.id} opacity={appear} transform={`translate(${node.x} 430) scale(${pop}) translate(${-node.x} -430)`} data-audit-id={`ep01-snapshot-${node.id}`}>
                 <circle cx={node.x} cy="430" r="74" fill={COLOR.canvas.base} stroke={active ? COLOR.git.head : COLOR.git.commit} strokeWidth={active ? 10 : 7} />
@@ -516,9 +536,12 @@ export const Ep01SnapshotModelScene: React.FC = () => {
             );
           })}
           <g opacity={reuse}>
-            <path d="M674 674 C790 606 836 606 948 674" fill="none" stroke={COLOR.stroke.strong} strokeWidth="5" strokeDasharray="13 15" />
-            <path d="M1126 674 C1242 606 1288 606 1400 674" fill="none" stroke={COLOR.stroke.strong} strokeWidth="5" strokeDasharray="13 15" />
-            <text x="960" y="810" textAnchor="middle" fontFamily={FONT.sans} fontSize="40" fontWeight="820" fill={COLOR.git.main}>
+            <path d="M674 722 C790 770 836 770 948 722" fill="none" stroke={COLOR.stroke.strong} strokeWidth="5" strokeDasharray="13 15" opacity="0.72" />
+            <path d="M1126 722 C1242 770 1288 770 1400 722" fill="none" stroke={COLOR.stroke.strong} strokeWidth="5" strokeDasharray="13 15" opacity="0.72" />
+            <text x="960" y="806" textAnchor="middle" fontFamily={FONT.sans} fontSize="32" fontWeight="780" fill={COLOR.text.secondary}>
+              不变内容复用
+            </text>
+            <text x="960" y="854" textAnchor="middle" fontFamily={FONT.sans} fontSize="40" fontWeight="820" fill={COLOR.git.main}>
               快照流
             </text>
           </g>
@@ -535,6 +558,7 @@ export const Ep01LocalHistoryScene: React.FC = () => {
   const frame = useCurrentFrame();
   const shrink = interpolate(frame, [seconds(14), seconds(17)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(17), seconds(19)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const queryProgress = interpolate(frame, [seconds(20), seconds(23)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const outputLines = ['main $ git log --oneline', 'C2  snapshot checkout flow', 'C1  add landing copy', 'C0  initial commit'];
   const visible = Math.min(outputLines.length, Math.floor(interpolate(frame, [seconds(1), seconds(10)], [0, outputLines.length], {extrapolateRight: 'clamp'})));
 
@@ -565,33 +589,73 @@ export const Ep01LocalHistoryScene: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          left: 968,
-          top: 372,
-          width: 780,
+          left: 944,
+          top: 278,
+          width: 790,
+          height: 430,
           opacity: graphIn,
           transform: `translateY(${interpolate(graphIn, [0, 1], [28, 0])}px) scale(${interpolate(graphIn, [0, 1], [0.92, 1])})`,
           transformOrigin: 'center',
+          borderRadius: 18,
+          background: COLOR.canvas.raised,
+          border: `2px solid ${COLOR.stroke.default}`,
+          boxShadow: `0 18px 38px ${COLOR.effects.shadowSoft}`,
+          padding: '34px 40px',
+          boxSizing: 'border-box',
         }}
-        data-audit-id="ep01-local-graph"
+        data-audit-id="ep01-local-repository"
       >
-        <GitGraph state={ep01GraphState(3)} width={780} height={288} auditId="ep01-local-git-graph" />
+        <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28}}>
+          <div>
+            <div style={{fontFamily: FONT.sans, fontSize: 40, fontWeight: 820, color: COLOR.text.primary}}>本地仓库</div>
+            <div style={{marginTop: 10, fontFamily: FONT.sans, fontSize: 27, fontWeight: 700, color: COLOR.text.secondary}}>保存完整历史</div>
+          </div>
+          <div
+            style={{
+              borderRadius: 999,
+              border: `2px solid ${COLOR.git.head}`,
+              color: COLOR.git.head,
+              fontFamily: FONT.sans,
+              fontSize: 24,
+              fontWeight: 780,
+              padding: '10px 18px',
+            }}
+          >
+            不需要网络
+          </div>
+        </div>
+        <div style={{marginLeft: 4}} data-audit-id="ep01-local-graph">
+          <GitGraph state={ep01GraphState(3)} width={700} height={250} auditId="ep01-local-git-graph" />
+        </div>
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <SvgArrowLine
           x1={792}
           y1={520}
-          x2={1014}
+          x2={930}
           y2={520}
-          progress={interpolate(frame, [seconds(20), seconds(23)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
+          progress={queryProgress}
           color={COLOR.git.main}
           width={6}
           opacity={0.75}
           dash="none"
           auditId="ep01-local-link"
         />
+        <text
+          x="862"
+          y="486"
+          textAnchor="middle"
+          fontFamily={FONT.sans}
+          fontSize="25"
+          fontWeight="760"
+          fill={COLOR.git.main}
+          opacity={queryProgress}
+        >
+          读取本地历史
+        </text>
       </svg>
       <SceneCaption opacity={interpolate(frame, [seconds(23), seconds(25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={1080} fontSize={35} auditId="ep01-local-caption">
-        历史在本地，可以直接查询。
+        查询直接读本地仓库。
       </SceneCaption>
     </AbsoluteFill>
   );
@@ -602,31 +666,54 @@ export const Ep01IntegrityScene: React.FC = () => {
   const titleOpacity = sceneTitleOpacity(frame);
   const edit = interpolate(frame, [seconds(8), seconds(11)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const hashSwap = interpolate(frame, [seconds(11), seconds(13)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const compareIn = interpolate(frame, [seconds(14), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const commitIn = interpolate(frame, [seconds(22), seconds(25)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const oldHash = 'a81f3c2';
   const newHash = 'd42b8aa';
+  const activeHash = hashSwap > 0.54 ? newHash : oldHash;
+  const activeHashColor = hashSwap > 0.54 ? COLOR.git.conflict : COLOR.git.head;
+  const compareOpacity = compareIn * (1 - commitIn);
 
   return (
     <AbsoluteFill>
       <MotionTitle opacity={titleOpacity} auditId="ep01-integrity-title">
-        内容变化，名字也会变化
+        内容变化，hash 跟着变化
       </MotionTitle>
       <div style={{position: 'absolute', left: 292, top: 326, width: 620}} data-audit-id="ep01-integrity-code">
         <CodeBlock title="README.md" lines={['Git stores snapshots.', edit > 0.5 ? 'A commit points to content!' : 'A commit points to content.']} highlight={edit > 0.5 ? [1] : []} />
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <SvgArrowLine x1={940} y1={488} x2={1122} y2={488} progress={interpolate(frame, [seconds(4), seconds(6.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
+        <text x="1030" y="454" textAnchor="middle" fontFamily={FONT.sans} fontSize="25" fontWeight="760" fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(5), seconds(6.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
+          计算内容
+        </text>
         <g transform="translate(1138 394)">
           <rect width="386" height="188" rx="16" fill={COLOR.canvas.raised} stroke={COLOR.stroke.soft} />
-          <text x="34" y="62" fontFamily={FONT.sans} fontSize="28" fontWeight="760" fill={COLOR.text.secondary}>
-            content hash
+          <text x="34" y="62" fontFamily={FONT.sans} fontSize="30" fontWeight="780" fill={COLOR.text.secondary}>
+            内容 hash
           </text>
-          <text x="34" y="124" fontFamily={FONT.mono} fontSize="52" fontWeight="820" fill={COLOR.git.head} opacity={1 - hashSwap}>
-            {oldHash}
+          <text x="34" y="124" fontFamily={FONT.mono} fontSize="52" fontWeight="820" fill={activeHashColor}>
+            {activeHash}
           </text>
-          <text x="34" y="124" fontFamily={FONT.mono} fontSize="52" fontWeight="820" fill={COLOR.git.conflict} opacity={hashSwap}>
-            {newHash}
+        </g>
+        <g opacity={compareOpacity} transform={`translate(0 ${interpolate(compareIn, [0, 1], [22, 0])})`} data-audit-id="ep01-integrity-hash-compare">
+          <text x="960" y="648" textAnchor="middle" fontFamily={FONT.sans} fontSize="30" fontWeight="800" fill={COLOR.text.primary}>
+            {'内容变化 -> hash 变化'}
           </text>
+          <g transform="translate(734 682)">
+            <rect width="186" height="58" rx="29" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="3" />
+            <text x="93" y="39" textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight="820" fill={COLOR.git.head}>
+              {oldHash}
+            </text>
+          </g>
+          <path d="M944 711 H976" stroke={COLOR.stroke.strong} strokeWidth="4" strokeLinecap="round" />
+          <path d="M976 711 L960 698 M976 711 L960 724" stroke={COLOR.stroke.strong} strokeWidth="4" strokeLinecap="round" />
+          <g transform="translate(1000 682)">
+            <rect width="186" height="58" rx="29" fill={COLOR.canvas.raised} stroke={COLOR.git.conflict} strokeWidth="3" />
+            <text x="93" y="39" textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight="820" fill={COLOR.git.conflict}>
+              {newHash}
+            </text>
+          </g>
         </g>
         <g opacity={commitIn} transform={`translate(0 ${interpolate(commitIn, [0, 1], [24, 0])})`}>
           <circle cx="960" cy="752" r="58" fill={COLOR.canvas.base} stroke={COLOR.git.commit} strokeWidth="7" />
@@ -649,8 +736,8 @@ export const Ep01IntegrityScene: React.FC = () => {
 export const Ep01TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
   const graphIn = interpolate(frame, [0, seconds(1.4)], [0, 1], {extrapolateRight: 'clamp'});
-  const lines = ['不是文件名', '是项目快照', '能校验历史'];
-  const conclusion = interpolate(frame, [seconds(14), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const lines = ['记录历史', '形成快照', '本地可查'];
+  const questionIn = interpolate(frame, [seconds(18), seconds(20)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
@@ -690,21 +777,18 @@ export const Ep01TakeawayScene: React.FC = () => {
           position: 'absolute',
           left: '50%',
           top: 800,
-          transform: `translate(-50%, ${interpolate(conclusion, [0, 1], [24, 0])}px)`,
-          opacity: conclusion,
+          transform: `translate(-50%, ${interpolate(questionIn, [0, 1], [24, 0])}px)`,
+          opacity: questionIn,
           ...TYPE.title,
-          fontSize: 56,
+          fontSize: 48,
           color: COLOR.text.primary,
           textAlign: 'center',
           whiteSpace: 'nowrap',
         }}
-        data-audit-id="ep01-takeaway-conclusion"
+        data-audit-id="ep01-takeaway-question"
       >
-        Git 保存的是一条可回看的项目历史。
+        文件进入 commit 前，经过哪三层？
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(19), seconds(20.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={126} width={1080} fontSize={35} auditId="ep01-takeaway-caption">
-        这就是理解 add、commit 和 branch 的起点。
-      </SceneCaption>
     </AbsoluteFill>
   );
 };

@@ -8,8 +8,9 @@ import {
   QuestionCaption,
   SceneCaption,
   SceneSequence,
+  CommandStrip,
   SvgArrowLine,
-  TerminalPanel,
+  StatusTerminalPanel,
   TypedCommandTerminal,
 } from '../kit';
 import {COLOR, FONT} from '../palette';
@@ -111,43 +112,6 @@ const Board: React.FC<{
         {id: 'repository', title: 'Repository', files: repositoryFiles, active: active === 'repository'},
       ]}
     />
-  </div>
-);
-
-const CommandStrip: React.FC<{
-  command: string;
-  output?: string;
-  branch?: 'main' | 'feature';
-  opacity?: number;
-}> = ({command, output, branch = 'main', opacity = 1}) => (
-  <div
-    style={{
-      position: 'absolute',
-      left: 156,
-      top: 116,
-      width: 690,
-      minHeight: 112,
-      borderRadius: 8,
-      border: `1px solid ${COLOR.terminal.border}`,
-      background: COLOR.terminal.bg,
-      boxShadow: `0 16px 42px ${COLOR.effects.shadowTerminal}`,
-      opacity,
-      padding: '18px 22px',
-      boxSizing: 'border-box',
-      fontFamily: FONT.mono,
-      zIndex: 8,
-    }}
-  >
-    <div style={{...TYPE.codeSmall, color: COLOR.text.inverse, whiteSpace: 'pre'}}>
-      <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-      <span style={{color: COLOR.terminal.promptMuted}}> $ </span>
-      <span>{command}</span>
-    </div>
-    {output ? (
-      <div style={{...TYPE.codeOutput, fontSize: 19, color: COLOR.terminal.comment, marginTop: 8, paddingLeft: 22}}>
-        {output}
-      </div>
-    ) : null}
   </div>
 );
 
@@ -339,8 +303,10 @@ const ModifyScene: React.FC = () => {
   const editor = interpolate(frame, [seconds(2.2), seconds(3.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const edit = interpolate(frame, [seconds(6), seconds(7.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const state = interpolate(frame, [seconds(8.2), seconds(9.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const focus = interpolate(frame, [seconds(14), seconds(16.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const editorOut = interpolate(frame, [seconds(18.8), seconds(20.6)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const proof = interpolate(frame, [seconds(13.2), seconds(14.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const proofOut = interpolate(frame, [seconds(23.5), seconds(25.5)], [1, 0.18], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const editorOut = interpolate(frame, [seconds(17.2), seconds(19.2)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const changed = edit > 0.5;
   return (
     <AbsoluteFill>
       <Board
@@ -354,59 +320,62 @@ const ModifyScene: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          left: 216,
-          top: 418,
-          width: 470,
+          left: 176,
+          top: 548,
+          width: 676,
           opacity: editor * editorOut,
           transform: `translateY(${interpolate(editor, [0, 1], [18, 0])}px) scale(${interpolate(editor, [0, 1], [0.96, 1])})`,
           transformOrigin: 'top left',
+          zIndex: 4,
         }}
         data-audit-id="ep02-modify-code"
       >
         <CodeBlock
           title="Working Tree / app.js"
-          lines={edit > 0.5 ? ['function App() {', '  return <Header title="Git" />;', '}'] : ['function App() {', '  return <Header />;', '}']}
-          highlight={edit > 0.5 ? [1] : []}
+          lines={changed ? ['function App() {', '  return <Header title="Git" />;', '}'] : ['function App() {', '  return <Header />;', '}']}
+          highlight={changed ? [1] : []}
+          highlightBackground="rgba(96, 118, 106, 0.12)"
+          highlightBorderColor={COLOR.git.workingTree}
         />
       </div>
       <div
         style={{
           position: 'absolute',
-          left: 214,
-          top: 694,
-          width: 500,
+          left: 176,
+          top: 792,
+          width: 676,
           opacity: edit * editorOut,
         }}
       >
-        <div style={{...TYPE.subtitle, color: COLOR.git.workingTree, fontWeight: 760}}>修改发生在 Working Tree</div>
+        <div style={{...TYPE.subtitle, color: COLOR.git.workingTree, fontWeight: 760}}>修改只发生在 Working Tree</div>
       </div>
       <div
         style={{
           position: 'absolute',
-          left: 742,
-          top: 604,
-          width: 1020,
+          left: 746,
+          top: 602,
+          width: 1014,
           height: 2,
           background: COLOR.stroke.soft,
-          opacity: 0.24 * focus,
+          opacity: 0.2 * proof * proofOut,
         }}
       />
       <div
         style={{
           position: 'absolute',
-          left: 818,
-          top: 648,
-          width: 840,
+          left: 820,
+          top: 640,
+          width: 830,
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: 42,
-          opacity: focus,
+          opacity: proof * proofOut,
         }}
       >
-        <div style={{...TYPE.subtitle, color: COLOR.text.tertiary, textAlign: 'center'}}>Index 没变</div>
-        <div style={{...TYPE.subtitle, color: COLOR.text.tertiary, textAlign: 'center'}}>Repository 没变</div>
+        <div style={{...TYPE.ui, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 760}}>Index 没变</div>
+        <div style={{...TYPE.ui, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 760}}>Repository 没变</div>
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(13.2), seconds(15.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(17.6), seconds(19.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
         modified 说明文件变了，但还不是 staged。
       </SceneCaption>
     </AbsoluteFill>
@@ -415,11 +384,13 @@ const ModifyScene: React.FC = () => {
 
 const AddScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const terminalFull = interpolate(frame, [seconds(6.4), seconds(8.2)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const terminalFullOpacity = interpolate(frame, [0, seconds(6.8), seconds(8.5)], [1, 1, 0], {extrapolateRight: 'clamp'});
-  const commandStrip = interpolate(frame, [seconds(7.4), seconds(9.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const boardIn = interpolate(frame, [seconds(8.4), seconds(11.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const move = interpolate(frame, [seconds(11.2), seconds(15.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const terminalFull = interpolate(frame, [seconds(6.2), seconds(7.8)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const terminalFullOpacity = interpolate(frame, [0, seconds(6.4), seconds(7.95)], [1, 1, 0], {extrapolateRight: 'clamp'});
+  const commandStrip = interpolate(frame, [seconds(7.75), seconds(8.45)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const boardIn = interpolate(frame, [seconds(8.35), seconds(10.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const move = interpolate(frame, [seconds(11.0), seconds(15.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const movingOut = interpolate(move, [0.72, 0.92], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const guideOut = interpolate(frame, [seconds(18), seconds(21)], [1, 0.18], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const callout = interpolate(frame, [seconds(22), seconds(24.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const terminalLeft = interpolate(terminalFull, [0, 1], [156, 260]);
   const terminalTop = interpolate(terminalFull, [0, 1], [116, 210]);
@@ -442,7 +413,7 @@ const AddScene: React.FC = () => {
           strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray="10 15"
-          opacity={boardIn * 0.38}
+          opacity={boardIn * 0.34 * guideOut}
         />
       </svg>
       <div
@@ -450,13 +421,23 @@ const AddScene: React.FC = () => {
           position: 'absolute',
           left: interpolate(move, [0, 1], [426, 964]),
           top: interpolate(move, [0, 1], [650, 502]),
-          opacity: boardIn,
+          opacity: boardIn * movingOut,
           zIndex: 5,
         }}
       >
         <FileCard label={move > 0.72 ? 'staged v1' : 'copy current'} tone="staged" auditId="ep02-add-moving-file" />
       </div>
-      <FlowHint x={852} y={686} label="current content -> Index" tone="staged" opacity={interpolate(move, [0.28, 0.72], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} />
+      <FlowHint
+        x={852}
+        y={686}
+        label="current content -> Index"
+        tone="staged"
+        opacity={
+          interpolate(move, [0.28, 0.72], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) *
+          movingOut *
+          guideOut
+        }
+      />
       <div style={{position: 'absolute', right: 180, bottom: 154, width: 520, opacity: callout}}>
         <div
           style={{
@@ -477,10 +458,13 @@ const AddScene: React.FC = () => {
 
 const EditAfterAddScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const diffIn = interpolate(frame, [0, seconds(0.55)], [0.42, 1], {extrapolateRight: 'clamp'});
-  const split = interpolate(frame, [seconds(2.1), seconds(3.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const status = interpolate(frame, [seconds(8.8), seconds(10.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const compareTitle = interpolate(frame, [seconds(3.8), seconds(5.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const diffIn = interpolate(frame, [0, seconds(0.45)], [0.72, 1], {extrapolateRight: 'clamp'});
+  const split = interpolate(frame, [seconds(1.35), seconds(2.45)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const statusIn = interpolate(frame, [seconds(8.2), seconds(9.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const statusOut = interpolate(frame, [seconds(18), seconds(20.2)], [1, 0.28], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const compareIn = interpolate(frame, [seconds(3.4), seconds(4.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const compareOut = interpolate(frame, [seconds(10.8), seconds(12.4)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const compareTitle = compareIn * compareOut;
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', left: 150, top: 272, width: 520, opacity: diffIn}}>
@@ -521,12 +505,8 @@ const EditAfterAddScene: React.FC = () => {
           <FileCard label="staged v1" tone="staged" auditId="ep02-edit-v1" />
         </div>
       </div>
-      <div style={{position: 'absolute', left: 862, top: 644, width: 360, height: 136, opacity: status}}>
-        <TerminalPanel title="git status -s">
-          <div style={{padding: '22px 28px', ...TYPE.code, color: COLOR.terminal.output}}>
-            <span style={{color: COLOR.git.head}}>MM</span> app.js
-          </div>
-        </TerminalPanel>
+      <div style={{position: 'absolute', left: 862, top: 644, width: 360, height: 136, opacity: statusIn * statusOut}}>
+        <StatusTerminalPanel status="MM" file="app.js" />
       </div>
       <div
         style={{
@@ -539,9 +519,9 @@ const EditAfterAddScene: React.FC = () => {
           color: COLOR.text.secondary,
         }}
       >
-        第一个 M：Index 里有 v1；第二个 M：Working Tree 又变成 v2。
+        第一个 M：Index 有 v1；第二个 M：Working Tree 是 v2。
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(12.2), seconds(14)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-edit-caption">
+      <SceneCaption opacity={interpolate(frame, [seconds(14.2), seconds(15.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-edit-caption">
         Index 是 add 那一刻；继续修改后，需要重新 add。
       </SceneCaption>
     </AbsoluteFill>
@@ -550,10 +530,10 @@ const EditAfterAddScene: React.FC = () => {
 
 const CommitScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const commandOut = interpolate(frame, [seconds(6.2), seconds(8.2)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const terminalFullOpacity = interpolate(frame, [0, seconds(6.5), seconds(8.6)], [1, 1, 0], {extrapolateRight: 'clamp'});
-  const commandStrip = interpolate(frame, [seconds(7.5), seconds(9.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const boardIn = interpolate(frame, [seconds(7.5), seconds(10.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commandOut = interpolate(frame, [seconds(6.2), seconds(7.8)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const terminalFullOpacity = interpolate(frame, [0, seconds(6.4), seconds(7.95)], [1, 1, 0], {extrapolateRight: 'clamp'});
+  const commandStrip = interpolate(frame, [seconds(7.75), seconds(8.45)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const boardIn = interpolate(frame, [seconds(8.35), seconds(10.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const commitForm = interpolate(frame, [seconds(11.5), seconds(17.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const repo = interpolate(frame, [seconds(16), seconds(21)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
@@ -576,13 +556,13 @@ const CommitScene: React.FC = () => {
         <Board workingFiles={['app.js:v2']} indexFiles={commitForm < 0.72 ? ['app.js:v1'] : []} repositoryFiles={repo > 0.62 ? ['C0', 'C1:v1'] : ['C0']} active={repo > 0.62 ? 'repository' : 'index'} top={300} />
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={958} y1={522} x2={1426} y2={522} progress={commitForm} color={COLOR.git.head} width={6} opacity={0.72} dash="none" />
-        <text x="1030" y="486" fontFamily={FONT.mono} fontSize="21" fontWeight="760" fill={COLOR.git.head} opacity={commitForm * 0.9}>
+        <SvgArrowLine x1={958} y1={626} x2={1426} y2={626} progress={commitForm} color={COLOR.git.head} width={6} opacity={0.72} dash="none" />
+        <text x="1030" y="590" fontFamily={FONT.mono} fontSize="21" fontWeight="760" fill={COLOR.git.head} opacity={commitForm * 0.9}>
           snapshot from Index
         </text>
         <g opacity={repo}>
-          <circle cx="1490" cy="522" r="44" fill={COLOR.canvas.base} stroke={COLOR.git.main} strokeWidth="6" />
-          <text x="1490" y="533" textAnchor="middle" fontFamily={FONT.mono} fontSize="29" fontWeight="780" fill={COLOR.text.primary}>
+          <circle cx="1490" cy="626" r="44" fill={COLOR.canvas.base} stroke={COLOR.git.main} strokeWidth="6" />
+          <text x="1490" y="637" textAnchor="middle" fontFamily={FONT.mono} fontSize="29" fontWeight="780" fill={COLOR.text.primary}>
             C1
           </text>
         </g>

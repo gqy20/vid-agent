@@ -33,3 +33,5 @@ export {TerminalFocusScene} from './kit/terminal/TerminalFocusScene';
 export {TerminalPanel} from './kit/terminal/TerminalPanel';
 export {TypedCommandTerminal} from './kit/terminal/TypedCommandTerminal';
 export {CommandPill} from './kit/terminal/CommandPill';
+export {CommandStrip} from './kit/terminal/CommandStrip';
+export {StatusTerminalPanel} from './kit/terminal/StatusTerminalPanel';

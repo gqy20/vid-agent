@@ -24,6 +24,54 @@
       "policy": "不使用网络流程图或真实终端截图；终端、代码和三层状态全部用 Remotion 组件重建。"
     }
   },
+  "renderStatus": {
+    "currentScenesDir": "remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes",
+    "completed": [
+      {
+        "id": "hook",
+        "file": "01_hook.mp4",
+        "frameRange": [0, 359],
+        "durationSeconds": 12
+      },
+      {
+        "id": "three-areas",
+        "file": "02_three-areas.mp4",
+        "frameRange": [360, 1139],
+        "durationSeconds": 26
+      },
+      {
+        "id": "modify",
+        "file": "03_modify.mp4",
+        "frameRange": [1140, 2039],
+        "durationSeconds": 30
+      },
+      {
+        "id": "add",
+        "file": "04_add.mp4",
+        "frameRange": [2040, 3119],
+        "durationSeconds": 36
+      },
+      {
+        "id": "edit-after-add",
+        "file": "05_edit-after-add.mp4",
+        "frameRange": [3120, 4019],
+        "durationSeconds": 30
+      },
+      {
+        "id": "commit",
+        "file": "06_commit.mp4",
+        "frameRange": [4020, 4919],
+        "durationSeconds": 30
+      },
+      {
+        "id": "takeaway",
+        "file": "07_takeaway.mp4",
+        "frameRange": [4920, 5399],
+        "durationSeconds": 16
+      }
+    ],
+    "pending": []
+  },
   "states": {
     "clean": {
       "workingTree": ["app.js"],

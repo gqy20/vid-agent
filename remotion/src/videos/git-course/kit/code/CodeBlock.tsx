@@ -5,7 +5,9 @@ export const CodeBlock: React.FC<{
   title?: string;
   lines: readonly string[];
   highlight?: readonly number[];
-}> = ({title, lines, highlight = []}) => {
+  highlightBackground?: string;
+  highlightBorderColor?: string;
+}> = ({title, lines, highlight = [], highlightBackground = COLOR.effects.headHighlight, highlightBorderColor = COLOR.git.head}) => {
   return (
     <div
       style={{
@@ -40,10 +42,10 @@ export const CodeBlock: React.FC<{
             key={`${idx}-${line}`}
             style={{
               padding: '4px 24px',
-              background: highlight.includes(idx) ? COLOR.effects.headHighlight : 'transparent',
+              background: highlight.includes(idx) ? highlightBackground : 'transparent',
               color: highlight.includes(idx) ? COLOR.text.primary : COLOR.text.secondary,
               whiteSpace: 'pre',
-              borderLeft: highlight.includes(idx) ? `3px solid ${COLOR.git.head}` : '3px solid transparent',
+              borderLeft: highlight.includes(idx) ? `3px solid ${highlightBorderColor}` : '3px solid transparent',
             }}
           >
             <span style={{display: 'inline-block', width: 38, color: COLOR.text.tertiary}}>{idx + 1}</span>

@@ -10,6 +10,18 @@
 
 ## 时间线
 
+当前规范分段输出：
+
+| Scene | 时间段 | 输出文件 | 状态 |
+|---|---:|---|---|
+| hook | 0-12s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/01_hook.mp4` | 已生成 |
+| three-areas | 12-38s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/02_three-areas.mp4` | 已生成 |
+| modify | 38-68s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/03_modify.mp4` | 已生成 |
+| add | 68-104s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/04_add.mp4` | 已生成 |
+| edit-after-add | 104-134s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/05_edit-after-add.mp4` | 已生成 |
+| commit | 134-164s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/06_commit.mp4` | 已生成 |
+| takeaway | 164-180s | `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/07_takeaway.mp4` | 已生成 |
+
 ### 0-12s / hook
 
 目的：建立问题。

@@ -25,3 +25,17 @@
 - `docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc:116`
 
 原则：EP02 的主角是文件状态流转，不是 commit 对象结构。commit 内部留给 EP03。
+
+## 当前制作状态
+
+- Remotion 主视频：已实现 7 个 scene 的首版。
+- 规范分段输出：7 个分段已全部生成到 `remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/scenes/`。
+- 已完成分段：
+  - `01_hook.mp4`：0-12s，12.000s。
+  - `02_three-areas.mp4`：12-38s，26.000s。
+  - `03_modify.mp4`：38-68s，30.000s。
+  - `04_add.mp4`：68-104s，36.000s。
+  - `05_edit-after-add.mp4`：104-134s，30.000s。
+  - `06_commit.mp4`：134-164s，30.000s。
+  - `07_takeaway.mp4`：164-180s，16.000s。
+- 待继续：全片合成渲染和整片抽帧审查。
