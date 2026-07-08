@@ -63,6 +63,10 @@ remotion/renders/*/*/quality-audit.md
 # current 下可由脚本重新生成的音视频产物也默认不入库。
 # 保留 .txt/.md 等文稿和对齐说明。
 remotion/renders/*/*/renders/current/published/
+remotion/renders/*/*/renders/current/publishing/*.png
+remotion/renders/*/*/renders/current/publishing/*.jpg
+remotion/renders/*/*/renders/current/publishing/*.jpeg
+remotion/renders/*/*/renders/current/publishing/*.svg
 remotion/renders/*/*/renders/current/scenes/
 remotion/renders/*/*/renders/current/final/
 remotion/renders/*/*/renders/current/*.mp4
