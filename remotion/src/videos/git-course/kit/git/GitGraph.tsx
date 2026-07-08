@@ -27,8 +27,21 @@ export const GitGraph: React.FC<{
     to: string;
     progress: number;
   };
+  headMarkerOffsetX?: number;
+  showHeadMarker?: boolean;
   auditId?: string;
-}> = ({state, note, width = 670, height = 270, showFrame = false, branchMotion, headMotion, auditId = 'git-graph'}) => {
+}> = ({
+  state,
+  note,
+  width = 670,
+  height = 270,
+  showFrame = false,
+  branchMotion,
+  headMotion,
+  headMarkerOffsetX = 88,
+  showHeadMarker = true,
+  auditId = 'git-graph',
+}) => {
   const frame = useCurrentFrame();
   const progress = interpolate(frame, [0, 42], [0, 1], {extrapolateRight: 'clamp'});
   const positions = state.commits.map((commit, idx) => ({
@@ -57,8 +70,8 @@ export const GitGraph: React.FC<{
   const headBranch = state.head?.branch ?? state.branches.find((branch) => branch.active)?.name ?? state.branches[0]?.name;
   const currentHead = headBranch
     ? headMotion
-    ? getHeadMarkerPosition(branchLayout, headMotion.from, headMotion.to, headMotion.progress)
-      : getHeadMarkerPosition(branchLayout, headBranch, headBranch, 1)
+    ? getHeadMarkerPosition(branchLayout, headMotion.from, headMotion.to, headMotion.progress, headMarkerOffsetX)
+      : getHeadMarkerPosition(branchLayout, headBranch, headBranch, 1, headMarkerOffsetX)
     : undefined;
 
   return (
@@ -150,7 +163,7 @@ export const GitGraph: React.FC<{
           />
         );
       })}
-      {currentHead ? <HeadMarker auditId={`${auditId}-head`} x={currentHead.x} y={currentHead.y} /> : null}
+      {showHeadMarker && currentHead ? <HeadMarker auditId={`${auditId}-head`} x={currentHead.x} y={currentHead.y} /> : null}
       {note ? (
         <text x="62" y="244" fontFamily={FONT.sans} fontSize={TYPE.ui.fontSize} fill={COLOR.text.secondary}>
           {note}
@@ -179,12 +192,13 @@ const getHeadMarkerPosition = (
   fromName: string,
   toName: string,
   progress: number,
+  offsetX: number,
 ) => {
   const from = branches.find(({branch}) => branch.name === fromName);
   const to = branches.find(({branch}) => branch.name === toName);
   if (!from || !to) return undefined;
   return {
-    x: interpolate(progress, [0, 1], [from.x + 88, to.x + 88]),
+    x: interpolate(progress, [0, 1], [from.x + offsetX, to.x + offsetX]),
     y: interpolate(progress, [0, 1], [from.y, to.y]),
   };
 };

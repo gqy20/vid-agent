@@ -326,8 +326,7 @@ const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
   const state = {
     commits: [{id: 'C0'}, {id: 'C1'}, {id: 'C2'}],
-    branches: [{name: 'main', target: 'C2', lane: 'bottom' as const, active: true}],
-    head: {target: 'C2', branch: 'main'},
+    branches: [{name: 'main', target: 'C2', lane: 'bottom' as const}],
   };
   const graphIn = interpolate(frame, [seconds(2.2), seconds(4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const bullets = ['指向快照：tree', '指向过去：parent', '拥有身份：hash'];
@@ -341,7 +340,7 @@ const TakeawayScene: React.FC = () => {
         带身份的历史节点
       </div>
       <div style={{position: 'absolute', right: 160, top: 304, width: 960, opacity: graphIn}}>
-        <CenterGraph state={state} top={0} width={960} />
+        <CenterGraph state={state} top={0} width={960} showHeadMarker={false} />
       </div>
       <div style={{position: 'absolute', left: 176, bottom: 190, display: 'grid', gap: 16}}>
         {bullets.map((line, idx) => {

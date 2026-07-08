@@ -2,10 +2,12 @@
 
 ## 当前状态
 
-- 文档状态：已完成首版制作文档。
-- Remotion 实现：未开始。
-- Manim 实现：未开始。
-- 渲染产物：无。
+- 文档状态：已完成制作脚本、beats、scenes.json 和本次审查记录。
+- Remotion 实现：已完成 `GitCourseEp03CommitSnapshot`，主线为 hook -> Index -> object model -> fields -> parent -> hash -> takeaway。
+- Manim 实现：已完成并接入 `object-model.mp4`、`parent-chain.mp4`、`hash-identity.mp4`。
+- 分段产物：已输出到 `remotion/renders/git-course/ep03-commit-snapshot/renders/current/scenes/`。
+- 完整正片：已输出 `renders/current/final/ep03-commit-snapshot_with-audio.mp4`。
+- 发布版：已输出 `renders/current/published/ep03-commit-snapshot_published.mp4`。
 
 ## 预渲染检查清单
 
@@ -30,8 +32,20 @@
 
 ## 待实现风险
 
-- Manim 导出和 Remotion 画布配色可能不一致，需要统一 `canvas.base`。
-- 对象模型信息量较高，必须按 blob、tree、commit 顺序逐步出现。
-- parent 箭头方向要提前固定，否则 EP04 的 branch 指针会难以衔接。
-- `GitObjectModelScene` 需要升级，不应直接使用当前英文占位版本。
-- `CommitParentChainScene` 是新增资产，不能用静态图临时代替。
+- 已修复：takeaway 初版出现 `HEAD` 标签；按本集审查点去掉，只保留 `main` 指向 C2。
+- 已确认：Manim 底色与课程浅色画布一致。
+- 已确认：对象模型按 blob、tree、commit 顺序出现，最终关系方向为 commit 指向 tree，tree 指向 blob。
+- 已确认：parent 箭头方向一致，C2 -> C1 -> C0。
+- 已确认：hash 只展示短 hash，不展开 40 位字符串。
+- 已确认：TTS SRT 未泄漏 `<#...#>` 停顿标记。
+
+## 本次渲染审查
+
+| 项目 | 结果 |
+|---|---|
+| 分段渲染 | 7 段均通过，帧数分别为 360 / 780 / 1080 / 900 / 840 / 780 / 660 |
+| 正片视频 | 180.000s，1920x1080，5400 帧 |
+| 正片音频 | 180.000s，AAC，BGM volume `0.05` |
+| 发布版 | 193.000s，5790 帧，包含公共片头和片尾 |
+| 抽帧 | 已审查分段 contact sheet、正片 contact sheet、发布版 contact sheet |
+| 类型检查 | `pnpm exec tsc --noEmit --pretty false` 通过 |

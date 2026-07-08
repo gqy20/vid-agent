@@ -18,26 +18,27 @@
   "productionPolicy": {
     "remotionOwns": ["course packaging", "subtitles", "terminal", "state panel", "commit field card", "final composition"],
     "manimOwns": ["blob/tree/commit object relation", "parent chain geometry", "hash identity transformation"],
-    "newManimScenes": [
+    "completedManimScenes": [
       {
-        "name": "CommitParentChainScene",
-        "path": "scripts/manim/git-course/scenes/commit_parent_chain_scene.py",
-        "requiredFor": "parent-chain",
-        "reason": "需要稳定表达普通 commit 的 parent 指针方向，并与后续 branch 图衔接。"
-      }
-    ],
-    "existingManimScenesToUpgrade": [
-      {
-        "name": "GitObjectModelScene",
-        "path": "scripts/manim/git-course/scenes/git_object_model_scene.py",
+        "name": "Ep03ObjectModel",
+        "path": "scripts/manim/git-course/ep03_commit_snapshot.py",
+        "asset": "remotion/public/git-course/manim/ep03/object-model.mp4",
         "requiredFor": "object-model",
-        "reason": "当前可用，但需要把关系方向调整为 commit -> tree -> blob，并统一中文字幕外置到 Remotion。"
+        "reason": "稳定表达 commit 指向 tree，tree 指向 blob 的对象引用关系。"
       },
       {
-        "name": "HashScene",
-        "path": "scripts/manim/git-course/scenes/hash_scene.py",
+        "name": "Ep03ParentChain",
+        "path": "scripts/manim/git-course/ep03_commit_snapshot.py",
+        "asset": "remotion/public/git-course/manim/ep03/parent-chain.mp4",
+        "requiredFor": "parent-chain",
+        "reason": "稳定表达普通 commit 的 parent 指针方向，并与后续 branch 图衔接。"
+      },
+      {
+        "name": "Ep03HashIdentity",
+        "path": "scripts/manim/git-course/ep03_commit_snapshot.py",
+        "asset": "remotion/public/git-course/manim/ep03/hash-identity.mp4",
         "requiredFor": "hash-identity",
-        "reason": "当前可用，但需要统一课程配色、中文语义和 Remotion 合成方式。"
+        "reason": "统一课程配色和中文语义，表达任一 commit 字段变化都会产生不同身份。"
       }
     ],
     "externalAssets": {

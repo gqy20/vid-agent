@@ -5,6 +5,7 @@
 文件职责：
 
 - `script.md`：教学目标、官方依据、旁白、字幕短句。
+- `voiceover-design.md`：口播设计源、TTS 参数、分段句子和当前生成审查。
 - `beats.md`：逐时间段的画面、动作、技术、状态和审查点。
 - `scenes.json`：机器可读的 scene/beat 数据，后续可用于驱动 Remotion 或生成检查表。
 - `audit.md`：渲染后抽帧、重叠、视觉问题和待优化记录。

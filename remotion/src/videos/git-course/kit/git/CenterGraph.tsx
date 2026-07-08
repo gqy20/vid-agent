@@ -8,7 +8,9 @@ export const CenterGraph: React.FC<{
   top?: number;
   branchMotion?: React.ComponentProps<typeof GitGraph>['branchMotion'];
   headMotion?: React.ComponentProps<typeof GitGraph>['headMotion'];
-}> = ({state, note, width = 1120, top = 326, branchMotion, headMotion}) => (
+  headMarkerOffsetX?: React.ComponentProps<typeof GitGraph>['headMarkerOffsetX'];
+  showHeadMarker?: React.ComponentProps<typeof GitGraph>['showHeadMarker'];
+}> = ({state, note, width = 1120, top = 326, branchMotion, headMotion, headMarkerOffsetX, showHeadMarker}) => (
   <div style={{position: 'absolute', left: '50%', top, width, transform: 'translateX(-50%)'}}>
     <GitGraph
       state={state}
@@ -17,6 +19,8 @@ export const CenterGraph: React.FC<{
       note={note}
       branchMotion={branchMotion}
       headMotion={headMotion}
+      headMarkerOffsetX={headMarkerOffsetX}
+      showHeadMarker={showHeadMarker}
     />
   </div>
 );
