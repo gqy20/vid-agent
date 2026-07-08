@@ -16,10 +16,10 @@
 | `renders/current/audio/voiceover.mp3` | 原始中文配音 |
 | `renders/current/audio/voiceover.srt` | 原始配音字幕时间轴 |
 | `renders/current/audio/voiceover_segments/` | 分段配音文稿、原始音频、规范化音频、SRT 和对齐说明 |
-| `renders/current/audio/voiceover_aligned.mp3` | 按 7 个片段起点和分段 SRT 重新对齐后的配音 |
+| `renders/current/audio/voiceover-aligned.m4a` | 按 7 个片段起点和分段 SRT 重新对齐后的配音 |
 | `renders/current/audio/bgm_raw.mp3` | 原始 BGM |
 | `renders/current/audio/bgm_180.mp3` | 裁剪并淡入淡出的 180 秒 BGM |
-| `renders/current/audio/mix_180.mp3` | 180 秒最终混音，用于封装进成片 |
+| `renders/current/audio/mix.m4a` | 180 秒最终混音，用于封装进成片 |
 
 ## 分段输出
 

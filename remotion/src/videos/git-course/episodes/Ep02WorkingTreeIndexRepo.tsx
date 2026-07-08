@@ -587,8 +587,8 @@ const TakeawayScene: React.FC = () => {
     <AbsoluteFill style={{padding: '168px 170px 130px', boxSizing: 'border-box'}}>
       <div style={{...TYPE.hero, fontWeight: 850}}>这一集只记住一条线</div>
       <svg width={WIDTH} height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={568} y1={522} x2={812} y2={522} progress={clamp(flow * 1.4)} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
-        <SvgArrowLine x1={1068} y1={522} x2={1312} y2={522} progress={clamp(flow * 1.4 - 0.35)} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
+        <SvgArrowLine x1={642} y1={522} x2={774} y2={522} progress={clamp(flow * 1.4)} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
+        <SvgArrowLine x1={1138} y1={522} x2={1270} y2={522} progress={clamp(flow * 1.4 - 0.35)} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
       </svg>
       <div style={{position: 'absolute', left: 0, top: 432, width: '100%', display: 'flex', justifyContent: 'center', gap: 196, opacity: flow}}>
         {nodes.map((node) => (

@@ -68,10 +68,13 @@ remotion/renders/git-course/<episode-id>/renders/current/audio/
 - 每个 scene 单独生成 TTS 文稿、音频和 SRT；文件名必须带序号，例如 `01_hook.txt`、`01_hook.mp3`、`01_hook.srt`。
 - TTS 文稿可以使用 MiniMax 停顿标记，例如 `<#0.25#>`；生成后必须检查 SRT，确认标记没有被读出来。
 - 原始 TTS 文件保留，规范化人声使用 `_norm.mp3` 后缀。
+- 全片对齐人声统一输出为 `voiceover-aligned.m4a`。
+- 最终混音统一输出为 `mix.m4a`。
 - 人声规范化目标约 `-20 LUFS`，峰值约 `-3 dBFS`。
 - BGM 在 Git 课程内优先复用已确认版本；当前 EP01/EP02 使用同一条 BGM。
 - BGM 使用固定低音量混入，当前为 `volume=0.05`；不做 sidechain ducking。
 - `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md` 记录 scene 时间窗、旁白进入时间、规范化文件和句子级 SRT 对齐公式。
+- 发布版统一使用 `remotion/scripts/git-course-publish-episode.sh` 生成。
 
 ## 当前输出
 

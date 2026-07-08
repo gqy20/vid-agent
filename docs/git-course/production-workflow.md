@@ -76,6 +76,12 @@ Remotion 负责：
 
 Git 课程音频使用“分段生成、统一后期、固定输出”的流程。不要整集一次性生成旁白后强行切片；每个 scene 都应该能单独重做。
 
+格式约定：
+
+- `.mp3` 只作为源素材或分段中间产物：MiniMax TTS 原始输出、单段规范化人声、原始 BGM。
+- `.m4a` 作为可复用的聚合结果：全片对齐人声 `voiceover-aligned.m4a`、最终混音 `mix.m4a`、片头片尾 BGM。
+- 新流程不再生成 `voiceover_aligned.mp3`、`voiceover-aligned.mp3`、`mix_180.mp3` 这类最终音频名。
+
 ### 分段配音
 
 每个 scene 保留独立文稿和音频：
@@ -83,8 +89,8 @@ Git 课程音频使用“分段生成、统一后期、固定输出”的流程�
 ```text
 remotion/renders/git-course/<episode-id>/renders/current/audio/
 ├── bgm.mp3                         # 或复用 EP01 的 bgm_180.mp3
-├── voiceover-aligned.mp3           # 180s 对齐人声轨，命名可沿用单集既有风格
-├── mix.m4a                         # 最终混音，命名可沿用单集既有风格
+├── voiceover-aligned.m4a           # 180s 对齐人声轨，AAC/M4A
+├── mix.m4a                         # 180s 最终混音，AAC/M4A
 ├── alignment.md                    # 音频对齐说明
 └── segments/
     ├── 01_hook.txt
@@ -93,7 +99,7 @@ remotion/renders/git-course/<episode-id>/renders/current/audio/
     └── 01_hook_norm.mp3            # FFmpeg 规范化后用于成片的人声
 ```
 
-如果单集已经使用 `voiceover_segments/` 或 `mix_180.mp3` 之类名称，可以沿用，但同一集内必须稳定，不要新增 `new`、`v2`、`final-2` 等临时文件名。
+`voiceover-aligned.m4a` 和 `mix.m4a` 是统一输出名。旧的 `voiceover_aligned.mp3`、`voiceover-aligned.mp3`、`mix_180.mp3` 只作为历史本地产物，不再作为新流程目标。
 
 ### 文稿节奏
 
@@ -135,7 +141,7 @@ ffmpeg -y -i 01_hook.mp3 \
 - 单段人声 integrated loudness 约 `-20 LUFS`。
 - 单段峰值约 `-3 dBFS`。
 - 段与段之间响度差异尽量控制在 1 LU 以内。
-- 整条 `voiceover-aligned.mp3` 因为包含留白，整轨 LUFS 会低于单段，这是正常现象；评估人声一致性应看单段 `_norm.mp3`。
+- 整条 `voiceover-aligned.m4a` 因为包含留白，整轨 LUFS 会低于单段，这是正常现象；评估人声一致性应看单段 `_norm.mp3`。
 
 ### 对齐与混音
 
@@ -155,7 +161,7 @@ BGM 策略：
 
 ```bash
 ffmpeg -y \
-  -i voiceover-aligned.mp3 \
+  -i voiceover-aligned.m4a \
   -i bgm.mp3 \
   -filter_complex "[0:a]aresample=44100,volume=1.0[vo];[1:a]volume=0.05[bg];[vo][bg]amix=inputs=2:duration=longest:dropout_transition=0,alimiter=limit=0.94,atrim=0:180[out]" \
   -map "[out]" -ar 44100 -c:a aac -b:a 192k \
@@ -199,6 +205,22 @@ ffmpeg -y -i audio/bgm_180.mp3 \
 ```
 
 最终三段拼接时优先使用 concat filter 重新编码并重置时间轴，不用 concat copy 直接拼接。直接 copy 容易在片头、正片、片尾边界产生音频 DTS/PTS 警告。
+
+统一发布命令：
+
+```bash
+scripts/git-course-publish-episode.sh \
+  <episode-id> \
+  renders/git-course/<episode-id>/renders/current/<main-with-audio>.mp4
+```
+
+例如：
+
+```bash
+scripts/git-course-publish-episode.sh \
+  ep01-what-git-stores \
+  renders/git-course/ep01-what-git-stores/renders/current/ep01-what-git-stores.mp4
+```
 
 发布版和正片审查版分开：平时检查单集内容看 `renders/current/<episode-id>.mp4` 或单集既有 `final/*_with-audio.mp4`；确认发布完整包装时才看 `renders/current/published/*_published.mp4`。
 

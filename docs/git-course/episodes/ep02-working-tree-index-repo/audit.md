@@ -31,7 +31,7 @@
 - 静音合成：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_silent.mp4`
 - 带音频成片：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/final/ep02-working-tree-index-repo_with-audio.mp4`
 - 分场景旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/segments/`
-- 对齐旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/voiceover-aligned.mp3`
+- 对齐旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/voiceover-aligned.m4a`
 - BGM：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/bgm.mp3`
 - 混音：`remotion/renders/git-course/ep02-working-tree-index-repo/renders/current/audio/mix.m4a`
 
