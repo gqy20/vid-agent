@@ -67,6 +67,7 @@ remotion/renders/git-course/<episode-id>/renders/current/audio/
 
 - 每个 scene 单独生成 TTS 文稿、音频和 SRT；文件名必须带序号，例如 `01_hook.txt`、`01_hook.mp3`、`01_hook.srt`。
 - TTS 文稿可以使用 MiniMax 停顿标记，例如 `<#0.25#>`；生成后必须检查 SRT，确认标记没有被读出来。
+- 概念切换、命令切换、列表结束转结论时必须显式写停顿标记，不能只靠换行。生成后检查相邻 SRT cue：低于约 `0.2s` 的概念边界通常要补 `<#0.3#>` 到 `<#0.45#>`。
 - 原始 TTS 文件保留，规范化人声使用 `_norm.mp3` 后缀。
 - 全片对齐人声统一输出为 `voiceover-aligned.m4a`。
 - 最终混音统一输出为 `mix.m4a`。

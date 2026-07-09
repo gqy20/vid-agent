@@ -38,7 +38,7 @@ export const GitGraph: React.FC<{
   showFrame = false,
   branchMotion,
   headMotion,
-  headMarkerOffsetX = 88,
+  headMarkerOffsetX = 124,
   showHeadMarker = true,
   auditId = 'git-graph',
 }) => {
