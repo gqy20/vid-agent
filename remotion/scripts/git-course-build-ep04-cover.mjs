@@ -12,23 +12,23 @@ const body = `
   ${K.headline('Branch 不是项目副本')}
   ${K.subtitle('它只是一个指针', {width: 380})}
 
-  <g transform="translate(40 500) scale(1.0) rotate(-9)">
+  <g transform="translate(70 522) scale(0.88) rotate(-9)">
     <path d="${FOLDER}" fill="${MUSTARD}" stroke="${INK}" stroke-width="6"/>
     <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="880" fill="${INK}">my-project</text>
   </g>
-  <g transform="translate(140 540) scale(1.0) rotate(6)">
+  <g transform="translate(158 558) scale(0.88) rotate(6)">
     <path d="${FOLDER}" fill="${PAPER}" stroke="${INK}" stroke-width="6"/>
     <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="880" fill="${INK}">my-project-v2</text>
   </g>
-  <g transform="translate(80 600) scale(1.0) rotate(-3)">
+  <g transform="translate(110 604) scale(0.88) rotate(-3)">
     <path d="${FOLDER}" fill="${TEAL}" stroke="${INK}" stroke-width="6"/>
     <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="28" font-weight="880" fill="${PAPER}">my-project-copy</text>
   </g>
   ${K.note({label: '复制了整个项目？', x: 30, y: 450, rotate: -11, color: TOMATO, width: 240})}
 
-  ${K.neq({x: 838, y: 660})}
+  ${K.neq({x: 808, y: 660})}
 
-  <g transform="translate(960 0)">
+  <g transform="translate(910 -34) scale(1.2)">
     <line x1="180" y1="640" x2="400" y2="640" stroke="${INK}" stroke-width="6"/>
     <circle cx="180" cy="640" r="30" fill="${TEAL}" stroke="${INK}" stroke-width="5"/>
     <circle cx="290" cy="640" r="30" fill="${TEAL}" stroke="${INK}" stroke-width="5"/>
@@ -45,8 +45,8 @@ const body = `
     <rect x="438" y="498" width="150" height="46" rx="8" fill="${TOMATO}" stroke="${INK}" stroke-width="3"/>
     <text x="513" y="530" text-anchor="middle" font-family="${FONT.mono}" font-size="26" font-weight="900" fill="${PAPER}">feature</text>
 
-    ${K.note({label: '两个名字，都指向 C2', x: 120, y: 770, rotate: -3, color: OLIVE, width: 290})}
-    ${K.note({label: '没复制任何东西', x: 420, y: 800, rotate: 5, color: MUTE, width: 220})}
+    ${K.note({label: '两个名字，都指向 C2', x: 118, y: 732, rotate: -3, color: OLIVE, width: 290})}
+    ${K.note({label: '没复制任何东西', x: 410, y: 752, rotate: 5, color: MUTE, width: 220})}
   </g>`;
 
 K.render({

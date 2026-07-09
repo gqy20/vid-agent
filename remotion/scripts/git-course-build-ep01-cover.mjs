@@ -7,10 +7,10 @@ const FOLDER_SHELL = 'M48 110 C50 86 68 72 96 72 H220 C244 72 256 86 266 106 L29
 const FOLDER_COVER = 'M64 176 H590 C602 176 606 180 606 192 V360 C606 372 602 376 590 376 H64 C52 376 48 372 48 360 V192 C48 180 52 176 64 176Z';
 
 const NOTES = [
-  {label: '最终版',     x: 330, y: 600, rotate: -14, color: K.OLIVE,  width: 150},
-  {label: '最终最终版', x: 430, y: 628, rotate:  -6, color: K.MUTE,   width: 198},
-  {label: '打死不改版', x: 470, y: 686, rotate:   5, color: K.MUTE,   width: 210},
-  {label: '再改是狗版', x: 430, y: 728, rotate:  12, color: K.TOMATO, width: 198},
+  {label: '最终版',     x: 290, y: 548, rotate: -12, color: K.OLIVE,  width: 150},
+  {label: '最终最终版', x: 448, y: 612, rotate:  -5, color: K.MUTE,   width: 198},
+  {label: '打死不改版', x: 560, y: 700, rotate:   5, color: K.MUTE,   width: 210},
+  {label: '再改是狗版', x: 536, y: 768, rotate:  10, color: K.TOMATO, width: 198},
 ];
 
 const STICKERS = [
@@ -26,19 +26,19 @@ const body = `
   ${K.headline('Git 不是备份文件夹')}
   ${K.subtitle('别再存 final-2.zip')}
 
-  <g transform="translate(28 466) scale(1.3)">
+  <g transform="translate(76 466) scale(0.94 1.3)">
     <path d="${FOLDER_SHELL}" fill="${K.MUSTARD}" stroke="${K.INK}" stroke-width="6"/>
   </g>
-  <g transform="translate(28 466) scale(1.3)">
+  <g transform="translate(76 466) scale(0.94 1.3)">
     <path d="${FOLDER_COVER}" fill="${K.PAPER}" stroke="${K.INK}" stroke-width="6"/>
-    <text x="92" y="244" fill="${K.TOMATO}" font-family="${K.FONT.mono}" font-size="58" font-weight="930" transform="rotate(-5 92 244)">final-2</text>
   </g>
+  <text x="168" y="834" fill="${K.TOMATO}" font-family="${K.FONT.mono}" font-size="76" font-weight="930" transform="rotate(-5 168 834)">final-2</text>
 
   ${NOTES.map(K.note).join('\n  ')}
 
   ${K.neq()}
 
-  <g transform="translate(1112 174)">
+  <g transform="translate(1112 206)">
     <text x="84" y="72" font-family="${K.FONT.mono}" font-size="54" font-weight="940" fill="${K.INK}" transform="rotate(-2 84 72)">.git/objects</text>
     <path d="M202 288 C304 350 394 420 486 502" stroke="${K.INK}" stroke-width="10" fill="none"/>
     <path d="M486 502 C398 560 330 618 244 676" stroke="${K.INK}" stroke-width="10" fill="none"/>

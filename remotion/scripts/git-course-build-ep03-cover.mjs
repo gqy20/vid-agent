@@ -20,16 +20,16 @@ const body = `
   ${K.headline('Commit 不是保存按钮')}
   ${K.subtitle('它指向快照，也指向过去', {width: 480})}
 
-  ${floppy(150, 470, 1.4)}
-  <g transform="translate(206 826)" filter="url(#softShadow)">
+  ${floppy(150, 548, 1.4)}
+  <g transform="translate(206 904)" filter="url(#softShadow)">
     <rect width="200" height="64" rx="10" fill="${TEAL}"/>
     <text x="100" y="44" text-anchor="middle" font-family="${FONT.sans}" font-size="32" font-weight="900" fill="${PAPER}">保 存</text>
   </g>
-  ${K.note({label: '按一下就完？', x: 50, y: 440, rotate: -10, color: TOMATO, width: 210})}
+  ${K.note({label: '按一下就完？', x: 50, y: 520, rotate: -10, color: TOMATO, width: 210})}
 
-  ${K.neq({x: 858, y: 660})}
+  ${K.neq({x: 810, y: 660})}
 
-  <g transform="translate(980 420)">
+  <g transform="translate(1030 492) scale(0.9)">
     <rect width="820" height="540" rx="14" fill="${PAPER}" stroke="${INK}" stroke-width="4" filter="url(#softShadow)"/>
     <path d="M0 14 C0 6 6 0 14 0 H806 C814 0 820 6 820 14 V72 H0 Z" fill="${MUSTARD}"/>
     <text x="32" y="48" font-family="${FONT.mono}" font-size="30" font-weight="880" fill="${INK}">commit · a17c3f</text>
@@ -42,16 +42,10 @@ const body = `
     <text x="180" y="200" font-family="${FONT.mono}" font-size="28" font-weight="820" fill="${INK}">9c4abd02…</text>
     <text x="540" y="200" font-family="${FONT.sans}" font-size="22" font-weight="780" fill="${MUTE}">→ 指向上一个 commit</text>
 
-    <line x1="40" y1="232" x2="780" y2="232" stroke="rgba(23,33,31,0.14)" stroke-width="2"/>
+    <line x1="40" y1="248" x2="780" y2="248" stroke="rgba(23,33,31,0.14)" stroke-width="2"/>
 
-    <text x="40" y="282" font-family="${FONT.mono}" font-size="26" font-weight="840" fill="${MUTE}">author</text>
-    <text x="180" y="282" font-family="${FONT.mono}" font-size="26" font-weight="820" fill="${INK}">Git Coworker &lt;dev@x&gt;</text>
-
-    <text x="40" y="334" font-family="${FONT.mono}" font-size="26" font-weight="840" fill="${MUTE}">time</text>
-    <text x="180" y="334" font-family="${FONT.mono}" font-size="26" font-weight="820" fill="${INK}">2026-07-08 14:32</text>
-
-    <text x="40" y="386" font-family="${FONT.mono}" font-size="26" font-weight="840" fill="${MUTE}">message</text>
-    <text x="180" y="386" font-family="${FONT.mono}" font-size="26" font-weight="820" fill="${INK}">别再存 final-2.zip</text>
+    <text x="40" y="322" font-family="${FONT.mono}" font-size="28" font-weight="840" fill="${MUTE}">message</text>
+    <text x="180" y="322" font-family="${FONT.mono}" font-size="28" font-weight="820" fill="${INK}">别再存 final-2.zip</text>
 
     <rect x="40" y="430" width="740" height="70" rx="10" fill="#fff6df" stroke="${MUSTARD}" stroke-width="2"/>
     <text x="60" y="474" font-family="${FONT.sans}" font-size="24" font-weight="840" fill="${INK}">一个对象：有身份（hash）、有结构、有过去</text>

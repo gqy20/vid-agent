@@ -22,10 +22,10 @@ const body = `
   ${K.headline('文件不会直接进 commit')}
   ${K.subtitle('先 add，再 commit', {width: 440})}
 
-  ${arrow({x1: 560, x2: 760, y: 640, label: 'git add'})}
-  ${arrow({x1: 1160, x2: 1360, y: 640, label: 'git commit'})}
+  ${arrow({x1: 548, x2: 736, y: 640, label: 'git add'})}
+  ${arrow({x1: 1128, x2: 1308, y: 640, label: 'git commit'})}
 
-  <g transform="translate(160 460)">
+  <g transform="translate(148 460)">
     <rect width="400" height="360" rx="14" fill="${PAPER}" stroke="${INK}" stroke-width="4" filter="url(#softShadow)"/>
     ${topBar(400, OLIVE)}
     <text x="200" y="46" text-anchor="middle" font-family="${FONT.sans}" font-size="30" font-weight="900" fill="${PAPER}">工作区 · Working Tree</text>
@@ -46,7 +46,7 @@ const body = `
     ${K.note({label: '改了一行', x: 250, y: 88, rotate: 8, color: TOMATO, width: 150})}
   </g>
 
-  <g transform="translate(760 460)">
+  <g transform="translate(728 460)">
     <rect width="400" height="360" rx="14" fill="${PAPER}" stroke="${INK}" stroke-width="4" filter="url(#softShadow)"/>
     ${topBar(400, MUSTARD)}
     <text x="200" y="46" text-anchor="middle" font-family="${FONT.sans}" font-size="30" font-weight="900" fill="${INK}">暂存区 · Index</text>
@@ -62,7 +62,7 @@ const body = `
     ${K.note({label: '下次要提交', x: 250, y: 92, rotate: -7, color: OLIVE, width: 178})}
   </g>
 
-  <g transform="translate(1360 460)">
+  <g transform="translate(1308 460)">
     <rect width="400" height="360" rx="14" fill="${PAPER}" stroke="${INK}" stroke-width="4" filter="url(#softShadow)"/>
     ${topBar(400, TEAL)}
     <text x="200" y="46" text-anchor="middle" font-family="${FONT.sans}" font-size="30" font-weight="900" fill="${PAPER}">仓库 · Repository</text>
