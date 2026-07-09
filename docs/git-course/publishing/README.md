@@ -35,3 +35,5 @@ remotion/renders/git-course/<episode-id>/renders/current/publishing/
 cd remotion
 node scripts/git-course-build-ep01-cover.mjs
 ```
+
+如果为了快速调版手工编辑了 `01_cover.svg`，必须把有效的构图参数反推回对应的 `scripts/git-course-build-epXX-cover.mjs` 或 `git-course-cover-kit.mjs`。`01_cover.svg` / `01_cover.png` 是本地发布产物，不是可维护源；下次运行脚本应能重新生成同一版封面。完成同步后再运行对应 build 脚本覆盖 `01_cover.svg` 和 `01_cover.png`，确认脚本输出和手改版一致。

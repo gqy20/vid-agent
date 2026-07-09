@@ -83,8 +83,8 @@ export const bg = ({
 } = {}) => `
   <rect width="${W}" height="${H}" fill="url(#warmField)"/>
   <rect width="${W}" height="${H}" fill="url(#grid)" opacity="0.8"/>
-  <circle cx="${c1.cx}" cy="${c1.cy}" r="${c1.r}" fill="${c1.fill}" opacity="0.10"/>
-  <circle cx="${c2.cx}" cy="${c2.cy}" r="${c2.r}" fill="${c2.fill}" opacity="0.10"/>`;
+  ${c1.rx || c1.ry ? `<ellipse cx="${c1.cx}" cy="${c1.cy}" rx="${c1.rx ?? c1.r}" ry="${c1.ry ?? c1.r}" fill="${c1.fill}" opacity="0.10"/>` : `<circle cx="${c1.cx}" cy="${c1.cy}" r="${c1.r}" fill="${c1.fill}" opacity="0.10"/>`}
+  ${c2.rx || c2.ry ? `<ellipse cx="${c2.cx}" cy="${c2.cy}" rx="${c2.rx ?? c2.r}" ry="${c2.ry ?? c2.r}" fill="${c2.fill}" opacity="0.10"/>` : `<circle cx="${c2.cx}" cy="${c2.cy}" r="${c2.r}" fill="${c2.fill}" opacity="0.10"/>`}`;
 
 // 右上角标：看得见的 Git · EP.N · tag
 export const badge = ({ep, tag}) => `
