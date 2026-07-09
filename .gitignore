@@ -84,8 +84,10 @@ remotion/renders/*/*/current/audio/*.m4a
 remotion/renders/*/*/current/audio/*.wav
 remotion/renders/*/*/current/audio/*.srt
 remotion/renders/*/*/current/*.mp4
+remotion/public/git-course/manim/**/*.mp4
 
 # 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
+renders/tmp/
 renders/*/renders/*.mp4
 renders/*/renders/*/*.mp4
 remotion/renders/*/renders/*.mp4

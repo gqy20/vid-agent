@@ -1,0 +1,125 @@
+{
+  "episodeId": "ep05-head",
+  "title": "HEAD 是什么",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "script": "docs/git-course/episodes/ep05-head/script.md",
+    "beats": "docs/git-course/episodes/ep05-head/beats.md"
+  },
+  "renderStatus": {
+    "currentScenesDir": "remotion/renders/git-course/ep05-head/renders/current/scenes",
+    "completed": [],
+    "pending": [
+      {"id": "hook", "file": "01_hook.mp4", "frameRange": [0, 359], "durationSeconds": 12},
+      {"id": "symbolic-ref", "file": "02_symbolic_ref.mp4", "frameRange": [360, 1019], "durationSeconds": 22},
+      {"id": "terminal", "file": "03_terminal.mp4", "frameRange": [1020, 1679], "durationSeconds": 22},
+      {"id": "switch", "file": "04_switch.mp4", "frameRange": [1680, 2639], "durationSeconds": 32},
+      {"id": "commit-current", "file": "05_commit_current.mp4", "frameRange": [2640, 3599], "durationSeconds": 32},
+      {"id": "detached", "file": "06_detached.mp4", "frameRange": [3600, 4679], "durationSeconds": 36},
+      {"id": "takeaway", "file": "07_takeaway.mp4", "frameRange": [4680, 5399], "durationSeconds": 24}
+    ]
+  },
+  "states": {
+    "base": {"main": "C2", "feature": "C2", "head": "main", "commits": ["C0", "C1", "C2"]},
+    "switched": {"main": "C2", "feature": "C2", "head": "feature", "commits": ["C0", "C1", "C2"]},
+    "committed": {"main": "C2", "feature": "C3", "head": "feature", "commits": ["C0", "C1", "C2", "C3"]},
+    "detached": {"main": "C2", "feature": "C3", "head": "C1", "commits": ["C0", "C1", "C2", "C3"]}
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion title + CenterGraph",
+      "components": ["CourseLayout", "EpisodeTitleCard", "CenterGraph", "GitGraph", "QuestionCaption"],
+      "goal": "提出 HEAD 表示当前位置，不是另一个 branch。",
+      "beats": [
+        {"time": [0, 2], "visual": "居中标题", "motion": "标题淡入", "state": null, "narration": "第五集，我们只讲 HEAD。", "audit": ["标题独占"]},
+        {"time": [2, 12], "visual": "HEAD -> main -> C2", "motion": "commit、main、HEAD 依次出现", "state": "base", "narration": "HEAD 回答我现在站在哪里。", "audit": ["两级指向清楚", "HEAD 不画成 branch"]}
+      ]
+    },
+    {
+      "id": "symbolic-ref",
+      "title": "符号引用",
+      "start": 12,
+      "duration": 22,
+      "primaryTechnique": "File card + GitGraph",
+      "components": ["MiniRefLine", "TypewriterText", "GitGraph", "SceneCaption"],
+      "goal": "用 .git/HEAD 文件建立 symbolic reference 模型。",
+      "beats": [
+        {"time": [12, 23], "visual": ".git/HEAD 文件卡", "motion": "ref 行逐字输入", "state": "base", "narration": "HEAD 文件里写着 ref: refs/heads/main。", "audit": ["文件内容可读"]},
+        {"time": [23, 34], "visual": "HEAD -> main -> C2 图", "motion": "箭头依次高亮", "state": "base", "narration": "HEAD 指向 main，main 指向 C2。", "audit": ["箭头方向明确"]}
+      ]
+    },
+    {
+      "id": "terminal",
+      "title": "命令",
+      "start": 34,
+      "duration": 22,
+      "primaryTechnique": "TerminalFocusScene",
+      "components": ["TerminalFocusScene", "AnimatedTerminal"],
+      "goal": "展示 switch 和 commit 命令，为后续状态变化建立因果。",
+      "beats": [
+        {"time": [34, 46], "visual": "全屏终端输入 git switch feature", "motion": "逐字输入", "state": "base-to-switched", "narration": "先切到 feature。", "audit": ["输入阶段终端独占"]},
+        {"time": [46, 56], "visual": "继续输入 git commit", "motion": "逐字输入", "state": "commit-pending", "narration": "提交会推进当前分支。", "audit": ["命令不溢出"]}
+      ]
+    },
+    {
+      "id": "switch",
+      "title": "HEAD 切换",
+      "start": 56,
+      "duration": 32,
+      "primaryTechnique": "GitGraph headMotion",
+      "components": ["CommandPill", "GitGraph", "MiniRefLine", "SideLabel"],
+      "goal": "解释 git switch feature 只改变 HEAD 当前所在分支。",
+      "beats": [
+        {"time": [56, 70], "visual": "HEAD 从 main 移到 feature", "motion": "headMotion", "state": "switched", "narration": "commit 没变，HEAD 改指向。", "audit": ["只高亮 HEAD"]},
+        {"time": [70, 88], "visual": ".git/HEAD 更新为 feature", "motion": "文件卡更新，图保持", "state": "switched", "narration": "你现在站在 feature 上。", "audit": ["main/feature 都可见"]}
+      ]
+    },
+    {
+      "id": "commit-current",
+      "title": "当前分支前进",
+      "start": 88,
+      "duration": 32,
+      "primaryTechnique": "GitGraph branchMotion",
+      "components": ["CommandPill", "GitGraph", "MiniRefLine", "SideLabel"],
+      "goal": "展示 commit 推进 HEAD 所在的 branch。",
+      "beats": [
+        {"time": [88, 102], "visual": "C3 生成", "motion": "新 commit 出现", "state": "committed", "narration": "新的 C3 出现。", "audit": ["C3 有生成感"]},
+        {"time": [102, 120], "visual": "feature 前进，main 不动", "motion": "feature branchMotion", "state": "committed", "narration": "因为 HEAD 在 feature 上，feature 前进。", "audit": ["main 停在 C2", "不要误画 HEAD->C3"]}
+      ]
+    },
+    {
+      "id": "detached",
+      "title": "分离 HEAD",
+      "start": 120,
+      "duration": 36,
+      "primaryTechnique": "GitGraph detached state",
+      "components": ["CommandPill", "GitGraph", "MiniRefLine", "SceneCaption"],
+      "goal": "展示 HEAD 直接指向 commit 的边界状态。",
+      "beats": [
+        {"time": [120, 136], "visual": "HEAD 直接指向 C1", "motion": "HEAD 离开 branch 指向 commit", "state": "detached", "narration": "特殊情况下 HEAD 可以直接指向 commit。", "audit": ["使用中性提示"]},
+        {"time": [136, 156], "visual": ".git/HEAD 显示 hash 与边界说明", "motion": "文件卡更新，warning panel 进入", "state": "detached", "narration": "这叫 detached HEAD。", "audit": ["不展开救援流程"]}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 156,
+      "duration": 24,
+      "primaryTechnique": "Minimal graph summary",
+      "components": ["CenterGraph", "GitGraph", "SceneCaption"],
+      "goal": "收束 HEAD 的三条规则。",
+      "beats": [
+        {"time": [156, 180], "visual": "HEAD -> branch -> commit 与两条动作规则", "motion": "链路、switch、commit 依次复现", "state": "summary", "narration": "switch 改 HEAD，commit 推进当前 branch。", "audit": ["结束画面稳定"]}
+      ]
+    }
+  ]
+}

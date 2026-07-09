@@ -14,16 +14,16 @@
 4. [`ep04-branch-is-pointer`](episodes/ep04-branch-is-pointer.md)
    branch 只是一个指针：创建分支为什么几乎瞬间完成。
 
-5. `ep05-head`
-   HEAD 是什么：你当前站在哪个 commit 上。
+5. [`ep05-head`](episodes/ep05-head.md)
+   HEAD 是什么：你当前站在哪个 branch 或 commit 上。
 
-6. `ep06-merge`
+6. [`ep06-merge`](episodes/ep06-merge.md)
    merge 做了什么：两条历史如何合成一个新提交。
 
-7. `ep07-rebase`
-   rebase 做了什么：把一组提交复制到新的 base 上。
+7. [`ep07-rebase`](episodes/ep07-rebase.md)
+   rebase 做了什么：把一组修改重放到新的 base 上。
 
-8. `ep08-reset-revert-restore`
+8. [`ep08-reset-revert-restore`](episodes/ep08-reset-revert-restore.md)
    reset、revert、restore：分别改变指针、新提交还是文件状态。
 
 ## 形式

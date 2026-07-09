@@ -1,0 +1,39 @@
+{
+  "episodeId": "ep06-merge",
+  "title": "Merge 做了什么",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "script": "docs/git-course/episodes/ep06-merge/script.md",
+    "beats": "docs/git-course/episodes/ep06-merge/beats.md"
+  },
+  "renderStatus": {
+    "currentScenesDir": "remotion/renders/git-course/ep06-merge/renders/current/scenes",
+    "completed": [],
+    "pending": [
+      {"id": "hook", "file": "01_hook.mp4", "frameRange": [0, 359], "durationSeconds": 12},
+      {"id": "fast-forward", "file": "02_fast_forward.mp4", "frameRange": [360, 1259], "durationSeconds": 30},
+      {"id": "diverged", "file": "03_diverged.mp4", "frameRange": [1260, 2039], "durationSeconds": 26},
+      {"id": "three-way", "file": "04_three_way.mp4", "frameRange": [2040, 3239], "durationSeconds": 40},
+      {"id": "merge-commit", "file": "05_merge_commit.mp4", "frameRange": [3240, 4139], "durationSeconds": 30},
+      {"id": "conflict", "file": "06_conflict.mp4", "frameRange": [4140, 4979], "durationSeconds": 28},
+      {"id": "takeaway", "file": "07_takeaway.mp4", "frameRange": [4980, 5399], "durationSeconds": 14}
+    ]
+  },
+  "states": {
+    "ffBefore": {"main": "C2", "hotfix": "C3", "head": "main", "commits": ["C0", "C1", "C2", "C3"]},
+    "ffAfter": {"main": "C3", "hotfix": "C3", "head": "main", "commits": ["C0", "C1", "C2", "C3"]},
+    "diverged": {"main": "C3", "feature": "C4", "base": "C2", "head": "main", "commits": ["C0", "C1", "C2", "C3", "C4"]},
+    "merged": {"main": "M1", "feature": "C4", "head": "main", "commits": ["C0", "C1", "C2", "C3", "C4", "M1"], "parents": {"M1": ["C3", "C4"]}}
+  },
+  "scenes": [
+    {"id": "hook", "title": "问题", "start": 0, "duration": 12, "primaryTechnique": "Remotion title + Git graph", "components": ["CourseLayout", "EpisodeTitleCard", "CenterGraph", "QuestionCaption"], "goal": "提出 merge 先看历史形状。", "beats": [{"time": [0, 12], "visual": "两种历史轮廓", "motion": "标题、快进图、分叉图依次出现", "state": "compare", "narration": "merge 先看历史有没有分歧。", "audit": ["左右图不拥挤"]}]},
+    {"id": "fast-forward", "title": "快进", "start": 12, "duration": 30, "primaryTechnique": "GitGraph branchMotion", "components": ["CommandPill", "GitGraph", "SideLabel"], "goal": "说明没有分歧时只是移动指针。", "beats": [{"time": [12, 24], "visual": "main=C2, hotfix=C3", "motion": "命令出现", "state": "ffBefore", "narration": "hotfix 是 main 的直接后继。", "audit": ["不出现新节点"]}, {"time": [24, 42], "visual": "main 前进到 C3", "motion": "main 指针滑动", "state": "ffAfter", "narration": "fast-forward 只是移动指针。", "audit": ["main 指针移动明确"]}]},
+    {"id": "diverged", "title": "分叉", "start": 42, "duration": 26, "primaryTechnique": "GitGraph + command", "components": ["TerminalFocusScene", "CommandPill", "GitGraph", "SideLabel"], "goal": "建立分叉后的合并场景。", "beats": [{"time": [42, 54], "visual": "main 和 feature 各自提交", "motion": "C3/C4 依次出现", "state": "diverged", "narration": "两边都变了。", "audit": ["分叉清楚"]}, {"time": [54, 68], "visual": "base/ours/theirs 标签", "motion": "三个标签进入", "state": "diverged", "narration": "Git 要找三个快照。", "audit": ["标签可读"]}]},
+    {"id": "three-way", "title": "三方合并", "start": 68, "duration": 40, "primaryTechnique": "Manim + Remotion captions", "components": ["ManimClip", "ManimBridge", "SceneCaption"], "goal": "展示 base、ours、theirs 合成 result。", "beats": [{"time": [68, 88], "visual": "base、ours、theirs 三个快照", "motion": "从 DAG 抽出三者", "state": "three-way", "narration": "共同祖先、当前分支、目标分支。", "audit": ["三列不重叠"]}, {"time": [88, 108], "visual": "result 形成", "motion": "可自动判断的修改流入 result", "state": "result-ready", "narration": "Git 把能判断的修改合成新结果。", "audit": ["线条克制"]}]},
+    {"id": "merge-commit", "title": "合并提交", "start": 108, "duration": 30, "primaryTechnique": "GitGraph merge commit", "components": ["GitGraph", "SideLabel", "MiniRefLine"], "goal": "展示 merge commit 有两个 parent。", "beats": [{"time": [108, 126], "visual": "M1 与两个 parent 箭头", "motion": "M1 出现，parent 箭头依次绘制", "state": "merged", "narration": "merge commit 有两个 parent。", "audit": ["两条 parent 箭头都可见"]}, {"time": [126, 138], "visual": "main 指向 M1", "motion": "main 前进", "state": "merged", "narration": "历史在这里重新汇合。", "audit": ["feature 降权但可见"]}]},
+    {"id": "conflict", "title": "冲突", "start": 138, "duration": 28, "primaryTechnique": "CodeDiff + state panel", "components": ["CodeDiff", "CodeBlock", "GitStatePanel", "SceneCaption"], "goal": "说明冲突表示 Git 无法自动决定。", "beats": [{"time": [138, 156], "visual": "同一行两种修改和 conflict marker", "motion": "diff 到 marker", "state": "conflict", "narration": "两边改了同一处，Git 停下来。", "audit": ["conflict 色只用于冲突"]}, {"time": [156, 166], "visual": "unmerged 状态", "motion": "状态板显示未解决", "state": "unresolved", "narration": "解决后再提交合并结果。", "audit": ["信息密度低"]}]},
+    {"id": "takeaway", "title": "总结", "start": 166, "duration": 14, "primaryTechnique": "Minimal graph summary", "components": ["GitGraph", "SceneCaption"], "goal": "总结 fast-forward 和三方合并。", "beats": [{"time": [166, 180], "visual": "快进小图与 merge commit 小图", "motion": "两种模型依次高亮", "state": "summary", "narration": "能快进就移动指针，已分叉就三方合并。", "audit": ["结束稳定"]}]}
+  ]
+}

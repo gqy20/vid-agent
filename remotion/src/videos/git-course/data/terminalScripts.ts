@@ -4,7 +4,10 @@ export type TerminalEffect =
   | 'inspect-history'
   | 'create-feature-pointer'
   | 'move-head-to-feature'
-  | 'advance-feature-pointer';
+  | 'advance-feature-pointer'
+  | 'inspect-head'
+  | 'switch-head-to-feature'
+  | 'commit-on-current-branch';
 
 export type TerminalStep = {
   at: number;
@@ -97,3 +100,35 @@ export const getEp04RefHighlight = (state: GitCourseState) => {
   if (state.lastEffect === 'create-feature-pointer') return 1;
   return 0;
 };
+
+const EP05_SCENE_START_SECONDS = {
+  terminal: 34,
+} as const;
+
+const EP05_RAW_TERMINAL = [
+  {
+    at: seconds(EP05_SCENE_START_SECONDS.terminal + 26 / FPS),
+    promptBranch: 'main',
+    command: 'cat .git/HEAD',
+    output: ['ref: refs/heads/main'],
+    effect: 'inspect-head',
+  },
+  {
+    at: seconds(EP05_SCENE_START_SECONDS.terminal + 4),
+    promptBranch: 'main',
+    command: 'git switch feature',
+    output: ["Switched to branch 'feature'"],
+    effect: 'switch-head-to-feature',
+  },
+  {
+    at: seconds(EP05_SCENE_START_SECONDS.terminal + 12),
+    promptBranch: 'feature',
+    command: 'git commit -m "work"',
+    output: ['[feature C3] work', '1 file changed, 1 insertion(+)'],
+    effect: 'commit-on-current-branch',
+  },
+] as const;
+
+export const EP05_TERMINAL: readonly TerminalStep[] = EP05_RAW_TERMINAL.map(
+  (step): TerminalStep => ({...step, typeFrames: typeDuration(step.command)}),
+);

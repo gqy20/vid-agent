@@ -1,0 +1,6 @@
+reset 先移动当前分支。<#0.35#>
+soft 模式只移动 branch，Index 和 Working Tree 保留。<#0.35#>
+mixed 模式再让 Index 对齐新的 HEAD。<#0.35#>
+hard 模式继续覆盖 Working Tree。<#0.35#>
+所以 hard 最危险。<#0.25#>
+没有保存的工作会被丢掉。

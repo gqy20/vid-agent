@@ -16,6 +16,10 @@ import {
 import {EP02_DURATION_IN_FRAMES, Ep02WorkingTreeIndexRepo} from './episodes/Ep02WorkingTreeIndexRepo';
 import {EP03_DURATION_IN_FRAMES, Ep03CommitSnapshot} from './episodes/Ep03CommitSnapshot';
 import {EP04_DURATION_IN_FRAMES, Ep04BranchIsPointer} from './episodes/Ep04BranchIsPointer';
+import {EP05_DURATION_IN_FRAMES, Ep05Head} from './episodes/Ep05Head';
+import {EP06_DURATION_IN_FRAMES, Ep06Merge} from './episodes/Ep06Merge';
+import {EP07_DURATION_IN_FRAMES, Ep07Rebase} from './episodes/Ep07Rebase';
+import {EP08_DURATION_IN_FRAMES, Ep08ResetRevertRestore} from './episodes/Ep08ResetRevertRestore';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -130,6 +134,38 @@ export const registration: VideoRegistration = {
       id: 'GitCourseEp04BranchIsPointer',
       component: Ep04BranchIsPointer,
       durationInFrames: EP04_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp05Head',
+      component: Ep05Head,
+      durationInFrames: EP05_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp06Merge',
+      component: Ep06Merge,
+      durationInFrames: EP06_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp07Rebase',
+      component: Ep07Rebase,
+      durationInFrames: EP07_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp08ResetRevertRestore',
+      component: Ep08ResetRevertRestore,
+      durationInFrames: EP08_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,
