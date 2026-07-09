@@ -14,15 +14,15 @@ const body = `
 
   <g transform="translate(70 522) scale(0.88) rotate(-9)">
     <path d="${FOLDER}" fill="${MUSTARD}" stroke="${INK}" stroke-width="6"/>
-    <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="880" fill="${INK}">my-project</text>
+    <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="800" fill="${INK}">my-project</text>
   </g>
   <g transform="translate(158 558) scale(0.88) rotate(6)">
     <path d="${FOLDER}" fill="${PAPER}" stroke="${INK}" stroke-width="6"/>
-    <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="880" fill="${INK}">my-project-v2</text>
+    <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="800" fill="${INK}">my-project-v2</text>
   </g>
   <g transform="translate(110 604) scale(0.88) rotate(-3)">
     <path d="${FOLDER}" fill="${TEAL}" stroke="${INK}" stroke-width="6"/>
-    <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="28" font-weight="880" fill="${PAPER}">my-project-copy</text>
+    <text x="300" y="250" text-anchor="middle" font-family="${FONT.mono}" font-size="28" font-weight="800" fill="${PAPER}">my-project-copy</text>
   </g>
   ${K.note({label: '复制了整个项目？', x: 30, y: 450, rotate: -11, color: TOMATO, width: 240})}
 
@@ -33,9 +33,9 @@ const body = `
     <circle cx="180" cy="640" r="30" fill="${TEAL}" stroke="${INK}" stroke-width="5"/>
     <circle cx="290" cy="640" r="30" fill="${TEAL}" stroke="${INK}" stroke-width="5"/>
     <circle cx="400" cy="640" r="30" fill="${TOMATO}" stroke="${INK}" stroke-width="5"/>
-    <text x="180" y="704" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="840" fill="${INK}">C0</text>
-    <text x="290" y="704" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="840" fill="${INK}">C1</text>
-    <text x="400" y="704" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="840" fill="${INK}">C2</text>
+    <text x="180" y="704" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="800" fill="${INK}">C0</text>
+    <text x="290" y="704" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="800" fill="${INK}">C1</text>
+    <text x="400" y="704" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="800" fill="${INK}">C2</text>
 
     <line x1="400" y1="612" x2="300" y2="544" stroke="${INK}" stroke-width="3" stroke-dasharray="6 6"/>
     <rect x="232" y="498" width="130" height="46" rx="8" fill="${MUSTARD}" stroke="${INK}" stroke-width="3"/>

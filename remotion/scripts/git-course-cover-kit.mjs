@@ -22,8 +22,8 @@ export const OLIVE = '#2f5f64';
 export const MUTE = '#7a7261';
 
 export const FONT = {
-  sans: 'GitCourseBrand117, GitCourseSans, Noto Sans CJK SC, Source Han Sans SC, sans-serif',
-  mono: 'GitCourseMono, JetBrains Mono, SFMono-Regular, Consolas, monospace',
+  sans: 'Noto Sans CJK SC',
+  mono: 'JetBrains Mono',
 };
 
 export const esc = (v) =>
@@ -33,13 +33,33 @@ export const esc = (v) =>
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
 
+const codeTokenRe = /([A-Za-z0-9][A-Za-z0-9._'/-]*)/g;
+
+export const mixedText = ({text, x, y, fontSize, fill, weight = 800, codeWeight = weight, textAnchor}) => {
+  const parts = [];
+  let cursor = 0;
+  for (const match of String(text).matchAll(codeTokenRe)) {
+    if (match.index > cursor) {
+      const value = String(text).slice(cursor, match.index).trim();
+      if (value) parts.push({value, family: FONT.sans, weight});
+    }
+    parts.push({value: match[0], family: FONT.mono, weight: codeWeight});
+    cursor = match.index + match[0].length;
+  }
+  const tail = String(text).slice(cursor).trim();
+  if (tail) parts.push({value: tail, family: FONT.sans, weight});
+
+  const anchor = textAnchor ? ` text-anchor="${textAnchor}"` : '';
+  const spans = parts
+    .map(
+      (part, index) =>
+        `<tspan${index === 0 ? '' : ' dx="10"'} font-family="${part.family}" font-weight="${part.weight}">${esc(part.value)}</tspan>`,
+    )
+    .join('');
+  return `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${fill}"${anchor}>${spans}</text>`;
+};
+
 export const DEFS = `
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
-      <feDropShadow dx="8" dy="9" stdDeviation="0" flood-color="${INK}" flood-opacity="0.18"/>
-    </filter>
-    <filter id="paperShadow" x="-20%" y="-20%" width="140%" height="160%">
-      <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="${INK}" flood-opacity="0.11"/>
-    </filter>
     <linearGradient id="warmField" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7edcf"/>
       <stop offset="0.58" stop-color="#efe8cc"/>
@@ -48,6 +68,13 @@ export const DEFS = `
     <pattern id="grid" width="52" height="52" patternUnits="userSpaceOnUse">
       <path d="M52 0H0V52" fill="none" stroke="${INK}" stroke-width="1" opacity="0.13"/>
     </pattern>`;
+
+export const softShadowRect = ({x = 0, y = 0, width, height, rx = 8, dx = 8, dy = 9, opacity = 0.18}) =>
+  `<rect x="${x + dx}" y="${y + dy}" width="${width}" height="${height}" rx="${rx}" fill="${INK}" fill-opacity="${opacity}"/>`;
+
+export const paperShadowRect = ({x = 0, y = 0, width, height, rx = 8}) => `
+    <rect x="${x + 6}" y="${y + 10}" width="${width}" height="${height}" rx="${rx}" fill="${INK}" fill-opacity="0.07"/>
+    <rect x="${x + 12}" y="${y + 18}" width="${width}" height="${height}" rx="${rx}" fill="${INK}" fill-opacity="0.04"/>`;
 
 // 背景：暖色场 + 网格 + 两团氛围色。圆可覆盖以配合本集主视觉位置。
 export const bg = ({
@@ -61,48 +88,51 @@ export const bg = ({
 
 // 右上角标：看得见的 Git · EP.N · tag
 export const badge = ({ep, tag}) => `
-  <g filter="url(#softShadow)" transform="translate(1506 34)">
-    <rect width="378" height="86" rx="8" fill="${INK}" stroke="rgba(255,255,255,0.20)" stroke-width="2"/>
+  <g transform="translate(1506 34)">
+    ${softShadowRect({width: 378, height: 86})}
+    <rect width="378" height="86" rx="8" fill="${INK}" stroke="#ffffff" stroke-opacity="0.20" stroke-width="2"/>
     <path d="M32 31 L48 42 L62 29" stroke="${MUSTARD}" stroke-width="5" fill="none" stroke-linecap="round"/>
     <path d="M48 42 L60 57" stroke="${TEAL}" stroke-width="5" fill="none" stroke-linecap="round"/>
     <circle cx="32" cy="31" r="8" fill="${TEAL}"/>
     <circle cx="48" cy="42" r="8" fill="${MUSTARD}"/>
     <circle cx="62" cy="29" r="8" fill="${TOMATO}"/>
     <circle cx="60" cy="57" r="8" fill="${PAPER}"/>
-    <text x="92" y="42" font-family="${FONT.sans}" font-size="30" font-weight="920" fill="${PAPER}">看得见的 Git</text>
-    <text x="94" y="68" font-family="${FONT.mono}" font-size="18" font-weight="820" fill="rgba(255,253,242,0.72)">EP.${ep} · ${esc(tag)}</text>
+    <text x="92" y="42" font-family="${FONT.sans}" font-size="30" font-weight="900" fill="${PAPER}">看得见的 Git</text>
+    <text x="94" y="68" font-family="${FONT.mono}" font-size="18" font-weight="700" fill="${PAPER}" fill-opacity="0.72">EP.${ep} · ${esc(tag)}</text>
   </g>`;
 
 // 一级大标题（左上）
 export const headline = (text) =>
-  `<text x="66" y="150" font-family="${FONT.sans}" font-size="98" font-weight="940" fill="${INK}">${esc(text)}</text>`;
+  `<text x="66" y="150" font-family="${FONT.sans}" font-size="98" font-weight="900" fill="${INK}">${esc(text)}</text>`;
 
 // 二级红框副标
 export const subtitle = (text, {width = 440, x = 68, y = 306} = {}) => `
-  <g transform="translate(${x} ${y})" filter="url(#softShadow)">
+  <g transform="translate(${x} ${y})">
+    ${softShadowRect({width, height: 91})}
     <rect width="${width}" height="91" rx="8" fill="${TOMATO}"/>
-    <text x="26" y="58" font-family="${FONT.mono}" font-size="38" font-weight="930" fill="${PAPER}">${esc(text)}</text>
+    ${mixedText({text, x: 26, y: 58, fontSize: 38, fill: PAPER, weight: 800, codeWeight: 900})}
   </g>`;
 
 // 便签纸条（绝望命名等）
 export const note = ({label, x, y, rotate, color = MUTE, width = 232}) => `
   <g transform="translate(${x} ${y}) rotate(${rotate})">
-    <rect x="0" y="0" width="${width}" height="68" rx="8" fill="${PAPER}" stroke="rgba(23,33,31,0.14)" stroke-width="2" filter="url(#paperShadow)"/>
-    <text x="26" y="43" font-family="${FONT.sans}" font-size="24" font-weight="850" fill="${color}">${esc(label)}</text>
+    ${paperShadowRect({width, height: 68})}
+    <rect x="0" y="0" width="${width}" height="68" rx="8" fill="${PAPER}" stroke="${INK}" stroke-opacity="0.14" stroke-width="2"/>
+    <text x="26" y="43" font-family="${FONT.sans}" font-size="24" font-weight="800" fill="${color}">${esc(label)}</text>
   </g>`;
 
 // 对象贴纸（commit/tree/blob 等）
 export const sticker = ({label, hash, x, y, rotate, fill, text = INK}) => `
   <g transform="translate(${x} ${y}) rotate(${rotate})">
-    <rect x="10" y="12" width="224" height="112" rx="8" fill="rgba(23,33,31,0.18)"/>
+    <rect x="10" y="12" width="224" height="112" rx="8" fill="${INK}" fill-opacity="0.18"/>
     <rect x="0" y="0" width="224" height="112" rx="8" fill="${fill}" stroke="${INK}" stroke-width="3"/>
-    <text x="22" y="52" font-family="${FONT.mono}" font-size="31" font-weight="930" fill="${text}">${esc(label)}</text>
-    <text x="24" y="90" font-family="${FONT.mono}" font-size="24" font-weight="840" fill="${text}">${esc(hash)}</text>
+    <text x="22" y="52" font-family="${FONT.mono}" font-size="31" font-weight="900" fill="${text}">${esc(label)}</text>
+    <text x="24" y="90" font-family="${FONT.mono}" font-size="24" font-weight="800" fill="${text}">${esc(hash)}</text>
   </g>`;
 
 // 不等号
 export const neq = ({x = 828, y = 674} = {}) =>
-  `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="940" fill="${TOMATO}">≠</text>`;
+  `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="900" fill="${TOMATO}">≠</text>`;
 
 // 组装 SVG、写盘、rsvg 转 PNG。outDir 相对 cwd（约定从 remotion/ 跑）。
 export function render({outDir, name = '01_cover.svg', body}) {
@@ -115,7 +145,8 @@ ${body}
   mkdirSync(dirname(svgPath), {recursive: true});
   writeFileSync(svgPath, svg);
   const pngPath = svgPath.replace(/\.svg$/, '.png');
-  execFileSync('rsvg-convert', ['-w', String(W), '-h', String(H), '-f', 'png', '-o', pngPath, svgPath], {
+  // ponytail: 600 DPI = 1920*6.25 x 1080*6.25 像素（6.25 = 600/96，SVG 1px 默认 = 1/96 inch）
+  execFileSync('rsvg-convert', ['-w', '12000', '-h', '6750', '-d', '600', '-f', 'png', '-o', pngPath, svgPath], {
     stdio: 'inherit',
   });
   console.log(`SVG: ${svgPath}`);
