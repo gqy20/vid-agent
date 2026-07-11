@@ -12,7 +12,7 @@ import {
   type GitGraphState,
 } from './kit';
 import type {TerminalStep} from './data/terminalScripts';
-import {COLOR, FONT} from './palette';
+import {COLOR, FONT, WEIGHT} from './palette';
 import {TYPE} from './typography';
 
 const demoTerminal: readonly TerminalStep[] = [
@@ -63,7 +63,7 @@ const GallerySection: React.FC<{
       boxSizing: 'border-box',
     }}
   >
-    <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontWeight: 780, marginBottom: 12, fontFamily: FONT.mono}}>
+    <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontWeight: WEIGHT.bold, marginBottom: 12, fontFamily: FONT.mono}}>
       {title}
     </div>
     {children}

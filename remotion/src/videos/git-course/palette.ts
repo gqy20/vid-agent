@@ -55,3 +55,12 @@ export const FONT = {
   sans: '"GitCourseSans", "GitCourseLatin", sans-serif',
   mono: '"GitCourseMono", "SFMono-Regular", Consolas, monospace',
 };
+
+// Only expose weights backed by real local font files.
+// GitCourseSans: 400 / 700, GitCourseLatin: 400 / 700 / 900,
+// GitCourseMono (JetBrains Mono): 400 / 700, GitCourseBrand*: 900.
+export const WEIGHT = {
+  regular: 400,
+  bold: 700,
+  black: 900,
+} as const;

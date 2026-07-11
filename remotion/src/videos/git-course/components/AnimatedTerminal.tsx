@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR} from '../palette';
+import {COLOR, WEIGHT} from '../palette';
 import type {TerminalStep} from '../data/terminalScripts';
 import {TYPE} from '../typography';
 import {TerminalPanel} from '../kit/terminal/TerminalPanel';
@@ -91,7 +91,7 @@ export const AnimatedTerminal: React.FC<{
                 <span style={{color: branchColor(item.step.promptBranch), fontWeight: TYPE.graphPointer.fontWeight}}>
                   {item.step.promptBranch}
                 </span>
-                <span style={{color: COLOR.terminal.prompt, fontWeight: 700}}> &gt; </span>
+                <span style={{color: COLOR.terminal.prompt, fontWeight: WEIGHT.bold}}> &gt; </span>
                 <span>{item.commandText}</span>
                 <Cursor visible={isLast && item.isTyping} />
               </div>

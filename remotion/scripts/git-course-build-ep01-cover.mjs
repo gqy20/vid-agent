@@ -35,14 +35,14 @@ const body = `
   <g transform="translate(76 466) scale(0.94 1.3)">
     <path d="${FOLDER_COVER}" fill="${K.PAPER}" stroke="${K.INK}" stroke-width="6"/>
   </g>
-  <text x="168" y="834" fill="${K.TOMATO}" font-family="${K.FONT.mono}" font-size="76" font-weight="900" transform="rotate(-5 168 834)">final-2</text>
+  <text x="168" y="834" fill="${K.TOMATO}" font-family="${K.FONT.mono}" font-size="76" font-weight="${K.WEIGHT.bold}" transform="rotate(-5 168 834)">final-2</text>
 
   ${NOTES.map(K.note).join('\n  ')}
 
-  <text x="579" y="954" font-family="${K.FONT.sans}" font-size="184" font-weight="900" fill="${K.TOMATO}" transform="matrix(0.93879657,-0.27952148,0.29132866,0.97845201,0,0)">≠</text>
+  <text x="579" y="954" font-family="${K.FONT.sans}" font-size="184" font-weight="${K.WEIGHT.bold}" fill="${K.TOMATO}" transform="matrix(0.93879657,-0.27952148,0.29132866,0.97845201,0,0)">≠</text>
 
   <g transform="translate(1112 206)">
-    <text x="98" y="110" font-family="${K.FONT.mono}" font-size="54" font-weight="900" fill="${K.INK}" transform="rotate(-6.9719091)">.git/objects</text>
+    <text x="98" y="110" font-family="${K.FONT.mono}" font-size="54" font-weight="${K.WEIGHT.bold}" fill="${K.INK}" transform="rotate(-6.9719091)">.git/objects</text>
     <path d="M202 288 C304 350 394 420 486 502" stroke="${K.INK}" stroke-width="10" fill="none"/>
     <path d="M486 502 C398 560 330 618 244 676" stroke="${K.INK}" stroke-width="10" fill="none"/>
     <path d="M202 288 C154 410 154 550 244 676" stroke="${K.TEAL}" stroke-width="8" fill="none"/>

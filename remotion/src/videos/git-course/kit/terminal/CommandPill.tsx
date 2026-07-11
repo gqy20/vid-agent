@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 import {seconds} from '../../timeline';
 
@@ -33,7 +33,7 @@ export const CommandPill: React.FC<{
         ...TYPE.codeSmall,
       }}
     >
-      <span style={{color, fontWeight: 760}}>{branch}</span>
+      <span style={{color, fontWeight: WEIGHT.bold}}>{branch}</span>
       <span style={{color: COLOR.text.tertiary}}>$</span>
       <span style={{color: COLOR.text.primary}}>{command}</span>
     </div>

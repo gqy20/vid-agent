@@ -1,4 +1,4 @@
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
 export type FileTreeNode = {
@@ -73,11 +73,11 @@ export const FileTree: React.FC<{
                 borderLeft: active ? `3px solid ${COLOR.git.head}` : '3px solid transparent',
               }}
             >
-              <span style={{color: row.kind === 'folder' ? COLOR.git.main : COLOR.text.tertiary, fontWeight: 760}}>
+              <span style={{color: row.kind === 'folder' ? COLOR.git.main : COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
                 {row.kind === 'folder' ? 'dir' : 'blob'}
               </span>
               <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{row.name}</span>
-              {row.status ? <span style={{color: status, fontWeight: 760}}>{row.status}</span> : <span />}
+              {row.status ? <span style={{color: status, fontWeight: WEIGHT.bold}}>{row.status}</span> : <span />}
             </div>
           );
         })}

@@ -1,4 +1,4 @@
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {clamp01, easeOutBack, mix} from '../motion';
 import {ArrowLine} from '../motion/ArrowLine';
 
@@ -66,7 +66,7 @@ export const BranchTag: React.FC<{
       ) : null}
       <g data-audit-id={resolvedAuditId} transform={`translate(${currentX} ${currentY}) scale(${mix(0.82, 1, eased)}) translate(${-currentX} ${-currentY})`}>
         <rect x={currentX - width / 2} y={currentY} width={width} height={height} rx="10" fill={color} />
-        <text x={currentX} y={currentY + 44} textAnchor="middle" fontFamily={FONT.mono} fontSize={fontSize} fontWeight="820" fill={COLOR.text.inverse}>
+        <text x={currentX} y={currentY + 44} textAnchor="middle" fontFamily={FONT.mono} fontSize={fontSize} fontWeight={WEIGHT.bold} fill={COLOR.text.inverse}>
           {name}
         </text>
       </g>

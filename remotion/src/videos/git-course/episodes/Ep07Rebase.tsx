@@ -2,7 +2,7 @@ import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP07} from '../data/episodes';
 import {seconds} from '../timeline';
 import {CodeBlock, CommandPill, CourseLayout, EpisodeTitleCard, ManimClip, SceneCaption, SceneSequence} from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
 import {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
@@ -141,7 +141,7 @@ const RebaseGraph: React.FC<{
       <BranchLabel name="main" x={mainX} y={mode === 'fast-forward' ? 166 : 42} color={COLOR.git.main} />
       <BranchLabel name="feature" x={featureX} y={featureY - 62} color={COLOR.git.feature} />
       {showBase ? (
-        <text x={c2 - 22} y={y + 80} fontFamily={FONT.sans} fontSize="25" fontWeight="780" fill={COLOR.git.head}>
+        <text x={c2 - 22} y={y + 80} fontFamily={FONT.sans} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
           base
         </text>
       ) : null}
@@ -156,7 +156,7 @@ const SideNote: React.FC<{children: React.ReactNode; x: number; y: number; color
   color = COLOR.git.head,
   opacity,
 }) => (
-  <div style={{position: 'absolute', left: x, top: y, opacity, ...TYPE.subtitle, fontWeight: 740, color: COLOR.text.primary, maxWidth: 520}}>
+  <div style={{position: 'absolute', left: x, top: y, opacity, ...TYPE.subtitle, fontWeight: WEIGHT.bold, color: COLOR.text.primary, maxWidth: 520}}>
     <span style={{display: 'inline-block', width: 14, height: 14, borderRadius: 999, background: color, marginRight: 14}} />
     {children}
   </div>
@@ -185,7 +185,7 @@ const HookScene: React.FC = () => {
       <div style={{position: 'absolute', left: '50%', top: 258, width: 1080, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
         <RebaseGraph mode="diverged" width={1080} showBase />
       </div>
-      <div style={{position: 'absolute', left: 650, top: 700, opacity: ruleIn, transform: `translateY(${(1 - ruleIn) * 12}px)`, ...TYPE.hero, fontWeight: 850}}>
+      <div style={{position: 'absolute', left: 650, top: 700, opacity: ruleIn, transform: `translateY(${(1 - ruleIn) * 12}px)`, ...TYPE.hero, fontWeight: WEIGHT.bold}}>
         rebase = replay
       </div>
       <SceneCaption opacity={captionIn} width={900} bottom={104} auditId="ep07-hook-caption">
@@ -296,7 +296,7 @@ const PublicRiskScene: React.FC = () => {
       <div style={{position: 'absolute', right: 150, top: 244, width: 520, opacity: cardsIn}}>
         <CodeBlock title="same work, two identities" lines={['remote: C4', "local:  C4'", 'hash:   different']} highlight={[0, 1]} highlightBorderColor={COLOR.git.head} />
       </div>
-      <div style={{position: 'absolute', right: 160, top: 572, opacity: ruleIn, ...TYPE.title, color: COLOR.text.primary, fontWeight: 820}}>
+      <div style={{position: 'absolute', right: 160, top: 572, opacity: ruleIn, ...TYPE.title, color: COLOR.text.primary, fontWeight: WEIGHT.bold}}>
         共享出去的提交，不要随便 rebase
       </div>
       <SceneCaption opacity={captionIn} bottom={92} auditId="ep07-risk-caption">
@@ -319,7 +319,7 @@ const TakeawayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '142px 176px 118px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850, marginBottom: 42}}>rebase 的三条规则</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 42}}>rebase 的三条规则</div>
       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center'}}>
         <RebaseGraph mode="rebased" width={820} small showOld={false} />
         <div style={{display: 'grid', gap: 26}}>

@@ -1,4 +1,4 @@
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {clamp01, mix} from './timing';
 
 export const StrikeThrough: React.FC<{
@@ -28,7 +28,7 @@ export const StrikeThrough: React.FC<{
         opacity={p * 0.86}
       />
       {label ? (
-        <text x={labelX ?? x2 + 32} y={labelY ?? y1} fontFamily={FONT.sans} fontSize="29" fontWeight="760" fill={color} opacity={p}>
+        <text x={labelX ?? x2 + 32} y={labelY ?? y1} fontFamily={FONT.sans} fontSize="29" fontWeight={WEIGHT.bold} fill={color} opacity={p}>
           {label}
         </text>
       ) : null}

@@ -1,5 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {FONT} from '../../palette';
+import {FONT, WEIGHT} from '../../palette';
 import {between, eases, pulse, stagger, tween} from './motion';
 
 const C = {
@@ -137,7 +137,7 @@ export const RefLightboxOutro: React.FC<{
               top: interpolate(rowOut, [0, 1], [row.y, 540]),
               fontFamily: FONT.mono,
               fontSize: 17,
-              fontWeight: 780,
+              fontWeight: WEIGHT.bold,
               letterSpacing: 1.3,
               color: row.color,
               opacity: rowIn * (1 - rowOut) * 0.34,
@@ -161,7 +161,7 @@ export const RefLightboxOutro: React.FC<{
             <rect x="500" y="254" width={interpolate(brandIn, [0, 1], [0, 980])} height="290" />
           </clipPath>
           <clipPath id="outroGitClip">
-            <text x={lockup.gitX} y={lockup.gitY} fontFamily={FONT.brand} fontSize="176" fontWeight="930">
+            <text x={lockup.gitX} y={lockup.gitY} fontFamily={FONT.brand} fontSize="176" fontWeight={WEIGHT.black}>
               Git
             </text>
           </clipPath>
@@ -225,7 +225,7 @@ export const RefLightboxOutro: React.FC<{
                   textAnchor="middle"
                   fontFamily={FONT.mono}
                   fontSize="18"
-                  fontWeight="780"
+                  fontWeight={WEIGHT.bold}
                   fill={node.color}
                   opacity={labelOpacity}
                 >
@@ -252,7 +252,7 @@ export const RefLightboxOutro: React.FC<{
           opacity={brandIn}
           transform={`translate(0 ${interpolate(titleSpring, [0, 1], [28, 0])}) scale(${interpolate(titleSpring, [0, 1], [0.97, 1])})`}
         >
-          <text x={lockup.zhX} y={lockup.titleY} fontFamily={FONT.brand} fontSize="104" fontWeight="890" fill={C.ink}>
+          <text x={lockup.zhX} y={lockup.titleY} fontFamily={FONT.brand} fontSize="104" fontWeight={WEIGHT.black} fill={C.ink}>
             {seriesTitle.replace(' Git', '')}
           </text>
           <text
@@ -260,7 +260,7 @@ export const RefLightboxOutro: React.FC<{
             y={lockup.gitY}
             fontFamily={FONT.brand}
             fontSize="176"
-            fontWeight="930"
+            fontWeight={WEIGHT.black}
             fill={C.ink}
             stroke={C.head}
             strokeWidth={interpolate(lineIn, [0, 1], [0, 1.15])}
@@ -330,7 +330,7 @@ export const RefLightboxOutro: React.FC<{
             textAnchor="middle"
             fontFamily={FONT.mono}
             fontSize="24"
-            fontWeight="780"
+            fontWeight={WEIGHT.bold}
             fill={C.muted}
             opacity={tween(frame, beats.line + 12, beats.line + 34, eases.power4Out)}
           >

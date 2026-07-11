@@ -1,4 +1,4 @@
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
 export type GitArea = {
@@ -74,7 +74,7 @@ export const GitStatePanel: React.FC<{
                 fontSize: prominent ? 20 : TYPE.label.fontSize,
                 lineHeight: 1,
                 color: area.active ? AREA_ACCENT[area.id] : COLOR.text.tertiary,
-                fontWeight: 780,
+                fontWeight: WEIGHT.bold,
                 flex: '0 0 auto',
               }}
             >

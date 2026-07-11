@@ -1,4 +1,4 @@
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {clamp01, mix} from '../motion';
 
 export const CommitNode: React.FC<{
@@ -18,7 +18,7 @@ export const CommitNode: React.FC<{
       transform={`translate(${x} ${y}) scale(${mix(0.72, 1, p)}) translate(${-x} ${-y})`}
     >
       <circle cx={x} cy={y} r={radius} fill={COLOR.canvas.base} stroke={strong ? COLOR.git.commit : COLOR.stroke.strong} strokeWidth={strong ? 8 : 6} />
-      <text x={x} y={y + 13} textAnchor="middle" fontFamily={FONT.mono} fontSize="35" fontWeight="800" fill={COLOR.text.primary}>
+      <text x={x} y={y + 13} textAnchor="middle" fontFamily={FONT.mono} fontSize="35" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
         {id}
       </text>
     </g>

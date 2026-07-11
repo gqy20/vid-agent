@@ -1,5 +1,5 @@
 import {AbsoluteFill} from 'remotion';
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 import {ChapterProgress} from './ChapterProgress';
 import {VideoProgress} from './VideoProgress';
@@ -46,9 +46,9 @@ export const CourseLayout: React.FC<{
           opacity: shouldShowHeader ? 1 : 0,
         }}
       >
-        <div style={{...TYPE.uiSmall, color: COLOR.text.secondary, fontWeight: 700}}>{seriesTitle}</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.secondary, fontWeight: WEIGHT.bold}}>{seriesTitle}</div>
         {scenes ? <ChapterProgress scenes={scenes} currentFrame={currentFrame} /> : null}
-        <div style={{...TYPE.ui, color: COLOR.text.primary, fontWeight: 780, justifySelf: 'end', opacity: shouldShowEpisodeTitle ? 1 : 0}}>
+        <div style={{...TYPE.ui, color: COLOR.text.primary, fontWeight: WEIGHT.bold, justifySelf: 'end', opacity: shouldShowEpisodeTitle ? 1 : 0}}>
           {episodeTitle}
         </div>
       </header>

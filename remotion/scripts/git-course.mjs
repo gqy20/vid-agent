@@ -108,9 +108,32 @@ const generateReleaseSource = (episode) => {
   return path;
 };
 
+const validateTypographyTokens = () => {
+  const files = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, {withFileTypes: true})) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.(?:ts|tsx)$/.test(entry.name)) files.push(path);
+    }
+  };
+  walk(join(REMOTION_ROOT, 'src/videos/git-course'));
+  for (const entry of readdirSync(join(REMOTION_ROOT, 'scripts'))) {
+    if (/^git-course-(?:cover-kit|build-ep\d+-cover)\.mjs$/.test(entry)) {
+      files.push(join(REMOTION_ROOT, 'scripts', entry));
+    }
+  }
+
+  const numericWeight = /fontWeight\s*(?::|=)\s*(?:\{\s*)?["']?\d{3}|font-weight=["']\d{3}|(?:code)?weight\s*:\s*\d{3}/;
+  for (const path of files) {
+    !numericWeight.test(readFileSync(path, 'utf8')) || fail(`${path}: use WEIGHT tokens instead of a numeric font weight`);
+  }
+};
+
 const validate = ({checkGenerated = true} = {}) => {
   const episodes = EPISODES.map(loadEpisode);
   episodes.forEach(validateNarration);
+  validateTypographyTokens();
   const generated = join(REMOTION_ROOT, 'src/videos/git-course/data/episodeTimelines.generated.ts');
   if (checkGenerated && existsSync(generated)) {
     readFileSync(generated, 'utf8') === timelineSource(episodes) || fail(`${generated}: stale; run pnpm git-course:generate`);

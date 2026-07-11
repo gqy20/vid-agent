@@ -1,4 +1,4 @@
-import {COLOR, FONT} from './palette';
+import {COLOR, FONT, WEIGHT} from './palette';
 import {TYPE} from './typography';
 
 export const SUBTITLE = {
@@ -9,7 +9,7 @@ export const SUBTITLE = {
     minHeight: 56,
     padding: '0 32px',
     text: TYPE.subtitle,
-    fontWeight: 640,
+    fontWeight: WEIGHT.bold,
     color: COLOR.text.primary,
     background: COLOR.canvas.overlay,
     border: COLOR.stroke.soft,
@@ -23,7 +23,7 @@ export const SUBTITLE = {
     minHeight: 44,
     padding: '0 22px',
     text: TYPE.ui,
-    fontWeight: 740,
+    fontWeight: WEIGHT.bold,
     color: COLOR.text.primary,
     background: COLOR.canvas.overlay,
     border: COLOR.stroke.soft,
@@ -32,7 +32,7 @@ export const SUBTITLE = {
   },
   inline: {
     text: TYPE.uiSmall,
-    fontWeight: 760,
+    fontWeight: WEIGHT.bold,
     color: COLOR.text.primary,
     background: COLOR.canvas.overlay,
     border: COLOR.stroke.soft,

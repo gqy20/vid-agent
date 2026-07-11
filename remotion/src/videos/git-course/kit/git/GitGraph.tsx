@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 import type {BranchLabelData, GitGraphState} from './types';
 
@@ -213,7 +213,7 @@ const HeadMarker: React.FC<{auditId: string; x: number; y: number}> = ({auditId,
       textAnchor="middle"
       fontFamily={FONT.mono}
       fontSize={TYPE.label.fontSize}
-      fontWeight={800}
+      fontWeight={WEIGHT.bold}
       fill={COLOR.git.head}
     >
       HEAD

@@ -24,7 +24,7 @@ import {
   WorkingTreeCard,
   type GitGraphState,
 } from '../kit';
-import {COLOR} from '../palette';
+import {COLOR, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP04_DURATION_IN_FRAMES, EP04_SCENES} from '../data/episodeTimelines.generated';
 import {EP04_DURATION_IN_FRAMES, EP04_SCENES} from '../data/episodeTimelines.generated';
@@ -339,7 +339,7 @@ const TakeawayScene: React.FC = () => {
   const state = frame < seconds(3.93) ? STATES.withFeature : frame < seconds(7.87) ? STATES.switched : STATES.committed;
   return (
     <AbsoluteFill style={{padding: '168px 170px 130px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850}}>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>
         Branch 是名字，
         <br />
         名字会移动。

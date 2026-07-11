@@ -9,13 +9,13 @@ const stage = ({x, width, color, label, english, icon}) => `
     <rect width="${width}" height="238" rx="22" fill="${PAPER}" stroke="${INK}" stroke-width="6"/>
     <rect width="${width}" height="30" rx="15" fill="${color}"/>
     ${icon}
-    <text x="${width / 2}" y="174" text-anchor="middle" font-family="${FONT.sans}" font-size="56" font-weight="900" fill="${INK}">${esc(label)}</text>
-    <text x="${width / 2}" y="216" text-anchor="middle" font-family="${FONT.mono}" font-size="23" font-weight="800" fill="${INK}" fill-opacity="0.55">${esc(english)}</text>
+    <text x="${width / 2}" y="174" text-anchor="middle" font-family="${FONT.sans}" font-size="56" font-weight="${K.WEIGHT.bold}" fill="${INK}">${esc(label)}</text>
+    <text x="${width / 2}" y="216" text-anchor="middle" font-family="${FONT.mono}" font-size="23" font-weight="${K.WEIGHT.bold}" fill="${INK}" fill-opacity="0.55">${esc(english)}</text>
   </g>`;
 
 const flowArrow = ({x1, x2, label, color}) => `
   <g>
-    <text x="${(x1 + x2) / 2}" y="796" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="900" fill="${color}">${esc(label)}</text>
+    <text x="${(x1 + x2) / 2}" y="796" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="${K.WEIGHT.bold}" fill="${color}">${esc(label)}</text>
     <path d="M${x1} 850 H${x2 - 34}" stroke="${color}" stroke-width="18" stroke-linecap="round"/>
     <path d="M${x2 - 42} 822 L${x2} 850 L${x2 - 42} 878 Z" fill="${color}"/>
   </g>`;
@@ -48,9 +48,9 @@ const body = `
 
   ${K.badge({ep: '02', tag: 'three areas'})}
 
-  <text x="66" y="326" font-family="${FONT.sans}" font-size="210" font-weight="900" letter-spacing="-10" fill="${INK}">文件不会</text>
-  <text x="66" y="584" font-family="${FONT.sans}" font-size="210" font-weight="900" letter-spacing="-10" fill="${INK}">直接进</text>
-  <text x="865" y="558" font-family="${FONT.mono}" font-size="300" font-weight="900" letter-spacing="-13" fill="${TOMATO}">commit</text>
+  <text x="66" y="326" font-family="${FONT.sans}" font-size="210" font-weight="${K.WEIGHT.bold}" letter-spacing="-10" fill="${INK}">文件不会</text>
+  <text x="66" y="584" font-family="${FONT.sans}" font-size="210" font-weight="${K.WEIGHT.bold}" letter-spacing="-10" fill="${INK}">直接进</text>
+  <text x="865" y="558" font-family="${FONT.mono}" font-size="300" font-weight="${K.WEIGHT.bold}" letter-spacing="-13" fill="${TOMATO}">commit</text>
 
   ${stage({x: 66, width: 478, color: OLIVE, label: '工作区', english: 'Working Tree', icon: fileIcon})}
   ${flowArrow({x1: 570, x2: 704, label: 'git add', color: OLIVE})}

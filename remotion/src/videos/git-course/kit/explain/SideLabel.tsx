@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR} from '../../palette';
+import {COLOR, WEIGHT} from '../../palette';
 import {seconds} from '../../timeline';
 import {TYPE} from '../../typography';
 
@@ -25,7 +25,7 @@ export const SideLabel: React.FC<{
         maxWidth: 520,
         color: COLOR.text.primary,
         ...TYPE.subtitle,
-        fontWeight: 720,
+        fontWeight: WEIGHT.bold,
       }}
     >
       <span

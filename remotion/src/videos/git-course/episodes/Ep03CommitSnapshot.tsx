@@ -12,7 +12,7 @@ import {
   SvgArrowLine,
   TypedCommandTerminal,
 } from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {seconds, WIDTH} from '../timeline';
 import {TYPE} from '../typography';
 export {EP03_DURATION_IN_FRAMES, EP03_SCENES} from '../data/episodeTimelines.generated';
@@ -121,7 +121,7 @@ const HookScene: React.FC = () => {
       <div style={{position: 'absolute', left: 1012, top: 316, width: 560, opacity: commitIn}}>
         <svg width="560" height="360" viewBox="0 0 560 360">
           <CommitNode id="C2" x={280} y={158} progress={commitIn} radius={108} strong />
-          <text x="280" y="324" textAnchor="middle" fontFamily={FONT.sans} fontSize="37" fontWeight="720" fill={COLOR.text.secondary}>
+          <text x="280" y="324" textAnchor="middle" fontFamily={FONT.sans} fontSize="37" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             历史里的对象
           </text>
         </svg>
@@ -174,7 +174,7 @@ const FromIndexScene: React.FC = () => {
         <SvgArrowLine x1={1035} y1={596} x2={1485} y2={596} progress={arrow} color={COLOR.git.head} width={8} opacity={0.78} dash="none" />
         <g opacity={snapshot}>
           <circle cx="1560" cy="596" r="72" fill={COLOR.canvas.base} stroke={COLOR.git.main} strokeWidth="8" />
-          <text x="1560" y="610" textAnchor="middle" fontFamily={FONT.mono} fontSize="40" fontWeight="800" fill={COLOR.text.primary}>
+          <text x="1560" y="610" textAnchor="middle" fontFamily={FONT.mono} fontSize="40" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
             C2
           </text>
         </g>
@@ -279,7 +279,7 @@ const CommitFieldsScene: React.FC = () => {
                 borderRadius: 8,
               }}
             >
-              <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: row.tone, fontWeight: 780}}>{row.label}</div>
+              <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: row.tone, fontWeight: WEIGHT.bold}}>{row.label}</div>
               <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.text.primary}}>{row.value}</div>
               <div style={{...TYPE.uiSmall, color: COLOR.text.secondary}}>{row.note}</div>
             </div>
@@ -324,7 +324,7 @@ const TakeawayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '150px 170px 130px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850}}>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>
         commit 是一个
         <br />
         带身份的历史节点

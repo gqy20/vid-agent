@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR} from '../../palette';
+import {COLOR, WEIGHT} from '../../palette';
 import {seconds} from '../../timeline';
 import {TYPE} from '../../typography';
 import {TerminalPanel} from './TerminalPanel';
@@ -27,8 +27,8 @@ export const TypedCommandTerminal: React.FC<{
     <TerminalPanel title={title}>
       <div style={{padding: '30px 34px', ...TYPE.code, color: COLOR.text.inverse}}>
         <div style={{whiteSpace: 'pre'}}>
-          <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-          <span style={{color: COLOR.terminal.prompt, fontWeight: 700}}> &gt; </span>
+          <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: WEIGHT.bold}}>{branch}</span>
+          <span style={{color: COLOR.terminal.prompt, fontWeight: WEIGHT.bold}}> &gt; </span>
           <span>{command.slice(0, chars)}</span>
           <span
             style={{

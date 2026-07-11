@@ -12,7 +12,7 @@ import {
   CommandStrip,
   SvgArrowLine,
 } from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds, WIDTH} from '../timeline';
 import {TYPE} from '../typography';
@@ -165,14 +165,14 @@ const HookScene: React.FC = () => {
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <g opacity={stage * diagramHold}>
           <rect x="282" y="340" width="390" height="286" rx="10" fill="rgba(255,255,255,0.58)" stroke={COLOR.stroke.soft} />
-          <text x="318" y="398" fontFamily={FONT.sans} fontSize="24" fontWeight="780" fill={COLOR.text.secondary}>
+          <text x="318" y="398" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             编辑器
           </text>
           <rect x="1258" y="354" width="366" height="258" rx="10" fill="rgba(255,255,255,0.68)" stroke={COLOR.git.main} strokeWidth="2" />
-          <text x="1441" y="456" textAnchor="middle" fontFamily={FONT.mono} fontSize="48" fontWeight="820" fill={COLOR.git.main}>
+          <text x="1441" y="456" textAnchor="middle" fontFamily={FONT.mono} fontSize="48" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
             commit
           </text>
-          <text x="1441" y="508" textAnchor="middle" fontFamily={FONT.sans} fontSize="22" fontWeight="700" fill={COLOR.text.tertiary}>
+          <text x="1441" y="508" textAnchor="middle" fontFamily={FONT.sans} fontSize="22" fontWeight={WEIGHT.bold} fill={COLOR.text.tertiary}>
             历史记录
           </text>
         </g>
@@ -214,7 +214,7 @@ const HookScene: React.FC = () => {
           <line x1="982" y1="371" x2="982" y2="595" stroke={COLOR.git.conflict} strokeWidth="10" strokeLinecap="round" opacity={0.86 * blocked} />
           <line x1="952" y1="407" x2="1012" y2="407" stroke={COLOR.git.conflict} strokeWidth="6" strokeLinecap="round" opacity={0.32 * blocked} />
           <line x1="952" y1="559" x2="1012" y2="559" stroke={COLOR.git.conflict} strokeWidth="6" strokeLinecap="round" opacity={0.32 * blocked} />
-          <text x="982" y="655" textAnchor="middle" fontFamily={FONT.sans} fontSize="25" fontWeight="780" fill={COLOR.git.conflict}>
+          <text x="982" y="655" textAnchor="middle" fontFamily={FONT.sans} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
             不能直接进
           </text>
         </g>
@@ -241,7 +241,7 @@ const HookScene: React.FC = () => {
           opacity: stage * diagramHold,
           ...TYPE.uiSmall,
           fontFamily: FONT.mono,
-          fontWeight: 760,
+          fontWeight: WEIGHT.bold,
           color: COLOR.git.workingTree,
           zIndex: 2,
         }}
@@ -341,7 +341,7 @@ const ModifyScene: React.FC = () => {
           opacity: edit * editorOut,
         }}
       >
-        <div style={{...TYPE.subtitle, color: COLOR.git.workingTree, fontWeight: 760}}>修改只发生在 Working Tree</div>
+        <div style={{...TYPE.subtitle, color: COLOR.git.workingTree, fontWeight: WEIGHT.bold}}>修改只发生在 Working Tree</div>
       </div>
       <div
         style={{
@@ -366,8 +366,8 @@ const ModifyScene: React.FC = () => {
           opacity: proof * proofOut,
         }}
       >
-        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 720, opacity: 0.76}}>Index 没变</div>
-        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 720, opacity: 0.76}}>Repository 没变</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: WEIGHT.bold, opacity: 0.76}}>Index 没变</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: WEIGHT.bold, opacity: 0.76}}>Repository 没变</div>
       </div>
       <SceneCaption opacity={interpolate(frame, [seconds(22), seconds(23.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
         modified 说明文件变了，但还不是 staged。
@@ -517,8 +517,8 @@ const EditAfterAddScene: React.FC = () => {
         }}
       >
         <div style={{position: 'absolute', left: '50%', top: 52, bottom: 44, width: 1, background: COLOR.stroke.soft}} />
-        <div style={{position: 'absolute', left: 44, top: 30, ...TYPE.ui, fontSize: 30, lineHeight: 1.2, color: COLOR.git.workingTree, fontWeight: 780}}>Working Tree</div>
-        <div style={{position: 'absolute', right: 44, top: 30, ...TYPE.ui, fontSize: 30, lineHeight: 1.2, color: COLOR.git.head, fontWeight: 780}}>Index</div>
+        <div style={{position: 'absolute', left: 44, top: 30, ...TYPE.ui, fontSize: 30, lineHeight: 1.2, color: COLOR.git.workingTree, fontWeight: WEIGHT.bold}}>Working Tree</div>
+        <div style={{position: 'absolute', right: 44, top: 30, ...TYPE.ui, fontSize: 30, lineHeight: 1.2, color: COLOR.git.head, fontWeight: WEIGHT.bold}}>Index</div>
         <div style={{position: 'absolute', left: 44, top: 76, ...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.text.tertiary}}>latest edit</div>
         <div style={{position: 'absolute', right: 44, top: 76, ...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.text.tertiary}}>add-time copy</div>
         <div style={{position: 'absolute', left: 92, top: 168}}>
@@ -612,12 +612,12 @@ const CommitScene: React.FC = () => {
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <SvgArrowLine x1={958} y1={700} x2={1426} y2={700} progress={commitForm} color={COLOR.git.head} width={6} opacity={0.72} dash="none" />
-        <text x="1192" y="664" textAnchor="middle" fontFamily={FONT.mono} fontSize="26" fontWeight="760" fill={COLOR.git.head} opacity={commitForm * 0.9}>
+        <text x="1192" y="664" textAnchor="middle" fontFamily={FONT.mono} fontSize="26" fontWeight={WEIGHT.bold} fill={COLOR.git.head} opacity={commitForm * 0.9}>
           snapshot from Index
         </text>
         <g opacity={repo}>
           <circle cx="1490" cy="700" r="44" fill={COLOR.canvas.base} stroke={COLOR.git.main} strokeWidth="6" />
-          <text x="1490" y="711" textAnchor="middle" fontFamily={FONT.mono} fontSize="29" fontWeight="780" fill={COLOR.text.primary}>
+          <text x="1490" y="711" textAnchor="middle" fontFamily={FONT.mono} fontSize="29" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
             C1
           </text>
         </g>
@@ -640,7 +640,7 @@ const TakeawayScene: React.FC = () => {
   ];
   return (
     <AbsoluteFill style={{padding: '168px 170px 130px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850}}>这一集只记住一条线</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>这一集只记住一条线</div>
       <svg width={WIDTH} height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <SvgArrowLine x1={642} y1={568} x2={774} y2={568} progress={clamp(flow * 1.4)} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
         <SvgArrowLine x1={1138} y1={568} x2={1270} y2={568} progress={clamp(flow * 1.4 - 0.35)} color={COLOR.git.graphLine} width={7} opacity={0.72} dash="none" />
@@ -660,7 +660,7 @@ const TakeawayScene: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            <div style={{...TYPE.ui, fontFamily: FONT.mono, fontSize: 38, lineHeight: 1.08, color: node.tone, fontWeight: 800}}>{node.title}</div>
+            <div style={{...TYPE.ui, fontFamily: FONT.mono, fontSize: 38, lineHeight: 1.08, color: node.tone, fontWeight: WEIGHT.bold}}>{node.title}</div>
             <div style={{...TYPE.title, fontSize: 32, color: COLOR.text.primary, marginTop: 14}}>{node.note}</div>
           </div>
         ))}

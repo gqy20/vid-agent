@@ -1,5 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {FONT} from '../../palette';
+import {FONT, WEIGHT} from '../../palette';
 import {between, eases, introBeats, progress, pulse, stagger, tween} from './motion';
 
 const C = {
@@ -147,7 +147,7 @@ const HashField: React.FC<{frame: number; out: number}> = ({frame, out}) => {
                 top: stream.y - 26,
                 fontFamily: FONT.mono,
                 fontSize: 16,
-                fontWeight: 760,
+                fontWeight: WEIGHT.bold,
                 letterSpacing: 1.6,
                 color: stream.color,
                 opacity: fieldOpacity * enter * 0.24,
@@ -172,7 +172,7 @@ const HashField: React.FC<{frame: number; out: number}> = ({frame, out}) => {
               top: item.y + Math.cos((frame + idx * 17) / 56) * 10,
               fontFamily: FONT.mono,
               fontSize: item.size,
-              fontWeight: 720,
+              fontWeight: WEIGHT.bold,
               color: item.color,
               opacity: fieldOpacity * enter * 0.13,
               transform: `translateY(${between(frame, 14, 0, enterStart, enterStart + 28, eases.power4Out)}px)`,
@@ -344,7 +344,7 @@ const EcosystemOrbit: React.FC<{frame: number; opacity: number}> = ({frame, opac
           textAnchor="middle"
           fontFamily={FONT.mono}
           fontSize="17"
-          fontWeight="780"
+          fontWeight={WEIGHT.bold}
           fill={C.head}
           opacity={coreIn}
         >
@@ -393,10 +393,10 @@ const RefPathSignal: React.FC<{frame: number; opacity: number}> = ({frame, opaci
           stroke={C.grid}
           filter="url(#zajnoIntroShadow)"
         />
-        <text x="20" y="36" fontFamily={FONT.mono} fontSize="18" fontWeight="780" fill={C.head}>
+        <text x="20" y="36" fontFamily={FONT.mono} fontSize="18" fontWeight={WEIGHT.bold} fill={C.head}>
           HEAD
         </text>
-        <text x="82" y="36" fontFamily={FONT.mono} fontSize="18" fontWeight="700" fill={C.muted}>
+        <text x="82" y="36" fontFamily={FONT.mono} fontSize="18" fontWeight={WEIGHT.bold} fill={C.muted}>
           -&gt; refs/heads/main
         </text>
       </g>
@@ -588,7 +588,7 @@ export const RefLightboxIntro: React.FC<{
             <rect x={356} y={210} width={interpolate(titleIn, [0, 1], [0, 1220])} height="560" />
           </clipPath>
           <clipPath id="titleGitClip">
-            <text x="1002" y="426" fontFamily={FONT.brand} fontSize="178" fontWeight="930">
+            <text x="1002" y="426" fontFamily={FONT.brand} fontSize="178" fontWeight={WEIGHT.black}>
               Git
             </text>
           </clipPath>
@@ -716,7 +716,7 @@ export const RefLightboxIntro: React.FC<{
                   textAnchor="middle"
                   fontFamily={FONT.mono}
                   fontSize="18"
-                  fontWeight="760"
+                  fontWeight={WEIGHT.bold}
                   fill={node.color}
                   opacity={labelOpacity}
                 >
@@ -730,7 +730,7 @@ export const RefLightboxIntro: React.FC<{
         </g>
 
         <g clipPath="url(#titleReveal)" opacity={titleIn} transform={`translate(${titleX} 0)`}>
-          <text x="470" y="400" fontFamily={FONT.brand} fontSize="108" fontWeight="890" fill={C.ink}>
+          <text x="470" y="400" fontFamily={FONT.brand} fontSize="108" fontWeight={WEIGHT.black} fill={C.ink}>
             看得见的
           </text>
           <text
@@ -738,7 +738,7 @@ export const RefLightboxIntro: React.FC<{
             y="426"
             fontFamily={FONT.brand}
             fontSize="178"
-            fontWeight="930"
+            fontWeight={WEIGHT.black}
             fill={C.ink}
             stroke={C.head}
             strokeWidth={interpolate(titleDetail, [0, 1], [0, 1.2])}
@@ -784,7 +784,7 @@ export const RefLightboxIntro: React.FC<{
             <circle cx="1168" cy="288" r={interpolate(titleDetail, [0, 1], [0, 8.4])} fill={C.head} />
           </g>
           <g opacity={titleDetail}>
-            <text x="420" y="614" fontFamily={FONT.mono} fontSize="24" fontWeight="820" fill={C.head}>
+            <text x="420" y="614" fontFamily={FONT.mono} fontSize="24" fontWeight={WEIGHT.bold} fill={C.head}>
               hash
             </text>
             <g>
@@ -838,7 +838,7 @@ export const RefLightboxIntro: React.FC<{
                 );
               })}
             </g>
-            <text x="1304" y="614" fontFamily={FONT.mono} fontSize="24" fontWeight="820" fill={C.main}>
+            <text x="1304" y="614" fontFamily={FONT.mono} fontSize="24" fontWeight={WEIGHT.bold} fill={C.main}>
               graph
             </text>
           </g>

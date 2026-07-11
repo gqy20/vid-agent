@@ -1,4 +1,4 @@
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
 export const CommandStrip: React.FC<{
@@ -30,8 +30,8 @@ export const CommandStrip: React.FC<{
     }}
   >
     <div style={{...TYPE.codeSmall, color: COLOR.text.inverse, whiteSpace: 'pre'}}>
-      <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-      <span style={{color: COLOR.terminal.prompt, fontWeight: 700}}> &gt; </span>
+      <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: WEIGHT.bold}}>{branch}</span>
+      <span style={{color: COLOR.terminal.prompt, fontWeight: WEIGHT.bold}}> &gt; </span>
       <span>{command}</span>
     </div>
     {output ? (

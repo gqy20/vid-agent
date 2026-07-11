@@ -2,7 +2,7 @@ import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP08} from '../data/episodes';
 import {seconds} from '../timeline';
 import {CodeDiff, CommandPill, CourseLayout, EpisodeTitleCard, GitStatePanel, QuestionCaption, SceneCaption, SceneSequence, type DiffLine, type GitArea} from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
 import {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
@@ -55,7 +55,7 @@ const BranchLabel: React.FC<{name: string; x: number; y: number; color: string; 
 const HeadBadge: React.FC<{x: number; y: number; opacity?: number}> = ({x, y, opacity = 1}) => (
   <g opacity={opacity}>
     <rect x={x - 48} y={y - 21} width="96" height="42" rx="21" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
-    <text x={x} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight="820" fill={COLOR.git.head}>
+    <text x={x} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
       HEAD
     </text>
   </g>
@@ -88,12 +88,12 @@ const HistoryGraph: React.FC<{
       <BranchLabel name="main" x={mainX} y={78} color={COLOR.git.main} />
       {showHead ? <HeadBadge x={mainX + 114} y={78} /> : null}
       {mode === 'bad' || mode === 'revert' ? (
-        <text x={c3} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight="780" fill={COLOR.git.conflict}>
+        <text x={c3} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
           wrong change
         </text>
       ) : null}
       {mode === 'revert' ? (
-        <text x={r1} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight="780" fill={COLOR.git.feature} opacity={revertIn}>
+        <text x={r1} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.feature} opacity={revertIn}>
           inverse commit
         </text>
       ) : null}
@@ -167,7 +167,7 @@ const ThreeTreesScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '136px 150px 112px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850, marginBottom: 54}}>撤销前，先看三棵树</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 54}}>撤销前，先看三棵树</div>
       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, width: '100%'}}>
         <div style={{opacity: repoIn}}><GitStatePanel areas={[areas[0]]} /></div>
         <div style={{opacity: indexIn}}><GitStatePanel areas={[areas[1]]} /></div>
@@ -211,7 +211,7 @@ const ResetModesScene: React.FC = () => {
       <div style={{position: 'absolute', left: 132, right: 132, top: 500, opacity: hardPause ? 0.52 : mode === 'soft' ? 1 : mode === 'mixed' ? mixedIn : hardIn}}>
         <TreesBoard mode={mode} />
       </div>
-      <div style={{position: 'absolute', left: 132, top: 414, opacity: warning, transform: `translateY(${(1 - warning) * 10}px)`, padding: '14px 18px', borderRadius: 8, border: `1px solid ${COLOR.git.conflict}`, background: 'rgba(182,78,69,0.08)', ...TYPE.ui, color: COLOR.git.conflict, fontWeight: 820}}>
+      <div style={{position: 'absolute', left: 132, top: 414, opacity: warning, transform: `translateY(${(1 - warning) * 10}px)`, padding: '14px 18px', borderRadius: 8, border: `1px solid ${COLOR.git.conflict}`, background: 'rgba(182,78,69,0.08)', ...TYPE.ui, color: COLOR.git.conflict, fontWeight: WEIGHT.bold}}>
         hard 会覆盖 Working Tree
       </div>
       <SceneCaption opacity={1} width={1080} bottom={58} auditId="ep08-reset-caption">
@@ -305,7 +305,7 @@ const ChooseScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '136px 170px 110px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850, marginBottom: 52}}>先问目标，再选命令</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 52}}>先问目标，再选命令</div>
       <div style={{display: 'grid', gap: 18}}>
         {rows.map((row, idx) => {
           const appear = interpolate(frame, [seconds(idx * 2), seconds(idx * 2 + 0.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -327,7 +327,7 @@ const ChooseScene: React.FC = () => {
               }}
             >
               <div style={{fontFamily: FONT.mono, ...TYPE.title, color: row.color}}>{row.name}</div>
-              <div style={{...TYPE.subtitle, color: COLOR.text.primary, fontWeight: 760}}>{row.target}</div>
+              <div style={{...TYPE.subtitle, color: COLOR.text.primary, fontWeight: WEIGHT.bold}}>{row.target}</div>
               <div style={{...TYPE.body, color: COLOR.text.secondary}}>{row.changes}</div>
             </div>
           );
@@ -350,7 +350,7 @@ const TakeawayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '170px 250px 118px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850, marginBottom: 64}}>第一季收束</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 64}}>第一季收束</div>
       <div style={{display: 'grid', gap: 30}}>
         {rows.map((row) => (
           <div key={row.text} style={{opacity: row.opacity, display: 'flex', alignItems: 'center', gap: 22, ...TYPE.title, color: COLOR.text.primary}}>

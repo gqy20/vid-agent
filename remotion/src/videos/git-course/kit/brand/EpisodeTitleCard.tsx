@@ -1,4 +1,4 @@
-import {COLOR} from '../../palette';
+import {COLOR, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
 export const EpisodeTitleCard: React.FC<{
@@ -38,7 +38,7 @@ export const EpisodeTitleCard: React.FC<{
     }}
   >
     <div style={{textAlign: 'center'}}>
-      <div style={{...TYPE.display, fontSize: 112, lineHeight: 1.08, color: COLOR.text.primary, fontWeight: 880}}>
+      <div style={{...TYPE.display, fontSize: 112, lineHeight: 1.08, color: COLOR.text.primary, fontWeight: WEIGHT.bold}}>
         <span style={{color: COLOR.text.tertiary}}>{index}</span>{' '}
         {prefix ? <><span>{prefix}</span>{' '}</> : null}
         <span

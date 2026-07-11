@@ -68,6 +68,8 @@
 
 - 字体统一使用 `FONT.sans`，即 `"GitCourseSans", "GitCourseLatin", sans-serif`；代码、终端、hash/graph 标签使用 `FONT.mono`，即 `"GitCourseMono", "SFMono-Regular", Consolas, monospace`。
 - `GitCourseSans` / `GitCourseLatin` / `GitCourseMono` 通过 `remotion/src/fonts.css` 注册，并从 `remotion/public/fonts/` 加载；根目录 `fronts/` 保留同一批字体文件作为归档。
+- 字重只允许使用 `WEIGHT.regular = 400`、`WEIGHT.bold = 700` 和 `WEIGHT.black = 900`，不在 episode 或 kit 中手写数字字重。`WEIGHT.black` 只用于真实提供 Heavy/Black 字形的 `FONT.brand`；普通中文和等宽文字只使用 400/700。
+- 本地文件的真实字重为：Noto Sans CJK SC 400/700、Inter 400/700/900、JetBrains Mono 400/700、MiSans Heavy 900。`GitCourseMono` 使用 JetBrains Mono Regular/Bold，不再把单个 Medium 文件声明成 400–900。
 - 字幕背景统一使用 `canvas.overlay`，描边使用 `stroke.soft`，文字使用 `text.primary`。
 - 字幕不负责重复画面信息；画面已经能表达的内容，字幕只写动作或结论。
 - SRT 字幕标点按观看节奏处理，不照搬讲稿。默认去掉句尾句号和分号；普通停顿用 `，`，短语并列用 `、`，问题句保留 `？`，解释或命令引出时少量使用 `：`。

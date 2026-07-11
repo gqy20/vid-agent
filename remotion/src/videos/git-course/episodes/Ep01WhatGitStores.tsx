@@ -15,7 +15,7 @@ import {
   TerminalPanel,
   type GitGraphState,
 } from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
 import {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
@@ -91,7 +91,7 @@ const FileVersionCard: React.FC<{
           }}
         />
       </div>
-      <div style={{...TYPE.ui, color: COLOR.text.primary, fontSize: 37, fontWeight: 820, whiteSpace: 'nowrap'}}>{label}</div>
+      <div style={{...TYPE.ui, color: COLOR.text.primary, fontSize: 37, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>{label}</div>
       <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontSize: 25, marginTop: 10}}>{note}</div>
     </div>
   );
@@ -184,7 +184,7 @@ export const Ep01HookScene: React.FC = () => {
           top: 462,
           ...TYPE.display,
           fontSize: 142,
-          fontWeight: 860,
+          fontWeight: WEIGHT.bold,
           color: COLOR.git.head,
           opacity: questionMarkIn * 0.42,
           transform: `scale(${interpolate(questionMarkIn, [0, 1], [0.72, 1])})`,
@@ -223,7 +223,7 @@ const TinyFailMark: React.FC<{
       <line x1={x - 8} y1={y - 8} x2={x - 8 + draw} y2={y - 8 + draw} stroke={COLOR.git.conflict} strokeWidth="4" strokeLinecap="round" />
       <line x1={x + 8} y1={y - 8} x2={x + 8 - draw} y2={y - 8 + draw} stroke={COLOR.git.conflict} strokeWidth="4" strokeLinecap="round" />
       {label ? (
-        <text x={x + 34} y={y + 9} fontFamily={FONT.sans} fontSize="25" fontWeight="760" fill={COLOR.git.conflict}>
+        <text x={x + 34} y={y + 9} fontFamily={FONT.sans} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
           {label}
         </text>
       ) : null}
@@ -301,7 +301,7 @@ export const Ep01BadModelScene: React.FC = () => {
         >
           ?
         </div>
-        <div style={{...TYPE.title, fontSize: 48, lineHeight: 1.15, color: COLOR.git.conflict, fontWeight: 840}}>
+        <div style={{...TYPE.title, fontSize: 48, lineHeight: 1.15, color: COLOR.git.conflict, fontWeight: WEIGHT.bold}}>
           哪个才是最终版？
         </div>
       </div>
@@ -364,7 +364,7 @@ export const Ep01VersionControlScene: React.FC = () => {
                 stroke={active ? COLOR.git.head : COLOR.git.commit}
                 strokeWidth={active ? 9 : 6}
               />
-              <text x={node.x} y={node.y + 10} textAnchor="middle" fontFamily={FONT.mono} fontSize="34" fontWeight="780" fill={COLOR.text.primary}>
+              <text x={node.x} y={node.y + 10} textAnchor="middle" fontFamily={FONT.mono} fontSize="34" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
                 {node.id}
               </text>
               <text
@@ -373,7 +373,7 @@ export const Ep01VersionControlScene: React.FC = () => {
                 textAnchor="middle"
                 fontFamily={FONT.sans}
                 fontSize={active ? '36' : '29'}
-                fontWeight="760"
+                fontWeight={WEIGHT.bold}
                 fill={active ? COLOR.text.primary : COLOR.text.secondary}
                 opacity={labelOpacity}
               >
@@ -383,26 +383,26 @@ export const Ep01VersionControlScene: React.FC = () => {
           );
         })}
         <g opacity={compareEvidence} data-audit-id="ep01-version-compare-evidence">
-          <text x="1214" y="326" textAnchor="middle" fontFamily={FONT.mono} fontSize="26" fontWeight="760" fill={COLOR.text.secondary}>
+          <text x="1214" y="326" textAnchor="middle" fontFamily={FONT.mono} fontSize="26" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             v2 ↔ v3
           </text>
-          <text x="1086" y="374" fontFamily={FONT.mono} fontSize="25" fontWeight="760" fill={COLOR.git.conflict}>
+          <text x="1086" y="374" fontFamily={FONT.mono} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
             -
           </text>
           <path d="M1122 366 L1306 366" stroke={COLOR.git.conflict} strokeWidth="8" strokeLinecap="round" opacity="0.78" />
-          <text x="1086" y="424" fontFamily={FONT.mono} fontSize="25" fontWeight="760" fill={COLOR.git.main}>
+          <text x="1086" y="424" fontFamily={FONT.mono} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
             +
           </text>
           <path d="M1122 416 L1366 416" stroke={COLOR.git.main} strokeWidth="8" strokeLinecap="round" opacity="0.86" />
         </g>
         <g opacity={traceEvidence} data-audit-id="ep01-version-trace-evidence">
-          <text x="1638" y="438" fontFamily={FONT.sans} fontSize="29" fontWeight="780" fill={COLOR.text.secondary}>
+          <text x="1638" y="438" fontFamily={FONT.sans} fontSize="29" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             作者
           </text>
-          <text x="1638" y="492" fontFamily={FONT.sans} fontSize="29" fontWeight="780" fill={COLOR.text.secondary}>
+          <text x="1638" y="492" fontFamily={FONT.sans} fontSize="29" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             时间
           </text>
-          <text x="1638" y="546" fontFamily={FONT.sans} fontSize="29" fontWeight="780" fill={COLOR.text.secondary}>
+          <text x="1638" y="546" fontFamily={FONT.sans} fontSize="29" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             原因
           </text>
         </g>
@@ -451,7 +451,7 @@ export const Ep01SnapshotModelScene: React.FC = () => {
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <g opacity={snapshotIn} transform={`translate(${960 - 960 * streamScale} ${500 - 500 * streamScale}) scale(${streamScale})`}>
-          <text x="960" y="286" textAnchor="middle" fontFamily={FONT.sans} fontSize="38" fontWeight="820" fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(5.4), seconds(6.4), seconds(14), seconds(15.2)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
+          <text x="960" y="286" textAnchor="middle" fontFamily={FONT.sans} fontSize="38" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(5.4), seconds(6.4), seconds(14), seconds(15.2)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
             commit 指向的是完整项目状态
           </text>
           <line
@@ -480,14 +480,14 @@ export const Ep01SnapshotModelScene: React.FC = () => {
             return (
               <g key={node.id} opacity={appear} transform={`translate(${node.x} 430) scale(${pop}) translate(${-node.x} -430)`} data-audit-id={`ep01-snapshot-${node.id}`}>
                 <circle cx={node.x} cy="430" r="74" fill={COLOR.canvas.base} stroke={active ? COLOR.git.head : COLOR.git.commit} strokeWidth={active ? 10 : 7} />
-                <text x={node.x} y="441" textAnchor="middle" fontFamily={FONT.mono} fontSize="38" fontWeight="780" fill={COLOR.text.primary}>
+                <text x={node.x} y="441" textAnchor="middle" fontFamily={FONT.mono} fontSize="38" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
                   {node.id}
                 </text>
                 <g opacity={expand} transform={`translate(${node.x - 148} 550)`}>
                   {files.map((file, fileIdx) => (
                     <g key={file} transform={`translate(${(fileIdx % 2) * 158} ${Math.floor(fileIdx / 2) * 76})`}>
                       <rect width="136" height="58" rx="8" fill={fileIdx === 1 && idx > 0 ? COLOR.effects.headHighlight : COLOR.canvas.raised} stroke={COLOR.stroke.soft} />
-                      <text x="68" y="38" textAnchor="middle" fontFamily={FONT.sans} fontSize="23" fontWeight="740" fill={COLOR.text.secondary}>
+                      <text x="68" y="38" textAnchor="middle" fontFamily={FONT.sans} fontSize="23" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
                         {file}
                       </text>
                     </g>
@@ -499,10 +499,10 @@ export const Ep01SnapshotModelScene: React.FC = () => {
           <g opacity={reuse}>
             <path d="M674 722 C790 770 836 770 948 722" fill="none" stroke={COLOR.stroke.strong} strokeWidth="5" strokeDasharray="13 15" opacity="0.72" />
             <path d="M1126 722 C1242 770 1288 770 1400 722" fill="none" stroke={COLOR.stroke.strong} strokeWidth="5" strokeDasharray="13 15" opacity="0.72" />
-            <text x="960" y="806" textAnchor="middle" fontFamily={FONT.sans} fontSize="32" fontWeight="780" fill={COLOR.text.secondary}>
+            <text x="960" y="806" textAnchor="middle" fontFamily={FONT.sans} fontSize="32" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
               不变内容复用
             </text>
-            <text x="960" y="854" textAnchor="middle" fontFamily={FONT.sans} fontSize="40" fontWeight="820" fill={COLOR.git.main}>
+            <text x="960" y="854" textAnchor="middle" fontFamily={FONT.sans} fontSize="40" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
               快照流
             </text>
           </g>
@@ -618,7 +618,7 @@ export const Ep01PracticeCheckScene: React.FC = () => {
             padding: '30px 36px',
           }}
         >
-          <div style={{...TYPE.ui, fontSize: 31, fontWeight: 800, color: COLOR.text.secondary, marginBottom: 18}}>log 列出 commit 历史链</div>
+          <div style={{...TYPE.ui, fontSize: 31, fontWeight: WEIGHT.bold, color: COLOR.text.secondary, marginBottom: 18}}>log 列出 commit 历史链</div>
           <GitGraph state={ep01GraphState(3)} width={610} height={180} auditId="ep01-practice-graph" />
         </div>
       </div>
@@ -653,7 +653,7 @@ export const Ep01PracticeCheckScene: React.FC = () => {
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <g opacity={statHighlight}>
           <rect x="1106" y="780" width="248" height="58" rx="29" fill={COLOR.effects.mainWash} stroke={COLOR.git.main} strokeWidth="3" />
-          <text x="1230" y="818" textAnchor="middle" fontFamily={FONT.sans} fontSize="27" fontWeight="820" fill={COLOR.git.main}>
+          <text x="1230" y="818" textAnchor="middle" fontFamily={FONT.sans} fontSize="27" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
             打开最近一次提交
           </text>
           <SvgArrowLine x1={902} y1={756} x2={1088} y2={806} progress={statHighlight} color={COLOR.git.main} width={5} opacity={0.7} dash="none" />
@@ -722,8 +722,8 @@ export const Ep01LocalHistoryScene: React.FC = () => {
       >
         <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28}}>
           <div>
-            <div style={{fontFamily: FONT.sans, fontSize: 40, fontWeight: 820, color: COLOR.text.primary}}>本地仓库</div>
-            <div style={{marginTop: 10, fontFamily: FONT.sans, fontSize: 27, fontWeight: 700, color: COLOR.text.secondary}}>保存完整历史</div>
+            <div style={{fontFamily: FONT.sans, fontSize: 40, fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>本地仓库</div>
+            <div style={{marginTop: 10, fontFamily: FONT.sans, fontSize: 27, fontWeight: WEIGHT.bold, color: COLOR.text.secondary}}>保存完整历史</div>
           </div>
           <div
             style={{
@@ -732,7 +732,7 @@ export const Ep01LocalHistoryScene: React.FC = () => {
               color: COLOR.git.head,
               fontFamily: FONT.sans,
               fontSize: 24,
-              fontWeight: 780,
+              fontWeight: WEIGHT.bold,
               padding: '10px 18px',
             }}
           >
@@ -762,7 +762,7 @@ export const Ep01LocalHistoryScene: React.FC = () => {
           textAnchor="middle"
           fontFamily={FONT.sans}
           fontSize="25"
-          fontWeight="760"
+          fontWeight={WEIGHT.bold}
           fill={COLOR.git.main}
           opacity={queryProgress}
         >
@@ -812,25 +812,25 @@ export const Ep01IntegrityScene: React.FC = () => {
           opacity={0.72}
           dash="none"
         />
-        <text x={(fileCard.left + fileCard.width + hashCard.left) / 2} y={linkY - 34} textAnchor="middle" fontFamily={FONT.sans} fontSize="25" fontWeight="760" fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(5), seconds(6.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
+        <text x={(fileCard.left + fileCard.width + hashCard.left) / 2} y={linkY - 34} textAnchor="middle" fontFamily={FONT.sans} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary} opacity={interpolate(frame, [seconds(5), seconds(6.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}>
           计算内容
         </text>
         <g transform={`translate(${hashCard.left} ${hashCard.top})`}>
           <rect width={hashCard.width} height={hashCard.height} rx="16" fill={COLOR.canvas.raised} stroke={COLOR.stroke.soft} />
-          <text x="34" y="62" fontFamily={FONT.sans} fontSize="30" fontWeight="780" fill={COLOR.text.secondary}>
+          <text x="34" y="62" fontFamily={FONT.sans} fontSize="30" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             内容 hash
           </text>
-          <text x="34" y="124" fontFamily={FONT.mono} fontSize="52" fontWeight="820" fill={activeHashColor}>
+          <text x="34" y="124" fontFamily={FONT.mono} fontSize="52" fontWeight={WEIGHT.bold} fill={activeHashColor}>
             {activeHash}
           </text>
         </g>
         <g opacity={compareOpacity} transform={`translate(0 ${interpolate(compareIn, [0, 1], [22, 0])})`} data-audit-id="ep01-integrity-hash-compare">
-          <text x="960" y="648" textAnchor="middle" fontFamily={FONT.sans} fontSize="30" fontWeight="800" fill={COLOR.text.primary}>
+          <text x="960" y="648" textAnchor="middle" fontFamily={FONT.sans} fontSize="30" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
             {'内容变化 -> hash 变化'}
           </text>
           <g transform="translate(734 682)">
             <rect width="186" height="58" rx="29" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="3" />
-            <text x="93" y="39" textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight="820" fill={COLOR.git.head}>
+            <text x="93" y="39" textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
               {oldHash}
             </text>
           </g>
@@ -838,18 +838,18 @@ export const Ep01IntegrityScene: React.FC = () => {
           <path d="M976 711 L960 698 M976 711 L960 724" stroke={COLOR.stroke.strong} strokeWidth="4" strokeLinecap="round" />
           <g transform="translate(1000 682)">
             <rect width="186" height="58" rx="29" fill={COLOR.canvas.raised} stroke={COLOR.git.conflict} strokeWidth="3" />
-            <text x="93" y="39" textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight="820" fill={COLOR.git.conflict}>
+            <text x="93" y="39" textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
               {newHash}
             </text>
           </g>
         </g>
         <g opacity={commitIn} transform={`translate(0 ${interpolate(commitIn, [0, 1], [24, 0])})`}>
           <circle cx="960" cy="752" r="58" fill={COLOR.canvas.base} stroke={COLOR.git.commit} strokeWidth="7" />
-          <text x="960" y="764" textAnchor="middle" fontFamily={FONT.mono} fontSize="33" fontWeight="780" fill={COLOR.text.primary}>
+          <text x="960" y="764" textAnchor="middle" fontFamily={FONT.mono} fontSize="33" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
             C2
           </text>
           <rect x="1008" y="700" width="138" height="42" rx="21" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="3" />
-          <text x="1077" y="728" textAnchor="middle" fontFamily={FONT.mono} fontSize="22" fontWeight="820" fill={COLOR.git.head}>
+          <text x="1077" y="728" textAnchor="middle" fontFamily={FONT.mono} fontSize="22" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
             {newHash}
           </text>
         </g>

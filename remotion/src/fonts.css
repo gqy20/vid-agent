@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'GitCourseBrandLatin';
   src: url('./font-assets/misans/Normal/MiSans-Heavy.latin.woff2') format('woff2');
-  font-weight: 800 950;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -9,7 +9,7 @@
 @font-face {
   font-family: 'GitCourseBrand117';
   src: url('./font-assets/misans/Normal/MiSans-Heavy.117.woff2') format('woff2');
-  font-weight: 800 950;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -17,7 +17,7 @@
 @font-face {
   font-family: 'GitCourseBrand118';
   src: url('./font-assets/misans/Normal/MiSans-Heavy.118.woff2') format('woff2');
-  font-weight: 800 950;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -25,7 +25,7 @@
 @font-face {
   font-family: 'GitCourseBrand119';
   src: url('./font-assets/misans/Normal/MiSans-Heavy.119.woff2') format('woff2');
-  font-weight: 800 950;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -47,7 +47,7 @@
     local('Noto Sans CJK SC Bold'),
     local('Noto Sans CJK SC'),
     url('../public/fonts/NotoSansCJK-Bold.ttc') format('truetype');
-  font-weight: 700 950;
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -63,7 +63,7 @@
 @font-face {
   font-family: 'GitCourseLatin';
   src: url('../public/fonts/Inter-Bold.otf') format('opentype');
-  font-weight: 700 850;
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -71,15 +71,23 @@
 @font-face {
   font-family: 'GitCourseLatin';
   src: url('../public/fonts/Inter-Black.otf') format('opentype');
-  font-weight: 851 950;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'GitCourseMono';
-  src: url('../public/fonts/GitCourseSourceCodePro-Medium.otf') format('opentype');
-  font-weight: 400 900;
+  src: url('../public/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GitCourseMono';
+  src: url('../public/fonts/JetBrainsMono-Bold.ttf') format('truetype');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }

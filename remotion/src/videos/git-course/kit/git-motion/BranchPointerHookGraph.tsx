@@ -1,5 +1,5 @@
 import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {seconds} from '../../timeline';
 
 export const BranchPointerHookGraph: React.FC = () => {
@@ -42,7 +42,7 @@ export const BranchPointerHookGraph: React.FC = () => {
         {commits.filter((commit) => commit.opacity > 0.01).map((commit) => (
           <g key={commit.id} data-audit-id={`hook-commit-${commit.id}`} opacity={commit.opacity} transform={`translate(${commit.x} 226) scale(${commit.scale}) translate(${-commit.x} -226)`}>
             <circle cx={commit.x} cy="226" r="57" fill={COLOR.canvas.base} stroke={COLOR.git.commit} strokeWidth="8" />
-            <text x={commit.x} y="239" textAnchor="middle" fontFamily={FONT.mono} fontSize="34" fontWeight="780" fill={COLOR.text.primary}>
+            <text x={commit.x} y="239" textAnchor="middle" fontFamily={FONT.mono} fontSize="34" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
               {commit.id}
             </text>
           </g>
@@ -53,7 +53,7 @@ export const BranchPointerHookGraph: React.FC = () => {
           <path d="M728 226 H756" stroke={COLOR.git.main} strokeWidth="4" strokeLinecap="round" opacity="0.86" />
           <path d="M756 226 L782 210 V242 Z" fill={COLOR.git.main} />
           <rect x="782" y="190" width="176" height="72" rx="10" fill={COLOR.git.main} />
-          <text x="870" y="237" textAnchor="middle" fontFamily={FONT.mono} fontSize="29" fontWeight="820" fill={COLOR.text.inverse}>
+          <text x="870" y="237" textAnchor="middle" fontFamily={FONT.mono} fontSize="29" fontWeight={WEIGHT.bold} fill={COLOR.text.inverse}>
             main
           </text>
         </g>
@@ -63,7 +63,7 @@ export const BranchPointerHookGraph: React.FC = () => {
           <path d="M870 334 V280" stroke={COLOR.git.head} strokeWidth="4" strokeLinecap="round" />
           <path d="M870 266 l-10 16 h20 z" fill={COLOR.git.head} />
           <g transform={`translate(0 ${headLabelY})`}>
-            <text x="870" y="364" textAnchor="middle" fontFamily={FONT.mono} fontSize="25" fontWeight="820" fill={COLOR.git.head}>
+            <text x="870" y="364" textAnchor="middle" fontFamily={FONT.mono} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
               HEAD
             </text>
           </g>

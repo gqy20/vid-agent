@@ -26,6 +26,12 @@ export const FONT = {
   mono: 'JetBrains Mono',
 };
 
+// Both cover families ship as real Regular/Bold files only.
+export const WEIGHT = {
+  regular: 400,
+  bold: 700,
+};
+
 export const esc = (v) =>
   String(v)
     .replaceAll('&', '&amp;')
@@ -35,7 +41,7 @@ export const esc = (v) =>
 
 const codeTokenRe = /([A-Za-z0-9][A-Za-z0-9._'/-]*)/g;
 
-export const mixedText = ({text, x, y, fontSize, fill, weight = 800, codeWeight = weight, textAnchor}) => {
+export const mixedText = ({text, x, y, fontSize, fill, weight = WEIGHT.bold, codeWeight = weight, textAnchor}) => {
   const parts = [];
   let cursor = 0;
   for (const match of String(text).matchAll(codeTokenRe)) {
@@ -97,20 +103,20 @@ export const badge = ({ep, tag}) => `
     <circle cx="48" cy="42" r="8" fill="${MUSTARD}"/>
     <circle cx="62" cy="29" r="8" fill="${TOMATO}"/>
     <circle cx="60" cy="57" r="8" fill="${PAPER}"/>
-    <text x="92" y="42" font-family="${FONT.sans}" font-size="30" font-weight="900" fill="${PAPER}">看得见的 Git</text>
-    <text x="94" y="68" font-family="${FONT.mono}" font-size="18" font-weight="700" fill="${PAPER}" fill-opacity="0.72">EP.${ep} · ${esc(tag)}</text>
+    <text x="92" y="42" font-family="${FONT.sans}" font-size="30" font-weight="${WEIGHT.bold}" fill="${PAPER}">看得见的 Git</text>
+    <text x="94" y="68" font-family="${FONT.mono}" font-size="18" font-weight="${WEIGHT.bold}" fill="${PAPER}" fill-opacity="0.72">EP.${ep} · ${esc(tag)}</text>
   </g>`;
 
 // 一级大标题（左上）
 export const headline = (text) =>
-  `<text x="66" y="150" font-family="${FONT.sans}" font-size="98" font-weight="900" fill="${INK}">${esc(text)}</text>`;
+  `<text x="66" y="150" font-family="${FONT.sans}" font-size="98" font-weight="${WEIGHT.bold}" fill="${INK}">${esc(text)}</text>`;
 
 // 二级红框副标
 export const subtitle = (text, {width = 440, x = 68, y = 306} = {}) => `
   <g transform="translate(${x} ${y})">
     ${softShadowRect({width, height: 91})}
     <rect width="${width}" height="91" rx="8" fill="${TOMATO}"/>
-    ${mixedText({text, x: 26, y: 58, fontSize: 38, fill: PAPER, weight: 800, codeWeight: 900})}
+    ${mixedText({text, x: 26, y: 58, fontSize: 38, fill: PAPER, weight: WEIGHT.bold, codeWeight: WEIGHT.bold})}
   </g>`;
 
 // 便签纸条（绝望命名等）
@@ -118,7 +124,7 @@ export const note = ({label, x, y, rotate, color = MUTE, width = 232}) => `
   <g transform="translate(${x} ${y}) rotate(${rotate})">
     ${paperShadowRect({width, height: 68})}
     <rect x="0" y="0" width="${width}" height="68" rx="8" fill="${PAPER}" stroke="${INK}" stroke-opacity="0.14" stroke-width="2"/>
-    <text x="26" y="43" font-family="${FONT.sans}" font-size="24" font-weight="800" fill="${color}">${esc(label)}</text>
+    <text x="26" y="43" font-family="${FONT.sans}" font-size="24" font-weight="${WEIGHT.bold}" fill="${color}">${esc(label)}</text>
   </g>`;
 
 // 对象贴纸（commit/tree/blob 等）
@@ -126,13 +132,13 @@ export const sticker = ({label, hash, x, y, rotate, fill, text = INK}) => `
   <g transform="translate(${x} ${y}) rotate(${rotate})">
     <rect x="10" y="12" width="224" height="112" rx="8" fill="${INK}" fill-opacity="0.18"/>
     <rect x="0" y="0" width="224" height="112" rx="8" fill="${fill}" stroke="${INK}" stroke-width="3"/>
-    <text x="22" y="52" font-family="${FONT.mono}" font-size="31" font-weight="900" fill="${text}">${esc(label)}</text>
-    <text x="24" y="90" font-family="${FONT.mono}" font-size="24" font-weight="800" fill="${text}">${esc(hash)}</text>
+    <text x="22" y="52" font-family="${FONT.mono}" font-size="31" font-weight="${WEIGHT.bold}" fill="${text}">${esc(label)}</text>
+    <text x="24" y="90" font-family="${FONT.mono}" font-size="24" font-weight="${WEIGHT.bold}" fill="${text}">${esc(hash)}</text>
   </g>`;
 
 // 不等号
 export const neq = ({x = 828, y = 674} = {}) =>
-  `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="900" fill="${TOMATO}">≠</text>`;
+  `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="${WEIGHT.bold}" fill="${TOMATO}">≠</text>`;
 
 // 组装 SVG、写盘、rsvg 转 PNG。outDir 相对 cwd（约定从 remotion/ 跑）。
 export function render({outDir, name = 'cover.svg', body}) {

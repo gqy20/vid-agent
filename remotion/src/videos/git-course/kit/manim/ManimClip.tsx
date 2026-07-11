@@ -1,5 +1,5 @@
 import {Video, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {COLOR, FONT} from '../../palette';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
 export const ManimClip: React.FC<{
@@ -42,7 +42,7 @@ export const ManimClip: React.FC<{
             left: 22,
             top: 18,
             ...TYPE.uiSmall,
-            fontWeight: 760,
+            fontWeight: WEIGHT.bold,
             color: COLOR.text.secondary,
             padding: '6px 10px',
             borderRadius: 6,

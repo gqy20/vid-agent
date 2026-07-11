@@ -1,4 +1,4 @@
-import {COLOR} from '../../palette';
+import {COLOR, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 import type {CourseScene} from './CourseLayout';
 
@@ -22,10 +22,10 @@ export const ChapterProgress: React.FC<{
   return (
     <div data-audit-id="chapter-progress" style={{width: 300, justifySelf: 'center', display: 'grid'}}>
       <div style={{display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'baseline'}}>
-        <span style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontWeight: 760}}>
+        <span style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
           {String(activeIndex + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}
         </span>
-        <span style={{...TYPE.uiSmall, color: COLOR.text.secondary, fontWeight: 760}}>
+        <span style={{...TYPE.uiSmall, color: COLOR.text.secondary, fontWeight: WEIGHT.bold}}>
           {activeScene?.title}
         </span>
       </div>

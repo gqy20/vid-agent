@@ -15,7 +15,7 @@ import {
   TerminalFocusScene,
   type GitGraphState,
 } from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
 import {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
@@ -112,7 +112,7 @@ const TimedSideLabel: React.FC<{
         maxWidth: 520,
         color: COLOR.text.primary,
         ...TYPE.subtitle,
-        fontWeight: 720,
+        fontWeight: WEIGHT.bold,
       }}
     >
       <span
@@ -292,7 +292,7 @@ const DetachedGraph: React.FC<{progress: number}> = ({progress}) => {
       <path d={`M${headX} ${headY + 22} C${headX} ${headY + 48} 260 78 260 94`} fill="none" stroke={COLOR.git.head} strokeWidth="4.4" strokeLinecap="round" opacity="0.72" />
       <rect x={headX - 49} y={headY - 22} width="98" height="44" rx="22" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
       <circle cx={headX - 28} cy={headY} r="5" fill={COLOR.git.head} />
-      <text x={headX + 10} y={headY + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={800} fill={COLOR.git.head}>
+      <text x={headX + 10} y={headY + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
         HEAD
       </text>
     </svg>
@@ -340,7 +340,7 @@ const TakeawayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '158px 170px 128px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850}}>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>
         HEAD 是当前位置，
         <br />
         不是另一个分支。

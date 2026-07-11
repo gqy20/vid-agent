@@ -13,7 +13,7 @@ import {
   SceneSequence,
   type DiffLine,
 } from '../kit';
-import {COLOR, FONT} from '../palette';
+import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP06_DURATION_IN_FRAMES, EP06_SCENES} from '../data/episodeTimelines.generated';
 import {EP06_DURATION_IN_FRAMES, EP06_SCENES} from '../data/episodeTimelines.generated';
@@ -73,7 +73,7 @@ const HeadLabel: React.FC<{x: number; y: number; opacity?: number}> = ({x, y, op
   <g opacity={opacity}>
     <rect x={x - 49} y={y - 22} width="98" height="44" rx="22" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
     <circle cx={x - 28} cy={y} r="5" fill={COLOR.git.head} />
-    <text x={x + 10} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={800} fill={COLOR.git.head}>
+    <text x={x + 10} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
       HEAD
     </text>
   </g>
@@ -148,13 +148,13 @@ const MergeGraph: React.FC<{
       {showHead ? <HeadLabel x={headX} y={headY} opacity={small ? 0 : 1} /> : null}
       {showBaseLabels ? (
         <>
-          <text x={c2} y={y + 72} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight="760" fill={COLOR.git.head}>
+          <text x={c2} y={y + 72} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
             base
           </text>
-          <text x={c3 + 78} y="108" fontFamily={FONT.sans} fontSize="24" fontWeight="760" fill={COLOR.git.main}>
+          <text x={c3 + 78} y="108" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
             ours
           </text>
-          <text x={c4 + 78} y="262" fontFamily={FONT.sans} fontSize="24" fontWeight="760" fill={COLOR.git.feature}>
+          <text x={c4 + 78} y="262" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.feature}>
             theirs
           </text>
         </>
@@ -170,7 +170,7 @@ const SideNote: React.FC<{children: React.ReactNode; x: number; y: number; color
   color = COLOR.git.head,
   opacity,
 }) => (
-  <div style={{position: 'absolute', left: x, top: y, opacity, ...TYPE.subtitle, fontWeight: 720, color: COLOR.text.primary, maxWidth: 520}}>
+  <div style={{position: 'absolute', left: x, top: y, opacity, ...TYPE.subtitle, fontWeight: WEIGHT.bold, color: COLOR.text.primary, maxWidth: 520}}>
     <span style={{display: 'inline-block', width: 14, height: 14, borderRadius: 999, background: color, marginRight: 14}} />
     {children}
   </div>
@@ -350,7 +350,7 @@ const TakeawayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '132px 164px 118px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: 850, marginBottom: 40}}>merge 有两种基础形态</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 40}}>merge 有两种基础形态</div>
       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52}}>
         <div style={{opacity: left}}>
           <div style={{...TYPE.title, color: COLOR.git.main, marginBottom: 16}}>能快进</div>
