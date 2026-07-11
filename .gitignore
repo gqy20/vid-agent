@@ -85,6 +85,7 @@ remotion/renders/*/*/current/audio/*.wav
 remotion/renders/*/*/current/audio/*.srt
 remotion/renders/*/*/current/*.mp4
 remotion/public/git-course/manim/**/*.mp4
+remotion/public/git-course-lab/manim/
 remotion/public/git-course-lab/terminal/*.mp4
 remotion/public/git-course-lab/terminal/*-hold.png
 

@@ -7,22 +7,18 @@ Git 课程终端默认使用 `asciinema -> agg -> FFmpeg`。命令在真实 PTY 
 ```text
 scripts/terminal-recordings/
 ├── record-asciinema.sh
-├── record-vhs.sh
 └── git-course-lab/
     ├── demos/
     │   ├── _lib.sh
     │   └── ep02-add.sh
     ├── fixtures/
     │   └── ep02-add.sh
-    ├── presets/
-    └── tapes/
 ```
 
 - `record-asciinema.sh`：Git 课程默认入口，负责隔离环境、录制、主题渲染、MP4 转换和尾帧生成。
 - `demos/*.sh`：观众实际看到的命令、输入节奏和真实输出。
 - `demos/_lib.sh`：统一提示符、打字节奏、Git 状态语义色和尾帧光标。
 - `fixtures/*.sh`：录制前准备 Git 状态，不负责呈现教学动作。
-- `record-vhs.sh`、`tapes/*.tape`：仅保留给尚未迁移的历史片段，不再用于新增 Git 课程终端。
 
 ## 录制命令
 
@@ -71,7 +67,7 @@ Git 身份固定为：
 Git Course <course@example.local>
 ```
 
-终端固定为 `72x14`、Source Code Pro Medium `28px`、30fps，并使用参考 Termius Dark 对比关系的中性 macOS Graphite 主题。Index 状态使用克制的琥珀黄，Working Tree 状态使用灰青色；背景和提示符不复用 Git 语义色。
+终端固定为 `72x14`、Source Code Pro Medium `32px`、行高 `1.60`、30fps，并使用参考 Termius Dark 对比关系的中性 macOS Graphite 主题。Index 状态使用克制的琥珀黄，Working Tree 状态使用灰青色；背景和提示符不复用 Git 语义色。
 
 ## 新增片段
 
@@ -109,4 +105,4 @@ fixture 只准备状态。观众需要看到的命令必须放在 demo 中，并
 - 长命令优先拆成多个短命令，避免自动换行。
 - 命令必须能在临时目录重复执行。
 - 不得暴露本机路径、用户名、token 或私人仓库信息。
-- `.cast` 和 GIF 是临时产物；仓库保留 demo、fixture、MP4 和尾帧。
+- `.cast`、GIF、MP4 和尾帧是本地生成产物；仓库保留 demo、fixture 和录制脚本。
