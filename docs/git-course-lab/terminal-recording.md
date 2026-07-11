@@ -6,6 +6,7 @@ Git 课程终端默认使用 `asciinema -> agg -> FFmpeg`。命令在真实 PTY 
 
 ```text
 scripts/terminal-recordings/
+├── build-metadata.mjs
 ├── record-asciinema.sh
 └── git-course-lab/
     ├── demos/
@@ -16,6 +17,7 @@ scripts/terminal-recordings/
 ```
 
 - `record-asciinema.sh`：Git 课程默认入口，负责隔离环境、录制、主题渲染、MP4 转换和尾帧生成。
+- `build-metadata.mjs`：汇总每条录屏的 JSON metadata，生成 Remotion 使用的 `terminalRecordings.generated.ts`。
 - `demos/*.sh`：观众实际看到的命令、输入节奏和真实输出。
 - `demos/_lib.sh`：统一提示符、打字节奏、Git 状态语义色和尾帧光标。
 - `fixtures/*.sh`：录制前准备 Git 状态，不负责呈现教学动作。
@@ -45,9 +47,10 @@ scripts/terminal-recordings/record-asciinema.sh git-course-lab all
 ```text
 remotion/public/<project>/terminal/<recording-id>.mp4
 remotion/public/<project>/terminal/<recording-id>-hold.png
+remotion/public/<project>/terminal/<recording-id>.json
 ```
 
-Remotion 使用 `RecordedTerminalPanel` 播放 MP4，并在指定帧切换到 `-hold.png`，避免媒体尾部闪黑。
+Remotion 使用 `RecordedTerminalPanel` 播放 MP4，并从 metadata 读取 `holdFromFrame` 后切换到 `-hold.png`，避免媒体尾部闪黑。不要在 episode 中手写 hold frame。
 
 ## 录制环境
 

@@ -88,6 +88,7 @@ remotion/public/git-course/manim/**/*.mp4
 remotion/public/git-course-lab/manim/
 remotion/public/git-course-lab/terminal/*.mp4
 remotion/public/git-course-lab/terminal/*-hold.png
+remotion/public/git-course-lab/terminal/*.json
 
 # 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
 renders/tmp/

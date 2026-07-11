@@ -132,9 +132,17 @@ export const RemotionRoot: React.FC = () => (
    `meta.json` + `README.md`;用 `ffprobe` 校验。分片、场景审查、抽帧都必须放
    `renders/<id>/renders/tmp/{chunks,scenes,audit}/`。绝不让 mp4 堆在工程根目录
    (references/render-project-layout.md)。
-8. **需要更快时先测再拆** —— 先尝试单进程高 `--concurrency`;frame range 分片必须先
-   smoke test 当前 Remotion 版本是否会卡在 mp4 分片末帧,稳定后才用于生产。分析单段时
-   用 `SKIP_CONCAT=1 AUDIT_SEGMENTS=1`,不要为了看一个场景强行合成全片。
+8. **多个独立场景默认并行渲染** —— 一次修改影响两个及以上互不依赖的 scene 时,优先
+   写 `RANGES_FILE` 并使用 `scripts/render-ranges.sh` 并行生成,例如
+   `JOBS=3 CONCURRENCY=4 SKIP_CONCAT=1 AUDIT_SEGMENTS=1`。`JOBS × CONCURRENCY` 不应
+   明显超过机器可用核心数;含多个外部视频资产时先从 `JOBS=2` 开始。只有单场景、共享资源
+   会争用、或并行 smoke test 不稳定时才串行渲染。不要连续启动多个独立 Remotion CLI、
+   让每个进程重复 bundle 后再串行等待。ranges 内部的并发 Remotion 进程可能报告 webpack
+   cache rename 警告;只要所有 segment 的帧数校验和 encoded audit 都通过,该警告不影响产物。
+   若出现 bundle 失败而不只是 cache warning,先把 `JOBS` 降到 2,不要盲目提高并发。
+9. **需要更快时先测再拆** —— frame range 分片必须先 smoke test 当前 Remotion 版本是否
+   会卡在 mp4 分片末帧,稳定后才用于生产。分析单段时用
+   `SKIP_CONCAT=1 AUDIT_SEGMENTS=1`,不要为了看一个场景强行合成全片。
 
 ## 第二遍——按官方 skill 精修(按收益排序)
 

@@ -2,6 +2,13 @@
 
 课程生产从文字脚本开始，不直接写动画。
 
+## 时长原则
+
+- 每集通常控制在 3–5 分钟，但不设统一的固定秒数。
+- 时长由教学目标、状态变化数量和观察动画所需时间决定。
+- 不为了凑时长增加重复解释，也不为了压到某个整数而删掉必要的状态过程。
+- 变更分集时长时，必须同步更新 scenes、旁白 manifest、音频对齐和发布版时长校验。
+
 ## 流程
 
 ```text
@@ -89,8 +96,8 @@ Git 课程音频使用“分段生成、统一后期、固定输出”的流程�
 ```text
 remotion/renders/git-course/<episode-id>/renders/current/audio/
 ├── bgm.mp3                         # 或复用 EP01 的 bgm_180.mp3
-├── voiceover-aligned.m4a           # 180s 对齐人声轨，AAC/M4A
-├── mix.m4a                         # 180s 最终混音，AAC/M4A
+├── voiceover-aligned.m4a           # 按本集时长对齐的人声轨，AAC/M4A
+├── mix.m4a                         # 按本集时长生成的最终混音，AAC/M4A
 ├── alignment.md                    # 音频对齐说明
 └── segments/
     ├── manifest.tsv                # segment_id / voice_start / scene_end
@@ -199,7 +206,7 @@ ffmpeg -y -i 01_hook.mp3 \
 
 ### 对齐与混音
 
-脚本会把 `_norm.mp3` 按 manifest 里的旁白进入时间拼成 180 秒人声轨，再混 BGM。对齐说明必须写进 `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md`：
+脚本会把 `_norm.mp3` 按 manifest 里的旁白进入时间拼成与本集正片等长的人声轨，再混 BGM。对齐说明必须写进 `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md`：
 
 ```text
 absolute sentence time = Voice starts + cue time in segment .srt
@@ -246,7 +253,7 @@ ffmpeg -y \
 公共片尾 6s
 ```
 
-发布版总长固定按 `7s + 正片时长 + 6s` 计算。例如 180 秒正片为 `193s` / `5790` 帧，210 秒正片为 `223s` / `6690` 帧。发布版固定输出到：
+发布版总长按 `7s + 正片实际时长 + 6s` 计算。例如当前 180 秒正片为 `193s` / `5790` 帧，210 秒正片为 `223s` / `6690` 帧；这些只是计算示例，不是时长模板。发布版固定输出到：
 
 ```text
 remotion/renders/git-course/<episode-id>/renders/current/published/<episode-id>_published.mp4

@@ -10,7 +10,7 @@ export type GitArea = {
 
 const AREA_ACCENT: Record<GitArea['id'], string> = {
   'working-tree': COLOR.git.workingTree,
-  index: COLOR.git.head,
+  index: COLOR.git.index,
   repository: COLOR.git.main,
 };
 
@@ -24,12 +24,12 @@ export const GitStatePanel: React.FC<{
         <div
           key={area.id}
           style={{
-            minHeight: 260,
+            minHeight: prominent ? 304 : 260,
             borderRadius: 8,
             border: `1px solid ${area.active ? AREA_ACCENT[area.id] : COLOR.stroke.soft}`,
             background: area.active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.52)',
             boxShadow: area.active ? `0 18px 54px ${COLOR.effects.shadowSoft}` : undefined,
-            padding: '20px 20px 18px',
+            padding: prominent ? '24px 24px 22px' : '20px 20px 18px',
             position: 'relative',
             overflow: 'hidden',
           }}
@@ -45,17 +45,24 @@ export const GitStatePanel: React.FC<{
               opacity: area.active ? 1 : 0.42,
             }}
           />
-          <div style={{display: 'grid', gap: 7, marginBottom: prominent ? 22 : 18}}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: 18,
+              marginBottom: prominent ? 22 : 18,
+            }}
+          >
             <div
               style={{
                 ...TYPE.ui,
                 fontSize: prominent ? 30 : TYPE.ui.fontSize,
-                lineHeight: prominent ? 1.2 : TYPE.ui.lineHeight,
+                lineHeight: prominent ? 1.3 : TYPE.ui.lineHeight,
                 color: prominent ? AREA_ACCENT[area.id] : COLOR.text.primary,
                 fontWeight: prominent ? 780 : 760,
                 whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                minWidth: 0,
               }}
             >
               {area.title}
@@ -64,8 +71,11 @@ export const GitStatePanel: React.FC<{
               style={{
                 ...TYPE.label,
                 fontFamily: FONT.mono,
+                fontSize: prominent ? 20 : TYPE.label.fontSize,
+                lineHeight: 1,
                 color: area.active ? AREA_ACCENT[area.id] : COLOR.text.tertiary,
                 fontWeight: 780,
+                flex: '0 0 auto',
               }}
             >
               {area.active ? 'active' : area.files.length}
@@ -78,24 +88,21 @@ export const GitStatePanel: React.FC<{
                 style={{
                   ...TYPE.codeSmall,
                   fontFamily: FONT.mono,
-                  fontSize: prominent ? 22 : 19,
+                  fontSize: prominent ? 26 : 19,
                   color: COLOR.text.secondary,
-                  borderRadius: 8,
-                  border: `1px solid ${COLOR.stroke.soft}`,
-                  background: area.active ? COLOR.canvas.overlay : COLOR.canvas.soft,
-                  padding: '8px 10px',
+                  padding: '7px 4px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  gap: 10,
                 }}
               >
                 <span
                   style={{
-                    width: 6,
-                    height: 6,
+                    width: 9,
+                    height: 9,
                     borderRadius: 999,
                     background: AREA_ACCENT[area.id],
-                    opacity: area.active ? 1 : 0.48,
+                    opacity: area.active ? 1 : 0.62,
                     flex: '0 0 auto',
                   }}
                 />

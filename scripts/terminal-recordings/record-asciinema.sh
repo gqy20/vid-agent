@@ -30,6 +30,8 @@ FIXTURE="$BASE/fixtures/$RECORDING_ID.sh"
 OUT_DIR="$ROOT/remotion/public/$PROJECT/terminal"
 OUT="$OUT_DIR/$RECORDING_ID.mp4"
 HOLD="$OUT_DIR/$RECORDING_ID-hold.png"
+METADATA="$OUT_DIR/$RECORDING_ID.json"
+GENERATED_METADATA="$ROOT/remotion/src/videos/git-course/data/terminalRecordings.generated.ts"
 TMP_ROOT="${TMPDIR:-/tmp}/vid-agent-terminal-recordings/$PROJECT/$RECORDING_ID-asciinema"
 WORKDIR="$TMP_ROOT/work"
 HOME_DIR="$TMP_ROOT/home"
@@ -96,4 +98,14 @@ ffmpeg -loglevel error -y -i "$GIF" -vf "$VIDEO_FILTER" \
 
 ffmpeg -loglevel error -y -sseof -0.2 -i "$OUT" -frames:v 1 "$HOLD"
 
-printf '%s\n%s\n' "$OUT" "$HOLD"
+OUT_FRAMES="$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=noprint_wrappers=1:nokey=1 "$OUT")"
+OUT_WIDTH="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=noprint_wrappers=1:nokey=1 "$OUT")"
+OUT_HEIGHT="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=noprint_wrappers=1:nokey=1 "$OUT")"
+HOLD_FROM_FRAME="$(awk -v start="$CURSOR_START" 'BEGIN {printf "%d", int(start * 30 + 0.5)}')"
+
+printf '{\n  "id": "%s",\n  "durationInFrames": %s,\n  "holdFromFrame": %s,\n  "width": %s,\n  "height": %s,\n  "fps": 30,\n  "font": "Source Code Pro Medium",\n  "fontSize": 32,\n  "lineHeight": 1.6,\n  "theme": "git-course-termius-dark"\n}\n' \
+  "$RECORDING_ID" "$OUT_FRAMES" "$HOLD_FROM_FRAME" "$OUT_WIDTH" "$OUT_HEIGHT" > "$METADATA"
+
+node "$ROOT/scripts/terminal-recordings/build-metadata.mjs" "$OUT_DIR" "$GENERATED_METADATA"
+
+printf '%s\n%s\n%s\n' "$OUT" "$HOLD" "$METADATA"

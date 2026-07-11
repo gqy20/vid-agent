@@ -56,7 +56,6 @@ TTS_MODEL="${TTS_MODEL:-speech-2.8-hd}"
 TTS_VOICE="${TTS_VOICE:-Chinese (Mandarin)_Gentleman}"
 TTS_LANGUAGE="${TTS_LANGUAGE:-zh}"
 TTS_SPEED="${TTS_SPEED:-1.25}"
-EPISODE_DURATION="${EPISODE_DURATION:-180}"
 BGM_VOLUME="${BGM_VOLUME:-0.05}"
 BGM_FILE="${BGM_FILE:-}"
 
@@ -107,6 +106,9 @@ done < "$MANIFEST"
   echo "Manifest has no segments: $MANIFEST" >&2
   exit 1
 }
+
+last_segment_index=$((${#ENDS[@]} - 1))
+EPISODE_DURATION="${EPISODE_DURATION:-${ENDS[$last_segment_index]}}"
 
 clean_srt_punctuation() {
   local srt_file="$1"

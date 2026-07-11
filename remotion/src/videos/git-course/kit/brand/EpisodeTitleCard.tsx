@@ -3,6 +3,7 @@ import {TYPE} from '../../typography';
 
 export const EpisodeTitleCard: React.FC<{
   index: string;
+  prefix?: string;
   keyword: string;
   suffix: string;
   opacity?: number;
@@ -14,6 +15,7 @@ export const EpisodeTitleCard: React.FC<{
   auditId?: string;
 }> = ({
   index,
+  prefix = '',
   keyword,
   suffix,
   opacity = 1,
@@ -38,6 +40,7 @@ export const EpisodeTitleCard: React.FC<{
     <div style={{textAlign: 'center'}}>
       <div style={{...TYPE.display, fontSize: 112, lineHeight: 1.08, color: COLOR.text.primary, fontWeight: 880}}>
         <span style={{color: COLOR.text.tertiary}}>{index}</span>{' '}
+        {prefix ? <><span>{prefix}</span>{' '}</> : null}
         <span
           style={{
             position: 'relative',

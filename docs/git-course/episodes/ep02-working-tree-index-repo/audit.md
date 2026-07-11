@@ -22,7 +22,7 @@
 
 ## 待继续
 
-- 如需发布版，进行全片精听和字幕节奏微调。
+- 后续如调整内容密度，同步更新场景时间窗、旁白 manifest 和音频对齐；不为了凑固定时长增删镜头。
 
 ## 完整成片与音频
 
@@ -53,9 +53,20 @@
 修正状态：已将 Ep02 终端相关 UI 收敛到课程 kit。
 
 - `CommandStrip` 已从 episode 内部局部组件迁移为 `kit/terminal/CommandStrip`。
-- `git status -s` 证据面板已改为 `kit/terminal/StatusTerminalPanel`。
+- `git add`、`git status --short`和 `git commit` 均改为真实 PTY 录屏，由 `RecordedTerminalPanel` 合成。
 - Ep02 episode 文件不再直接引用 `COLOR.terminal` 或 `TerminalPanel`。
 - 已重新渲染 `04_add.mp4`、`05_edit-after-add.mp4`、`06_commit.mp4`，并抽帧复查终端证据层、状态板接管和字幕遮挡。
+
+## 2026-07-11 终端与状态流优化
+
+- 录屏脚本现在输出 JSON metadata，记录实际帧数、`holdFromFrame`、分辨率、字体和主题。
+- Remotion 从 `terminalRecordings.generated.ts` 读取 hold frame，修复 status / commit 终端提前跳到最终输出的问题。
+- 终端窗口按录屏实际 `1420x768` 比例计算高度，不再压缩字形和行高。
+- Index 专用 `COLOR.git.index`；add 移动卡从 Working Tree 色过渡到 Index 色。
+- commit 阶段先让 Repository 接收 `C1:v1`，再清空 Index，避免内容短暂不属于任何状态。
+- 终端大面积退场从约 1.5 秒缩短到约 0.65 秒，减少浅色画布上的灰色残影。
+- `02_three-areas`至 `06_commit` 已重新渲染并从编码后 MP4 连续抽帧复查。
+- 静音正片、带音频正片和 published 版已全部覆盖重建。
 
 ## 03_modify 抽帧分析
 
