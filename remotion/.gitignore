@@ -32,6 +32,9 @@ renders/*/*/current/audio/**/*.mp3
 renders/*/*/current/audio/**/*.m4a
 renders/*/*/current/audio/**/*.wav
 renders/*/*/current/audio/**/*.srt
+renders/*/*/current/audio/**/*.txt
+renders/*/*/current/audio/**/*.tsv
+renders/*/*/current/audit/
 
 # 工具过程产物（impeccable skill critique 报告，不入库）
 .impeccable/

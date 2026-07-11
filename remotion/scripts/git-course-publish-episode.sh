@@ -11,6 +11,11 @@
 #   renders/git-course/<episode-id>/current/release/<episode-id>.mp4
 set -euo pipefail
 
+[ "${GIT_COURSE_ORCHESTRATED:-0}" = "1" ] || {
+  echo "Direct publishing is disabled. Use: pnpm git-course release-build <episode-id>" >&2
+  exit 1
+}
+
 [ $# -eq 2 ] || {
   echo "Usage: $0 <episode-id> <main-video>" >&2
   exit 1
@@ -28,7 +33,7 @@ OUTRO_AUDIO_GAIN_DB="${OUTRO_AUDIO_GAIN_DB:--5}"
 
 OUT_DIR="renders/git-course/${EPISODE_ID}/current/release"
 TMP_DIR="renders/git-course/${EPISODE_ID}/tmp/release-build"
-OUT_FILE="${OUT_DIR}/${EPISODE_ID}.mp4"
+OUT_FILE="${OUT_FILE:-${OUT_DIR}/${EPISODE_ID}.mp4}"
 INTRO_WITH_AUDIO="${TMP_DIR}/intro-with-audio.mp4"
 OUTRO_WITH_AUDIO="${TMP_DIR}/outro-with-audio.mp4"
 TMP_OUT="${TMP_DIR}/${EPISODE_ID}.mp4"
@@ -41,7 +46,7 @@ for file in "$INTRO_VIDEO" "$INTRO_AUDIO" "$MAIN_VIDEO" "$OUTRO_VIDEO" "$OUTRO_A
 done
 
 rm -rf "$TMP_DIR"
-mkdir -p "$TMP_DIR" "$OUT_DIR"
+mkdir -p "$TMP_DIR" "$OUT_DIR" "$(dirname "$OUT_FILE")"
 
 ffmpeg -y -hide_banner \
   -i "$INTRO_VIDEO" \

@@ -37,29 +37,49 @@ episode JSON
 ## 常用命令
 
 ```bash
-pnpm --dir remotion git-course:validate
-pnpm --dir remotion git-course:generate
-pnpm --dir remotion git-course:render <episode-id>
-pnpm --dir remotion git-course:render <episode-id> --scene <scene-id>
+pnpm --dir remotion git-course plan <episode-id>
+pnpm --dir remotion git-course status <episode-id>
+pnpm --dir remotion git-course build <episode-id>
 ```
 
-生成音频时从 `remotion/` 运行：
+`plan` 只计算 scene/TTS 指纹并显示 `HIT` 或 `BUILD`。`build` 执行统一 DAG：
+
+```text
+validate / generate
+  ├── 所有 dirty scene 并行 render -> segment audit
+  └── 所有 dirty TTS 并行 synthesize -> normalize
+        ↓
+assemble silent main + align/mix audio
+        ↓
+assemble main candidate
+        ↓
+machine audit -> needs_review / fail
+```
+
+默认并发为 `all`：所有依赖已满足的任务立即启动。Remotion 单进程 concurrency 默认按逻辑 CPU 数除以 dirty scene 数计算，尽量使用全部算力；可用 `--render-concurrency=<n>` 覆盖。TTS 和规范化默认对所有 dirty segment 同时执行。
+
+候选、缓存、日志、manifest 和 verdict 位于 `tmp/`：
+
+```text
+tmp/cache/scenes/
+tmp/build/candidate/<episode-id>.mp4
+tmp/build/artifact-manifest.json
+tmp/build/audit/verdict.json
+tmp/build/logs/
+```
+
+## 审查、晋升与发布
 
 ```bash
-scripts/git-course-build-voiceover.sh \
-  <episode-id> \
-  renders/git-course/<episode-id>/current/<episode-id>.mp4
+pnpm --dir remotion git-course approve <episode-id> --note="已检查字幕、Git 语义和状态变化"
+pnpm --dir remotion git-course promote <episode-id>
+pnpm --dir remotion git-course release-build <episode-id>
+pnpm --dir remotion git-course release-audit <episode-id>
+pnpm --dir remotion git-course release-approve <episode-id> --note="已检查片头片尾和音量边界"
+pnpm --dir remotion git-course publish <episode-id>
 ```
 
-脚本会先从 episode JSON 派生临时文稿和 manifest，再执行 TTS、SRT 检查、响度规范化、对齐、混音和封装。
-
-发布版：
-
-```bash
-scripts/git-course-publish-episode.sh \
-  <episode-id> \
-  renders/git-course/<episode-id>/current/<episode-id>.mp4
-```
+统一 verdict 只有 `pass`、`fail`、`needs_review`。机器检查覆盖音视频流、分辨率、FPS、时长、SRT 停顿标记和抽帧证据；机器通过后仍需人工 approve。approve、promote、publish 都校验候选 SHA；main 还会重新计算 scene、TTS 和 BGM 指纹，输入变化后必须重新 build/audit。
 
 ## 时间与音频约束
 
@@ -84,4 +104,4 @@ tmp/       临时渲染、ranges、TTS 源、抽帧和历史归档
 current/   当前通过审查的单集、scene、音频和 release
 ```
 
-机器检查负责时间轴、文件结构、旁白窗口、音视频流与生成文件新鲜度；人工检查负责 Git 语义、注意力、字幕遮挡、信息密度和动作因果。历史内容只进入 `tmp/legacy-*`，不得重新成为 current 输入。
+机器检查负责时间轴、文件结构、旁白窗口、音视频流与生成文件新鲜度；人工检查负责 Git 语义、注意力、字幕遮挡、信息密度和动作因果。只有带匹配 `pass` verdict 的 candidate 才能原子晋升到 current。历史内容只进入 `tmp/legacy-*`，不得重新成为 current 输入。

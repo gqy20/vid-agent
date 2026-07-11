@@ -163,7 +163,11 @@
 
 ## 六、发布封装验收
 
-- [ ] 当前正片确认后才运行 `remotion/scripts/git-course-publish-episode.sh`。
+- [ ] main candidate 的 `tmp/build/audit/verdict.json` 为 `pass`，且 SHA 与候选一致。
+- [ ] 已通过 `git-course promote` 原子晋升 current，没有手工复制候选文件。
+- [ ] 已通过 `git-course release-build` 生成发布候选，没有直接运行底层 publish Shell。
+- [ ] release candidate 的 `tmp/build/release-audit/verdict.json` 为 `pass`，且 SHA 与候选一致。
+- [ ] 已通过 `git-course publish` 发布，没有绕过 verdict 门禁。
 - [ ] 发布版覆盖 `current/release/<episode-id>.mp4`。
 - [ ] 片头、正片、片尾顺序正确，三段时间轴在重新编码时均已重置。
 - [ ] 片头 BGM 增益为 `0dB`、片尾为 `-5dB`，或已记录本集例外。

@@ -15,6 +15,11 @@ SEG_DIR="$RUN_DIR/segments"
 
 mkdir -p "$OUT_DIR"
 
+if [ "$JOBS" = "all" ]; then
+  JOBS="$(find "$SEG_DIR" -maxdepth 1 -type f -name '*.mp4' | wc -l | tr -d ' ')"
+  [ "$JOBS" -gt 0 ] || JOBS=1
+fi
+
 audit_one() {
   set -euo pipefail
   local segment="$1"
@@ -25,8 +30,8 @@ audit_one() {
   name="$(basename "$segment" .mp4)"
   frames="$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=noprint_wrappers=1:nokey=1 "$segment" 2>/dev/null || true)"
   if [ -z "$frames" ] || [ "$frames" = "N/A" ]; then
-    echo "skip invalid segment: $name"
-    return 0
+    echo "invalid segment: $name" >&2
+    return 1
   fi
   "$audit_script" "$segment" "$out_root/$name" >/dev/null
   echo "audit segment: $name -> $out_root/$name/contact-16.jpg"
@@ -45,4 +50,16 @@ cat > "$OUT_DIR/summary.json" <<JSON
 }
 JSON
 
+cat > "$OUT_DIR/verdict.json" <<JSON
+{
+  "schemaVersion": 1,
+  "verdict": "needs_review",
+  "checks": [
+    {"id": "segments.probe", "status": "pass"},
+    {"id": "visual.human-review", "status": "needs_review", "details": "$OUT_DIR"}
+  ]
+}
+JSON
+
 echo "segment audits: $OUT_DIR"
+echo "segment verdict: $OUT_DIR/verdict.json"

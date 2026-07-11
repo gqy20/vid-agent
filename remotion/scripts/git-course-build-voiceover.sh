@@ -24,6 +24,9 @@
 #   SKIP_TTS=1
 #   SKIP_NORM=1
 #   SKIP_REMUX=1
+#   TTS_SEGMENTS=01_hook,02_model  only regenerate these segments
+#   TTS_JOBS=all                    synthesize all dirty segments concurrently
+#   NORMALIZE_JOBS=all              normalize all dirty segments concurrently
 #   CLEAN_SRT_PUNCTUATION=0
 #   BGM_FILE=<path>
 #   OUT_VIDEO=<path>
@@ -51,6 +54,9 @@ TTS_MODEL="${TTS_MODEL:-speech-2.8-hd}"
 TTS_VOICE="${TTS_VOICE:-Chinese (Mandarin)_Gentleman}"
 TTS_LANGUAGE="${TTS_LANGUAGE:-zh}"
 TTS_SPEED="${TTS_SPEED:-1.25}"
+TTS_SEGMENTS="${TTS_SEGMENTS:-}"
+TTS_JOBS="${TTS_JOBS:-all}"
+NORMALIZE_JOBS="${NORMALIZE_JOBS:-all}"
 BGM_VOLUME="${BGM_VOLUME:-0.05}"
 BGM_FILE="${BGM_FILE:-}"
 
@@ -106,6 +112,21 @@ done < "$MANIFEST"
   exit 1
 }
 
+segment_selected() {
+  local segment="$1"
+  [ -z "$TTS_SEGMENTS" ] || [[ ",$TTS_SEGMENTS," == *",$segment,"* ]]
+}
+
+wait_for_slot() {
+  local limit="$1"
+  if [ "$limit" = "all" ]; then
+    return
+  fi
+  while [ "$(jobs -pr | wc -l | tr -d ' ')" -ge "$limit" ]; do
+    wait -n
+  done
+}
+
 last_segment_index=$((${#ENDS[@]} - 1))
 EPISODE_DURATION="${EPISODE_DURATION:-${ENDS[$last_segment_index]}}"
 
@@ -128,6 +149,8 @@ clean_srt_punctuation() {
 
 if [ "${SKIP_TTS:-0}" != "1" ]; then
   for segment in "${SEGMENTS[@]}"; do
+    segment_selected "$segment" || continue
+    wait_for_slot "$TTS_JOBS"
     source_text_file="${SOURCE_SEGMENTS_DIR}/${segment}.txt"
     text_file="${SEGMENTS_DIR}/${segment}.txt"
     audio_file="${SEGMENTS_DIR}/${segment}.mp3"
@@ -135,22 +158,26 @@ if [ "${SKIP_TTS:-0}" != "1" ]; then
       echo "Text file not found: $source_text_file" >&2
       exit 1
     }
-    cp "$source_text_file" "$text_file"
-    mmx speech synthesize \
-      --model "$TTS_MODEL" \
-      --voice "$TTS_VOICE" \
-      --language "$TTS_LANGUAGE" \
-      --speed "$TTS_SPEED" \
-      --text-file "$text_file" \
-      --subtitles \
-      --out "$audio_file" \
-      --non-interactive \
-      --quiet
+    (
+      cp "$source_text_file" "$text_file"
+      mmx speech synthesize \
+        --model "$TTS_MODEL" \
+        --voice "$TTS_VOICE" \
+        --language "$TTS_LANGUAGE" \
+        --speed "$TTS_SPEED" \
+        --text-file "$text_file" \
+        --subtitles \
+        --out "$audio_file" \
+        --non-interactive \
+        --quiet
+    ) &
   done
+  wait
 fi
 
 if [ "${CLEAN_SRT_PUNCTUATION:-1}" != "0" ]; then
   for segment in "${SEGMENTS[@]}"; do
+    segment_selected "$segment" || continue
     srt_file="${SEGMENTS_DIR}/${segment}.srt"
     [ -f "$srt_file" ] || {
       echo "SRT file not found: $srt_file" >&2
@@ -170,12 +197,17 @@ rm -f "$srt_check"
 
 if [ "${SKIP_NORM:-0}" != "1" ]; then
   for segment in "${SEGMENTS[@]}"; do
-    ffmpeg -y -hide_banner -nostats \
-      -i "${SEGMENTS_DIR}/${segment}.mp3" \
-      -af "acompressor=threshold=-22dB:ratio=2.0:attack=8:release=120:makeup=1.0,loudnorm=I=-20:TP=-3:LRA=7,alimiter=limit=0.90" \
-      -ar 44100 -ac 1 -c:a libmp3lame -b:a 128k \
-      "${SEGMENTS_DIR}/${segment}_norm.mp3"
+    segment_selected "$segment" || continue
+    wait_for_slot "$NORMALIZE_JOBS"
+    (
+      ffmpeg -y -hide_banner -nostats \
+        -i "${SEGMENTS_DIR}/${segment}.mp3" \
+        -af "acompressor=threshold=-22dB:ratio=2.0:attack=8:release=120:makeup=1.0,loudnorm=I=-20:TP=-3:LRA=7,alimiter=limit=0.90" \
+        -ar 44100 -ac 1 -c:a libmp3lame -b:a 128k \
+        "${SEGMENTS_DIR}/${segment}_norm.mp3"
+    ) &
   done
+  wait
 fi
 
 inputs=()

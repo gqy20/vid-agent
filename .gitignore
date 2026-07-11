@@ -89,6 +89,9 @@ remotion/renders/*/*/current/audio/*.mp3
 remotion/renders/*/*/current/audio/*.m4a
 remotion/renders/*/*/current/audio/*.wav
 remotion/renders/*/*/current/audio/*.srt
+remotion/renders/*/*/current/audio/**/*.txt
+remotion/renders/*/*/current/audio/**/*.tsv
+remotion/renders/*/*/current/audit/
 remotion/public/git-course/manim/**/*.mp4
 remotion/public/git-course-lab/manim/
 remotion/public/git-course-lab/terminal/*.mp4

@@ -14,6 +14,7 @@
     "git-course:narration": "node scripts/git-course.mjs narration",
     "git-course:release": "node scripts/git-course.mjs release",
     "git-course:render": "node scripts/git-course.mjs render",
+    "git-course": "node scripts/git-course-cli.mjs",
     "segments:audit": "scripts/audit-range-segments.sh",
     "audit:overlaps": "scripts/audit-overlaps.sh",
     "meta:sync": "scripts/sync-current-meta.sh",

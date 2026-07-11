@@ -38,13 +38,17 @@
 
 ## 当前生产入口
 
-第一季 EP01–EP08 均已有 Remotion composition。每集只维护一个 `episodes/<episode-id>.json`，使用以下命令校验并生成运行时时间线：
+第一季 EP01–EP08 均已有 Remotion composition。每集只维护一个 `episodes/<episode-id>.json`，统一通过 Git Course orchestrator 生产：
 
 ```bash
-pnpm --dir remotion git-course:validate
-pnpm --dir remotion git-course:generate
-pnpm --dir remotion git-course:release <episode-id>
-pnpm --dir remotion git-course:render <episode-id> [--scene <scene-id>]
+pnpm --dir remotion git-course plan <episode-id>
+pnpm --dir remotion git-course build <episode-id>
+pnpm --dir remotion git-course approve <episode-id> --note="人工审查结论"
+pnpm --dir remotion git-course promote <episode-id>
+pnpm --dir remotion git-course release-build <episode-id>
+pnpm --dir remotion git-course release-audit <episode-id>
+pnpm --dir remotion git-course release-approve <episode-id> --note="发布版审查结论"
+pnpm --dir remotion git-course publish <episode-id>
 ```
 
-发布命令会将 JSON 中的 `release.bilibiliMarkdown` 物化到 `remotion/renders/git-course/<episode-id>/current/release/bilibili.md`，供上传时直接查看和复制。
+`build` 会最大化并行所有 dirty scene、TTS、规范化和分段审查，并自动执行 main assemble 与机器审查。机器检查通过后 verdict 仍为 `needs_review`；人工检查后才能 approve。没有与候选 SHA 绑定的 `pass` verdict，promote 和 publish 都会拒绝执行。
