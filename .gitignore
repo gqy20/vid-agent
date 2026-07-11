@@ -2,7 +2,7 @@
 # ==============================
 # 该 commit（不 ignore）:
 #   - .claude/skills/<skill>/baseline/  (skill 开发过程，与 skill 同寿)
-#   - renders/                          (项目作品)
+#   - renders/ 中的源码、配置和生产文档（生成媒体不提交）
 #   - uv.lock, pyproject.toml, README.md, CLAUDE.md, docs/
 # ==============================
 
@@ -28,6 +28,30 @@ media/
 **/_build/
 **/partial_movie_files/
 
+# renders 目录中的媒体均为可重新生成的本地产物；源码、配置和文档继续入库。
+renders/**/*.mp4
+renders/**/*.mov
+renders/**/*.webm
+renders/**/*.mp3
+renders/**/*.m4a
+renders/**/*.wav
+renders/**/*.srt
+renders/**/*.png
+renders/**/*.jpg
+renders/**/*.jpeg
+renders/**/*.gif
+remotion/renders/**/*.mp4
+remotion/renders/**/*.mov
+remotion/renders/**/*.webm
+remotion/renders/**/*.mp3
+remotion/renders/**/*.m4a
+remotion/renders/**/*.wav
+remotion/renders/**/*.srt
+remotion/renders/**/*.png
+remotion/renders/**/*.jpg
+remotion/renders/**/*.jpeg
+remotion/renders/**/*.gif
+
 # 非 current 的产物目录一律 ignore（manim: renders/<id>/renders/...）
 renders/*/renders/debug/
 renders/*/renders/tmp/
@@ -51,6 +75,7 @@ remotion/renders/*/renders/mix.mp3
 # 可由脚本重新生成的音视频产物默认不入库。
 # 保留 .txt/.md 等文稿和对齐说明。
 remotion/renders/*/*/tmp/
+# 审查正文已整合进 episode JSON；renders 下的副本属于本地报告。
 remotion/renders/*/*/quality-audit.md
 remotion/renders/*/*/current/release/
 remotion/renders/*/*/current/release/*.png
@@ -70,7 +95,7 @@ remotion/public/git-course-lab/terminal/*.mp4
 remotion/public/git-course-lab/terminal/*-hold.png
 remotion/public/git-course-lab/terminal/*.json
 
-# 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
+# 旧目录形态的兼容规则。
 renders/tmp/
 renders/*/renders/*.mp4
 renders/*/renders/*/*.mp4
@@ -80,7 +105,6 @@ remotion/renders/*/*/*.mp4
 remotion/renders/*/*/*.png
 remotion/renders/*/*/*.jpg
 remotion/renders/*/*/*.jpeg
-!renders/*/renders/current/*.mp4
 
 # 抽帧调试临时 + 媒体资产（可由脚本重新生成）
 renders/*/frames/
