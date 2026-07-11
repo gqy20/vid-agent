@@ -16,7 +16,8 @@ const AREA_ACCENT: Record<GitArea['id'], string> = {
 
 export const GitStatePanel: React.FC<{
   areas: readonly GitArea[];
-}> = ({areas}) => {
+  prominent?: boolean;
+}> = ({areas, prominent = false}) => {
   return (
     <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap: 14, width: '100%'}}>
       {areas.map((area) => (
@@ -44,12 +45,14 @@ export const GitStatePanel: React.FC<{
               opacity: area.active ? 1 : 0.42,
             }}
           />
-          <div style={{display: 'grid', gap: 7, marginBottom: 18}}>
+          <div style={{display: 'grid', gap: 7, marginBottom: prominent ? 22 : 18}}>
             <div
               style={{
                 ...TYPE.ui,
-                color: COLOR.text.primary,
-                fontWeight: 760,
+                fontSize: prominent ? 30 : TYPE.ui.fontSize,
+                lineHeight: prominent ? 1.2 : TYPE.ui.lineHeight,
+                color: prominent ? AREA_ACCENT[area.id] : COLOR.text.primary,
+                fontWeight: prominent ? 780 : 760,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -75,7 +78,7 @@ export const GitStatePanel: React.FC<{
                 style={{
                   ...TYPE.codeSmall,
                   fontFamily: FONT.mono,
-                  fontSize: 19,
+                  fontSize: prominent ? 22 : 19,
                   color: COLOR.text.secondary,
                   borderRadius: 8,
                   border: `1px solid ${COLOR.stroke.soft}`,

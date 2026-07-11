@@ -85,6 +85,8 @@ remotion/renders/*/*/current/audio/*.wav
 remotion/renders/*/*/current/audio/*.srt
 remotion/renders/*/*/current/*.mp4
 remotion/public/git-course/manim/**/*.mp4
+remotion/public/git-course-lab/terminal/*.mp4
+remotion/public/git-course-lab/terminal/*-hold.png
 
 # 兜底：renders 下散落的 mp4 全 ignore，白名单 current/
 renders/tmp/
@@ -134,7 +136,8 @@ fronts/candidates/
 fronts/*.otf
 fronts/*.ttf
 fronts/*.ttc
-remotion/public/fonts/
+remotion/public/fonts/*
+!remotion/public/fonts/GitCourseSourceCodePro-Medium.otf
 remotion/src/font-assets/
 
 # ── 外部参考资料本地缓存 ──

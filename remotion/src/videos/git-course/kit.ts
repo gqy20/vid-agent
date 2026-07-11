@@ -31,6 +31,7 @@ export {GitStatePanel} from './kit/state/GitStatePanel';
 export type {GitArea} from './kit/state/GitStatePanel';
 export {TerminalFocusScene} from './kit/terminal/TerminalFocusScene';
 export {TerminalPanel} from './kit/terminal/TerminalPanel';
+export {RecordedTerminalPanel} from './kit/terminal/RecordedTerminalPanel';
 export {TypedCommandTerminal} from './kit/terminal/TypedCommandTerminal';
 export {CommandPill} from './kit/terminal/CommandPill';
 export {CommandStrip} from './kit/terminal/CommandStrip';

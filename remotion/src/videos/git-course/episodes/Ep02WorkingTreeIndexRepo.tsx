@@ -6,12 +6,11 @@ import {
   EpisodeTitleCard,
   GitStatePanel,
   QuestionCaption,
+  RecordedTerminalPanel,
   SceneCaption,
   SceneSequence,
   CommandStrip,
   SvgArrowLine,
-  StatusTerminalPanel,
-  TypedCommandTerminal,
 } from '../kit';
 import {COLOR, FONT} from '../palette';
 import {seconds, WIDTH} from '../timeline';
@@ -106,6 +105,7 @@ const Board: React.FC<{
 	}> = ({workingFiles, indexFiles, repositoryFiles, active = 'none', opacity = 1, left = 154, top = 250, width = 1612}) => (
 	  <div style={{position: 'absolute', left, top, width, opacity}} data-audit-id="ep02-state-board">
 	    <GitStatePanel
+	      prominent
 	      areas={[
 	        {id: 'working-tree', title: 'Working Tree', files: workingFiles, active: active === 'working-tree'},
         {id: 'index', title: 'Index', files: indexFiles, active: active === 'index'},
@@ -372,8 +372,8 @@ const ModifyScene: React.FC = () => {
           opacity: proof * proofOut,
         }}
       >
-        <div style={{...TYPE.ui, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 760}}>Index 没变</div>
-        <div style={{...TYPE.ui, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 760}}>Repository 没变</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 720, opacity: 0.76}}>Index 没变</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: 720, opacity: 0.76}}>Repository 没变</div>
       </div>
       <SceneCaption opacity={interpolate(frame, [seconds(17.6), seconds(19.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
         modified 说明文件变了，但还不是 staged。
@@ -392,14 +392,18 @@ const AddScene: React.FC = () => {
   const movingOut = interpolate(move, [0.72, 0.92], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const guideOut = interpolate(frame, [seconds(18), seconds(21)], [1, 0.18], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const callout = interpolate(frame, [seconds(22), seconds(24.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const terminalLeft = interpolate(terminalFull, [0, 1], [156, 260]);
-  const terminalTop = interpolate(terminalFull, [0, 1], [116, 210]);
-  const terminalWidth = interpolate(terminalFull, [0, 1], [690, 1400]);
-  const terminalHeight = interpolate(terminalFull, [0, 1], [112, 620]);
+  const terminalLeft = interpolate(terminalFull, [0, 1], [156, 340]);
+  const terminalTop = interpolate(terminalFull, [0, 1], [116, 220]);
+  const terminalWidth = interpolate(terminalFull, [0, 1], [690, 1240]);
+  const terminalHeight = interpolate(terminalFull, [0, 1], [112, 520]);
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', left: terminalLeft, top: terminalTop, width: terminalWidth, height: terminalHeight, zIndex: 9, opacity: terminalFullOpacity}}>
-        <TypedCommandTerminal command="git add app.js" output={['# app.js is staged for the next commit']} />
+        <RecordedTerminalPanel
+          src="git-course-lab/terminal/ep02-add.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep02-add-hold.png"
+          holdFromFrame={90}
+        />
       </div>
       <CommandStrip command="git add app.js" output="# staged current content" opacity={commandStrip} />
       <div style={{opacity: boardIn}}>
@@ -460,7 +464,7 @@ const EditAfterAddScene: React.FC = () => {
   const frame = useCurrentFrame();
   const diffIn = interpolate(frame, [0, seconds(0.45)], [0.72, 1], {extrapolateRight: 'clamp'});
   const split = interpolate(frame, [seconds(1.35), seconds(2.45)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const statusIn = interpolate(frame, [seconds(8.2), seconds(9.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const statusIn = interpolate(frame, [seconds(12.6), seconds(13.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const statusOut = interpolate(frame, [seconds(18), seconds(20.2)], [1, 0.28], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const compareIn = interpolate(frame, [seconds(3.4), seconds(4.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const compareOut = interpolate(frame, [seconds(10.8), seconds(12.4)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -494,8 +498,8 @@ const EditAfterAddScene: React.FC = () => {
       >
         <div style={{position: 'absolute', left: 0, right: 0, top: 92, height: 1, background: COLOR.stroke.soft}} />
         <div style={{position: 'absolute', left: '50%', top: 52, bottom: 44, width: 1, background: COLOR.stroke.soft}} />
-        <div style={{position: 'absolute', left: 44, top: 34, ...TYPE.ui, color: COLOR.git.workingTree, fontWeight: 780}}>Working Tree</div>
-        <div style={{position: 'absolute', right: 44, top: 34, ...TYPE.ui, color: COLOR.git.head, fontWeight: 780}}>Index</div>
+        <div style={{position: 'absolute', left: 44, top: 30, ...TYPE.ui, fontSize: 30, lineHeight: 1.2, color: COLOR.git.workingTree, fontWeight: 780}}>Working Tree</div>
+        <div style={{position: 'absolute', right: 44, top: 30, ...TYPE.ui, fontSize: 30, lineHeight: 1.2, color: COLOR.git.head, fontWeight: 780}}>Index</div>
         <div style={{position: 'absolute', left: 44, top: 76, ...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.text.tertiary}}>latest edit</div>
         <div style={{position: 'absolute', right: 44, top: 76, ...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.text.tertiary}}>add-time copy</div>
         <div style={{position: 'absolute', left: 92, top: 168}}>
@@ -505,8 +509,12 @@ const EditAfterAddScene: React.FC = () => {
           <FileCard label="staged v1" tone="staged" auditId="ep02-edit-v1" />
         </div>
       </div>
-      <div style={{position: 'absolute', left: 862, top: 644, width: 360, height: 136, opacity: statusIn * statusOut}}>
-        <StatusTerminalPanel status="MM" file="app.js" />
+      <div style={{position: 'absolute', left: 825, top: 630, width: 650, height: 240, opacity: statusIn * statusOut}}>
+        <RecordedTerminalPanel
+          src="git-course-lab/terminal/ep02-status-mm.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep02-status-mm-hold.png"
+          holdFromFrame={45}
+        />
       </div>
       <div
         style={{
@@ -541,15 +549,19 @@ const CommitScene: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          left: interpolate(commandOut, [0, 1], [156, 260]),
-          top: interpolate(commandOut, [0, 1], [116, 210]),
-          width: interpolate(commandOut, [0, 1], [690, 1400]),
-          height: interpolate(commandOut, [0, 1], [112, 620]),
+          left: interpolate(commandOut, [0, 1], [156, 340]),
+          top: interpolate(commandOut, [0, 1], [116, 220]),
+          width: interpolate(commandOut, [0, 1], [690, 1240]),
+          height: interpolate(commandOut, [0, 1], [112, 520]),
           zIndex: 9,
           opacity: terminalFullOpacity,
         }}
       >
-        <TypedCommandTerminal command={'git commit -m "update app"'} output={['[main C1] update app', '1 file changed']} />
+        <RecordedTerminalPanel
+          src="git-course-lab/terminal/ep02-commit.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep02-commit-hold.png"
+          holdFromFrame={120}
+        />
       </div>
       <CommandStrip command={'git commit -m "update app"'} output="commit reads Index" opacity={commandStrip} />
       <div style={{opacity: boardIn}}>
@@ -557,7 +569,7 @@ const CommitScene: React.FC = () => {
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
         <SvgArrowLine x1={958} y1={626} x2={1426} y2={626} progress={commitForm} color={COLOR.git.head} width={6} opacity={0.72} dash="none" />
-        <text x="1030" y="590" fontFamily={FONT.mono} fontSize="21" fontWeight="760" fill={COLOR.git.head} opacity={commitForm * 0.9}>
+        <text x="1030" y="590" fontFamily={FONT.mono} fontSize="26" fontWeight="760" fill={COLOR.git.head} opacity={commitForm * 0.9}>
           snapshot from Index
         </text>
         <g opacity={repo}>

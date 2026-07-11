@@ -28,7 +28,7 @@ export const TypedCommandTerminal: React.FC<{
       <div style={{padding: '30px 34px', ...TYPE.code, color: COLOR.text.inverse}}>
         <div style={{whiteSpace: 'pre'}}>
           <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-          <span style={{color: COLOR.terminal.promptMuted}}> $ </span>
+          <span style={{color: COLOR.terminal.prompt, fontWeight: 700}}> &gt; </span>
           <span>{command.slice(0, chars)}</span>
           <span
             style={{

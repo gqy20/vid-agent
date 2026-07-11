@@ -31,7 +31,7 @@ export const CommandStrip: React.FC<{
   >
     <div style={{...TYPE.codeSmall, color: COLOR.text.inverse, whiteSpace: 'pre'}}>
       <span style={{color: branch === 'main' ? COLOR.git.main : COLOR.git.feature, fontWeight: 780}}>{branch}</span>
-      <span style={{color: COLOR.terminal.promptMuted}}> $ </span>
+      <span style={{color: COLOR.terminal.prompt, fontWeight: 700}}> &gt; </span>
       <span>{command}</span>
     </div>
     {output ? (
