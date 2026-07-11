@@ -15,9 +15,15 @@ remotion/renders/git-course/<episode-id>/current/release/
 ├── <episode-id>.mp4
 ├── cover.svg
 ├── cover.png
-└── upload.md                 # 后续由 release 数据生成
+└── bilibili.md              # 由 episode JSON 的 release.bilibiliMarkdown 生成
 ```
 
 `release/` 同时容纳封面和最终发布视频，不再区分 `publishing/` 与 `published/`。生成文件默认不进入 Git。
+
+`bilibili.md` 是方便发布时直接查看和复制的物化文件，不是第二份事实源；修改文案时应编辑 episode JSON，再运行：
+
+```bash
+pnpm --dir remotion git-course:release <episode-id>
+```
 
 静态封面由对应 `remotion/scripts/git-course-build-epXX-cover.mjs` 生成；如调整生成的 SVG，必须把有效参数反推回脚本，不能让生成物成为事实源。

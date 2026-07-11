@@ -43,5 +43,8 @@
 ```bash
 pnpm --dir remotion git-course:validate
 pnpm --dir remotion git-course:generate
+pnpm --dir remotion git-course:release <episode-id>
 pnpm --dir remotion git-course:render <episode-id> [--scene <scene-id>]
 ```
+
+发布命令会将 JSON 中的 `release.bilibiliMarkdown` 物化到 `remotion/renders/git-course/<episode-id>/current/release/bilibili.md`，供上传时直接查看和复制。

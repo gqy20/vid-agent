@@ -103,7 +103,7 @@ const generateReleaseSource = (episode) => {
   if (!episode.release?.bilibiliMarkdown) return null;
   const dir = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'current/release');
   mkdirSync(dir, {recursive: true});
-  const path = join(dir, 'upload.md');
+  const path = join(dir, 'bilibili.md');
   writeFileSync(path, episode.release.bilibiliMarkdown);
   return path;
 };
