@@ -4,18 +4,8 @@ import {seconds} from '../timeline';
 import {CodeDiff, CommandPill, CourseLayout, EpisodeTitleCard, GitStatePanel, QuestionCaption, SceneCaption, SceneSequence, type DiffLine, type GitArea} from '../kit';
 import {COLOR, FONT} from '../palette';
 import {TYPE} from '../typography';
-
-export const EP08_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'three-trees', title: '三棵树', duration: seconds(28)},
-  {id: 'reset-modes', title: 'reset', duration: seconds(46)},
-  {id: 'revert', title: 'revert', duration: seconds(30)},
-  {id: 'restore', title: 'restore', duration: seconds(30)},
-  {id: 'choose', title: '选择', duration: seconds(22)},
-  {id: 'takeaway', title: '总结', duration: seconds(12)},
-] as const;
-
-export const EP08_DURATION_IN_FRAMES = EP08_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
+import {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep08SceneId = (typeof EP08_SCENES)[number]['id'];
 type ResetMode = 'start' | 'soft' | 'mixed' | 'hard';

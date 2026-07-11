@@ -43,6 +43,6 @@ const body = `
   ${commitObject}`;
 
 K.render({
-  outDir: 'renders/git-course/ep03-commit-snapshot/renders/current/publishing',
+  outDir: 'renders/git-course/ep03-commit-snapshot/current/release',
   body,
 });

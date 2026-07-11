@@ -1,0 +1,359 @@
+{
+  "episodeId": "ep08-reset-revert-restore",
+  "title": "Reset、Revert、Restore",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {},
+  "states": {
+    "start": {
+      "head": "C3",
+      "index": "v3",
+      "workingTree": "v3-dirty",
+      "branch": "main"
+    },
+    "soft": {
+      "head": "C2",
+      "index": "v3",
+      "workingTree": "v3-dirty",
+      "branch": "main"
+    },
+    "mixed": {
+      "head": "C2",
+      "index": "v2",
+      "workingTree": "v3-dirty",
+      "branch": "main"
+    },
+    "hard": {
+      "head": "C2",
+      "index": "v2",
+      "workingTree": "v2",
+      "branch": "main"
+    },
+    "reverted": {
+      "head": "R1",
+      "commits": [
+        "C1",
+        "C2",
+        "C3",
+        "R1"
+      ],
+      "branch": "main"
+    },
+    "restored": {
+      "head": "C3",
+      "index": "v3",
+      "workingTree": "v3",
+      "branch": "main"
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion title + Git graph",
+      "components": [
+        "CourseLayout",
+        "EpisodeTitleCard",
+        "GitGraph",
+        "QuestionCaption"
+      ],
+      "goal": "提出撤销前先问改哪一层。",
+      "beats": [
+        {
+          "time": [
+            0,
+            12
+          ],
+          "visual": "错误提交 C3 与问题句",
+          "motion": "标题、C3、问题句依次出现",
+          "state": "start",
+          "narration": "撤销不是一个按钮。",
+          "audit": [
+            "错误标记使用 conflict 语义"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "撤销命令很多。<#0.25#>\nreset，revert，restore，名字很像。<#0.35#>\n判断它们的关键不是中文翻译。<#0.35#>\n而是先问：你要改哪一层。"
+      }
+    },
+    {
+      "id": "three-trees",
+      "title": "三棵树",
+      "start": 12,
+      "duration": 28,
+      "primaryTechnique": "GitStatePanel",
+      "components": [
+        "GitStatePanel",
+        "SceneCaption"
+      ],
+      "goal": "建立 HEAD / Index / Working Tree 地图。",
+      "beats": [
+        {
+          "time": [
+            12,
+            36
+          ],
+          "visual": "HEAD、Index、Working Tree 三栏依次出现",
+          "motion": "三栏进入并稳定",
+          "state": "start",
+          "narration": "HEAD 是当前快照，Index 是下一次提交，Working Tree 是正在编辑。",
+          "audit": [
+            "和 EP02 语义一致"
+          ]
+        },
+        {
+          "time": [
+            36,
+            40
+          ],
+          "visual": "三棵树总结句",
+          "motion": "字幕保持",
+          "state": "start",
+          "narration": "命令会改不同层。",
+          "audit": [
+            "三栏间距清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_three_trees",
+        "voiceStart": 12.35,
+        "text": "Git 里常说三棵树。<#0.35#>\n第一棵是 HEAD 或 Repository，表示当前提交快照。<#0.35#>\n第二棵是 Index，表示下一次提交准备写入的内容。<#0.35#>\n第三棵是 Working Tree，表示你正在编辑的文件。<#0.35#>\n撤销命令，本质是在改这些对象。"
+      }
+    },
+    {
+      "id": "reset-modes",
+      "title": "reset",
+      "start": 40,
+      "duration": 46,
+      "primaryTechnique": "StateTransitionScene",
+      "components": [
+        "CommandPill",
+        "GitGraph",
+        "GitStatePanel",
+        "SceneCaption"
+      ],
+      "goal": "讲 soft / mixed / hard 的停止点。",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "reset --soft 后 branch 回到 C2，Index/WT 不变",
+          "motion": "branch 回退，状态板保持",
+          "state": "soft",
+          "narration": "soft 只移动 HEAD 所在的 branch。",
+          "audit": [
+            "Index/WT 不变"
+          ]
+        },
+        {
+          "time": [
+            62,
+            74
+          ],
+          "visual": "mixed 更新 Index",
+          "motion": "Index 同步到 HEAD",
+          "state": "mixed",
+          "narration": "mixed 再更新 Index。",
+          "audit": [
+            "取消暂存含义清楚"
+          ]
+        },
+        {
+          "time": [
+            74,
+            86
+          ],
+          "visual": "hard 覆盖 Working Tree",
+          "motion": "Working Tree 同步并出现 warning",
+          "state": "hard",
+          "narration": "hard 会覆盖工作区。",
+          "audit": [
+            "危险提示明确"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_reset_modes",
+        "voiceStart": 40.35,
+        "text": "reset 先移动当前分支。<#0.35#>\nsoft 模式只移动 branch，Index 和 Working Tree 保留。<#0.35#>\nmixed 模式再让 Index 对齐新的 HEAD。<#0.35#>\nhard 模式继续覆盖 Working Tree。<#0.35#>\n所以 hard 最危险。<#0.25#>\n没有保存的工作会被丢掉。"
+      }
+    },
+    {
+      "id": "revert",
+      "title": "revert",
+      "start": 86,
+      "duration": 30,
+      "primaryTechnique": "GitGraph new commit",
+      "components": [
+        "CommandPill",
+        "GitGraph",
+        "SideLabel"
+      ],
+      "goal": "展示 revert 是新增反向提交。",
+      "beats": [
+        {
+          "time": [
+            86,
+            104
+          ],
+          "visual": "C3 保留，命令 git revert C3",
+          "motion": "命令出现，旧历史保持",
+          "state": "start",
+          "narration": "revert 不删除旧提交。",
+          "audit": [
+            "C3 不消失"
+          ]
+        },
+        {
+          "time": [
+            104,
+            116
+          ],
+          "visual": "R1 新增在 C3 后",
+          "motion": "新 commit 生成",
+          "state": "reverted",
+          "narration": "它新增一个反向提交。",
+          "audit": [
+            "R1 明确是新 commit"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_revert",
+        "voiceStart": 86.35,
+        "text": "revert 的目标不同。<#0.35#>\n它不删除错误提交，也不把 main 往回拉。<#0.35#>\n它会新增一个反向提交。<#0.35#>\n旧历史还在，新提交用相反修改抵消它。<#0.35#>\n所以 revert 更适合共享历史。"
+      }
+    },
+    {
+      "id": "restore",
+      "title": "restore",
+      "start": 116,
+      "duration": 30,
+      "primaryTechnique": "File cards + state panel",
+      "components": [
+        "CommandPill",
+        "GitStatePanel",
+        "CodeDiff"
+      ],
+      "goal": "说明 restore 改文件层，不移动 branch。",
+      "beats": [
+        {
+          "time": [
+            116,
+            136
+          ],
+          "visual": "HEAD 版本复制到 Working Tree",
+          "motion": "文件卡从 source 到 target",
+          "state": "restored",
+          "narration": "restore 面向文件内容。",
+          "audit": [
+            "复制方向明确"
+          ]
+        },
+        {
+          "time": [
+            136,
+            146
+          ],
+          "visual": "branch/HEAD 保持不动",
+          "motion": "图保持降权",
+          "state": "restored",
+          "narration": "它不移动 branch。",
+          "audit": [
+            "避免误解"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_restore",
+        "voiceStart": 116.35,
+        "text": "restore 主要改文件状态。<#0.35#>\n比如从 HEAD 拿回 app.js 的最后提交内容。<#0.35#>\n它让 Working Tree 的文件恢复。<#0.35#>\n但 branch 和 HEAD 不动。<#0.35#>\n所以它不是历史改写命令。"
+      }
+    },
+    {
+      "id": "choose",
+      "title": "选择",
+      "start": 146,
+      "duration": 22,
+      "primaryTechnique": "Decision table",
+      "components": [
+        "SceneCaption"
+      ],
+      "goal": "用选择表总结三者边界。",
+      "beats": [
+        {
+          "time": [
+            146,
+            168
+          ],
+          "visual": "reset / revert / restore 三行选择表",
+          "motion": "三行依次高亮",
+          "state": "summary",
+          "narration": "本地历史用 reset，共享历史用 revert，文件内容用 restore。",
+          "audit": [
+            "高亮一次只一行"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_choose",
+        "voiceStart": 146.35,
+        "text": "选择命令时，先问目标。<#0.35#>\n想改本地历史，用 reset。<#0.35#>\n想在共享历史里撤销，用 revert。<#0.35#>\n只想恢复文件内容，用 restore。"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 168,
+      "duration": 12,
+      "primaryTechnique": "Minimal summary",
+      "components": [
+        "SceneCaption",
+        "GitStatePanel"
+      ],
+      "goal": "收束第一季核心。",
+      "beats": [
+        {
+          "time": [
+            168,
+            180
+          ],
+          "visual": "移动指针 / 写提交 / 同步三棵树",
+          "motion": "三条规则依次出现后保持",
+          "state": "summary",
+          "narration": "Git 命令都在改对象和状态。",
+          "audit": [
+            "结束稳定"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 168.25,
+        "text": "第一季到这里收束。<#0.35#>\nGit 命令很多，但核心很少。<#0.35#>\n看清对象，看清状态变化，再执行命令。"
+      }
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP08：Reset、Revert、Restore\n\n## 核心句\n\nreset、revert、restore 都能“撤销”，但它们改的不是同一个东西：reset 移动引用并按模式更新三棵树，revert 新增反向提交，restore 恢复文件内容。\n\n## 观众要带走的理解\n\n- reset 主要是在移动 HEAD 所在的 branch，并可能更新 Index / Working Tree。\n- `--soft`、默认 mixed、`--hard` 的差别是停在三棵树的不同位置。\n- revert 不改旧历史，而是新增一个反向提交。\n- restore 面向文件内容，常用于从 Index 或 HEAD 恢复文件。\n- 共享历史里优先用 revert，本地整理时才考虑 reset。\n\n## 镜头结构\n\n1. 用同一个错误提交提出“撤销到底改什么”。\n2. 复用 EP02 三栏状态板讲三棵树。\n3. 分别展示 reset soft / mixed / hard 的停止点。\n4. 展示 revert 生成新 commit，不移动旧历史。\n5. 展示 restore 只影响文件层。\n6. 用选择表总结三者边界。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep08-reset-revert-restore/`](ep08-reset-revert-restore/README.md)。\n",
+    "scriptMarkdown": "# EP08 Reset、Revert、Restore - 脚本\n\n## 制作目标\n\n本集解决第八个误解：Git 里的“撤销”不是一个按钮。reset、revert、restore 看起来都能撤销，但它们改变的是不同对象：引用、提交历史、Index 或 Working Tree。\n\n观众看完后应该能说出三句话：\n\n- reset 会移动 HEAD 所在的 branch，并按模式更新 Index / Working Tree。\n- revert 不改旧历史，而是新增一个反向提交。\n- restore 面向文件内容，不负责移动 branch。\n\n## 官方依据\n\n本集知识依据来自 Pro Git：\n\n- `reset.asc:9-20`：理解 reset / checkout 的方式是三棵树：HEAD、Index、Working Directory。\n- `reset.asc:25-29`：HEAD 是当前分支引用的指针，通常表示该分支最后一次提交的快照。\n- `reset.asc:53-78`：Index 是预期的下一次提交，Working Directory 是可编辑的工作区。\n- `reset.asc:154-168`：reset 第一步移动 HEAD 指向的分支；`--soft` 停在这里。\n- `reset.asc:171-182`：mixed 更新 Index，并有取消暂存效果。\n- `reset.asc:185-196`：`--hard` 更新 Working Directory，可能销毁数据。\n- `reset.asc:202-206`：reset 按顺序重写三棵树并在不同选项处停止。\n- `advanced-merging.asc:587-595`：revert merge 会创建新提交来撤消某个 parent 引入的修改。\n- `undoing.asc:45-70`：取消暂存文件的基本场景。\n- `undoing.asc:99-130`：恢复文件到上次提交状态的基本场景。\n\n## 技术原则\n\n- 主视频使用 Remotion。三棵树状态板是本集主视觉。\n- 复用 EP02 的 Working Tree / Index / Repository 三栏语义，新增 HEAD/branch 作为上层指针。\n- `reset --hard` 必须使用明确危险提示，且不做轻快装饰动画。\n- revert 必须表现为新增提交，不能删除或擦掉旧提交。\n- restore 只展示文件层恢复，不混入 branch 移动。\n\n## Remotion / Manim / 素材分工\n\n| 片段 | 使用技术 | 原因 | 本地资产状态 | 输出物 |\n|---|---|---|---|---|\n| 0-12s hook | Remotion | 抛出撤销不是一个动作 | 已有标题/图组件 | Remotion scene |\n| 12-40s three-trees | Remotion | 复用 EP02 状态板 | 已有 `GitStatePanel` | Remotion scene |\n| 40-86s reset-modes | Remotion | soft/mixed/hard 是三层停止点 | 需组合三棵树状态 | Remotion scene |\n| 86-116s revert | Remotion | 新增反向 commit | 已有 Git graph | Remotion scene |\n| 116-146s restore | Remotion | 文件从 source 恢复到目标层 | 需组合文件卡/状态板 | Remotion scene |\n| 146-168s choose | Remotion | 选择表 | table + semantic highlights | Remotion scene |\n| 168-180s takeaway | Remotion | 极简总结 | minimal state board | Remotion scene |\n\n## 外部图片需求\n\n本集不需要外部图片。reset 三棵树参考 Pro Git，但画面应使用课程状态板重绘。\n\n## 片段总览\n\n| 全局时间 | Scene | 时长 | 目的 | 主技术 | 主视觉 |\n|---:|---|---:|---|---|---|\n| 0-12s | hook | 12s | 提出撤销到底改什么 | Remotion title | 一个错误提交 |\n| 12-40s | three-trees | 28s | 建立 HEAD / Index / Working Tree | GitStatePanel | 三棵树 |\n| 40-86s | reset-modes | 46s | 讲 soft / mixed / hard | StateTransitionScene | 三个停止点 |\n| 86-116s | revert | 30s | revert 新增反向提交 | GitGraph | C3 后新增 R1 |\n| 116-146s | restore | 30s | restore 恢复文件内容 | File cards + state panel | 文件从源复制到目标 |\n| 146-168s | choose | 22s | 选择安全命令 | Decision table | reset / revert / restore |\n| 168-180s | takeaway | 12s | 收束边界 | Minimal board | 改引用 / 新提交 / 改文件 |\n\n## 旁白草案\n\n### 0-12s / hook\n\n> 第八集，我们讲撤销。但 Git 里的撤销不是一个按钮。你想撤销的，可能是提交历史，也可能是暂存区，也可能只是一个文件。\n\n字幕短句：\n\n- `撤销不是一个动作`\n- `先问：要改哪一层？`\n\n### 12-40s / three-trees\n\n> 先把地图摆出来：HEAD 是上一次提交的快照，Index 是下一次提交的准备区，Working Tree 是你正在编辑的文件。不同命令会改不同层。\n\n字幕短句：\n\n- `HEAD：当前提交快照`\n- `Index：下一次提交`\n- `Working Tree：正在编辑`\n\n### 40-86s / reset-modes\n\n> reset 的第一步，是移动 HEAD 所在的分支。`--soft` 到这里停下。默认 mixed 会继续让 Index 像新的 HEAD，所以它有取消暂存效果。`--hard` 再继续覆盖 Working Tree，这一步会丢掉未保存的工作。\n\n字幕短句：\n\n- `soft：只移动 branch`\n- `mixed：再更新 Index`\n- `hard：再覆盖 Working Tree`\n\n### 86-116s / revert\n\n> revert 的思路完全不同。它不把旧提交删掉，也不移动历史。它会新增一个提交，用相反的修改抵消前面的提交。所以共享历史里，revert 通常更安全。\n\n字幕短句：\n\n- `revert 新增反向提交`\n- `旧历史仍然可见`\n\n### 116-146s / restore\n\n> restore 面向文件。你可以把文件从 HEAD 恢复到 Working Tree，也可以从 Index 取消某些文件状态。它处理文件内容，不负责移动 branch。\n\n字幕短句：\n\n- `restore 改文件层`\n- `不移动 branch`\n\n### 146-168s / choose\n\n> 所以选择命令前先问目标：想重写本地提交，用 reset；想撤销已经共享的提交，用 revert；想恢复文件内容，用 restore。\n\n字幕短句：\n\n- `本地历史：reset`\n- `共享历史：revert`\n- `文件内容：restore`\n\n### 168-180s / takeaway\n\n> 第一季到这里收束：Git 的命令看起来很多，但核心都是在移动指针、写入提交，或者同步三棵树。\n\n字幕短句：\n\n- `reset：改引用和三棵树`\n- `revert：写新提交`\n- `restore：改文件状态`\n",
+    "beatsMarkdown": "# EP08 Reset、Revert、Restore - Beat Sheet\n\n> 复杂镜头设计参考。scene 边界以 `episode JSON` 为唯一事实源；本文件中的历史秒数不参与构建。\n\n时间使用全局秒。括号内为 scene 内局部秒。\n\n## 全局约束\n\n- 分辨率：1920x1080。\n- FPS：30。\n- 主背景：`COLOR.canvas.base`。\n- 语义色复用 EP02 三层状态：Working Tree、Index、Repository/HEAD。\n- `reset --hard` 使用明确 warning，不使用轻松弹跳动画。\n- revert 必须新增提交，restore 必须保持在文件层。\n\n## 0-12s / hook\n\n目标：提出撤销前先问改哪一层。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 0.0-2.0 | 0.0-2.0 | 标题 `8. Reset、Revert、Restore` | 淡入 | `EpisodeTitleCard` | 无 | 第八集，我们讲撤销 | 标题独占 |\n| 2.0-8.0 | 2.0-8.0 | 错误提交 C3 | C3 出现并标记 | `GitGraph` | bad commit | 撤销不是一个按钮 | 标记用 conflict 色 |\n| 8.0-12.0 | 8.0-12.0 | 问题句 | `你要改哪一层？` | `QuestionCaption` | question | 先问目标 | 字幕安全 |\n\n## 12-40s / three-trees\n\n目标：建立 HEAD / Index / Working Tree 地图。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 12.0-20.0 | 0.0-8.0 | HEAD 快照 | Repository/HEAD 栏出现 | `GitStatePanel` | HEAD=v1 | HEAD 是当前提交快照 | 和 EP02 语义一致 |\n| 20.0-28.0 | 8.0-16.0 | Index | Index 栏出现 | `GitStatePanel` | Index=v1 | Index 是下一次提交 | 不混用颜色 |\n| 28.0-36.0 | 16.0-24.0 | Working Tree | Working Tree 栏出现 | `GitStatePanel` | WT=v2 | 工作区是正在编辑 | 三栏间距清楚 |\n| 36.0-40.0 | 24.0-28.0 | 三棵树总结 | 三栏同时稳定 | `SceneCaption` | three-trees | 命令会改不同层 | 文字短 |\n\n## 40-86s / reset-modes\n\n目标：讲 reset 的三个停止点。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 40.0-50.0 | 0.0-10.0 | `reset --soft HEAD~` | branch 从 C3 回 C2 | `GitGraph` + state board | soft | 只移动 branch | Index/WT 不变 |\n| 50.0-62.0 | 10.0-22.0 | soft 结果 | Index/WT 保留 C3 内容 | `GitStatePanel` | soft-result | 停在第一步 | 状态标签清楚 |\n| 62.0-74.0 | 22.0-34.0 | mixed 结果 | Index 同步到 HEAD | state transition | mixed | 再更新 Index | 取消暂存含义清楚 |\n| 74.0-86.0 | 34.0-46.0 | hard 结果 | WT 被覆盖，warning 出现 | state transition + warning | hard | 再覆盖 Working Tree | 明确危险 |\n\n## 86-116s / revert\n\n目标：revert 是新增反向提交。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 86.0-94.0 | 0.0-8.0 | C1-C2-C3 | 错误提交保持 | `GitGraph` | bad=C3 | 另一种撤销是 revert | 不删除 C3 |\n| 94.0-104.0 | 8.0-18.0 | `git revert C3` | 命令出现 | `CommandPill` | revert command | 新增反向修改 | 命令降权 |\n| 104.0-116.0 | 18.0-30.0 | R1 生成 | 新提交出现在 C3 后 | `GitGraph` | R1 created | 旧历史仍然可见 | R1 明确是新 commit |\n\n## 116-146s / restore\n\n目标：restore 改文件层，不移动 branch。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 116.0-124.0 | 0.0-8.0 | 文件在 WT 中被改坏 | 文件卡变红 | file card + state panel | WT dirty | restore 面向文件 | 不移动图上的 branch |\n| 124.0-136.0 | 8.0-20.0 | `git restore app.js` | HEAD 版本复制到 WT | file motion | WT restored | 从 HEAD 恢复工作区文件 | 复制方向明确 |\n| 136.0-146.0 | 20.0-30.0 | 图保持不动 | branch/HEAD 降权保持 | `GitGraph` | branch unchanged | branch 没有移动 | 避免误解 |\n\n## 146-168s / choose\n\n目标：用选择表总结三者边界。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 146.0-154.0 | 0.0-8.0 | reset 行 | `改引用和三棵树` 高亮 | decision table | choose-reset | 本地历史用 reset | 表格不拥挤 |\n| 154.0-161.0 | 8.0-15.0 | revert 行 | `新增反向提交` 高亮 | decision table | choose-revert | 共享历史用 revert | 文字短 |\n| 161.0-168.0 | 15.0-22.0 | restore 行 | `恢复文件内容` 高亮 | decision table | choose-restore | 文件内容用 restore | 高亮只一行 |\n\n## 168-180s / takeaway\n\n目标：收束第一季核心。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 168.0-174.0 | 0.0-6.0 | 三个命令图标 | 依次出现 | icons + text | summary | reset、revert、restore 改不同东西 | 图标克制 |\n| 174.0-180.0 | 6.0-12.0 | 第一季总结 | `移动指针 / 写提交 / 同步三棵树` | centered text | season close | Git 命令都在改对象和状态 | 结束稳定 |\n",
+    "qualityMarkdown": "# EP08 Reset、Revert、Restore - 审查记录\n\n> 本文件是人工审查历史，不表示当前构建状态。机器状态以 `pnpm --dir remotion git-course:validate` 和最新渲染报告为准。\n\n## 当前状态\n\n- 仅完成制作脚本初稿。\n- Remotion 主视频未实现。\n- Manim 资产暂不需要，除非后续三棵树转场过于复杂。\n- 尚未渲染抽帧。\n\n## 重点审查项\n\n- 三棵树语义必须和 EP02 保持一致。\n- `reset --hard` 必须明确高风险，不能用轻松动效弱化覆盖工作区的含义。\n- revert 必须新增 commit，不能画成删除旧 commit。\n- restore 必须限制在文件层，不让观众误以为它移动 branch。\n",
+    "readmeMarkdown": "# EP08 Reset、Revert、Restore - 制作目录\n\n这个目录保存 EP08 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\n撤销不是一个动作。\nreset、revert、restore 分别改引用、新提交或文件状态。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:9`\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:20`\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:53`\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:73`\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:154`\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:171`\n- `docs/references/progit2-zh/book/07-git-tools/sections/reset.asc:185`\n- `docs/references/progit2-zh/book/07-git-tools/sections/advanced-merging.asc:587`\n\n原则：EP08 使用三棵树统一撤销命令。不要做命令大全，只解释安全选择：本地改历史用 reset，已共享历史用 revert，文件恢复用 restore。\n",
+    "voiceoverDesignMarkdown": null,
+    "alignmentMarkdown": "# EP08 Audio Alignment\n\nEpisode: `ep08-reset-revert-restore`\n\nTTS settings:\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n\nScene windows:\n\n| Segment | Voice start | Scene end | Normalized file |\n|---|---:|---:|---|\n| `01_hook` | 0.35s | 12.00s | `01_hook_norm.mp3` |\n| `02_three_trees` | 12.35s | 40.00s | `02_three_trees_norm.mp3` |\n| `03_reset_modes` | 40.35s | 86.00s | `03_reset_modes_norm.mp3` |\n| `04_revert` | 86.35s | 116.00s | `04_revert_norm.mp3` |\n| `05_restore` | 116.35s | 146.00s | `05_restore_norm.mp3` |\n| `06_choose` | 146.35s | 168.00s | `06_choose_norm.mp3` |\n| `07_takeaway` | 168.25s | 180.00s | `07_takeaway_norm.mp3` |\n\nMix strategy:\n\n- Segment voice is generated from one `.txt` file per scene via `remotion/scripts/git-course-build-voiceover.sh`.\n- Each segment is normalized with FFmpeg compression and loudness normalization to approximately `-20 LUFS`, peak around `-3 dBFS`.\n- BGM is reused from EP04 at `audio/bgm.mp3`.\n- BGM volume is fixed at `0.05`, with no sidechain ducking.\n- Aligned narration output: `audio/voiceover-aligned.m4a`.\n- Final mix output: `audio/mix.m4a`.\n\nSRT alignment:\n\n- Segment SRT files use the TTS engine timing within each generated segment.\n- Global sentence time = `manifest voice_start_seconds + segment_srt_time`.\n- SRT files were checked after generation; pause markers `<#...#>` did not appear in `.srt` output.\n"
+  },
+  "release": null
+}

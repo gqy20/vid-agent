@@ -2,14 +2,14 @@
 
 ## 检查范围
 
-- 视频：`renders/current/ep04-branch-is-pointer.mp4`
-- 抽帧总览：`renders/tmp/audit-visual/contact-16.jpg`
-- 样帧目录：`renders/tmp/audit-visual/frames/`
-- 镜头变化日志：`renders/tmp/audit-visual/scene-changes.log`
+- 视频：`current/ep04-branch-is-pointer.mp4`
+- 抽帧总览：`tmp/audit-visual/contact-16.jpg`
+- 样帧目录：`tmp/audit-visual/frames/`
+- 镜头变化日志：`tmp/audit-visual/scene-changes.log`
 
 ## Meta 更新流程
 
-`meta.json` 之前不会自动更新，是因为这一集直接渲染到了 `renders/current/`，绕过了 `scripts/promote.sh`。已有的 promote 流程会探测视频元数据并更新 `meta.json`，但它要求先走 candidate/publish 发布流程。
+`meta.json` 之前不会自动更新，是因为这一集直接渲染到了 `current/`，绕过了 `scripts/promote.sh`。已有的 promote 流程会探测视频元数据并更新 `meta.json`，但它要求先走 candidate/publish 发布流程。
 
 直接覆盖 current 的渲染现在有专用同步命令：
 
@@ -21,8 +21,8 @@ pnpm --dir remotion meta:sync renders/git-course/ep04-branch-is-pointer
 
 ```bash
 pnpm --dir remotion video:audit \
-  renders/git-course/ep04-branch-is-pointer/renders/current/ep04-branch-is-pointer.mp4 \
-  renders/git-course/ep04-branch-is-pointer/renders/tmp/audit-visual
+  renders/git-course/ep04-branch-is-pointer/current/ep04-branch-is-pointer.mp4 \
+  renders/git-course/ep04-branch-is-pointer/tmp/audit-visual
 ```
 
 ## 初始布局结论
@@ -90,8 +90,8 @@ pnpm --dir remotion video:audit \
 
 ## 优化后复核
 
-- 重新生成抽帧总览：`renders/tmp/audit-visual/contact-16.jpg`。
-- 组件库接入后重新生成抽帧总览：`renders/tmp/audit-kit/contact-16.jpg`。
+- 重新生成抽帧总览：`tmp/audit-visual/contact-16.jpg`。
+- 组件库接入后重新生成抽帧总览：`tmp/audit-kit/contact-16.jpg`。
 - branch 写入面板已沉淀为 `GitRefWritePanel`，Ep04 不再保留局部实现。
 - branch 段已移除 Manim 内部标题和重复说明，同屏信息从“终端 + refs + Manim 标题 + Manim 注释 + 长字幕”降为“终端上下文 + refs 变化 + 原生图形面板 + 短动作提示”。
 - commit 段仍保留终端上下文，但终端已降权，主变化由 refs 高亮和右侧指针移动承担。

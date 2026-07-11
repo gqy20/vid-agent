@@ -30,7 +30,7 @@
   },
   "current": {
     "label": "prototype-remotion-manim",
-    "path": "renders/current/ep04-branch-is-pointer.mp4",
+    "path": "current/ep04-branch-is-pointer.mp4",
     "sha256": "7770408380f0fbcecbbad8546408818854719053c8465ec7cd5bb08e1dae87cc",
     "resolution": "1920x1080",
     "fps": 30,
@@ -43,8 +43,8 @@
   },
   "checks": {
     "typecheck": "pnpm typecheck",
-    "layoutAudit": "renders/tmp/final-check/contact-sheet.jpg",
-    "visualAudit": "renders/tmp/audit-visual/contact-16.jpg",
+    "layoutAudit": "tmp/final-check/contact-sheet.jpg",
+    "visualAudit": "tmp/audit-visual/contact-16.jpg",
     "ffprobe": {
       "video": {
         "codec": "h264",

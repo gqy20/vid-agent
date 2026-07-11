@@ -1,7 +1,0 @@
-file '../scenes/01_hook.mp4'
-file '../scenes/02_three-areas.mp4'
-file '../scenes/03_modify.mp4'
-file '../scenes/04_add.mp4'
-file '../scenes/05_edit-after-add.mp4'
-file '../scenes/06_commit.mp4'
-file '../scenes/07_takeaway.mp4'

@@ -1,0 +1,229 @@
+{
+  "episodeId": "ep02-working-tree-index-repo",
+  "title": "工作区、暂存区、仓库",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc",
+      "docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc"
+    ]
+  },
+  "productionPolicy": {
+    "remotionOwns": [
+      "course packaging",
+      "subtitles",
+      "terminal",
+      "code",
+      "Working Tree / Index / Repository state motion",
+      "final composition"
+    ],
+    "manimOwns": [],
+    "newManimScenes": [],
+    "externalAssets": {
+      "needed": false,
+      "policy": "不使用网络流程图或真实终端截图；终端、代码和三层状态全部用 Remotion 组件重建。"
+    }
+  },
+  "states": {
+    "clean": {
+      "workingTree": [
+        "app.js"
+      ],
+      "index": [],
+      "repository": [
+        "C0"
+      ]
+    },
+    "modified": {
+      "workingTree": [
+        "app.js:modified"
+      ],
+      "index": [],
+      "repository": [
+        "C0"
+      ]
+    },
+    "staged": {
+      "workingTree": [
+        "app.js:v1"
+      ],
+      "index": [
+        "app.js:v1"
+      ],
+      "repository": [
+        "C0"
+      ]
+    },
+    "stagedAndModified": {
+      "workingTree": [
+        "app.js:v2"
+      ],
+      "index": [
+        "app.js:v1"
+      ],
+      "repository": [
+        "C0"
+      ]
+    },
+    "committed": {
+      "workingTree": [
+        "app.js:v2:uncommitted"
+      ],
+      "index": [],
+      "repository": [
+        "C0",
+        "C1:v1"
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion title + file motion",
+      "components": [
+        "EpisodeTitleCard",
+        "QuestionCaption",
+        "FileMove"
+      ],
+      "goal": "提出文件不是直接进入 commit。",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.3,
+        "text": "(breath) 第二集，我们只看一个问题：<#0.2#>一次文件修改，在变成 commit 里的快照之前，中间到底经过哪里？\n\n如果把 git add 只理解成“添加文件”，<#0.3#>后面很多 Git 状态都会变得很奇怪。"
+      }
+    },
+    {
+      "id": "three-areas",
+      "title": "三层结构",
+      "start": 12,
+      "duration": 26,
+      "primaryTechnique": "Git state panel",
+      "components": [
+        "GitStatePanel",
+        "WorkingTree",
+        "StagingArea",
+        "RepositoryBox"
+      ],
+      "goal": "建立 Working Tree / Index / Repository。",
+      "narration": {
+        "segmentId": "02_three-areas",
+        "voiceStart": 12.4,
+        "text": "先把 Git 项目看成三层：<#0.25#>Working Tree，<#0.2#>Index，<#0.2#>Repository。<#0.35#>\n\n它们不是三份项目副本，<#0.25#>而是 Git 处理项目内容的三个层次。\n\nWorking Tree 是正在编辑的内容。<#0.25#>Index，也叫暂存区，保存下一次提交要使用的内容。<#0.25#>Repository 保存已经形成的提交历史。<#0.3#>\n\n先记住各层的职责。<#0.25#>接下来的命令，<#0.25#>会改变这三层里的内容。"
+      }
+    },
+    {
+      "id": "modify",
+      "title": "修改",
+      "start": 38,
+      "duration": 30,
+      "primaryTechnique": "Code diff + state highlight",
+      "components": [
+        "CodeBlock",
+        "LineHighlight",
+        "FileMove"
+      ],
+      "goal": "展示修改只先发生在工作区。",
+      "narration": {
+        "segmentId": "03_modify",
+        "voiceStart": 38.4,
+        "text": "现在修改 app.js。<#0.25#>新增这一行以后，变化首先只在 Working Tree。\n\n文件会变成 modified。<#0.25#>但在这个例子里，Index 还是空的，Repository 也仍然只有上一次提交。\n\n这一步只改变了工作区，<#0.25#>还没有产生新的历史，也没有选定下一次提交的内容。\n\ngit status 会比较 Working Tree 和 Index。<#0.25#>两边不一致，就说明还有变化没有暂存。\n\n所以这里的 modified 是在提醒你：<#0.25#>这份变化还停在工作区。<#0.25#>接下来才需要 add。"
+      }
+    },
+    {
+      "id": "add",
+      "title": "暂存",
+      "start": 68,
+      "duration": 36,
+      "primaryTechnique": "Terminal command + file move",
+      "components": [
+        "TerminalPanel",
+        "TerminalTyping",
+        "CommandStep",
+        "FileMove"
+      ],
+      "goal": "展示 git add 暂存当前内容。",
+      "narration": {
+        "segmentId": "04_add",
+        "voiceStart": 68.4,
+        "text": "执行 git add app.js。<#0.25#>Git 会读取 app.js 此刻的内容，把这个版本放进 Index。<#0.35#>\n\n这里进入 Index 的是当前版本，也就是 v1。<#0.25#>它不是跟随 Working Tree 自动同步的镜像。\n\n所以 add 之后，<#0.25#>Working Tree 里仍然有正在编辑的文件，Index 则保存刚刚选中的 v1。<#0.3#>\n\nadd 更准确的意思是：<#0.25#>把文件此刻的内容，选进下一次提交。<#0.3#>\n\nRepository 这时仍然没变。<#0.25#>因为 add 只是在准备下一次快照，<#0.25#>并没有写入历史。"
+      }
+    },
+    {
+      "id": "edit-after-add",
+      "title": "再次修改",
+      "start": 104,
+      "duration": 30,
+      "primaryTechnique": "Split state comparison",
+      "components": [
+        "CodeDiff",
+        "CompareTable",
+        "TerminalPanel"
+      ],
+      "goal": "说明同一文件可同时存在 staged 和 unstaged 变化。",
+      "narration": {
+        "segmentId": "05_edit-after-add",
+        "voiceStart": 104.4,
+        "text": "关键细节来了：<#0.25#>add 之后你又继续编辑，Working Tree 会变成 v2。\n\n可是 Index 里，<#0.25#>还停在刚才 add 的 v1。\n\n这不是 bug。<#0.25#>同一个 app.js，此时同时有 staged 和 unstaged 变化。\n\n在 status 的短格式里，<#0.25#>第一个 M 表示 Index 相对上一次提交有变化。<#0.25#>第二个 M 表示 Working Tree 和 Index 不同。\n\n所以 MM 表示 v1 已经暂存，v2 还留在工作区。<#0.25#>要提交 v2，需要重新 add。"
+      }
+    },
+    {
+      "id": "commit",
+      "title": "提交",
+      "start": 134,
+      "duration": 30,
+      "primaryTechnique": "Commit from index",
+      "components": [
+        "TerminalTyping",
+        "RepositoryBox",
+        "CommitNode",
+        "DataPacket"
+      ],
+      "goal": "展示 commit 读取 Index 写入 Repository。",
+      "narration": {
+        "segmentId": "06_commit",
+        "voiceStart": 134.4,
+        "text": "执行 git commit 时，<#0.25#>Git 读取的是 Index，<#0.25#>不是编辑器里最新那份 Working Tree。\n\nIndex 此时保存的是 v1，<#0.25#>所以新提交 C1 记录的也是 v1。<#0.35#>\n\n随后 C1 写进 Repository，<#0.25#>Index 也和这次提交重新对齐。<#0.35#>\n\n但 Working Tree 里的 v2 仍然没有提交。<#0.25#>它不会因为执行 commit，就自动进入这次快照。<#0.3#>\n\n所以 commit 之后，status 仍会显示未提交修改。<#0.25#>要提交 v2，还得再 add，再 commit。"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "结论",
+      "start": 164,
+      "duration": 16,
+      "primaryTechnique": "Flow diagram",
+      "components": [
+        "FlowDiagram",
+        "ArrowLine",
+        "DefinitionCard"
+      ],
+      "goal": "收束为修改、暂存、提交。",
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 164.2,
+        "text": "接上第一集：<#0.25#>Git 最后保存的是 commit 快照。<#0.35#>\n\n但形成快照之前，<#0.25#>文件先经过这条线：<#0.2#>Working Tree 负责修改，<#0.2#>Index 负责选择，<#0.2#>Repository 负责记录。<#0.25#>\n\n下一集拆开 commit，<#0.3#>看它里面到底是什么。"
+      }
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP02：工作区、暂存区、仓库\n\n## 核心句\n\n文件不是直接进入 commit；一次提交前，内容会经历工作区、暂存区和仓库三层。\n\n## 观众要带走的理解\n\n- Working Tree 是你正在编辑的文件。\n- Index / Staging Area 保存下一次准备提交的内容。\n- Repository 保存已经提交的历史。\n- `git add` 更准确的意思是：把当前内容加入下一次提交。\n- add 之后继续修改，同一个文件可能同时有已暂存和未暂存的变化。\n\n## 镜头结构\n\n1. 提问：`git add` 到底做了什么？\n2. 建立 Working Tree / Index / Repository 三层。\n3. 修改文件，只改变 Working Tree。\n4. 执行 `git add`，当前内容进入 Index。\n5. add 后继续修改，对比 Index v1 与 Working Tree v2。\n6. 执行 `git commit`，Repository 得到新快照。\n7. 收束：修改、暂存、提交。\n\n## 制作目录\n\n```text\ngit-course/episodes/ep02-working-tree-index-repo/\n```\n",
+    "scriptMarkdown": "# EP02 工作区、暂存区、仓库 - 脚本\n\n## 制作目标\n\n本集解决第二个误解：`git add` 不是“把文件加入项目”这么简单，`git commit` 也不是直接保存当前编辑器里的全部内容。Git 的基本流程是：在工作区修改，选择性放入暂存区，再把暂存区快照提交到仓库。\n\n观众看完后应该能说出三句话：\n\n- Working Tree 是你正在编辑的文件。\n- Index / Staging Area 是下一次 commit 的候选清单。\n- Repository 保存已经提交的历史。\n\n## 官方依据\n\n本集知识依据来自 Pro Git：\n\n- `what-is-git.asc:79-88`：文件有已修改、已暂存、已提交三种状态。\n- `what-is-git.asc:88-100`：Git 项目拥有工作区、暂存区、Git 目录三个阶段。\n- `what-is-git.asc:102-106`：基本工作流是修改、暂存、提交。\n- `recording-changes.asc:6-15`：工作目录中的文件分为已跟踪和未跟踪，修改后可选择性暂存并提交。\n- `recording-changes.asc:87-119`：`git add` 会让文件进入已暂存状态，更准确的理解是把当前内容加入下一次提交。\n- `recording-changes.asc:161-166`：暂存的是运行 `git add` 那一刻的版本，之后再修改需要重新 add。\n\n## 技术原则\n\n- 主视频使用 Remotion。原因：三层状态、终端输入、文件移动和字幕需要严格按节拍同步。\n- 不使用 Manim 主导。本集是 UI 状态流转，Remotion 组件更利于后续复用。只有在需要解释 Index 内部如何写成 tree 时，才切到 EP03 的 Manim 对象模型。\n- 终端只在命令触发时全屏；命令执行后退到左侧或淡出，让三层状态图成为主视觉。\n- 需要沉淀 `GitStatePanel`、`WorkingTree`、`StagingArea`、`RepositoryBox`、`FileMove`。\n\n## Remotion / Manim / 素材分工\n\n| 片段 | 使用技术 | 原因 | 本地资产状态 | 输出物 |\n|---|---|---|---|---|\n| 0-12s hook | Remotion | 标题、文件卡和问题句需要课程包装一致 | 已有 `EpisodeTitleCard`、`QuestionCaption`、motion primitives | Remotion scene |\n| 12-38s three-areas | Remotion | 三层面板是后续多集复用 UI 组件 | 已有 `GitStatePanel` | Remotion scene |\n| 38-68s modify | Remotion | 代码变化、文件状态和字幕需要逐帧同步 | 已有 `CodeBlock`、`LineHighlight`、`GitStatePanel` | Remotion scene |\n| 68-104s add | Remotion | 命令输入触发文件进入 Index，是典型终端到状态面板动作链 | 已有 `TerminalPanel`、`TerminalFocusScene`、`FileMove` 需补齐或组合 | Remotion scene |\n| 104-134s edit-after-add | Remotion | `Index v1 / Working Tree v2` 是 UI 对比，不是抽象数学结构 | 已有 `CodeDiff`，需组合状态对比 | Remotion scene |\n| 134-164s commit | Remotion | 本集只讲 commit 读取 Index，不拆对象模型 | 已有 `GitStatePanel`、`CommitNode` | Remotion scene |\n| 164-180s takeaway | Remotion | 流程总结和下一集问题属于课程包装 | 已有进度条和字幕系统 | Remotion scene |\n\n## 外部图片需求\n\n本集不需要网络图片。Working Tree、Index、Repository 应该是我们自己的课程图形系统，不能用网上随意找的流程图。\n\n可选素材：\n\n- 真实 `git status` 终端截图不建议使用，应该用 `TerminalPanel` 重建，便于字体、配色和动画统一。\n- 如果后续要展示 IDE 文件修改界面，也应先用 Remotion `CodeBlock`/`CodeDiff` 自制。\n\n## 片段总览\n\n| 全局时间 | Scene | 时长 | 目的 | 主技术 | 主视觉 |\n|---:|---|---:|---|---|---|\n| 0-12s | hook | 12s | 提出 `git add` 到底做什么 | Remotion title + file tile | 大标题、文件悬停在三层之间 |\n| 12-38s | three-areas | 26s | 建立三层结构 | GitStatePanel | Working Tree / Index / Repository |\n| 38-68s | modify | 30s | 展示修改只发生在工作区 | CodeBlock + FileMove | 文件变成 modified |\n| 68-104s | add | 36s | 展示 `git add` 暂存的是当前内容 | Remotion terminal + FileMove | 文件进入 Index |\n| 104-134s | edit-after-add | 30s | 解释同一文件可同时有暂存和未暂存版本 | Split file state | Index v1 / Working Tree v2 |\n| 134-164s | commit | 30s | 展示 commit 读取 Index | RepositoryBox + commit node | Index 形成 C1 |\n| 164-180s | takeaway | 16s | 收束三层模型 | FlowDiagram | 修改、暂存、提交 |\n\n## 旁白草案\n\n### 0-12s / hook\n\n> 第二集，我们只盯住一个动作：文件从编辑器到 commit，中间到底经过了哪里？如果你觉得 `git add` 只是“添加文件”，后面很多 Git 问题都会变得很奇怪。\n\n字幕短句：\n\n- `文件不是直接进入 commit`\n- `git add 到底做什么？`\n\n### 12-38s / three-areas\n\n> Git 项目可以先看成三层：工作区、暂存区、仓库。工作区是你正在编辑的文件。暂存区保存下一次准备提交的内容。仓库保存已经提交的历史。\n\n字幕短句：\n\n- `Working Tree：正在编辑`\n- `Index：下一次提交的候选`\n- `Repository：已经提交的历史`\n\n### 38-68s / modify\n\n> 当你修改一个文件，变化首先只在工作区。Git 知道它变了，但它还不会自动进入下一次提交。\n\n字幕短句：\n\n- `修改先发生在工作区`\n- `modified 还不是 staged`\n\n### 68-104s / add\n\n> 执行 `git add app.js`，Git 把这个文件当前这一刻的内容放进暂存区。更准确地说，add 不是把文件加入项目，而是把这份内容加入下一次提交。\n\n字幕短句：\n\n- `git add 暂存当前内容`\n- `add this content to the next commit`\n\n### 104-134s / edit-after-add\n\n> 这里有一个关键细节：如果 add 之后你又继续修改文件，暂存区里还是旧版本，工作区里是新版本。所以同一个文件，可能同时有已暂存和未暂存的变化。\n\n字幕短句：\n\n- `Index 是 add 那一刻`\n- `继续修改后，需要重新 add`\n\n### 134-164s / commit\n\n> 执行 `git commit` 时，Git 读取的是暂存区。它把暂存区里的内容形成一个新的快照，并写入仓库历史。\n\n字幕短句：\n\n- `commit 读取 Index`\n- `Repository 得到新快照`\n\n### 164-180s / takeaway\n\n> 所以这一集只记住一条线：Working Tree 修改，Index 选择，Repository 记录。下一集我们再拆开一个 commit，看它里面到底包含什么。\n\n字幕短句：\n\n- `修改 -> 暂存 -> 提交`\n- `下一步：commit 里面有什么？`\n",
+    "beatsMarkdown": "# EP02 工作区、暂存区、仓库 - Beats\n\n> 复杂镜头设计参考。scene 边界以 `episode JSON` 为唯一事实源；本文件中的历史秒数不参与构建。\n\n## 全局约束\n\n- 当前版本时长：180 秒。时长由本集教学内容决定，不作为后续分集的固定模板。\n- 主视觉：三层状态面板。\n- 同屏叙事层：命令输入时只看终端；状态变化时只看三层面板。\n- 字幕：底部短句，优先解释当前动作，不复述屏幕标题。\n- 组件沉淀：本集要产出后续 Git、Linux、Docker 课程可复用的状态流转组件。\n\n## 时间线\n\n当前规范分段输出：\n\n| Scene | 时间段 | 输出文件 | 状态 |\n|---|---:|---|---|\n| hook | 0-12s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/01_hook.mp4` | 已生成 |\n| three-areas | 12-38s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/02_three-areas.mp4` | 已生成 |\n| modify | 38-68s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/03_modify.mp4` | 已生成 |\n| add | 68-104s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/04_add.mp4` | 已生成 |\n| edit-after-add | 104-134s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/05_edit-after-add.mp4` | 已生成 |\n| commit | 134-164s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/06_commit.mp4` | 已生成 |\n| takeaway | 164-180s | `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/07_takeaway.mp4` | 已生成 |\n\n### 0-12s / hook\n\n目的：建立问题。\n\n画面：\n\n- 0-2s：大标题 `文件不是直接进入 commit`。\n- 2-6s：文件卡片从编辑器位置飞出，停在三个半透明区域之间。\n- 6-12s：问题句出现：`git add 到底做了什么？`\n\n技术：\n\n- `EpisodeTitleCard`\n- `QuestionCaption`\n- `FileMove`\n- `VideoProgress`\n\n审查点：\n\n- 标题前 2 秒独占画面。\n- 文件卡不要挡住进度条。\n\n### 12-38s / three-areas\n\n目的：建立 Working Tree / Index / Repository 三层。\n\n画面：\n\n- 12-18s：三个区域从左到右生成，只有英文名。\n- 18-26s：每层出现一句中文解释。\n- 26-38s：文件卡 `app.js` 出现在 Working Tree，另外两层保持空。\n\n技术：\n\n- `GitStatePanel`\n- `WorkingTree`\n- `StagingArea`\n- `RepositoryBox`\n\n审查点：\n\n- 三个区域宽度统一。\n- 中文解释不超过 10 个字。\n- 上方留白不超过画面高度 18%。\n\n### 38-68s / modify\n\n目的：展示 modified 状态。\n\n画面：\n\n- 38-46s：CodeBlock 局部出现，新增一行代码。\n- 46-54s：文件卡变成 `modified` 状态，边框使用 workingTree 色。\n- 54-68s：Index 和 Repository 轻微变暗，强调变化还没进去。\n\n技术：\n\n- `CodeBlock`\n- `LineHighlight`\n- `FileMove`\n- `GitStatePanel`\n\n审查点：\n\n- 代码只展示 4-6 行。\n- `modified` 标签不和文件名重叠。\n- 面板变暗不能让文字不可读。\n\n### 68-104s / add\n\n目的：展示 `git add` 把当前内容放入 Index。\n\n画面：\n\n- 68-76s：终端全屏输入 `git add app.js`。\n- 76-84s：终端缩小，文件卡从 Working Tree 复制一份进入 Index。\n- 84-96s：Index 中的文件卡标记为 `staged v1`。\n- 96-104s：旁边出现解释：`add = 选择这份内容`。\n\n技术：\n\n- `TerminalPanel`\n- `TerminalTyping`\n- `FileMove`\n- `CommandStep`\n- `Callout`\n\n审查点：\n\n- 终端输入阶段不要显示完整三层解释文字。\n- 文件进入 Index 使用一次性移动，不循环。\n- `staged v1` 与文件卡边界至少 12px。\n\n### 104-134s / edit-after-add\n\n目的：解释 add 后继续编辑的细节。\n\n画面：\n\n- 104-112s：工作区文件继续新增一行，变成 `working v2`。\n- 112-122s：Index 保持 `staged v1`，二者分屏高亮。\n- 122-134s：出现 `git status -s` 小输出：`MM app.js`。\n\n技术：\n\n- `CodeDiff`\n- `CompareTable`\n- `TerminalPanel` compact mode\n- `LineHighlight`\n\n审查点：\n\n- `v1` 和 `v2` 标签要明显但不花。\n- `MM app.js` 输出只作为证据，不成为主视觉。\n- 不能让工作区和暂存区文件卡物理重叠。\n\n### 134-164s / commit\n\n目的：展示 commit 读取 Index 并写入 Repository。\n\n画面：\n\n- 134-142s：终端输入 `git commit -m \"update app\"`。\n- 142-152s：Index 文件卡收束成快照节点 C1。\n- 152-164s：C1 进入 Repository，Working Tree 仍显示未提交的 v2 差异。\n\n技术：\n\n- `TerminalTyping`\n- `RepositoryBox`\n- `CommitNode`\n- `DataPacket`\n\n审查点：\n\n- commit 形成的是 Index 内容，不是 Working Tree 当前内容。\n- 需要明确保留 v2 未提交这个细节。\n- C1 节点不要和 Repository 标题重叠。\n\n### 164-180s / takeaway\n\n目的：收束三层流程。\n\n画面：\n\n- 164-172s：三层压缩成一条流程：`Working Tree -> Index -> Repository`。\n- 172-180s：下一集问题：`commit 里面到底有什么？`\n\n技术：\n\n- `FlowDiagram`\n- `ArrowLine`\n- `DefinitionCard`\n\n审查点：\n\n- 不使用下集预告板。\n- 只保留一个问题句。\n- 进度条与箭头不重叠。\n",
+    "qualityMarkdown": "# EP02 工作区、暂存区、仓库 - Audit\n\n> 本文件是人工审查历史，不表示当前构建状态。机器状态以 `pnpm --dir remotion git-course:validate` 和最新渲染报告为准。\n\n## 当前状态\n\n- 文档状态：已完成首版制作文档。\n- Remotion 实现：已完成 7 个 scene 的首版实现。\n- Manim 实现：不需要主线 Manim。\n- 渲染产物：7 个分段已全部按规范输出到 `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/`。\n- 历史带音频成片已归档到 `remotion/renders/git-course/ep02-working-tree-index-repo/tmp/legacy-final/`；当前成片使用 `current/ep02-working-tree-index-repo.mp4`。\n\n## 当前分段输出\n\n| 文件 | 时间段 | 时长 | 状态 |\n|---|---:|---:|---|\n| `01_hook.mp4` | 0-12s | 12.000s | 已生成 |\n| `02_three-areas.mp4` | 12-38s | 26.000s | 已生成 |\n| `03_modify.mp4` | 38-68s | 30.000s | 已生成 |\n| `04_add.mp4` | 68-104s | 36.000s | 已生成 |\n| `05_edit-after-add.mp4` | 104-134s | 30.000s | 已生成 |\n| `06_commit.mp4` | 134-164s | 30.000s | 已生成 |\n| `07_takeaway.mp4` | 164-180s | 16.000s | 已生成 |\n\n## 待继续\n\n- 后续如调整内容密度，同步更新场景时间窗、旁白 manifest 和音频对齐；不为了凑固定时长增删镜头。\n\n## 完整成片与音频\n\n输出文件：\n\n- 历史静音与带音频成片：`remotion/renders/git-course/ep02-working-tree-index-repo/tmp/legacy-final/`\n- 分场景旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/segments/`\n- 对齐旁白：`remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/voiceover-aligned.m4a`\n- BGM：`remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3`\n- 混音：`remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/mix.m4a`\n\n校验结果：\n\n- 成片时长：180.000s。\n- 视频流：H.264，1920x1080，30fps。\n- 音频流：AAC，48kHz mono。\n- 音量检查：`max_volume -14.6 dB`，未爆音。\n- 抽帧检查点：6s、20s、48s、86s、116s、148s、172s，未发现拼接后画面异常。\n\n备注：\n\n- 直接渲染完整 Remotion composition 时，在最后一帧 `5399/5400` 长时间卡住且未写出目标 mp4；已停止该进程。\n- 最终成片采用已审查过的 7 个 current scene 通过 ffmpeg concat 拼接，再 mux 对齐后的配音和 BGM。\n\n## 终端组件一致性\n\n修正状态：已将 Ep02 终端相关 UI 收敛到课程 kit。\n\n- `CommandStrip` 已从 episode 内部局部组件迁移为 `kit/terminal/CommandStrip`。\n- `git add`、`git status --short`和 `git commit` 均改为真实 PTY 录屏，由 `RecordedTerminalPanel` 合成。\n- Ep02 episode 文件不再直接引用 `COLOR.terminal` 或 `TerminalPanel`。\n- 已重新渲染 `04_add.mp4`、`05_edit-after-add.mp4`、`06_commit.mp4`，并抽帧复查终端证据层、状态板接管和字幕遮挡。\n\n## 2026-07-11 终端与状态流优化\n\n- 录屏脚本现在输出 JSON metadata，记录实际帧数、`holdFromFrame`、分辨率、字体和主题。\n- Remotion 从 `terminalRecordings.generated.ts` 读取 hold frame，修复 status / commit 终端提前跳到最终输出的问题。\n- 终端窗口按录屏实际 `1420x768` 比例计算高度，不再压缩字形和行高。\n- Index 专用 `COLOR.git.index`；add 移动卡从 Working Tree 色过渡到 Index 色。\n- commit 阶段先让 Repository 接收 `C1:v1`，再清空 Index，避免内容短暂不属于任何状态。\n- 终端大面积退场从约 1.5 秒缩短到约 0.65 秒，减少浅色画布上的灰色残影。\n- `02_three-areas`至 `06_commit` 已重新渲染并从编码后 MP4 连续抽帧复查。\n- 静音正片、带音频正片和 published 版已全部覆盖重建。\n\n## 03_modify 抽帧分析\n\n抽帧文件：`remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/03_modify.mp4`\n\n检查点：0s、4s、8s、12s、16s、20s、24s、28s。\n\n修正状态：已优化并重新渲染 `03_modify.mp4`，时长校验 30.000s。\n\n问题：\n\n- 4s-16s：`CodeBlock` 压在 `Working Tree` 面板内部，和文件列表区域发生视觉重叠。观众会分不清代码卡是面板里的内容，还是外部证据层。已修正：代码卡移到三栏下方独立证据区。\n- 8s-16s：新增代码行右侧被裁切，`return <Header title=\"Git\" />;` 只能看到前半段，修改内容不可完整读取。已修正：代码卡加宽，复查帧中新增行完整可读。\n- 8s-16s：代码卡面积和 Working Tree 面板争夺同一个主视觉区域，导致“文件状态变为 modified”不够明确。已修正：状态面板和代码证据层分离。\n- 16s 后：代码卡淡出后，画面基本只剩三栏静态面板、`Index 没变 / Repository 没变` 和字幕，状态变化已经完成但仍停留较久，节奏偏空。已缓解：`Index 没变 / Repository 没变` 改为更轻的短提示并后段降权。\n- 16s-28s：字幕 `modified 说明文件变了，但还不是 staged。` 与中部 `Index 没变 / Repository 没变` 信息重复，建议保留一个主结论，另一个弱化或提前退场。已缓解：中部提示弱化，字幕后段承担主结论。\n- 语义色问题：修改行高亮使用偏黄强调色，容易和 Index 的语义色接近。第三段应优先使用 Working Tree 色强调“修改发生在工作区”，避免把观众注意力带向 Index。已修正：`CodeBlock` 支持自定义高亮色，第三段使用 Working Tree 色。\n\n修正建议：\n\n- 将代码卡移到三栏状态板下方或左下方独立证据区，至少避开 Working Tree 文件列表和面板边框。\n- 缩短代码行或加宽代码卡，保证新增行完整可读；可以把示例改成更短的 `return <Header title=\"Git\" />;` 或 `title=\"Git\"` 局部高亮。\n- 状态切换时让 `app.js` 从普通文件明确变成 `app.js:modified`，并在同一时刻短暂强调 Working Tree 边框。\n- 中后段减少静态停留：让 Index/Repository 的“没变”提示进入一次后退到弱样式，字幕只保留因果结论。\n- 高亮色改为 Working Tree 语义色或中性背景加 Working Tree 左边线，不使用接近 Index 的黄色。\n\n## 04_add 抽帧分析\n\n抽帧文件：`remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/04_add.mp4`\n\n检查点：0s、4s、8s、10s、12s、16s、20s、24s、30s、35s。\n\n修正状态：已优化并重新渲染 `04_add.mp4`，时长校验 36.000s。\n\n问题：\n\n- 8s：终端全屏退场后，命令条和三栏状态板入场偏晚，出现接近空白的过渡帧。已修正：命令条提前在 7.75s 接住画面，三栏状态板从 8.35s 开始入场。\n- 8s-10s：原版终端全屏和命令条短暂重叠，形成半透明残影，命令证据层不够干净。已修正：终端全屏在 7.95s 前完成退场，命令条独立承接。\n- 12s-16s：移动文件卡到达 Index 后仍停留在面板外，像一个浮动副本，削弱“Index 已经持有 staged v1”的状态变化。已修正：移动卡在 Index 接收文件后淡出，只保留 Index 面板内的 `app.js:v1`。\n- 20s-24s：尾段同时保留移动路径、移动卡和结论卡，信息密度偏高。已修正：路径后段降权，移动卡消失，结论卡承担最终解释。\n- 教学语义：`git add` 容易被理解成“把文件加入项目”。尾段结论卡保留 `add = 选择这份内容`，强调它把当前内容放入 Index。\n\n## 05_edit-after-add 抽帧分析\n\n抽帧文件：`remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/05_edit-after-add.mp4`\n\n检查点：0s、4s、8s、12s、16s、20s、24s、28s。\n\n修正状态：已优化并重新渲染 `05_edit-after-add.mp4`，时长校验 30.000s。\n\n问题：\n\n- 0s：首帧代码卡淡入过弱，画面接近空白，进入状态变化偏慢。已修正：代码卡初始不透明度提高，对比板更早进入。\n- 8s-12s：`git status -s`、`MM` 中文解释和两栏对比同时出现，信息层偏多。已修正：`MM` 中文解释在主字幕出现前退场，终端只保留为证据层。\n- 16s-20s：底部字幕和右侧 `MM` 解释重复表达 `Index v1 / Working Tree v2`，削弱“需要重新 add”的主结论。已修正：底部字幕延后承担结论，右侧解释提前淡出。\n- 20s-28s：终端证据占用中下区域太久，和字幕争夺注意力。已缓解：终端后段降权，尾段以两栏对比和字幕为主。\n- 教学语义：最终状态必须清楚显示 `Index` 仍是 `staged v1`，`Working Tree` 是 `working v2`。复查帧确认两者同时可读，语义色未混用。\n\n## 06_commit 抽帧分析\n\n抽帧文件：`remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/06_commit.mp4`\n\n检查点：0s、4s、8s、12s、16s、20s、24s、28s。\n\n修正状态：已优化并重新渲染 `06_commit.mp4`，时长校验 30.000s。\n\n问题：\n\n- 8s：终端全屏退场时和命令条发生重叠残影，状态板还很淡，命令证据层不干净。已修正：终端全屏提前退场，命令条先接住画面，三栏板随后入场。\n- 16s-24s：`snapshot from Index`、箭头和 C1 圆形覆盖 Repository 面板中的 `C1:v1` 文件行，导致“Repository 已得到新快照”的状态读起来拥挤。已修正：箭头、标签和 C1 圆形整体下移到三栏板下方，Repository 文件行保持清楚可读。\n- 教学语义：commit 必须读 Index，不读 Working Tree。复查帧确认 Index 先包含 `app.js:v1`，commit 后 Repository 出现 `C1:v1`，Working Tree 仍保留 `app.js:v2`。\n\n## 07_takeaway 抽帧分析\n\n抽帧文件：`remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/07_takeaway.mp4`\n\n检查点：0s、3s、6s、9s、12s、15s。\n\n修正状态：首版通过抽帧审查，时长校验 16.000s。\n\n结论：\n\n- 总结段信息密度低，标题、三节点流程和下集问题句没有互相遮挡。\n- 语义色保持稳定：Working Tree、Index、Repository 只用于对应节点。\n- 尾帧问题句 `下一步：commit 里面到底有什么？` 可读，没有压住流程图或进度条。\n\n## 预渲染检查清单\n\n- 三层状态面板必须是本集主视觉。\n- `git add` 必须表达为“暂存当前内容”，不能只说“添加文件”。\n- add 后继续编辑的段落必须清楚展示 `Index v1` 与 `Working Tree v2`。\n- commit 必须读取 Index，不应错误地读取 Working Tree 当前内容。\n- 不讲 blob/tree/commit object 结构，留给 EP03。\n\n## 抽帧检查点\n\n| 时间 | 检查内容 |\n|---:|---|\n| 2s | 标题独占画面 |\n| 18s | 三层区域等宽、标签可读 |\n| 48s | modified 标签不遮挡文件名 |\n| 76s | 终端全屏输入命令 |\n| 88s | 文件进入 Index 的动作清晰 |\n| 116s | `v1` 与 `v2` 对比不重叠 |\n| 146s | C1 从 Index 生成 |\n| 172s | 流程箭头不压字幕 |\n\n## 待实现风险\n\n- 三层面板容易变成长期静态课件，需要用命令触发动作链提升节奏。\n- 终端和状态面板同屏时容易拥挤，应在命令阶段全屏，状态阶段弱化终端。\n- `MM app.js` 对新手可能陌生，只作为视觉证据，不展开解释。\n",
+    "readmeMarkdown": "# EP02 工作区、暂存区、仓库 - 制作目录\n\n这个目录保存 EP02 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\n一次 commit 之前，文件不是直接从编辑器进入历史。\n它会经历 Working Tree -> Index -> Repository。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc:79`\n- `docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc:88`\n- `docs/references/progit2-zh/book/01-introduction/sections/what-is-git.asc:102`\n- `docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc:1`\n- `docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc:116`\n\n原则：EP02 的主角是文件状态流转，不是 commit 对象结构。commit 内部留给 EP03。\n\n## 当前制作状态\n\n- Remotion 主视频：已实现 7 个 scene 的首版。\n- 规范分段输出：7 个分段已全部生成到 `remotion/renders/git-course/ep02-working-tree-index-repo/current/scenes/`。\n- 完整正片：固定输出为 `remotion/renders/git-course/ep02-working-tree-index-repo/current/ep02-working-tree-index-repo.mp4`。\n- 发布版：已生成到 `remotion/renders/git-course/ep02-working-tree-index-repo/current/release/ep02-working-tree-index-repo.mp4`，包含片头、正片和片尾。\n- 音频：已按 EP01 流程重做，复用 EP01 BGM，分段 TTS 固定使用 `Chinese (Mandarin)_Gentleman`、`speed=1.25`、停顿标记、SRT、FFmpeg 人声响度规范化和固定低音量 BGM 混音；文件位于 `remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/`。\n- 已完成分段：\n  - `01_hook.mp4`：0-12s，12.000s。\n  - `02_three-areas.mp4`：12-38s，26.000s。\n  - `03_modify.mp4`：38-68s，30.000s。\n  - `04_add.mp4`：68-104s，36.000s。\n  - `05_edit-after-add.mp4`：104-134s，30.000s。\n  - `06_commit.mp4`：134-164s，30.000s。\n  - `07_takeaway.mp4`：164-180s，16.000s。\n- 待继续：如需发布版，可再做一次全片精听和字幕节奏微调。\n",
+    "voiceoverDesignMarkdown": "# EP02 voiceover design\n\n本文件是 EP02 的口播设计源。修改配音文稿前，先改这里，再同步到\n`scenes[].narration.text`。\n\nEP01 解释 Git 最终保存的是 commit 快照；EP02 解释一个文件在形成快照之前，为什么要经过 Working Tree、Index、Repository 三层。\n\n## TTS policy\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n- 同一集必须整集重生，不能混用不同 voice 或 speed。\n- 停顿优先使用 `<#0.2#>`、`<#0.25#>`、`<#0.3#>`；只有主视觉切换时才使用更长停顿。\n- 本集只在开头使用一处 `(breath)`，用于让第二集开场不显得突兀；定义句不加语气词。\n- MiniMax 生成的 `.srt` 会保留 `(breath)` 这类语气标签；如果后续要烧字幕，必须先过滤语气标签，不能直接使用原始 `.srt`。\n\n## Scene sentence map\n\n| Time | Visual beat | Narration intent | Delivery |\n|---:|---|---|---|\n| 0.0-12.0 | 标题、文件卡、问题句 | 建立 `git add` 不是“添加文件”的问题 | 开头自然吸气；问题句要在文件卡悬停时完成 |\n| 12.0-18.0 | 三个区域生成 | 建立 Working Tree / Index / Repository | 英文名逐个读清楚，不解释过深 |\n| 18.0-26.0 | 中文解释出现 | 说明三层不是三个副本 | “不是三个副本”承接 EP01 的错误文件夹模型 |\n| 26.0-38.0 | `app.js` 出现在 Working Tree | 把后续命令统一到三层关系上 | 结尾留出画面观察时间 |\n| 38.0-46.0 | 代码新增一行 | 说明修改先发生在 Working Tree | `modified` 是状态，不是提交 |\n| 46.0-68.0 | Index / Repository 不变 | 强调 Git 发现变化但没有选择它 | 不重复三层定义，转向下一步 `add` |\n| 68.0-84.0 | `git add app.js` 后文件进入 Index | 说明 add 暂存当前内容 | “当前这一刻”重音 |\n| 84.0-104.0 | `staged v1` 与 callout | 纠正 add 自动同步的误解 | `add = 选择这份内容` |\n| 104.0-122.0 | Working Tree v2 / Index v1 对比 | 解释同一文件两份变化 | `不是 bug` 作为观察提示 |\n| 122.0-134.0 | `MM app.js` | 把画面证据和命令输出对上 | 说明要提交 v2 需要重新 add |\n| 134.0-152.0 | commit 从 Index 生成 C1 | 说明 commit 读取 Index | 不能说 commit 保存编辑器最新内容 |\n| 152.0-164.0 | Repository 得到 C1，Working Tree v2 留在外面 | 点出 C1 保存 v1 | 这里是本集最重要的反直觉点 |\n| 164.0-180.0 | 三层流程收束 | 接回 EP01 快照模型并预告 EP03 | 先说连接关系，再说三层职责 |\n\n## Current sentence audit\n\n2026-07-08 generated at `speed=1.25`:\n\n| Segment | Voice duration | Voice ends | Sentence-level result | Follow-up |\n|---|---:|---:|---|---|\n| `01_hook` | 10.71s | 11.01s | 开场问题不展开新知识，只纠正 `git add` 的错误直觉。 | 原始 SRT 会保留 `(breath)`，烧字幕前要过滤。 |\n| `02_three-areas` | 21.66s | 34.06s | 补上“三层不是三个副本”，避免和 EP01 复制文件夹模型割裂。 | 留约 3.95s 给 `app.js` 所在层级观察。 |\n| `03_modify` | 25.44s | 63.84s | 补上 modified、Index 空、Repository 不变，以及“工作区变脏但没有历史”。 | 留约 4.17s，后半段不再空跑。 |\n| `04_add` | 31.81s | 100.21s | 补上文件移动、`staged v1`、Working Tree/Index 同时存在、Repository 未变。 | 留约 3.79s，压缩原先过长无声。 |\n| `05_edit-after-add` | 23.85s | 128.25s | 补上 v1/v2 对比、`MM app.js` 两列含义和重新 add 的原因。 | 这是最容易误解的段落，不能再压成一句。 |\n| `06_commit` | 25.36s | 159.76s | 补上 C1 保存 v1，Working Tree v2 不会自动进去。 | 补“commit 后仍可能有未提交修改”的原因。 |\n| `07_takeaway` | 14.64s | 178.84s | 明确和 EP01 的关系：快照形成前要经过三层。 | 结尾留 1.17s 给下一集问题停住。 |\n\nFinal narration density: about 153.5s of narration in the 180s main episode, roughly 85%. This is high enough for a teaching video while still leaving short visual holds after each scene.\n",
+    "alignmentMarkdown": "# EP02 segmented voiceover alignment\n\nEP02 reuses the EP01 BGM at `audio/bgm.mp3`. BGM is mixed at fixed `volume=0.05`; no ducking is used.\n\nEach voice segment is generated separately with MiniMax TTS, using inline pause markers such as `<#0.25#>`. The final aligned voiceover uses the `_norm.mp3` files, normalized with FFmpeg to roughly `-20 LUFS` and limited near `-3 dBFS`.\n\n| Segment | Scene window | Voice starts | Normalized voice duration | Voice ends |\n| --- | ---: | ---: | ---: | ---: |\n| `01_hook` | 0.0-12.0s | 0.3s | 11.47s | 11.77s |\n| `02_three-areas` | 12.0-38.0s | 12.4s | 22.96s | 35.36s |\n| `03_modify` | 38.0-68.0s | 38.4s | 27.72s | 66.12s |\n| `04_add` | 68.0-104.0s | 68.4s | 29.23s | 97.63s |\n| `05_edit-after-add` | 104.0-134.0s | 104.4s | 28.32s | 132.72s |\n| `06_commit` | 134.0-164.0s | 134.4s | 29.23s | 163.63s |\n| `07_takeaway` | 164.0-180.0s | 164.2s | 15.36s | 179.56s |\n\nTotal normalized narration duration is about 164.3s in the 180s main episode, a 91.3% narration-to-video ratio. For comparison, EP01 uses about 189.1s of normalized narration in 210s, or 90.0%. EP02 therefore has sufficient narration coverage without adding filler. End-of-scene narration gaps range from about 0.2s to 6.4s; the action-heavy middle scenes keep longer observation windows where the visual state change needs time to settle.\n\nSentence-level timing is available in the sibling `.srt` files. Absolute sentence time is calculated as:\n\n```text\nabsolute sentence time = Voice starts + cue time in segment .srt\n```\n\nNote: raw `.srt` files generated by MiniMax may keep speech tags such as `(breath)`. These tags are acceptable in TTS source text but must be stripped before burning subtitles into video.\n\n2026-07-09 pacing update: explicit pauses were added at concept boundaries where the SRT gap was below about `0.2s`: after the three-area list, before the `git add` caution, before the `add` definition, before the `git commit` caution, before the `C1 saves v1` conclusion, and in the takeaway handoff. Segments `02_three-areas`, `04_add`, `06_commit`, and `07_takeaway` were regenerated with the fixed Git-course TTS settings; the full mix and `final/ep02-working-tree-index-repo_with-audio.mp4` were rebuilt. SRT files were checked: pause markers did not leak into subtitle text.\n\n2026-07-11 visual rebuild: scene timing and the 180-second audio timeline were kept unchanged. Terminal recordings, scenes `02`-`06`, the silent main video, the audio-muxed main video, and the published wrapper were rebuilt. The existing normalized narration and `volume=0.05` BGM mix were reused without retiming.\n\n2026-07-11 audio-to-visual sync pass: narration and the 180-second scene windows were kept unchanged. The visual edit and Modified state in `03_modify`, the Working Tree-to-Index transfer and definition callout in `04_add`, the `MM` terminal and explanation in `05_edit-after-add`, the Index-to-Repository snapshot in `06_commit`, and the closing question in `07_takeaway` were retimed to their matching SRT cues. All five affected scene videos, the silent main video, the audio-muxed main video, and the published wrapper were rebuilt. Encoded MP4 contact sheets were checked after muxing; no overlay collisions or scene-boundary timing drift were found.\n\n2026-07-11 narration rewrite: segments `01`-`06` were rewritten to remove the misleading “file moves into commit”, “three positions”, “candidate list”, and “Working Tree ahead of Index” language. The new narration describes the three layers as responsibilities, defines `add` as selecting the file's current content, explains both columns of `MM` by their comparison targets, and states that commit realigns Index with the new commit while later Working Tree changes remain uncommitted. All seven segments were regenerated with the fixed Git-course TTS settings, and `02`, `05`, and `06` were tightened after the first duration pass. SRT files were checked: pause markers and speech tags did not leak. Scenes `02`, `03`, `05`, and `06` were retimed to the new sentence cues, rebuilt, and checked from the encoded final MP4.\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP02 B 站发布物料\n\n## 标题\n\ngit add 到底做了什么？Git 的三层一次讲清\n\n## 封面文字\n\n主标题：\n\n```text\n文件不会直接进 commit\n```\n\n副标题：\n\n```text\n先 add，再 commit\n```\n\n1. 简介\n\n很多人把 git add 当成保存，把 git commit 当成再保存一次。\n\n这一集把中间被跳过的东西补上：文件从被修改到被提交，会经过工作区、暂存区、仓库三层。git add 把当前内容放进暂存区，git commit 从暂存区读取并写进仓库历史。\n\n把这三层立起来之后，git status 看到的 staged / unstaged、add 之后继续改会发生什么，就都能对上号了。\n\n2. 你会学到\n\n- 工作区、暂存区、仓库分别保存什么\n- git add 把内容放到哪一层\n- git commit 从哪一层读取\n- 为什么 add 之后继续改，同一个文件会同时有已暂存和未暂存两种变化\n- git status 在三层模型里看的是什么\n\n3. 时间轴\n\n00:00 文件不是直接进入 commit\n00:12 工作区 / 暂存区 / 仓库 三层\n00:38 修改先发生在工作区\n01:08 git add 暂存当前内容\n01:44 add 之后再改：staged 与 unstaged\n02:14 git commit 从暂存区写入仓库\n02:44 收束：修改、暂存、提交\n\n4. 适合谁\n\n- 会 add / commit，但不懂中间发生了什么的人\n- 被 staged / unstaged 搞晕的人\n- 想从底层状态模型理解 Git 的人\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n编程基础\n计算机基础\n程序员\n开发工具\n源码管理\n```\n\n## 动态文案\n\n第一集讲了 Git 存的是对象，这一集讲文件从被改到被提交，到底经过了哪三层。\n\n把工作区、暂存区、仓库立起来，后面看 `git status` 就不会再懵。\n\n## 置顶评论\n\n这一集讲三层状态。下一集拆开 commit 这个对象，看它里面到底装了什么。\n",
+    "coverBriefMarkdown": "# EP02 封面 Brief\n\n## 目标\n\n让观众在一秒内看懂本集问题：\n\n```text\n文件不是直接进入 commit；一次提交前，内容会经历工作区、暂存区、仓库三层。\n```\n\n## 主视觉\n\n画面采用小尺寸优先的横向三层流程，对应 `git add` 和 `git commit` 两次移动：\n\n- 左侧：工作区（Working Tree）—— 只保留文件图标。\n- 中间：暂存区（Index）—— 只保留 snapshot 轮廓图标。\n- 右侧：仓库（Repository）—— 只保留极简 commit 链图标。\n- 层与层之间用粗箭头连接，分别标注 `git add` 与 `git commit`。\n\n## 文案层级\n\n一级标题：\n\n```text\n文件不会直接进 commit\n```\n\n角标：\n\n```text\n看得见的 Git\nEP.02 · three areas\n```\n\n## 视觉要求\n\n- 三层容器用三种主题色区分：工作区墨绿、暂存区芥末黄、仓库青绿。\n- 箭头必须标注 `git add` 与 `git commit`，把\"两次移动\"讲清楚。\n- 右侧仓库的提交链要比左侧更稳定、更有秩序，传达\"提交后状态被固定下来\"。\n- 标题按两行半排布，字号约为旧版的 2.5 倍，占据上半屏；移动端缩略图首先读到标题。\n- 去掉副标题、便签、代码行和卡片内部说明；封面只保留标题、三层和两次移动。\n\n## 候选标题\n\n```text\nGit 不是一步到位\n```\n\n```text\n提交要过三道门\n```\n\n```text\nadd 和 commit 中间差了什么\n```\n\n## 推荐输出\n\n```text\nremotion/renders/git-course/ep02-working-tree-index-repo/current/release/cover.png\n```\n",
+    "checklistMarkdown": "# EP02 发布检查清单\n\n## 视频\n\n- [ ] 使用 `current/release/ep02-working-tree-index-repo.mp4`\n- [ ] 包含片头和片尾\n- [ ] 正片字幕末尾不使用句号\n- [ ] 音色统一\n- [ ] 人声响度稳定，BGM 低于人声\n- [ ] 片头和片尾 BGM 音量符合当前默认值\n\n## 封面\n\n- [ ] 使用 `current/release/cover.png`\n- [ ] 标题在移动端缩略图可读\n- [ ] 主标题和视频主题一致\n- [ ] 没有使用临时版本目录\n\n## B 站上传内容\n\n- [ ] 标题不超过 25 字左右，重点前置\n- [ ] 简介第一段说明本集解决的问题\n- [ ] 时间轴与成片内容对应\n- [ ] 标签包含 `Git`、`Git教程`、`版本控制`\n- [ ] 置顶评论说明下一集承接关系\n\n## 发布后\n\n- [ ] 检查网页端播放音量\n- [ ] 检查移动端封面裁切\n- [ ] 检查时间轴是否可点击\n- [ ] 检查合集顺序是否正确\n"
+  }
+}

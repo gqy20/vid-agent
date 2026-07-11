@@ -47,43 +47,23 @@ remotion/renders/*/renders/hook/
 remotion/renders/*/renders/final/
 remotion/renders/*/renders/mix.mp3
 
-# remotion series layout: remotion/renders/<series>/<episode>/renders/...
-remotion/renders/*/*/renders/debug/
-remotion/renders/*/*/renders/tmp/
-remotion/renders/*/*/renders/candidates/
-remotion/renders/*/*/renders/archive/
-remotion/renders/*/*/renders/segments/
-remotion/renders/*/*/renders/hook/
-remotion/renders/*/*/renders/final/
-remotion/renders/*/*/renders/mix.mp3
-remotion/renders/*/*/check/
-remotion/renders/*/*/check-*/
-remotion/renders/*/*/quality-audit.md
-
-# current 下可由脚本重新生成的音视频产物也默认不入库。
+# 扁平 series 布局：remotion/renders/<series>/<episode>/{current,tmp}
+# 可由脚本重新生成的音视频产物默认不入库。
 # 保留 .txt/.md 等文稿和对齐说明。
-remotion/renders/*/*/renders/current/published/
-remotion/renders/*/*/renders/current/publishing/*.png
-remotion/renders/*/*/renders/current/publishing/*.jpg
-remotion/renders/*/*/renders/current/publishing/*.jpeg
-remotion/renders/*/*/renders/current/publishing/*.svg
-remotion/renders/*/*/renders/current/scenes/
-remotion/renders/*/*/renders/current/final/
-remotion/renders/*/*/renders/current/*.mp4
-remotion/renders/*/*/renders/current/*/*.mp4
-remotion/renders/*/*/renders/current/audio/**/*.mp3
-remotion/renders/*/*/renders/current/audio/**/*.m4a
-remotion/renders/*/*/renders/current/audio/**/*.wav
-remotion/renders/*/*/renders/current/audio/**/*.srt
-remotion/renders/*/*/renders/current/audio/*.mp3
-remotion/renders/*/*/renders/current/audio/*.m4a
-remotion/renders/*/*/renders/current/audio/*.wav
-remotion/renders/*/*/renders/current/audio/*.srt
+remotion/renders/*/*/tmp/
+remotion/renders/*/*/quality-audit.md
+remotion/renders/*/*/current/release/
+remotion/renders/*/*/current/release/*.png
+remotion/renders/*/*/current/release/*.jpg
+remotion/renders/*/*/current/release/*.jpeg
+remotion/renders/*/*/current/release/*.svg
+remotion/renders/*/*/current/scenes/
+remotion/renders/*/*/current/*.mp4
+remotion/renders/*/*/current/*/*.mp4
 remotion/renders/*/*/current/audio/*.mp3
 remotion/renders/*/*/current/audio/*.m4a
 remotion/renders/*/*/current/audio/*.wav
 remotion/renders/*/*/current/audio/*.srt
-remotion/renders/*/*/current/*.mp4
 remotion/public/git-course/manim/**/*.mp4
 remotion/public/git-course-lab/manim/
 remotion/public/git-course-lab/terminal/*.mp4
@@ -96,8 +76,6 @@ renders/*/renders/*.mp4
 renders/*/renders/*/*.mp4
 remotion/renders/*/renders/*.mp4
 remotion/renders/*/renders/*/*.mp4
-remotion/renders/*/*/renders/*.mp4
-remotion/renders/*/*/renders/*/*.mp4
 remotion/renders/*/*/*.mp4
 remotion/renders/*/*/*.png
 remotion/renders/*/*/*.jpg

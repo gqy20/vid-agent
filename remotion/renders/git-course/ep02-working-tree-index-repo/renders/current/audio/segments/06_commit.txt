@@ -1,9 +1,0 @@
-执行 git commit 时，<#0.25#>Git 读取的是 Index，<#0.25#>不是编辑器里最新那份 Working Tree。
-
-Index 此时保存的是 v1，<#0.25#>所以新提交 C1 记录的也是 v1。<#0.35#>
-
-随后 C1 写进 Repository，<#0.25#>Index 也和这次提交重新对齐。<#0.35#>
-
-但 Working Tree 里的 v2 仍然没有提交。<#0.25#>它不会因为执行 commit，就自动进入这次快照。<#0.3#>
-
-所以 commit 之后，status 仍会显示未提交修改。<#0.25#>要提交 v2，还得再 add，再 commit。

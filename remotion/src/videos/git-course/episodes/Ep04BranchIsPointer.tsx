@@ -26,20 +26,8 @@ import {
 } from '../kit';
 import {COLOR} from '../palette';
 import {TYPE} from '../typography';
-
-export const EP04_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'mental-model', title: '模型', duration: seconds(18)},
-  {id: 'terminal', title: '命令', duration: seconds(18)},
-  {id: 'branch-write', title: '写入 ref', duration: seconds(22)},
-  {id: 'branch-result', title: '分支出现', duration: seconds(28)},
-  {id: 'switch', title: 'HEAD 切换', duration: seconds(24)},
-  {id: 'commit', title: 'feature 前进', duration: seconds(32)},
-  {id: 'compare', title: '对比', duration: seconds(14)},
-  {id: 'takeaway', title: '结论', duration: seconds(12)},
-] as const;
-
-export const EP04_DURATION_IN_FRAMES = EP04_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP04_DURATION_IN_FRAMES, EP04_SCENES} from '../data/episodeTimelines.generated';
+import {EP04_DURATION_IN_FRAMES, EP04_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep04SceneId = (typeof EP04_SCENES)[number]['id'];
 

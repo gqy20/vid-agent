@@ -1,6 +1,6 @@
 # AGENTS.md
 
-这个仓库用于视频生产。当前主线是 Git 课程，相关内容主要位于 `docs/git-course/`、`remotion/src/videos/git-course/` 和 `scripts/manim/git-course/`。
+这个仓库用于视频生产。当前主线是 Git 课程，相关内容主要位于 `git-course/`、`remotion/src/videos/git-course/` 和 `scripts/manim/git-course/`。
 
 ## Git 课程品味
 
@@ -10,7 +10,7 @@
 - 只使用语义色。`main`、`feature`、`HEAD`、`workingTree`、`index`、`conflict` 这些颜色必须保持 Git 含义，不能当作装饰色复用。
 - 视觉气质保持安静、清晰、有工程感。优先使用浅色中性画布、克制对比和少量语义高亮。避免整片黑底终端、高饱和科技渐变和装饰性噪声。
 - 状态变化必须可见。命令应该引出 refs、HEAD、commit、工作区或暂存区的可读变化。理解需要动作时，不要直接跳到最终状态。
-- 遵守课程生产流程：`script.md` -> `scenes.json` -> Remotion 主视频 -> Manim 原理片段 -> Remotion 合成 -> 抽帧 / 渲染审查。
+- 遵守课程生产流程：`episodes/<episode-id>.json` -> Remotion 主视频 -> Manim 原理片段 -> Remotion 合成 -> 抽帧 / 渲染审查。episode JSON 是教学、scene、旁白和发布数据的唯一内容源。
 - 先写清楚教学意图，再写动画代码。不要把课程逻辑只埋在 React 时间线代码里。
 - Remotion 负责课程结构、终端演示、字幕、代码、轻量 Git 图、状态面板和最终合成。
 - Manim 负责精密原理动画：DAG、Git 对象、hash 传播、Merkle-like 结构、三路合并、rebase，以及几何关系复杂的图解释。
@@ -21,20 +21,19 @@
 - 避免无意义的循环、脉冲、晃动或缩放效果。高亮应该进入一次，解释状态变化，然后回到语义样式。
 - 控制信息密度。一个镜头里不要让 commit 图、终端、branch refs、HEAD、工作区、暂存区和字幕同时争夺注意力。
 - 渲染后要审查：元素重叠、字幕遮挡、Git 状态歧义、语义色误用、过度运动、命令和状态变化不匹配。
-- 分段预览默认覆盖到 `remotion/renders/git-course/<episode-id>/renders/current/scenes/`，文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。不要每次修改都新建带日期或描述词的 mp4 输出目录；只有用户明确要求版本对比时才另存候选版本。
-- 抽帧检查可以临时放在 `renders/tmp/`，但检查完成后要清理，避免当前审查目录被临时文件污染。
-- 单集完整成片默认覆盖固定路径。优先使用 `renders/current/<episode-id>.mp4`；如果该集已有 `renders/current/final/<episode-id>_with-audio.mp4` 约定，则沿用该固定文件。不要输出 `new`、`v2`、`final-final` 之类临时成片。
-- 课程音频默认按分段流程制作：每个 scene 一个旁白 `.txt`，通过 `remotion/scripts/git-course-build-voiceover.sh` 统一生成同名 `.mp3`、`.srt`、`_norm.mp3`，再按 manifest 时间线拼成 `voiceover-aligned.m4a`。不要手工散跑 TTS 和 FFmpeg 长命令。
-- 每集分段旁白目录必须保留 `manifest.tsv`，列出 `segment_id`、旁白进入时间和 scene 结束时间；脚本用它检查旁白是否跨段。
+- 分段预览默认覆盖到 `remotion/renders/git-course/<episode-id>/current/scenes/`，文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。不要每次修改都新建带日期或描述词的 mp4 输出目录；只有用户明确要求版本对比时才另存候选版本。
+- 抽帧检查可以临时放在 `tmp/`，但检查完成后要清理，避免当前审查目录被临时文件污染。
+- 单集完整成片统一覆盖 `current/<episode-id>.mp4`。历史成片只允许归档到 `tmp/legacy-final/`，不再作为新流程输入或输出。不要输出 `new`、`v2`、`final-final` 之类临时成片。
+- 每个 scene 的旁白正文、`segmentId` 和进入时间直接维护在 episode JSON 的 `scenes[].narration`。构建脚本在 `tmp/narration-source/` 派生 `.txt` 和 `manifest.tsv`，再生成同名 `.mp3`、`.srt`、`_norm.mp3`。不要手工维护派生文稿或散跑 TTS 和 FFmpeg 长命令。
 - TTS 文稿应使用短句和 MiniMax 停顿标记控制节奏，例如 `<#0.25#>`、`<#0.35#>`；生成后必须检查 `.srt`，确认停顿标记没有被读成文字。
 - SRT 字幕不是讲稿原文。生成后默认清理句尾 `。`、`;`、`；` 和常见语气标签；保留 `，`、`、`、`？`、少量 `：` 来表达观看节奏。
-- `.srt` 字幕文件是 TTS 生成产物，默认不提交入库；只在本地用于校对、对齐和烧录字幕。需要保留到仓库的是分段旁白 `.txt`、`manifest.tsv` 和 `alignment.md`，其中 `alignment.md` 必须记录 `.srt` 已检查且停顿标记未泄漏。
+- `.txt`、`manifest.tsv` 和 `.srt` 都是 episode JSON 的派生产物，默认不提交；人工同步判断保存在 episode JSON 的 `content.alignmentMarkdown`。
 - TTS 必须显式固定 `model`、`voice`、`language` 和 `speed`。当前 Git course 默认固定为 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`；同一集不要混用不同 voice 或 speed。
 - 分段人声不要只依赖 TTS 的 `--volume`。生成后用 FFmpeg 做响度规范化和轻压缩，目标约 `-20 LUFS`，峰值约 `-3 dBFS`；保留原始 `.mp3`，规范化文件使用 `_norm.mp3` 后缀。
 - BGM 在 Git 课程中保持集与集一致。优先复用已确认的课程 BGM；混音时使用固定低音量，不做 sidechain ducking，避免背景音乐随人声忽高忽低。当前 EP01/EP02 使用 BGM `volume=0.05`。
-- 每集音频目录需要保留对齐说明，例如 `audio/alignment.md` 或 `audio/voiceover_segments/alignment.md`，写明 scene 时间窗、旁白进入时间、使用的规范化文件、BGM 策略和句子级 SRT 对齐公式。最终混音统一输出为 `audio/mix.m4a`。
-- 发布版在当前正片确认后再封装：公共片头、正片、公共片尾三段合成到 `renders/current/published/<episode-id>_published.mp4`。片头片尾也必须有 BGM，优先从课程统一 BGM 截取低音量片段，不单独换歌；发布封装默认片头增益 `0dB`、片尾增益 `-5dB`，让当前片尾 BGM 比片头约高 `2dB`。发布版 mp4 和中间音频是本地产物，默认不新增入库。
-- 发布版拼接使用 `remotion/scripts/git-course-publish-episode.sh`，通过 FFmpeg concat filter 重新编码，重置每段音视频时间轴，避免 concat copy 在段落边界产生 DTS/PTS 警告。输出覆盖固定 `published/` 文件，不新增带时间戳或 `v2` 的发布目录。
+- 生成音频位于 `current/audio/segments/`，最终混音为 `current/audio/mix.m4a`。scene 与旁白窗口直接由 episode JSON 校验。
+- 发布版在当前正片确认后再封装到 `current/release/<episode-id>.mp4`；封面也输出到同一 `release/`。发布源数据维护在 episode JSON 的 `release` 字段。发布封装默认片头增益 `0dB`、片尾增益 `-5dB`。
+- 发布版拼接使用 `remotion/scripts/git-course-publish-episode.sh`，通过 FFmpeg concat filter 重新编码并重置时间轴。不要再新增 `publishing/` 或 `published/` 目录。
 
 ## 结构与组件语法
 

@@ -16,18 +16,8 @@ import {COLOR, FONT} from '../palette';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds, WIDTH} from '../timeline';
 import {TYPE} from '../typography';
-
-export const EP02_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'three-areas', title: '三层结构', duration: seconds(26)},
-  {id: 'modify', title: '修改', duration: seconds(30)},
-  {id: 'add', title: '暂存', duration: seconds(36)},
-  {id: 'edit-after-add', title: '再次修改', duration: seconds(30)},
-  {id: 'commit', title: '提交', duration: seconds(30)},
-  {id: 'takeaway', title: '结论', duration: seconds(16)},
-] as const;
-
-export const EP02_DURATION_IN_FRAMES = EP02_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP02_DURATION_IN_FRAMES, EP02_SCENES} from '../data/episodeTimelines.generated';
+import {EP02_DURATION_IN_FRAMES, EP02_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep02SceneId = (typeof EP02_SCENES)[number]['id'];
 

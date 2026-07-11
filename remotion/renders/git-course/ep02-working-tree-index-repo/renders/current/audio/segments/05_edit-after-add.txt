@@ -1,9 +1,0 @@
-关键细节来了：<#0.25#>add 之后你又继续编辑，Working Tree 会变成 v2。
-
-可是 Index 里，<#0.25#>还停在刚才 add 的 v1。
-
-这不是 bug。<#0.25#>同一个 app.js，此时同时有 staged 和 unstaged 变化。
-
-在 status 的短格式里，<#0.25#>第一个 M 表示 Index 相对上一次提交有变化。<#0.25#>第二个 M 表示 Working Tree 和 Index 不同。
-
-所以 MM 表示 v1 已经暂存，v2 还留在工作区。<#0.25#>要提交 v2，需要重新 add。

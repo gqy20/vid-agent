@@ -1,27 +1,27 @@
 # EP01 What Git Stores
 
-当前审查输出固定放在 `renders/current/`，每次修改直接覆盖同名文件，不新增临时版本目录。
+当前审查输出固定放在 `current/`，每次修改直接覆盖同名文件，不新增临时版本目录。
 
 ## 完整输出
 
 | 文件 | 时长 | 内容 |
 | --- | ---: | --- |
-| `renders/current/final/ep01-what-git-stores_silent.mp4` | 210s | EP01 正片静音版 |
-| `renders/current/final/ep01-what-git-stores_with-audio.mp4` | 210s | EP01 正片，包含中文配音和全程低音量 BGM |
-| `renders/current/published/ep01-what-git-stores_published.mp4` | 223s | EP01 发布版，包含公共片头、正片和公共片尾 |
+| `current/ep01-what-git-stores.mp4` | 210s | 当前 EP01 正片 |
+| `tmp/legacy-final/` | - | 历史静音版与带音频版，仅供追溯 |
+| `current/release/ep01-what-git-stores.mp4` | 223s | EP01 发布版，包含公共片头、正片和公共片尾 |
 
 ## 音频素材
 
 | 文件 | 用途 |
 | --- | --- |
-| `renders/current/audio/voiceover.txt` | 配音文稿 |
-| `renders/current/audio/voiceover.mp3` | 原始中文配音 |
-| `renders/current/audio/voiceover.srt` | 原始配音字幕时间轴 |
-| `renders/current/audio/voiceover_segments/` | 分段配音文稿、原始音频、规范化音频、SRT 和对齐说明 |
-| `renders/current/audio/voiceover-aligned.m4a` | 按 8 个片段起点和分段 SRT 重新对齐后的配音 |
-| `renders/current/audio/bgm_raw.mp3` | 原始 BGM |
-| `renders/current/audio/bgm_180.mp3` | 裁剪并淡入淡出的课程 BGM 源，混音时会循环覆盖完整正片 |
-| `renders/current/audio/mix.m4a` | 210 秒最终混音，用于封装进成片 |
+| `current/audio/voiceover.txt` | 配音文稿 |
+| `current/audio/voiceover.mp3` | 原始中文配音 |
+| `current/audio/voiceover.srt` | 原始配音字幕时间轴 |
+| `current/audio/segments/` | 生成的原始音频、规范化音频和 SRT；可维护文稿位于根级 `git-course/` 分集目录 |
+| `current/audio/voiceover-aligned.m4a` | 按 8 个片段起点和分段 SRT 重新对齐后的配音 |
+| `current/audio/bgm_raw.mp3` | 原始 BGM |
+| `current/audio/bgm_180.mp3` | 裁剪并淡入淡出的课程 BGM 源，混音时会循环覆盖完整正片 |
+| `current/audio/mix.m4a` | 210 秒最终混音，用于封装进成片 |
 
 ## 分段输出
 

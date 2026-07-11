@@ -4,18 +4,8 @@ import {seconds} from '../timeline';
 import {CodeBlock, CommandPill, CourseLayout, EpisodeTitleCard, ManimClip, SceneCaption, SceneSequence} from '../kit';
 import {COLOR, FONT} from '../palette';
 import {TYPE} from '../typography';
-
-export const EP07_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'compare-merge', title: '对比 merge', duration: seconds(26)},
-  {id: 'replay-model', title: '重放模型', duration: seconds(44)},
-  {id: 'new-identity', title: '新身份', duration: seconds(30)},
-  {id: 'fast-forward-after', title: '快进', duration: seconds(26)},
-  {id: 'public-risk', title: '公开历史', duration: seconds(28)},
-  {id: 'takeaway', title: '结论', duration: seconds(14)},
-] as const;
-
-export const EP07_DURATION_IN_FRAMES = EP07_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
+import {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep07SceneId = (typeof EP07_SCENES)[number]['id'];
 

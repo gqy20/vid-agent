@@ -17,18 +17,8 @@ import {
 } from '../kit';
 import {COLOR, FONT} from '../palette';
 import {TYPE} from '../typography';
-
-export const EP05_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'symbolic-ref', title: '符号引用', duration: seconds(22)},
-  {id: 'terminal', title: '命令', duration: seconds(22)},
-  {id: 'switch', title: 'HEAD 切换', duration: seconds(32)},
-  {id: 'commit-current', title: '当前分支前进', duration: seconds(32)},
-  {id: 'detached', title: '分离 HEAD', duration: seconds(36)},
-  {id: 'takeaway', title: '结论', duration: seconds(24)},
-] as const;
-
-export const EP05_DURATION_IN_FRAMES = EP05_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
+import {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep05SceneId = (typeof EP05_SCENES)[number]['id'];
 

@@ -6,7 +6,7 @@
 
 - Composition：`GitCourseEp04BranchIsPointer`
 - 源码：`remotion/src/videos/git-course/`
-- 输出：`renders/current/ep04-branch-is-pointer.mp4`
+- 输出：`current/ep04-branch-is-pointer.mp4`
 - 缩略图：`thumbnail.png`
 - Manim 参考资产：`remotion/public/git-course/manim/ep04/branch-pointer.mp4`
 
@@ -25,7 +25,7 @@ scripts/fetch-progit-references.sh
 .claude/skills/manim-viz/scripts/render_scene.sh scripts/manim/git-course/ep04_branch_pointer.py BranchPointer qh /home/qy113/workspace/project/2607/vid-agent/renders/2026-07-06-git-course-ep04-manim/renders/final
 cp renders/2026-07-06-git-course-ep04-manim/renders/final/ep04_branch_pointer_qh_20260706-210342.mp4 remotion/public/git-course/manim/ep04/branch-pointer.mp4
 cd remotion
-REMOTION_VIDEO_FILTER=git-course pnpm exec remotion render src/index.ts GitCourseEp04BranchIsPointer renders/git-course/ep04-branch-is-pointer/renders/current/ep04-branch-is-pointer.mp4 --overwrite --timeout=120000 --concurrency=2
+REMOTION_VIDEO_FILTER=git-course pnpm exec remotion render src/index.ts GitCourseEp04BranchIsPointer renders/git-course/ep04-branch-is-pointer/current/ep04-branch-is-pointer.mp4 --overwrite --timeout=120000 --concurrency=2
 ```
 
 ## 检查命令
@@ -35,12 +35,12 @@ cd remotion
 pnpm typecheck
 pnpm meta:sync renders/git-course/ep04-branch-is-pointer
 pnpm video:audit \
-  renders/git-course/ep04-branch-is-pointer/renders/current/ep04-branch-is-pointer.mp4 \
-  renders/git-course/ep04-branch-is-pointer/renders/tmp/audit-visual
+  renders/git-course/ep04-branch-is-pointer/current/ep04-branch-is-pointer.mp4 \
+  renders/git-course/ep04-branch-is-pointer/tmp/audit-visual
 ```
 
 最终抽帧检查图：
 
 ```text
-renders/tmp/audit-visual/contact-16.jpg
+tmp/audit-visual/contact-16.jpg
 ```

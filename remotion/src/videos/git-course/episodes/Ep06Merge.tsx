@@ -15,18 +15,8 @@ import {
 } from '../kit';
 import {COLOR, FONT} from '../palette';
 import {TYPE} from '../typography';
-
-export const EP06_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'fast-forward', title: '快进', duration: seconds(30)},
-  {id: 'diverged', title: '分叉', duration: seconds(26)},
-  {id: 'three-way', title: '三方合并', duration: seconds(40)},
-  {id: 'merge-commit', title: '合并提交', duration: seconds(30)},
-  {id: 'conflict', title: '冲突', duration: seconds(28)},
-  {id: 'takeaway', title: '结论', duration: seconds(14)},
-] as const;
-
-export const EP06_DURATION_IN_FRAMES = EP06_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP06_DURATION_IN_FRAMES, EP06_SCENES} from '../data/episodeTimelines.generated';
+import {EP06_DURATION_IN_FRAMES, EP06_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep06SceneId = (typeof EP06_SCENES)[number]['id'];
 

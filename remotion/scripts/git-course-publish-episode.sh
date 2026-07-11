@@ -8,7 +8,7 @@
 #   scripts/git-course-publish-episode.sh <episode-id> <main-video>
 #
 # Output:
-#   renders/git-course/<episode-id>/renders/current/published/<episode-id>_published.mp4
+#   renders/git-course/<episode-id>/current/release/<episode-id>.mp4
 set -euo pipefail
 
 [ $# -eq 2 ] || {
@@ -19,19 +19,19 @@ set -euo pipefail
 EPISODE_ID="$1"
 MAIN_VIDEO="$2"
 
-INTRO_VIDEO="${INTRO_VIDEO:-renders/git-course/visible-system-intro/renders/current/visible-system-intro.mp4}"
-INTRO_AUDIO="${INTRO_AUDIO:-renders/git-course/visible-system-intro/renders/current/audio/intro-bgm.m4a}"
+INTRO_VIDEO="${INTRO_VIDEO:-renders/git-course/visible-system-intro/current/visible-system-intro.mp4}"
+INTRO_AUDIO="${INTRO_AUDIO:-renders/git-course/visible-system-intro/current/audio/intro-bgm.m4a}"
 OUTRO_VIDEO="${OUTRO_VIDEO:-renders/git-course/outro/current/ref-lightbox-outro.mp4}"
 OUTRO_AUDIO="${OUTRO_AUDIO:-renders/git-course/outro/current/audio/outro-bgm.m4a}"
-INTRO_AUDIO_GAIN_DB="${INTRO_AUDIO_GAIN_DB:-8}"
+INTRO_AUDIO_GAIN_DB="${INTRO_AUDIO_GAIN_DB:-0}"
 OUTRO_AUDIO_GAIN_DB="${OUTRO_AUDIO_GAIN_DB:--5}"
 
-OUT_DIR="renders/git-course/${EPISODE_ID}/renders/current/published"
-TMP_DIR="renders/git-course/${EPISODE_ID}/renders/tmp/published-build"
-OUT_FILE="${OUT_DIR}/${EPISODE_ID}_published.mp4"
+OUT_DIR="renders/git-course/${EPISODE_ID}/current/release"
+TMP_DIR="renders/git-course/${EPISODE_ID}/tmp/release-build"
+OUT_FILE="${OUT_DIR}/${EPISODE_ID}.mp4"
 INTRO_WITH_AUDIO="${TMP_DIR}/intro-with-audio.mp4"
 OUTRO_WITH_AUDIO="${TMP_DIR}/outro-with-audio.mp4"
-TMP_OUT="${TMP_DIR}/${EPISODE_ID}_published.mp4"
+TMP_OUT="${TMP_DIR}/${EPISODE_ID}.mp4"
 
 for file in "$INTRO_VIDEO" "$INTRO_AUDIO" "$MAIN_VIDEO" "$OUTRO_VIDEO" "$OUTRO_AUDIO"; do
   if [ ! -f "$file" ]; then

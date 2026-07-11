@@ -18,5 +18,20 @@ renders/*/renders/*.mp4
 renders/*/renders/*/*.mp4
 !renders/*/renders/current/*.mp4
 
+# Series layout: renders/<series>/<episode>/{current,tmp}
+renders/*/*/tmp/
+renders/*/*/current/release/
+renders/*/*/current/release/*.png
+renders/*/*/current/release/*.jpg
+renders/*/*/current/release/*.jpeg
+renders/*/*/current/release/*.svg
+renders/*/*/current/scenes/
+renders/*/*/current/*.mp4
+renders/*/*/current/*/*.mp4
+renders/*/*/current/audio/**/*.mp3
+renders/*/*/current/audio/**/*.m4a
+renders/*/*/current/audio/**/*.wav
+renders/*/*/current/audio/**/*.srt
+
 # 工具过程产物（impeccable skill critique 报告，不入库）
 .impeccable/

@@ -39,6 +39,6 @@ const body = `
   ${pointerModel}`;
 
 K.render({
-  outDir: 'renders/git-course/ep04-branch-is-pointer/renders/current/publishing',
+  outDir: 'renders/git-course/ep04-branch-is-pointer/current/release',
   body,
 });

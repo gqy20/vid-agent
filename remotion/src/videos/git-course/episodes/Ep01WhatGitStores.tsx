@@ -17,19 +17,8 @@ import {
 } from '../kit';
 import {COLOR, FONT} from '../palette';
 import {TYPE} from '../typography';
-
-export const EP01_SCENES = [
-  {id: 'hook', title: '问题', duration: seconds(12)},
-  {id: 'bad-model', title: '错误模型', duration: seconds(22)},
-  {id: 'version-control', title: '版本控制', duration: seconds(30)},
-  {id: 'snapshot-model', title: '快照流', duration: seconds(32)},
-  {id: 'practice-check', title: '实践验证', duration: seconds(30)},
-  {id: 'local-history', title: '本地历史', duration: seconds(30)},
-  {id: 'integrity', title: '完整性', duration: seconds(30)},
-  {id: 'takeaway', title: '结论', duration: seconds(24)},
-] as const;
-
-export const EP01_DURATION_IN_FRAMES = EP01_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
+import {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep01SceneId = (typeof EP01_SCENES)[number]['id'];
 

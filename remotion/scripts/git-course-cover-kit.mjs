@@ -135,7 +135,7 @@ export const neq = ({x = 828, y = 674} = {}) =>
   `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="900" fill="${TOMATO}">≠</text>`;
 
 // 组装 SVG、写盘、rsvg 转 PNG。outDir 相对 cwd（约定从 remotion/ 跑）。
-export function render({outDir, name = '01_cover.svg', body}) {
+export function render({outDir, name = 'cover.svg', body}) {
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>${DEFS}</defs>

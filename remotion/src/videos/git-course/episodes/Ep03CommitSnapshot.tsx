@@ -15,18 +15,8 @@ import {
 import {COLOR, FONT} from '../palette';
 import {seconds, WIDTH} from '../timeline';
 import {TYPE} from '../typography';
-
-export const EP03_SCENES = [
-  {id: 'hook', title: '误解', duration: seconds(12)},
-  {id: 'from-index', title: '读取 Index', duration: seconds(26)},
-  {id: 'object-model', title: '对象模型', duration: seconds(36)},
-  {id: 'commit-fields', title: 'commit 字段', duration: seconds(30)},
-  {id: 'parent-chain', title: 'parent', duration: seconds(28)},
-  {id: 'hash-identity', title: 'hash', duration: seconds(26)},
-  {id: 'takeaway', title: '结论', duration: seconds(22)},
-] as const;
-
-export const EP03_DURATION_IN_FRAMES = EP03_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+export {EP03_DURATION_IN_FRAMES, EP03_SCENES} from '../data/episodeTimelines.generated';
+import {EP03_DURATION_IN_FRAMES, EP03_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep03SceneId = (typeof EP03_SCENES)[number]['id'];
 

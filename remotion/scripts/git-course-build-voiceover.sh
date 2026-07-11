@@ -4,7 +4,7 @@
 # Run from the Remotion project root.
 #
 # Usage:
-#   scripts/git-course-build-voiceover.sh <episode-id> <manifest.tsv> [main-video]
+#   scripts/git-course-build-voiceover.sh <episode-id> [main-video]
 #
 # Manifest columns, tab-separated:
 #   segment_id  voice_start_seconds  scene_end_seconds
@@ -13,8 +13,8 @@
 #   01_hook  0.2  12.0
 #
 # Outputs:
-#   renders/git-course/<episode-id>/renders/current/audio/voiceover-aligned.m4a
-#   renders/git-course/<episode-id>/renders/current/audio/mix.m4a
+#   renders/git-course/<episode-id>/current/audio/voiceover-aligned.m4a
+#   renders/git-course/<episode-id>/current/audio/mix.m4a
 #
 # Optional env:
 #   TTS_MODEL=speech-2.8-hd
@@ -33,24 +33,19 @@ usage() {
   sed -n '2,34p' "$0" >&2
 }
 
-[ $# -ge 2 ] || {
+[ $# -ge 1 ] || {
   usage
   exit 1
 }
 
 EPISODE_ID="$1"
-MANIFEST="$2"
-MAIN_VIDEO="${3:-}"
+MAIN_VIDEO="${2:-}"
+MANIFEST="$(node scripts/git-course.mjs narration "$EPISODE_ID" | tail -n 1)"
 
-AUDIO_DIR="renders/git-course/${EPISODE_ID}/renders/current/audio"
-if [ -d "${AUDIO_DIR}/voiceover_segments" ]; then
-  SEGMENTS_DIR="${AUDIO_DIR}/voiceover_segments"
-elif [ -d "${AUDIO_DIR}/segments" ]; then
-  SEGMENTS_DIR="${AUDIO_DIR}/segments"
-else
-  echo "Segments directory not found under ${AUDIO_DIR}" >&2
-  exit 1
-fi
+AUDIO_DIR="renders/git-course/${EPISODE_ID}/current/audio"
+SOURCE_SEGMENTS_DIR="$(dirname "$MANIFEST")"
+SEGMENTS_DIR="${AUDIO_DIR}/segments"
+mkdir -p "$SEGMENTS_DIR"
 
 TTS_MODEL="${TTS_MODEL:-speech-2.8-hd}"
 TTS_VOICE="${TTS_VOICE:-Chinese (Mandarin)_Gentleman}"
@@ -74,6 +69,10 @@ fi
   echo "Manifest not found: $MANIFEST" >&2
   exit 1
 }
+
+# Keep maintainable narration sources under git-course; stage only the files
+# needed by the media build into current.
+cp "$MANIFEST" "${SEGMENTS_DIR}/manifest.tsv"
 [ -f "$BGM_FILE" ] || {
   echo "BGM file not found: $BGM_FILE" >&2
   exit 1
@@ -81,7 +80,7 @@ fi
 
 VOICEOVER_OUT="${AUDIO_DIR}/voiceover-aligned.m4a"
 MIX_OUT="${AUDIO_DIR}/mix.m4a"
-TMP_DIR="renders/git-course/${EPISODE_ID}/renders/tmp/voiceover-build"
+TMP_DIR="renders/git-course/${EPISODE_ID}/tmp/voiceover-build"
 mkdir -p "$TMP_DIR"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
@@ -129,12 +128,14 @@ clean_srt_punctuation() {
 
 if [ "${SKIP_TTS:-0}" != "1" ]; then
   for segment in "${SEGMENTS[@]}"; do
+    source_text_file="${SOURCE_SEGMENTS_DIR}/${segment}.txt"
     text_file="${SEGMENTS_DIR}/${segment}.txt"
     audio_file="${SEGMENTS_DIR}/${segment}.mp3"
-    [ -f "$text_file" ] || {
-      echo "Text file not found: $text_file" >&2
+    [ -f "$source_text_file" ] || {
+      echo "Text file not found: $source_text_file" >&2
       exit 1
     }
+    cp "$source_text_file" "$text_file"
     mmx speech synthesize \
       --model "$TTS_MODEL" \
       --voice "$TTS_VOICE" \

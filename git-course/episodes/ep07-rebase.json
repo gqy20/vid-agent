@@ -1,0 +1,361 @@
+{
+  "episodeId": "ep07-rebase",
+  "title": "Rebase 做了什么",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 180,
+  "sourceOfTruth": {},
+  "states": {
+    "diverged": {
+      "main": "C3",
+      "feature": "C4",
+      "base": "C2",
+      "head": "feature",
+      "commits": [
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ]
+    },
+    "rebased": {
+      "main": "C3",
+      "feature": "C4'",
+      "base": "C3",
+      "head": "feature",
+      "commits": [
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+        "C4'"
+      ]
+    },
+    "fastForwarded": {
+      "main": "C4'",
+      "feature": "C4'",
+      "head": "main",
+      "commits": [
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+        "C4'"
+      ]
+    },
+    "sharedRisk": {
+      "old": "C4",
+      "new": "C4'",
+      "meaning": "same patch, different identity"
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 12,
+      "primaryTechnique": "Remotion title + graph",
+      "components": [
+        "CourseLayout",
+        "EpisodeTitleCard",
+        "CenterGraph",
+        "QuestionCaption"
+      ],
+      "goal": "提出 rebase 是 replay，不是整体平移。",
+      "beats": [
+        {
+          "time": [
+            0,
+            12
+          ],
+          "visual": "分叉历史与 rebase = replay",
+          "motion": "标题、分叉图、等式依次出现",
+          "state": "diverged",
+          "narration": "rebase 是重新播放修改。",
+          "audit": [
+            "不把节点整体拖动"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "rebase 最容易被误解成移动提交。<#0.35#>\n其实更准确的模型是 replay。<#0.35#>\nGit 会把你的独有修改，重新播放到新的起点后面。"
+      }
+    },
+    {
+      "id": "compare-merge",
+      "title": "对比 merge",
+      "start": 12,
+      "duration": 26,
+      "primaryTechnique": "GitGraph split view",
+      "components": [
+        "GitGraph",
+        "SceneCaption"
+      ],
+      "goal": "说明 merge 保留分叉，rebase 让历史更线性。",
+      "beats": [
+        {
+          "time": [
+            12,
+            30
+          ],
+          "visual": "merge commit vs rebase straight line",
+          "motion": "左右图依次出现",
+          "state": "compare",
+          "narration": "形状不同，快照可以等价。",
+          "audit": [
+            "不暗示 rebase 永远更好"
+          ]
+        },
+        {
+          "time": [
+            30,
+            38
+          ],
+          "visual": "结论句",
+          "motion": "字幕保持",
+          "state": "compare",
+          "narration": "rebase 改的是历史形状。",
+          "audit": [
+            "文字克制"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_compare_merge",
+        "voiceStart": 12.35,
+        "text": "merge 会保留分叉，并用一个合并提交记录汇合点。<#0.35#>\nrebase 则把 feature 的独有修改，重放到 main 后面。<#0.35#>\n两者最后的文件内容可能接近。<#0.25#>\n但历史形状完全不同。"
+      }
+    },
+    {
+      "id": "replay-model",
+      "title": "重放模型",
+      "start": 38,
+      "duration": 44,
+      "primaryTechnique": "Manim replay model",
+      "components": [
+        "ManimClip",
+        "ManimBridge",
+        "SceneCaption"
+      ],
+      "goal": "展示 find base、extract patch、replay 的过程。",
+      "beats": [
+        {
+          "time": [
+            38,
+            62
+          ],
+          "visual": "找 C2 并提取 feature 独有 patch",
+          "motion": "base 高亮，C4/C5 变 patch 卡",
+          "state": "patches",
+          "narration": "先找共同祖先，再提取独有修改。",
+          "audit": [
+            "patch 不是 commit"
+          ]
+        },
+        {
+          "time": [
+            62,
+            82
+          ],
+          "visual": "patch 在 C3 后重放生成 C4'/C5'",
+          "motion": "patch 依次应用到新 base",
+          "state": "rebased",
+          "narration": "在新的 base 上按顺序重放。",
+          "audit": [
+            "prime 标记可读"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_replay_model",
+        "voiceStart": 38.35,
+        "text": "rebase 的第一步，是找到共同祖先。<#0.35#>\n这里是 C2。<#0.35#>\n然后 Git 看 feature 独有的提交。<#0.35#>\n把 C4 和 C5 的修改提取成 patch。<#0.35#>\n最后在 main 的最新提交后面，按原顺序重新应用这些 patch。"
+      }
+    },
+    {
+      "id": "new-identity",
+      "title": "新身份",
+      "start": 82,
+      "duration": 30,
+      "primaryTechnique": "Commit card + hash motion",
+      "components": [
+        "ManimClip",
+        "SceneCaption"
+      ],
+      "goal": "强调重放后是新的 commit 身份。",
+      "beats": [
+        {
+          "time": [
+            82,
+            100
+          ],
+          "visual": "C4 与 C4' 字段对比",
+          "motion": "parent 行高亮",
+          "state": "identity-compare",
+          "narration": "parent 变了。",
+          "audit": [
+            "字段可读"
+          ]
+        },
+        {
+          "time": [
+            100,
+            112
+          ],
+          "visual": "hash 从旧到新",
+          "motion": "hash 更新",
+          "state": "hash-changed",
+          "narration": "身份也会变。",
+          "audit": [
+            "不展开 hash 算法"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_new_identity",
+        "voiceStart": 82.35,
+        "text": "重放之后，新提交不是原来的提交。<#0.35#>\n即使文件内容一样，parent 已经变了。<#0.35#>\nparent 是 commit 身份的一部分。<#0.35#>\n所以 hash 也会变。<#0.35#>\n这就是 rebase 会重写历史的原因。"
+      }
+    },
+    {
+      "id": "fast-forward-after",
+      "title": "快进",
+      "start": 112,
+      "duration": 26,
+      "primaryTechnique": "GitGraph branchMotion",
+      "components": [
+        "CommandPill",
+        "GitGraph",
+        "SideLabel"
+      ],
+      "goal": "展示 rebase 后 main 可 fast-forward。",
+      "beats": [
+        {
+          "time": [
+            112,
+            130
+          ],
+          "visual": "feature 已在 main 后，命令 git merge feature",
+          "motion": "命令出现，图保持",
+          "state": "rebased",
+          "narration": "变基完成后，feature 站在 main 后面。",
+          "audit": [
+            "不出现 merge commit"
+          ]
+        },
+        {
+          "time": [
+            130,
+            138
+          ],
+          "visual": "main 快进到 C4'",
+          "motion": "main 指针前进",
+          "state": "fastForwarded",
+          "narration": "main 只需要 fast-forward。",
+          "audit": [
+            "快进关系清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_fast_forward_after",
+        "voiceStart": 112.35,
+        "text": "rebase 完成后，feature 已经接在 main 后面。<#0.35#>\n这时再把 feature 合回 main，通常只需要 fast-forward。<#0.35#>\nmain 指针向前走，历史保持一条直线。"
+      }
+    },
+    {
+      "id": "public-risk",
+      "title": "公开历史",
+      "start": 138,
+      "duration": 28,
+      "primaryTechnique": "Graph + warning panel",
+      "components": [
+        "GitGraph",
+        "SceneCaption"
+      ],
+      "goal": "说明不要随便 rebase 已共享提交。",
+      "beats": [
+        {
+          "time": [
+            138,
+            156
+          ],
+          "visual": "C4 与 C4' 两个身份",
+          "motion": "remote C4 与 local C4' 对照",
+          "state": "sharedRisk",
+          "narration": "同一份修改会出现两个身份。",
+          "audit": [
+            "不做夸张警告"
+          ]
+        },
+        {
+          "time": [
+            156,
+            166
+          ],
+          "visual": "规则卡",
+          "motion": "规则卡进入",
+          "state": "sharedRisk",
+          "narration": "不要 rebase 共享历史。",
+          "audit": [
+            "文字短"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_public_risk",
+        "voiceStart": 138.35,
+        "text": "风险来自共享历史。<#0.35#>\n如果旧的 C4 和 C5 已经推给别人，别人可能正在基于它们工作。<#0.35#>\n你本地 rebase 后得到的是 C4 prime 和 C5 prime。<#0.35#>\n它们是新的身份。<#0.35#>\n所以公共分支不要随便 rebase。"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "结论",
+      "start": 166,
+      "duration": 14,
+      "primaryTechnique": "Minimal graph summary",
+      "components": [
+        "GitGraph",
+        "SceneCaption"
+      ],
+      "goal": "收束 replay、新身份和安全边界。",
+      "beats": [
+        {
+          "time": [
+            166,
+            180
+          ],
+          "visual": "replay / new identity / do not rebase shared",
+          "motion": "三条规则依次高亮",
+          "state": "summary",
+          "narration": "rebase 重放修改，生成新的 commit 身份。",
+          "audit": [
+            "结束稳定"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 166.25,
+        "text": "rebase 做三件事。<#0.25#>\n找到共同祖先。<#0.25#>\n提取独有修改。<#0.25#>\n在新起点后面重放。<#0.35#>\n历史更直，但提交身份会改变。"
+      }
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP07：Rebase 做了什么\n\n## 核心句\n\nrebase 不是把分支“挪过去”。它会找出当前分支独有的提交，把这些修改按顺序在新的 base 上重新播放，生成新的 commit 身份。\n\n## 观众要带走的理解\n\n- rebase 的主动作是 replay，不是 merge。\n- 变基后快照结果可以和 merge 一样，但历史形状不同。\n- 被 replay 的 commit 会变成新 commit，hash 会变。\n- 已经共享给别人的提交不要随便 rebase。\n\n## 镜头结构\n\n1. 用分叉历史提出：为什么有人想要一条直线历史。\n2. 对比 merge 和 rebase 的结果形状。\n3. 用 Manim 展示 find base、提取 patch、逐个 replay。\n4. 展示 `C4` 变成 `C4'`，强调身份改变。\n5. 展示 rebase 后 main 可以 fast-forward。\n6. 用公开历史风险做安全边界。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep07-rebase/`](ep07-rebase/README.md)。\n",
+    "scriptMarkdown": "# EP07 Rebase 做了什么 - 脚本\n\n## 制作目标\n\n本集解决第七个误解：rebase 不是把一条分支整体搬到另一条分支后面。它会找出当前分支相对共同祖先的独有修改，把这些修改按原顺序在新的 base 上重新播放，生成新的 commit。\n\n观众看完后应该能说出三句话：\n\n- rebase 是 replay 独有修改。\n- rebase 后 commit 身份会改变。\n- 不要随便 rebase 已经共享给别人的提交。\n\n## 官方依据\n\n本集知识依据来自 Pro Git：\n\n- `rebasing.asc:23-24`：rebase 会把提交到某一分支上的修改移至另一分支上，就像重新播放。\n- `rebasing.asc:36-42`：rebase 会找共同祖先、提取当前分支相对祖先的修改，再应用到目标分支。\n- `rebasing.asc:55-58`：rebase 和 merge 最终快照可以一样，但历史更线性。\n- `rebasing.asc:64-65`：rebase 按原有次序应用提交，merge 把最终结果合在一起。\n- `rebasing.asc:145-156`：不要对别人可能基于其开发的公开提交执行 rebase；rebase 会丢弃旧提交并新建相似但不同的提交。\n- `rewriting-history.asc:78-79`：历史重写会重写范围内提交及其后裔。\n\n## 技术原则\n\n- 主视频使用 Remotion 编排，replay 过程建议使用 Manim。\n- merge/rebase 对比必须克制，避免暗示 rebase 永远更好。\n- `C4` 和 `C4'` 必须使用不同 hash/身份表示，不只换位置。\n- 公共历史风险用短场景说明，不展开 force push 教程。\n\n## Remotion / Manim / 素材分工\n\n| 片段 | 使用技术 | 原因 | 本地资产状态 | 输出物 |\n|---|---|---|---|---|\n| 0-12s hook | Remotion | 抛出直线历史问题 | 已有 Git 图组件 | Remotion scene |\n| 12-38s compare-merge | Remotion | 承接 EP06，对比 merge commit | 已有 `GitGraph` | Remotion scene |\n| 38-82s replay-model | Manim + Remotion | 找 base、提取 patch、replay 是复杂关系 | 需新增 rebase replay 场景 | Manim mp4 + Remotion captions |\n| 82-112s new-identity | Manim + Remotion | hash 改变需要清楚表现 | 可复用 hash 场景风格 | Manim mp4 + Remotion captions |\n| 112-138s fast-forward-after | Remotion | rebase 后 main 快进 | 已有 branch motion | Remotion scene |\n| 138-166s public-risk | Remotion | 安全边界说明 | Git graph + warning panel | Remotion scene |\n| 166-180s takeaway | Remotion | 总结 replay / identity / safety | Minimal graph | Remotion scene |\n\n## 外部图片需求\n\n本集不需要外部图片。Pro Git 的 rebase 图可作为参考，但主视觉必须重绘。\n\n## 片段总览\n\n| 全局时间 | Scene | 时长 | 目的 | 主技术 | 主视觉 |\n|---:|---|---:|---|---|---|\n| 0-12s | hook | 12s | 提出 rebase 是什么 | Remotion title + graph | 分叉历史 |\n| 12-38s | compare-merge | 26s | 和 merge 的历史形状对比 | GitGraph split view | merge commit vs straight line |\n| 38-82s | replay-model | 44s | 展示 replay 过程 | Manim | base、patch、new base |\n| 82-112s | new-identity | 30s | 强调新 commit 身份 | Manim hash motion | C4 -> C4' |\n| 112-138s | fast-forward-after | 26s | rebase 后 main 可快进 | GitGraph branchMotion | main 前进 |\n| 138-166s | public-risk | 28s | 解释公开历史风险 | Graph + warning | two versions of same work |\n| 166-180s | takeaway | 14s | 收束三条规则 | Minimal graph | replay / new identity / do not rebase shared |\n\n## 旁白草案\n\n### 0-12s / hook\n\n> 第七集，我们讲 rebase。它常被说成“整理历史”，但 Git 实际做的不是整理文字，而是重新播放提交带来的修改。\n\n字幕短句：\n\n- `rebase = replay`\n- `不是把节点整体平移`\n\n### 12-38s / compare-merge\n\n> 先和 merge 对比。merge 保留分叉，并创建一个汇合点。rebase 会把 feature 上独有的修改，放到 main 的最新位置之后，让历史看起来像一条直线。\n\n字幕短句：\n\n- `merge：保留分叉`\n- `rebase：重放成直线`\n\n### 38-82s / replay-model\n\n> Git 会先找到共同祖先 C2。然后找出 feature 相对 C2 独有的修改，比如 C4 带来的 patch。接着把这些修改按顺序应用到新的 base，也就是 main 的最新提交后面。\n\n字幕短句：\n\n- `找共同祖先`\n- `提取独有修改`\n- `在新 base 上重放`\n\n### 82-112s / new-identity\n\n> 注意，重放后的提交不是原来的 C4。它内容可能等价，但 parent 变了，hash 也会变。所以我们把它叫作 C4 prime。\n\n字幕短句：\n\n- `C4 变成 C4'`\n- `parent 变，身份变`\n\n### 112-138s / fast-forward-after\n\n> 变基完成后，feature 已经站在 main 后面。这时如果回到 main 合并 feature，通常只需要 fast-forward，main 指针向前移动。\n\n字幕短句：\n\n- `rebase 后可以快进`\n- `main 指针向前`\n\n### 138-166s / public-risk\n\n> rebase 的代价是重写历史。如果这些提交已经推送，并且别人基于它们继续工作，你再 rebase，就会让同一份工作出现两个身份。公共历史里要非常谨慎。\n\n字幕短句：\n\n- `公开提交不要随便 rebase`\n- `同一份修改会出现两个身份`\n\n### 166-180s / takeaway\n\n> 所以记住：rebase 是把修改重新播放到新 base 上。它能让历史更直，但会生成新的 commit 身份。\n\n字幕短句：\n\n- `replay 修改`\n- `生成新 commit`\n- `不要重写共享历史`\n",
+    "beatsMarkdown": "# EP07 Rebase 做了什么 - Beat Sheet\n\n> 复杂镜头设计参考。scene 边界以 `episode JSON` 为唯一事实源；本文件中的历史秒数不参与构建。\n\n时间使用全局秒。括号内为 scene 内局部秒。\n\n## 全局约束\n\n- 分辨率：1920x1080。\n- FPS：30。\n- 主背景：`COLOR.canvas.base`。\n- 语义色：`main = COLOR.git.main`，`feature = COLOR.git.feature`，`HEAD = COLOR.git.head`。\n- rebase 必须表现为 replay 修改，不得表现为整条分支被物理拖动。\n- 新提交必须标记为 `C4'`、`C5'` 或新 hash，不能与旧提交混淆。\n\n## 0-12s / hook\n\n目标：提出 rebase 是 replay。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 0.0-2.0 | 0.0-2.0 | 标题 `7. Rebase 做了什么` | 淡入 | `EpisodeTitleCard` | 无 | 第七集，我们讲 rebase | 标题独占 |\n| 2.0-8.0 | 2.0-8.0 | 分叉历史 | main/feature 分叉出现 | `CenterGraph` | diverged | 它不是整体平移 | 分叉清楚 |\n| 8.0-12.0 | 8.0-12.0 | `rebase = replay` | 等式出现 | text + graph | diverged | 重新播放修改 | 不使用花哨动效 |\n\n## 12-38s / compare-merge\n\n目标：和 merge 对比历史形状。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 12.0-20.0 | 0.0-8.0 | 左侧 merge 结果 | M1 双 parent 出现 | `GitGraph` | merge-result | merge 保留分叉 | 两图尺寸一致 |\n| 20.0-30.0 | 8.0-18.0 | 右侧 rebase 目标 | 直线占位出现 | `GitGraph` | rebase-target | rebase 让历史更直 | 不暗示内容不同 |\n| 30.0-38.0 | 18.0-26.0 | 对比标题 | `形状不同，快照可等价` | `SceneCaption` | compare | 最终快照可以一样 | 文字克制 |\n\n## 38-82s / replay-model\n\n目标：用 Manim 展示 rebase 的三个动作。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 38.0-50.0 | 0.0-12.0 | 找共同祖先 C2 | base 高亮 | `ManimClip` | base=C2 | 先找共同祖先 | base 颜色中性 |\n| 50.0-62.0 | 12.0-24.0 | 提取 feature 独有修改 | C4/C5 变成 patch 卡 | `ManimClip` | patches | 提取独有修改 | patch 不是 commit |\n| 62.0-74.0 | 24.0-36.0 | 新 base C3 | patch 移到 C3 后 | `ManimClip` | replaying | 在新 base 上重放 | 不拖整条分支 |\n| 74.0-82.0 | 36.0-44.0 | C4'/C5' 生成 | 新 commit 依次出现 | `ManimClip` | rebased | 生成新的提交 | prime 标记可读 |\n\n## 82-112s / new-identity\n\n目标：强调 rebase 产生新 commit 身份。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 82.0-90.0 | 0.0-8.0 | C4 与 C4' 对比 | 两张 commit card 出现 | `ManimClip` or Remotion card | identity-compare | 内容可能相似 | 卡片不拥挤 |\n| 90.0-100.0 | 8.0-18.0 | parent 字段变化 | parent 行高亮 | object card | parent changed | parent 变了 | 字段可读 |\n| 100.0-112.0 | 18.0-30.0 | hash 改变 | hash 从旧到新 | `HashScene` style | hash changed | 身份也变了 | 不讲 hash 算法细节 |\n\n## 112-138s / fast-forward-after\n\n目标：展示 rebase 后 main 可以快进。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 112.0-120.0 | 0.0-8.0 | rebase 后 feature 在 main 后 | 图稳定 | `GitGraph` | feature-after-main | feature 已站到 main 后面 | 关系清楚 |\n| 120.0-130.0 | 8.0-18.0 | `git merge feature` | 命令出现 | `CommandPill` | merge command | 回 main 合并 | 命令降权 |\n| 130.0-138.0 | 18.0-26.0 | main 快进 | main 滑到 C5' | `branchMotion` | main=C5prime | 只需要 fast-forward | 不出现 M1 |\n\n## 138-166s / public-risk\n\n目标：说明不要重写共享历史。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 138.0-146.0 | 0.0-8.0 | 已推送的 C4 | remote 标记出现 | `GitGraph` | shared=C4 | 已共享的提交 | remote 色不抢主线 |\n| 146.0-156.0 | 8.0-18.0 | rebase 后 C4' | 同一修改两个身份 | graph compare | C4 and C4prime | 会出现两个身份 | 不画成灾难特效 |\n| 156.0-166.0 | 18.0-28.0 | 规则卡 | `不要 rebase 共享历史` | warning panel | rule | 别人可能基于它工作 | 文字短 |\n\n## 166-180s / takeaway\n\n目标：收束三条规则。\n\n| 时间 | 局部时间 | 画面 | 动作 | 技术 | 状态 | 旁白/字幕 | 审查 |\n|---:|---:|---|---|---|---|---|---|\n| 166.0-172.0 | 0.0-6.0 | replay 小图 | patch 重放一次 | mini graph | replay | rebase 是 replay | 动作一次 |\n| 172.0-176.0 | 6.0-10.0 | identity 小图 | C4 -> C4' | mini card | new identity | 新 commit 身份 | prime 可读 |\n| 176.0-180.0 | 10.0-14.0 | 安全规则 | 总结句保持 | text | rule | 不重写共享历史 | 结束稳定 |\n",
+    "qualityMarkdown": "# EP07 Rebase 做了什么 - 审查记录\n\n> 本文件是人工审查历史，不表示当前构建状态。机器状态以 `pnpm --dir remotion git-course:validate` 和最新渲染报告为准。\n\n## 当前状态\n\n- 仅完成制作脚本初稿。\n- Remotion 主视频未实现。\n- Manim replay 资产待新增或规划。\n- 尚未渲染抽帧。\n\n## 重点审查项\n\n- rebase 必须表现为 replay 独有修改，不是把节点整体平移。\n- `C4` 与 `C4'` 必须显示为不同 commit 身份。\n- merge/rebase 对比时只能对比历史形状，不暗示内容结果一定不同。\n- 公共历史风险要明确，但不能变成恐吓式大段文字。\n",
+    "readmeMarkdown": "# EP07 Rebase 做了什么 - 制作目录\n\n这个目录保存 EP07 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nrebase 是把当前分支独有的修改在新的 base 上按顺序重放。\n它改变历史形状，也会生成新的 commit 身份。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:23`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:24`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:36`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:55`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:64`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:150`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:155`\n\n原则：EP07 只讲基本 rebase 和公共历史风险。`--onto`、interactive rebase 和冲突解决留到后续进阶。\n",
+    "voiceoverDesignMarkdown": null,
+    "alignmentMarkdown": "# EP07 Audio Alignment\n\nEpisode: `ep07-rebase`\n\nTTS settings:\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n\nScene windows:\n\n| Segment | Voice start | Scene end | Normalized file |\n|---|---:|---:|---|\n| `01_hook` | 0.35s | 12.00s | `01_hook_norm.mp3` |\n| `02_compare_merge` | 12.35s | 38.00s | `02_compare_merge_norm.mp3` |\n| `03_replay_model` | 38.35s | 82.00s | `03_replay_model_norm.mp3` |\n| `04_new_identity` | 82.35s | 112.00s | `04_new_identity_norm.mp3` |\n| `05_fast_forward_after` | 112.35s | 138.00s | `05_fast_forward_after_norm.mp3` |\n| `06_public_risk` | 138.35s | 166.00s | `06_public_risk_norm.mp3` |\n| `07_takeaway` | 166.25s | 180.00s | `07_takeaway_norm.mp3` |\n\nMix strategy:\n\n- Segment voice is generated from one `.txt` file per scene via `remotion/scripts/git-course-build-voiceover.sh`.\n- Each segment is normalized with FFmpeg compression and loudness normalization to approximately `-20 LUFS`, peak around `-3 dBFS`.\n- BGM is reused from EP04 at `audio/bgm.mp3`.\n- BGM volume is fixed at `0.05`, with no sidechain ducking.\n- Aligned narration output: `audio/voiceover-aligned.m4a`.\n- Final mix output: `audio/mix.m4a`.\n\nSRT alignment:\n\n- Segment SRT files use the TTS engine timing within each generated segment.\n- Global sentence time = `manifest voice_start_seconds + segment_srt_time`.\n- SRT files were checked after generation; pause markers `<#...#>` did not appear in `.srt` output.\n"
+  },
+  "release": null
+}

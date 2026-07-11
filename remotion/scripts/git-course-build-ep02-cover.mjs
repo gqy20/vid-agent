@@ -59,6 +59,6 @@ const body = `
   ${stage({x: 1374, width: 478, color: TEAL, label: '仓库', english: 'Repository', icon: repoIcon})}`;
 
 K.render({
-  outDir: 'renders/git-course/ep02-working-tree-index-repo/renders/current/publishing',
+  outDir: 'renders/git-course/ep02-working-tree-index-repo/current/release',
   body,
 });

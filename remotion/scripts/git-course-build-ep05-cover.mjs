@@ -18,4 +18,4 @@ const body = `
     <circle cx="1160" cy="44" r="55" fill="${TEAL}" stroke="${INK}" stroke-width="7"/>
     <text x="1160" y="150" text-anchor="middle" font-family="${FONT.mono}" font-size="32" font-weight="900" fill="${INK}">commit</text>
   </g>`;
-K.render({outDir: 'renders/git-course/ep05-head/renders/current/publishing', body});
+K.render({outDir: 'renders/git-course/ep05-head/current/release', body});

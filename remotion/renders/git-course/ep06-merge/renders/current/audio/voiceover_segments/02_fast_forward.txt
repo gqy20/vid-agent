@@ -1,5 +1,0 @@
-先看最简单的情况。<#0.25#>
-main 没有新的提交，hotfix 正好在 main 后面。<#0.35#>
-执行 git merge hotfix，Git 不需要新建提交。<#0.35#>
-它只把 main 指针移动到 hotfix 的位置。<#0.35#>
-这就是 fast-forward。

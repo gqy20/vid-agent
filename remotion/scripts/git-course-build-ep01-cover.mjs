@@ -51,6 +51,6 @@ const body = `
   </g>`;
 
 K.render({
-  outDir: 'renders/git-course/ep01-what-git-stores/renders/current/publishing',
+  outDir: 'renders/git-course/ep01-what-git-stores/current/release',
   body,
 });

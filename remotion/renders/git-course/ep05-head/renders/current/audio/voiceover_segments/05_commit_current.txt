@@ -1,4 +1,0 @@
-提交时，Git 会看 HEAD 当前跟着谁。<#0.35#>
-如果 HEAD 跟着 feature，新提交就接在 feature 后面。<#0.35#>
-然后 feature 向前移动。<#0.25#>
-HEAD 仍然指向 feature，只是 feature 的位置变了。

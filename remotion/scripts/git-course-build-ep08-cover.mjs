@@ -12,4 +12,4 @@ const body = `
   ${column({x: 90, command: 'reset', fill: TOMATO, target: '移动引用'})}
   ${column({x: 710, command: 'revert', fill: MUSTARD, target: '新建提交'})}
   ${column({x: 1330, command: 'restore', fill: TEAL, target: '恢复文件'})}`;
-K.render({outDir: 'renders/git-course/ep08-reset-revert-restore/renders/current/publishing', body});
+K.render({outDir: 'renders/git-course/ep08-reset-revert-restore/current/release', body});
