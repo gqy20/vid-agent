@@ -1,46 +1,21 @@
 #!/usr/bin/env node
-// EP06 · Merge 不是复制粘贴 —— 历史形状决定 fast-forward 或 merge commit
 import * as K from './git-course-cover-kit.mjs';
-const {INK, PAPER, MUSTARD, TOMATO, TEAL, OLIVE, MUTE, FONT, esc} = K;
+const {INK, PAPER, MUSTARD, TOMATO, TEAL, FONT} = K;
 
-const folder = ({x, y, scale = 1, fill = PAPER, label, rotate = 0}) => `
-  <g transform="translate(${x} ${y}) rotate(${rotate}) scale(${scale})">
-    <path d="M38 74 C40 56 54 48 76 48 H174 C194 48 204 58 212 74 L234 112 H442 C466 112 482 130 478 154 L454 278 C450 302 434 316 408 316 H70 C46 316 30 302 28 278 L16 110 C14 88 22 76 38 74Z" fill="${fill}" stroke="${INK}" stroke-width="6"/>
-    <text x="244" y="208" text-anchor="middle" font-family="${FONT.mono}" font-size="30" font-weight="900" fill="${fill === TEAL ? PAPER : INK}">${esc(label)}</text>
-  </g>`;
-
-const commit = ({x, y, label, fill = TEAL}) => `
-  <circle cx="${x}" cy="${y}" r="30" fill="${fill}" stroke="${INK}" stroke-width="5"/>
-  <text x="${x}" y="${y + 68}" text-anchor="middle" font-family="${FONT.mono}" font-size="24" font-weight="800" fill="${INK}">${esc(label)}</text>`;
-
+const folder = (x, y, fill) => `<path transform="translate(${x} ${y})" d="M0 40 Q0 20 20 20 H130 L165 0 H270 Q292 0 305 28 H390 Q410 28 410 48 V190 Q410 210 390 210 H20 Q0 210 0 190 Z" fill="${fill}" stroke="${INK}" stroke-width="6"/>`;
 const body = `
-  ${K.bg({c1: {cx: 1350, cy: 620, r: 520, fill: TEAL}, c2: {cx: 255, cy: 800, r: 360, fill: TOMATO}})}
+  ${K.bg({c1: {cx: 1450, cy: 390, rx: 560, ry: 330, fill: TEAL}, c2: {cx: 105, cy: 940, rx: 300, ry: 190, fill: TOMATO}})}
   ${K.badge({ep: '06', tag: 'merge'})}
-  ${K.headline('Merge 不是复制粘贴')}
-  ${K.subtitle('先看历史有没有分叉', {width: 500})}
-
-  ${folder({x: 70, y: 520, scale: 1.08, fill: MUSTARD, label: 'project-main', rotate: -7})}
-  ${folder({x: 170, y: 610, scale: 1.08, fill: TEAL, label: 'project-feature', rotate: 5})}
-  ${K.note({label: '不是把两个文件夹揉一起', x: 56, y: 470, rotate: -10, color: TOMATO, width: 300})}
-
-  ${K.neq({x: 790, y: 665})}
-
-  <g transform="translate(1030 302)">
-    <line x1="120" y1="320" x2="330" y2="320" stroke="${INK}" stroke-width="7"/>
-    <line x1="330" y1="320" x2="510" y2="214" stroke="${INK}" stroke-width="7"/>
-    <line x1="330" y1="320" x2="510" y2="426" stroke="${INK}" stroke-width="7"/>
-    <line x1="510" y1="214" x2="682" y2="320" stroke="${INK}" stroke-width="7"/>
-    <line x1="510" y1="426" x2="682" y2="320" stroke="${INK}" stroke-width="7"/>
-    ${commit({x: 120, y: 320, label: 'C1'})}
-    ${commit({x: 330, y: 320, label: 'base', fill: MUSTARD})}
-    ${commit({x: 510, y: 214, label: 'ours', fill: TEAL})}
-    ${commit({x: 510, y: 426, label: 'theirs', fill: TOMATO})}
-    ${commit({x: 682, y: 320, label: 'M1', fill: PAPER})}
-    ${K.note({label: '三方合并', x: 250, y: 30, rotate: -4, color: OLIVE, width: 180})}
-    ${K.note({label: 'M1 有两个 parent', x: 460, y: 520, rotate: 5, color: MUTE, width: 260})}
+  <text x="66" y="548" font-family="${FONT.mono}" font-size="300" font-weight="900" letter-spacing="-13" fill="${TOMATO}">merge</text>
+  <text x="980" y="320" font-family="${FONT.sans}" font-size="180" font-weight="900" letter-spacing="-9" fill="${INK}">不是</text>
+  <text x="980" y="568" font-family="${FONT.sans}" font-size="180" font-weight="900" letter-spacing="-9" fill="${INK}">复制粘贴</text>
+  ${folder(90, 785, MUSTARD)}${folder(180, 820, TEAL)}
+  <text x="760" y="950" text-anchor="middle" font-family="${FONT.sans}" font-size="160" font-weight="900" fill="${TOMATO}">≠</text>
+  <g transform="translate(1040 720)">
+    <path d="M40 130 H210 L390 40 M210 130 L390 220 M390 40 L580 130 M390 220 L580 130" fill="none" stroke="${INK}" stroke-width="10"/>
+    <circle cx="40" cy="130" r="28" fill="${TEAL}" stroke="${INK}" stroke-width="6"/><circle cx="210" cy="130" r="34" fill="${MUSTARD}" stroke="${INK}" stroke-width="6"/>
+    <circle cx="390" cy="40" r="34" fill="${TEAL}" stroke="${INK}" stroke-width="6"/><circle cx="390" cy="220" r="34" fill="${TOMATO}" stroke="${INK}" stroke-width="6"/>
+    <circle cx="580" cy="130" r="42" fill="${PAPER}" stroke="${INK}" stroke-width="7"/>
+    <text x="580" y="144" text-anchor="middle" font-family="${FONT.mono}" font-size="30" font-weight="900" fill="${INK}">M</text>
   </g>`;
-
-K.render({
-  outDir: 'renders/git-course/ep06-merge/renders/current/publishing',
-  body,
-});
+K.render({outDir: 'renders/git-course/ep06-merge/renders/current/publishing', body});

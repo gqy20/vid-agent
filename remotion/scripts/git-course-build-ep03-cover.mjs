@@ -1,57 +1,46 @@
 #!/usr/bin/env node
-// EP03 · Commit 不是保存按钮 —— 软盘保存键 ≠ commit 对象字段卡
+// EP03 · 小尺寸优先：commit ≠ 保存按钮。
 import * as K from './git-course-cover-kit.mjs';
-const {INK, PAPER, MUSTARD, TOMATO, TEAL, MUTE, FONT, esc} = K;
+const {INK, PAPER, MUSTARD, TOMATO, TEAL, MUTE, FONT} = K;
 
-const floppy = (x, y, s) => `
-  <g transform="translate(${x} ${y}) scale(${s})">
-    <rect x="0" y="0" width="240" height="240" rx="10" fill="${MUSTARD}" stroke="${INK}" stroke-width="6"/>
-    <rect x="34" y="0" width="172" height="96" fill="#dfe0d4" stroke="${INK}" stroke-width="4"/>
-    <rect x="146" y="20" width="44" height="56" fill="${INK}"/>
-    <rect x="34" y="120" width="172" height="100" fill="${PAPER}" stroke="${INK}" stroke-width="4"/>
-    <line x1="50" y1="150" x2="190" y2="150" stroke="${MUTE}" stroke-width="3"/>
-    <line x1="50" y1="176" x2="166" y2="176" stroke="${MUTE}" stroke-width="3"/>
-    <circle cx="64" cy="52" r="9" fill="${INK}"/>
+const floppy = `
+  <g transform="translate(196 760)">
+    ${K.softShadowRect({width: 260, height: 220, rx: 18, dx: 10, dy: 12, opacity: 0.2})}
+    <rect width="260" height="220" rx="18" fill="${MUSTARD}" stroke="${INK}" stroke-width="6"/>
+    <rect x="48" width="164" height="82" fill="#dfe0d4" stroke="${INK}" stroke-width="5"/>
+    <rect x="158" y="18" width="38" height="48" fill="${INK}"/>
+    <rect x="48" y="112" width="164" height="82" fill="${PAPER}" stroke="${INK}" stroke-width="5"/>
+    <line x1="72" y1="142" x2="188" y2="142" stroke="${MUTE}" stroke-width="5"/>
+    <line x1="72" y1="166" x2="170" y2="166" stroke="${MUTE}" stroke-width="5"/>
+  </g>`;
+
+const commitObject = `
+  <g transform="translate(1126 742)">
+    ${K.softShadowRect({width: 612, height: 250, rx: 18, dx: 10, dy: 12, opacity: 0.2})}
+    <rect width="612" height="250" rx="18" fill="${PAPER}" stroke="${INK}" stroke-width="6"/>
+    <path d="M0 18 Q0 0 18 0 H594 Q612 0 612 18 V56 H0 Z" fill="${MUSTARD}"/>
+    <text x="30" y="39" font-family="${FONT.mono}" font-size="27" font-weight="900" fill="${INK}">commit object</text>
+    <text x="42" y="116" font-family="${FONT.mono}" font-size="38" font-weight="900" fill="${TEAL}">tree</text>
+    <path d="M176 104 H480" stroke="${TEAL}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M472 88 L508 104 L472 120 Z" fill="${TEAL}"/>
+    <text x="42" y="194" font-family="${FONT.mono}" font-size="38" font-weight="900" fill="${TOMATO}">parent</text>
+    <path d="M214 182 H480" stroke="${TOMATO}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M472 166 L508 182 L472 198 Z" fill="${TOMATO}"/>
+    <circle cx="548" cy="104" r="20" fill="${TEAL}" stroke="${INK}" stroke-width="5"/>
+    <circle cx="548" cy="182" r="20" fill="${TOMATO}" stroke="${INK}" stroke-width="5"/>
   </g>`;
 
 const body = `
-  ${K.bg({c1: {cx: 1380, cy: 600, r: 460, fill: TEAL}, c2: {cx: 280, cy: 760, r: 360, fill: TOMATO}})}
+  ${K.bg({c1: {cx: 1450, cy: 390, rx: 560, ry: 330, fill: TEAL}, c2: {cx: 105, cy: 940, rx: 300, ry: 190, fill: TOMATO}})}
   ${K.badge({ep: '03', tag: 'commit object'})}
-  ${K.headline('Commit 不是保存按钮')}
-  ${K.subtitle('它指向快照，也指向过去', {width: 480})}
 
-  ${floppy(150, 548, 1.4)}
-  <g transform="translate(206 904)">
-    ${K.softShadowRect({width: 200, height: 64, rx: 10})}
-    <rect width="200" height="64" rx="10" fill="${TEAL}"/>
-    <text x="100" y="44" text-anchor="middle" font-family="${FONT.sans}" font-size="32" font-weight="900" fill="${PAPER}">保 存</text>
-  </g>
-  ${K.note({label: '按一下就完？', x: 50, y: 520, rotate: -10, color: TOMATO, width: 210})}
+  <text x="66" y="548" font-family="${FONT.mono}" font-size="285" font-weight="900" letter-spacing="-12" fill="${TOMATO}">commit</text>
+  <text x="1060" y="320" font-family="${FONT.sans}" font-size="190" font-weight="900" letter-spacing="-9" fill="${INK}">不是</text>
+  <text x="1060" y="568" font-family="${FONT.sans}" font-size="190" font-weight="900" letter-spacing="-9" fill="${INK}">保存按钮</text>
 
-  ${K.neq({x: 810, y: 660})}
-
-  <g transform="translate(1030 492) scale(0.9)">
-    ${K.softShadowRect({width: 820, height: 540, rx: 14})}
-    <rect width="820" height="540" rx="14" fill="${PAPER}" stroke="${INK}" stroke-width="4"/>
-    <path d="M0 14 C0 6 6 0 14 0 H806 C814 0 820 6 820 14 V72 H0 Z" fill="${MUSTARD}"/>
-    <text x="32" y="48" font-family="${FONT.mono}" font-size="30" font-weight="800" fill="${INK}">commit · a17c3f</text>
-
-    <text x="40" y="138" font-family="${FONT.mono}" font-size="28" font-weight="800" fill="${TEAL}">tree</text>
-    <text x="180" y="138" font-family="${FONT.mono}" font-size="28" font-weight="700" fill="${INK}">3f92e1b4…</text>
-    <text x="540" y="138" font-family="${FONT.sans}" font-size="22" font-weight="600" fill="${MUTE}">→ 指向项目快照</text>
-
-    <text x="40" y="200" font-family="${FONT.mono}" font-size="28" font-weight="800" fill="${TOMATO}">parent</text>
-    <text x="180" y="200" font-family="${FONT.mono}" font-size="28" font-weight="700" fill="${INK}">9c4abd02…</text>
-    <text x="540" y="200" font-family="${FONT.sans}" font-size="22" font-weight="600" fill="${MUTE}">→ 指向上一个 commit</text>
-
-    <line x1="40" y1="248" x2="780" y2="248" stroke="${INK}" stroke-opacity="0.14" stroke-width="2"/>
-
-    <text x="40" y="322" font-family="${FONT.mono}" font-size="28" font-weight="800" fill="${MUTE}">message</text>
-    ${K.mixedText({text: '别再存 final-2.zip', x: 180, y: 322, fontSize: 28, fill: INK, weight: 700, codeWeight: 700})}
-
-    <rect x="40" y="430" width="740" height="70" rx="10" fill="#fff6df" stroke="${MUSTARD}" stroke-width="2"/>
-    <text x="60" y="474" font-family="${FONT.sans}" font-size="24" font-weight="800" fill="${INK}">一个对象：有身份（hash）、有结构、有过去</text>
-  </g>`;
+  ${floppy}
+  <text x="824" y="930" text-anchor="middle" font-family="${FONT.sans}" font-size="170" font-weight="900" fill="${TOMATO}">≠</text>
+  ${commitObject}`;
 
 K.render({
   outDir: 'renders/git-course/ep03-commit-snapshot/renders/current/publishing',
