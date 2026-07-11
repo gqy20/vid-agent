@@ -297,6 +297,50 @@ const assembleMain = async (ctx, buildPlan, audio) => {
 
 const probe = (path) => JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', path], {encoding: 'utf8'}));
 
+const samplingPlan = (ctx, scope, duration) => {
+  const dir = join(ctx.build, 'sampling-plans', scope);
+  mkdirSync(dir, {recursive: true});
+  const boundaries = [];
+  const keyframes = [];
+  if (scope === 'main') {
+    for (let index = 0; index < ctx.episode.scenes.length; index += 1) {
+      const scene = ctx.episode.scenes[index];
+      const safe = scene.id.replaceAll('-', '_');
+      keyframes.push([`${String(index + 1).padStart(2, '0')}_${safe}_start`, scene.start + 0.1]);
+      keyframes.push([`${String(index + 1).padStart(2, '0')}_${safe}_mid`, scene.start + scene.duration / 2]);
+      keyframes.push([`${String(index + 1).padStart(2, '0')}_${safe}_end`, scene.start + scene.duration - 0.1]);
+      if (index > 0) {
+        const previous = ctx.episode.scenes[index - 1].id.replaceAll('-', '_');
+        boundaries.push([`${String(index).padStart(2, '0')}_${previous}_to_${safe}`, scene.start]);
+      }
+      for (const item of scene.audit?.keyframes ?? []) keyframes.push([`${safe}_${item.label}`, scene.start + item.at]);
+      for (const item of scene.audit?.bursts ?? []) boundaries.push([`${safe}_${item.label}`, scene.start + (item.from + item.to) / 2]);
+    }
+  } else {
+    const intro = join(REMOTION, 'renders/git-course/visible-system-intro/current/visible-system-intro.mp4');
+    const main = join(ctx.current, `${ctx.episode.episodeId}.mp4`);
+    const outro = join(REMOTION, 'renders/git-course/outro/current/ref-lightbox-outro.mp4');
+    for (const path of [intro, main, outro]) existsSync(path) || fail(`Release audit input missing: ${path}`);
+    const introDuration = Number(probe(intro).format.duration);
+    const mainDuration = Number(probe(main).format.duration);
+    const outroDuration = Number(probe(outro).format.duration);
+    boundaries.push(['intro_to_main', introDuration], ['main_to_outro', introDuration + mainDuration]);
+    keyframes.push(
+      ['intro_end', Math.max(0, introDuration - 0.1)],
+      ['main_start', introDuration + 0.1],
+      ['main_end', introDuration + mainDuration - 0.1],
+      ['outro_start', introDuration + mainDuration + 0.1],
+      ['outro_middle', introDuration + mainDuration + outroDuration / 2],
+      ['release_end', Math.max(0, duration - 0.2)],
+    );
+  }
+  const boundariesPath = join(dir, 'boundaries.tsv');
+  const keyframesPath = join(dir, 'keyframes.tsv');
+  writeFileSync(boundariesPath, boundaries.map((row) => row.join('\t')).join('\n') + (boundaries.length ? '\n' : ''));
+  writeFileSync(keyframesPath, keyframes.map((row) => row.join('\t')).join('\n') + (keyframes.length ? '\n' : ''));
+  return {boundariesPath, keyframesPath, expectedBoundaries: boundaries.length, expectedKeyframes: keyframes.length};
+};
+
 const auditArtifact = async (ctx, candidate, scope = 'main') => {
   existsSync(candidate) || fail(`Artifact not found: ${candidate}`);
   const info = probe(candidate);
@@ -311,7 +355,7 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     {id: 'video.fps', status: video?.r_frame_rate === '30/1' ? 'pass' : 'fail', details: video?.r_frame_rate ?? 'missing'},
     ...(expected === null ? [] : [{id: 'duration.main', status: Math.abs(duration - expected) <= 0.08 ? 'pass' : 'fail', details: `${duration}s expected ${expected}s`}]),
   ];
-  let releaseBoundaryFrames = [];
+  const plan = samplingPlan(ctx, scope, duration);
   if (scope === 'release') {
     const intro = join(REMOTION, 'renders/git-course/visible-system-intro/current/visible-system-intro.mp4');
     const main = join(ctx.current, `${ctx.episode.episodeId}.mp4`);
@@ -322,27 +366,24 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     const outroDuration = Number(probe(outro).format.duration);
     const expectedRelease = introDuration + mainDuration + outroDuration;
     checks.push({id: 'duration.release', status: Math.abs(duration - expectedRelease) <= 0.12 ? 'pass' : 'fail', details: `${duration}s expected ${expectedRelease}s`});
-    releaseBoundaryFrames = [
-      ['intro-end', Math.max(0, introDuration - 0.1)],
-      ['main-start', introDuration + 0.1],
-      ['main-end', introDuration + mainDuration - 0.1],
-      ['outro-start', introDuration + mainDuration + 0.1],
-      ['outro-middle', introDuration + mainDuration + outroDuration / 2],
-      ['release-end', Math.max(0, duration - 0.2)],
-    ];
   }
   const srtFiles = walkFiles(join(ctx.current, 'audio/segments'), (path) => path.endsWith('.srt'));
   const markerLeak = srtFiles.some((path) => /<#|#>/.test(readFileSync(path, 'utf8')));
   if (scope === 'main') checks.push({id: 'subtitle.pause-marker', status: markerLeak ? 'fail' : 'pass', details: markerLeak ? 'pause marker found' : 'clean'});
-  const auditDir = join(ctx.build, scope === 'main' ? 'audit' : 'release-audit');
+  const auditDir = join(ctx.build, 'audit', scope);
   rmSync(auditDir, {recursive: true, force: true});
-  await run(join(REMOTION, 'scripts/audit-video-stills.sh'), [candidate, auditDir], {log: join(ctx.build, 'logs', `audit-${scope}.log`)});
-  if (releaseBoundaryFrames.length > 0) {
-    const boundaryDir = join(auditDir, 'boundaries');
-    mkdirSync(boundaryDir, {recursive: true});
-    await Promise.all(releaseBoundaryFrames.map(([name, second]) => run('ffmpeg', ['-nostdin', '-y', '-ss', String(second), '-i', candidate, '-frames:v', '1', join(boundaryDir, `${name}.jpg`)])));
-  }
-  checks.push({id: 'visual.human-review', status: 'needs_review', details: rel(join(auditDir, 'contact-16.jpg'))});
+  await run(join(REMOTION, 'scripts/audit-video-stills.sh'), [candidate, auditDir], {
+    env: {BOUNDARIES_FILE: plan.boundariesPath, KEYFRAMES_FILE: plan.keyframesPath},
+    log: join(ctx.build, 'logs', `audit-${scope}.log`),
+  });
+  const sampling = json(join(auditDir, 'manifest.json')).sampling;
+  checks.push(
+    {id: 'sampling.continuous2fps', status: sampling.review.actualFrames === sampling.review.expectedFrames ? 'pass' : 'fail', details: `${sampling.review.actualFrames}/${sampling.review.expectedFrames}`},
+    {id: 'sampling.sheets5x1', status: sampling.review.actualSheets === sampling.review.expectedSheets ? 'pass' : 'fail', details: `${sampling.review.actualSheets}/${sampling.review.expectedSheets}`},
+    {id: 'sampling.boundaries10fps', status: sampling.boundaries.count === plan.expectedBoundaries ? 'pass' : 'fail', details: `${sampling.boundaries.count}/${plan.expectedBoundaries}`},
+    {id: 'sampling.keyframes', status: sampling.keyframes.count === plan.expectedKeyframes ? 'pass' : 'fail', details: `${sampling.keyframes.count}/${plan.expectedKeyframes}`},
+  );
+  checks.push({id: 'visual.human-review', status: 'needs_review', details: rel(join(auditDir, 'report.html'))});
   const machineFailed = checks.some((check) => check.status === 'fail');
   const verdict = {
     schemaVersion: 1,
@@ -354,10 +395,13 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     createdAt: new Date().toISOString(),
     verdict: machineFailed ? 'fail' : 'needs_review',
     checks,
+    coverage: {overview: true, continuous2fps: true, boundaries10fps: true, keyframes: true},
     evidence: {
-      contactSheet: rel(join(auditDir, 'contact-16.jpg')),
-      frames: rel(join(auditDir, 'frames')),
-      ...(releaseBoundaryFrames.length > 0 ? {boundaries: rel(join(auditDir, 'boundaries'))} : {}),
+      report: rel(join(auditDir, 'report.html')),
+      overview: rel(join(auditDir, 'overview/contact-16.jpg')),
+      reviewSheets: rel(join(auditDir, 'review/sheets')),
+      boundaries: rel(join(auditDir, 'boundaries')),
+      keyframes: rel(join(auditDir, 'keyframes')),
     },
   };
   writeJson(join(auditDir, 'verdict.json'), verdict);
@@ -365,7 +409,7 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
   return verdict;
 };
 
-const verdictPath = (ctx, scope) => join(ctx.build, scope === 'main' ? 'audit/verdict.json' : 'release-audit/verdict.json');
+const verdictPath = (ctx, scope) => join(ctx.build, 'audit', scope, 'verdict.json');
 const candidatePath = (ctx, scope) => join(ctx.build, scope === 'main' ? `candidate/${ctx.episode.episodeId}.mp4` : `release-candidate/${ctx.episode.episodeId}.mp4`);
 
 const assertBuildFresh = (ctx) => {

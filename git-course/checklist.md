@@ -155,25 +155,29 @@
 
 ### 重点抽帧
 
-- [ ] 每个 scene 至少保存并检查开头、中段、动作完成和结尾帧。
-- [ ] 对箭头移动、卡片交接、字幕切换和终端退场等高风险区间执行连续抽帧。
+- [ ] `tmp/build/audit/main/manifest.json` 中连续采样为 `2fps`，实际帧数与预期帧数一致。
+- [ ] 连续审查图固定每张最多 5 帧、`5×1`；已逐张检查，不只看 `4×4` 总览导航图。
+- [ ] 每个 scene 已检查开头、中点和结尾关键帧；动作完成点等额外关键帧已写入 `scenes[].audit.keyframes`。
+- [ ] 所有 scene 边界已检查中心点前后各 `0.5s`、`10fps` 的 burst。
+- [ ] 高风险区间已增加 `scenes[].audit.bursts`，不依赖稀疏总览图。
 - [ ] 检查的是编码后的 scene MP4 和最终成片，不只检查 Remotion still。
 - [ ] 用户指出的精确时间点已按最终发布版时间轴再次核对。
-- [ ] 抽帧检查完成后已清理 `tmp/` 临时文件。
+- [ ] 已完整查看 `tmp/build/audit/main/report.html`，人工结论与候选 SHA 一同写入 verdict。
 
 ## 六、发布封装验收
 
-- [ ] main candidate 的 `tmp/build/audit/verdict.json` 为 `pass`，且 SHA 与候选一致。
+- [ ] main candidate 的 `tmp/build/audit/main/verdict.json` 为 `pass`，且 SHA 与候选一致。
 - [ ] 已通过 `git-course promote` 原子晋升 current，没有手工复制候选文件。
 - [ ] 已通过 `git-course release-build` 生成发布候选，没有直接运行底层 publish Shell。
-- [ ] release candidate 的 `tmp/build/release-audit/verdict.json` 为 `pass`，且 SHA 与候选一致。
+- [ ] release candidate 的 `tmp/build/audit/release/verdict.json` 为 `pass`，且 SHA 与候选一致。
+- [ ] release 的两个拼接边界 burst 和六个发布关键帧均已检查。
 - [ ] 已通过 `git-course publish` 发布，没有绕过 verdict 门禁。
 - [ ] 发布版覆盖 `current/release/<episode-id>.mp4`。
 - [ ] 片头、正片、片尾顺序正确，三段时间轴在重新编码时均已重置。
 - [ ] 片头 BGM 增益为 `0dB`、片尾为 `-5dB`，或已记录本集例外。
 - [ ] 发布版总时长等于片头、正片、片尾时长之和。
 - [ ] 按发布版时间轴复查标题、关键状态变化、结论和片尾入口。
-- [ ] 完成对应 `episodes/<episode-id>.json 的 release.checklistMarkdown` 的平台物料检查。
+- [ ] 完成对应 `episodes/<episode-id>.json` 的 `release.checklistMarkdown` 平台物料检查。
 
 ## 七、提交前检查
 

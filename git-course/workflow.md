@@ -64,9 +64,36 @@ machine audit -> needs_review / fail
 tmp/cache/scenes/
 tmp/build/candidate/<episode-id>.mp4
 tmp/build/artifact-manifest.json
-tmp/build/audit/verdict.json
+tmp/build/audit/main/{manifest.json,report.html,verdict.json}
+tmp/build/audit/release/{manifest.json,report.html,verdict.json}
 tmp/build/logs/
 ```
+
+## 统一采样审查
+
+所有审查都针对编码后的 MP4，而不是 Remotion still。统一采样协议如下：
+
+- 连续审查以 `2fps` 抽取，即 30fps 视频每 15 帧取一张。
+- 每张审查条最多合并 5 帧，固定为 `5×1`；最后一张可以少于 5 帧。
+- 总览固定取 16 帧并合并为 `4×4`，只用于定位区间，不能代替连续审查。
+- scene、片头/正片、正片/片尾边界在中心点前后各取 `0.5s`，以 `10fps` 生成 burst。
+- scene 默认检查开头、中点、结尾精确关键帧；发布版额外检查片头结束、正片首尾、片尾开始/中点/结尾。
+
+main 与 release 使用同构证据目录：
+
+```text
+tmp/build/audit/<main|release>/
+├── manifest.json
+├── report.html
+├── verdict.json
+├── overview/contact-16.jpg
+├── review/{frames,sheets}/
+├── boundaries/<boundary>/{frames,sheets}/
+├── keyframes/
+└── metrics/
+```
+
+`manifest.json` 记录预期和实际抽帧/拼图数量。数量不一致、边界或关键帧缺失都会使机器检查失败；机器通过后仍是 `needs_review`，人工必须完整查看 `report.html` 后才能 approve。
 
 ## 审查、晋升与发布
 
@@ -79,7 +106,7 @@ pnpm --dir remotion git-course release-approve <episode-id> --note="已检查片
 pnpm --dir remotion git-course publish <episode-id>
 ```
 
-统一 verdict 只有 `pass`、`fail`、`needs_review`。机器检查覆盖音视频流、分辨率、FPS、时长、SRT 停顿标记和抽帧证据；机器通过后仍需人工 approve。approve、promote、publish 都校验候选 SHA；main 还会重新计算 scene、TTS 和 BGM 指纹，输入变化后必须重新 build/audit。
+统一 verdict 只有 `pass`、`fail`、`needs_review`。机器检查覆盖音视频流、分辨率、FPS、时长、SRT 停顿标记、采样覆盖率和证据数量；机器通过后仍需人工 approve。approve、promote、publish 都校验候选 SHA；main 还会重新计算 scene、TTS 和 BGM 指纹，输入变化后必须重新 build/audit。
 
 ## 时间与音频约束
 

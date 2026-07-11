@@ -51,4 +51,4 @@ pnpm --dir remotion git-course release-approve <episode-id> --note="发布版审
 pnpm --dir remotion git-course publish <episode-id>
 ```
 
-`build` 会最大化并行所有 dirty scene、TTS、规范化和分段审查，并自动执行 main assemble 与机器审查。机器检查通过后 verdict 仍为 `needs_review`；人工检查后才能 approve。没有与候选 SHA 绑定的 `pass` verdict，promote 和 publish 都会拒绝执行。
+`build` 会最大化并行所有 dirty scene、TTS、规范化和分段审查，并自动执行 main assemble 与机器审查。审查统一使用连续 2fps、每条最多 5 帧、边界 10fps burst、精确关键帧和 16 帧总览，证据汇总在 `tmp/build/audit/<main|release>/report.html`。机器检查通过后 verdict 仍为 `needs_review`；人工检查后才能 approve。没有与候选 SHA 绑定的 `pass` verdict，promote 和 publish 都会拒绝执行。

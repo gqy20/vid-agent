@@ -27,14 +27,20 @@ audit_one() {
   local audit_script="$3"
   local name
   local frames
+  local duration
+  local keyframes
   name="$(basename "$segment" .mp4)"
   frames="$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=noprint_wrappers=1:nokey=1 "$segment" 2>/dev/null || true)"
   if [ -z "$frames" ] || [ "$frames" = "N/A" ]; then
     echo "invalid segment: $name" >&2
     return 1
   fi
-  "$audit_script" "$segment" "$out_root/$name" >/dev/null
-  echo "audit segment: $name -> $out_root/$name/contact-16.jpg"
+  duration="$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$segment")"
+  mkdir -p "$out_root/.plans"
+  keyframes="$out_root/.plans/$name-keyframes.tsv"
+  awk -v d="$duration" 'BEGIN {printf "start\t0.100\nmid\t%.3f\nend\t%.3f\n", d/2, d-0.1}' > "$keyframes"
+  KEYFRAMES_FILE="$keyframes" "$audit_script" "$segment" "$out_root/$name" >/dev/null
+  echo "audit segment: $name -> $out_root/$name/report.html"
 }
 export -f audit_one
 
