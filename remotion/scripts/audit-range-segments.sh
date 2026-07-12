@@ -39,7 +39,7 @@ audit_one() {
   mkdir -p "$out_root/.plans"
   keyframes="$out_root/.plans/$name-keyframes.tsv"
   awk -v d="$duration" 'BEGIN {printf "start\t0.100\nmid\t%.3f\nend\t%.3f\n", d/2, d-0.1}' > "$keyframes"
-  KEYFRAMES_FILE="$keyframes" "$audit_script" "$segment" "$out_root/$name" >/dev/null
+  AUDIT_METRICS=0 KEYFRAMES_FILE="$keyframes" "$audit_script" "$segment" "$out_root/$name" >/dev/null
   echo "audit segment: $name -> $out_root/$name/report.html"
 }
 export -f audit_one

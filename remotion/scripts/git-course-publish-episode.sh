@@ -35,8 +35,10 @@ OUT_DIR="renders/git-course/${EPISODE_ID}/current/release"
 TMP_DIR="renders/git-course/${EPISODE_ID}/tmp/release-build"
 OUT_FILE="${OUT_FILE:-${OUT_DIR}/${EPISODE_ID}.mp4}"
 INTRO_WITH_AUDIO="${TMP_DIR}/intro-with-audio.mp4"
+MAIN_NORMALIZED="${TMP_DIR}/main-normalized.mp4"
 OUTRO_WITH_AUDIO="${TMP_DIR}/outro-with-audio.mp4"
 TMP_OUT="${TMP_DIR}/${EPISODE_ID}.mp4"
+CONCAT_MANIFEST="${TMP_DIR}/release.ffconcat"
 
 for file in "$INTRO_VIDEO" "$INTRO_AUDIO" "$MAIN_VIDEO" "$OUTRO_VIDEO" "$OUTRO_AUDIO"; do
   if [ ! -f "$file" ]; then
@@ -54,8 +56,29 @@ ffmpeg -y -hide_banner \
   -filter_complex "[1:a]volume=${INTRO_AUDIO_GAIN_DB}dB[a]" \
   -map 0:v:0 \
   -map "[a]" \
-  -c:v copy -c:a aac -b:a 192k -shortest \
+  -c:v copy -video_track_timescale 15360 \
+  -c:a aac -ar 48000 -ac 2 -b:a 192k -shortest \
   "$INTRO_WITH_AUDIO"
+
+# Normalize only the container timebase and, for legacy mains, the audio format.
+# Current orchestrator mains are already 48 kHz stereo, so both streams are copied.
+MAIN_AUDIO_SPEC="$(ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,channels -of csv=p=0:s=x "$MAIN_VIDEO")"
+MAIN_VIDEO_TIME_BASE="$(ffprobe -v error -select_streams v:0 -show_entries stream=time_base -of default=nw=1:nk=1 "$MAIN_VIDEO")"
+MAIN_CONCAT="$MAIN_NORMALIZED"
+if [ "$MAIN_AUDIO_SPEC" = "48000x2" ]; then
+  [ "$MAIN_VIDEO_TIME_BASE" = "1/15360" ] || {
+    echo "Current main has unsupported timebase: $MAIN_VIDEO_TIME_BASE" >&2
+    exit 1
+  }
+  MAIN_CONCAT="$MAIN_VIDEO"
+else
+  ffmpeg -y -hide_banner \
+    -i "$MAIN_VIDEO" \
+    -map 0:v:0 -map 0:a:0 \
+    -c:v copy -video_track_timescale 15360 \
+    -c:a aac -ar 48000 -ac 2 -b:a 192k \
+    "$MAIN_NORMALIZED"
+fi
 
 ffmpeg -y -hide_banner \
   -i "$OUTRO_VIDEO" \
@@ -63,17 +86,21 @@ ffmpeg -y -hide_banner \
   -filter_complex "[1:a]volume=${OUTRO_AUDIO_GAIN_DB}dB[a]" \
   -map 0:v:0 \
   -map "[a]" \
-  -c:v copy -c:a aac -b:a 192k -shortest \
+  -c:v copy -video_track_timescale 15360 \
+  -c:a aac -ar 48000 -ac 2 -b:a 192k -shortest \
   "$OUTRO_WITH_AUDIO"
 
+if [[ "$MAIN_CONCAT" = /* ]]; then
+  MAIN_CONCAT_ABS="$MAIN_CONCAT"
+else
+  MAIN_CONCAT_ABS="$PWD/$MAIN_CONCAT"
+fi
+printf "file '%s'\nfile '%s'\nfile '%s'\n" \
+  "$PWD/$INTRO_WITH_AUDIO" "$MAIN_CONCAT_ABS" "$PWD/$OUTRO_WITH_AUDIO" > "$CONCAT_MANIFEST"
+
 ffmpeg -y -hide_banner \
-  -i "$INTRO_WITH_AUDIO" \
-  -i "$MAIN_VIDEO" \
-  -i "$OUTRO_WITH_AUDIO" \
-  -filter_complex "[0:v]setpts=PTS-STARTPTS,format=yuv420p[v0];[0:a]asetpts=PTS-STARTPTS[a0];[1:v]setpts=PTS-STARTPTS,format=yuv420p[v1];[1:a]asetpts=PTS-STARTPTS[a1];[2:v]setpts=PTS-STARTPTS,format=yuv420p[v2];[2:a]asetpts=PTS-STARTPTS[a2];[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]" \
-  -map "[v]" -map "[a]" \
-  -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p \
-  -c:a aac -b:a 192k -movflags +faststart \
+  -f concat -safe 0 -i "$CONCAT_MANIFEST" \
+  -c copy -movflags +faststart \
   "$TMP_OUT"
 
 mv "$TMP_OUT" "$OUT_FILE"
@@ -81,8 +108,7 @@ rm -rf "$TMP_DIR"
 
 ffprobe -v error \
   -select_streams v:0 \
-  -count_frames \
-  -show_entries stream=width,height,r_frame_rate,duration,nb_read_frames \
+  -show_entries stream=width,height,pix_fmt,r_frame_rate,time_base,duration,nb_frames \
   -of default=nw=1 \
   "$OUT_FILE"
 ffprobe -v error \

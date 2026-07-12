@@ -49,14 +49,16 @@ validate / generate
   ├── 所有 dirty scene 并行 render -> segment audit
   └── 所有 dirty TTS 并行 synthesize -> normalize
         ↓
-assemble silent main + align/mix audio
+按 audio fingerprint 对齐 / 混音（命中则复用）
         ↓
-assemble main candidate
+直接 mux main candidate（输入指纹命中则复用）
         ↓
-machine audit -> needs_review / fail
+按 artifact + sampling fingerprint 审计（命中则复用）
 ```
 
 默认并发为 `all`：所有依赖已满足的任务立即启动。Remotion 单进程 concurrency 默认按逻辑 CPU 数除以 dirty scene 数计算，尽量使用全部算力；可用 `--render-concurrency=<n>` 覆盖。TTS 和规范化默认对所有 dirty segment 同时执行。
+
+Scene 指纹只覆盖课程共享组件、当前 episode 源码、当前 scene 数据、字体和该集 Manim 资产；其他 episode 的源码、旁白或发布文案变化不得使本集 Scene 缓存失效。音频、candidate 和 audit 也分别按内容指纹缓存。完全没有输入变化时，`build` 应显示 `HIT audio mix`、`HIT assemble` 和 `HIT audit main`，不得重新编码或抽帧。
 
 候选、缓存、日志、manifest 和 verdict 位于 `tmp/`：
 
@@ -95,6 +97,8 @@ tmp/build/audit/<main|release>/
 
 `manifest.json` 记录预期和实际抽帧/拼图数量。数量不一致、边界或关键帧缺失都会使机器检查失败；机器通过后仍是 `needs_review`，人工必须完整查看 `report.html` 后才能 approve。
 
+分段审查仍执行统一 2fps、5×1、总览和关键帧协议，但不重复运行 scene-change、blackdetect 和 freezedetect；这些完整视频指标只在 main/release 审计执行，并在一次 FFmpeg 解码中并行检测。审计缓存由候选 SHA、采样计划和审计脚本版本共同决定；任一变化都会自动失效。
+
 ## 审查、晋升与发布
 
 ```bash
@@ -107,6 +111,8 @@ pnpm --dir remotion git-course publish <episode-id>
 ```
 
 统一 verdict 只有 `pass`、`fail`、`needs_review`。机器检查覆盖音视频流、分辨率、FPS、时长、SRT 停顿标记、采样覆盖率和证据数量；机器通过后仍需人工 approve。approve、promote、publish 都校验候选 SHA；main 还会重新计算 scene、TTS 和 BGM 指纹，输入变化后必须重新 build/audit。
+
+发布封装先把片头、正片和片尾统一为 H.264、30fps、`1/15360` timebase 与 48 kHz 双声道 AAC。视频全程 stream-copy；符合新音频规范的正片也直接 copy，只有旧版正片音频需要兼容性转码。统一后通过 concat demuxer stream-copy，不再对整条发布视频执行 x264 重编码。
 
 ## 时间与音频约束
 

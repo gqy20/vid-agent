@@ -8,6 +8,7 @@ KEYFRAMES_FILE="${KEYFRAMES_FILE:-}"
 REVIEW_FPS="${REVIEW_FPS:-2}"
 BOUNDARY_FPS="${BOUNDARY_FPS:-10}"
 FRAMES_PER_SHEET="${FRAMES_PER_SHEET:-5}"
+AUDIT_METRICS="${AUDIT_METRICS:-1}"
 
 for cmd in ffmpeg ffprobe sha256sum awk; do
   command -v "$cmd" >/dev/null 2>&1 || {
@@ -23,10 +24,11 @@ rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR/overview" "$OUT_DIR/review/frames" "$OUT_DIR/review/sheets" "$OUT_DIR/boundaries" "$OUT_DIR/keyframes" "$OUT_DIR/metrics"
 
 DURATION="$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$VIDEO")"
+VIDEO_DURATION="$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=nw=1:nk=1 "$VIDEO")"
 SOURCE_FPS="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nw=1:nk=1 "$VIDEO")"
 SHA256="$(sha256sum "$VIDEO" | awk '{print $1}')"
-OVERVIEW_INTERVAL="$(awk -v d="$DURATION" 'BEGIN {printf "%.6f", (d - 0.1) / 15}')"
-EXPECTED_REVIEW_FRAMES="$(awk -v d="$DURATION" -v fps="$REVIEW_FPS" 'BEGIN {v=d*fps; print int(v)+(v>int(v)?1:0)}')"
+OVERVIEW_INTERVAL="$(awk -v d="$VIDEO_DURATION" 'BEGIN {printf "%.6f", (d - 0.1) / 15}')"
+EXPECTED_REVIEW_FRAMES="$(awk -v d="$VIDEO_DURATION" -v fps="$REVIEW_FPS" 'BEGIN {v=d*fps; print int(v)+(v>int(v)?1:0)}')"
 
 FONT_FILE="/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 STAMP="drawtext=fontfile=${FONT_FILE}:text='%{pts\\:hms}':x=14:y=14:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.58"
@@ -113,12 +115,13 @@ if [ -n "$KEYFRAMES_FILE" ]; then
   done < "$KEYFRAMES_FILE"
 fi
 
-ffmpeg -nostdin -i "$VIDEO" -filter:v "select='gt(scene,0.015)',showinfo" -f null - \
-  2> "$OUT_DIR/metrics/scene-changes.log" || true
-ffmpeg -nostdin -i "$VIDEO" -vf "blackdetect=d=0.10:pix_th=0.10" -an -f null - \
-  2> "$OUT_DIR/metrics/black-frames.log" || true
-ffmpeg -nostdin -i "$VIDEO" -vf "freezedetect=n=-50dB:d=1.5" -an -f null - \
-  2> "$OUT_DIR/metrics/freeze-frames.log" || true
+if [ "$AUDIT_METRICS" = "1" ]; then
+  # Decode once and fan out to all metric detectors.
+  ffmpeg -nostdin -i "$VIDEO" \
+    -filter_complex "[0:v]split=3[scene][black][freeze];[scene]select='gt(scene,0.015)',showinfo[sceneout];[black]blackdetect=d=0.10:pix_th=0.10[blackout];[freeze]freezedetect=n=-50dB:d=1.5[freezeout]" \
+    -map "[sceneout]" -map "[blackout]" -map "[freezeout]" -an -f null - \
+    2> "$OUT_DIR/metrics/video-metrics.log" || true
+fi
 
 cat > "$OUT_DIR/manifest.json" <<JSON
 {
@@ -126,7 +129,9 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "artifact": "$VIDEO",
   "artifactSha256": "$SHA256",
   "durationSeconds": $DURATION,
+  "videoDurationSeconds": $VIDEO_DURATION,
   "sourceFps": "$SOURCE_FPS",
+  "metricsEnabled": $([ "$AUDIT_METRICS" = "1" ] && echo true || echo false),
   "sampling": {
     "overview": {"count": 16, "layout": "4x4"},
     "review": {

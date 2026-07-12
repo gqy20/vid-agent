@@ -30,6 +30,10 @@
 #   CLEAN_SRT_PUNCTUATION=0
 #   BGM_FILE=<path>
 #   OUT_VIDEO=<path>
+#   MASTER_LUFS=-16
+#   MASTER_TRUE_PEAK=-2.2
+#   FINAL_TRUE_PEAK_CEILING=-1.5
+#   MASTER_LRA=7
 set -euo pipefail
 
 usage() {
@@ -59,6 +63,10 @@ TTS_JOBS="${TTS_JOBS:-all}"
 NORMALIZE_JOBS="${NORMALIZE_JOBS:-all}"
 BGM_VOLUME="${BGM_VOLUME:-0.05}"
 BGM_FILE="${BGM_FILE:-}"
+MASTER_LUFS="${MASTER_LUFS:--16}"
+MASTER_TRUE_PEAK="${MASTER_TRUE_PEAK:--2.2}"
+MASTER_LRA="${MASTER_LRA:-7}"
+FINAL_TRUE_PEAK_CEILING="${FINAL_TRUE_PEAK_CEILING:--1.5}"
 
 if [ -z "$BGM_FILE" ]; then
   if [ -f "${AUDIO_DIR}/bgm.mp3" ]; then
@@ -87,6 +95,9 @@ cp "$MANIFEST" "${SEGMENTS_DIR}/manifest.tsv"
 VOICEOVER_OUT="${AUDIO_DIR}/voiceover-aligned.m4a"
 MIX_OUT="${AUDIO_DIR}/mix.m4a"
 TMP_DIR="renders/git-course/${EPISODE_ID}/tmp/voiceover-build"
+PREMASTER_OUT="${TMP_DIR}/premaster.m4a"
+LOUDNORM_STATS="${TMP_DIR}/loudnorm-pass1.log"
+FINAL_LOUDNESS_STATS="${TMP_DIR}/loudness-qa.log"
 mkdir -p "$TMP_DIR"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
@@ -239,7 +250,7 @@ done
 base_index="${#SEGMENTS[@]}"
 inputs+=("-f" "lavfi" "-t" "$EPISODE_DURATION" "-i" "anullsrc=channel_layout=mono:sample_rate=44100")
 filters+=("[${base_index}:a]anull[base]")
-filter_complex="$(IFS=';'; echo "${filters[*]}");${mix_inputs}amix=inputs=$((${#SEGMENTS[@]} + 1)):duration=first:dropout_transition=0,atrim=0:${EPISODE_DURATION}[out]"
+filter_complex="$(IFS=';'; echo "${filters[*]}");${mix_inputs}amix=inputs=$((${#SEGMENTS[@]} + 1)):duration=first:dropout_transition=0:normalize=0,atrim=0:${EPISODE_DURATION}[out]"
 
 ffmpeg -y -hide_banner -nostats \
   "${inputs[@]}" \
@@ -251,9 +262,73 @@ ffmpeg -y -hide_banner -nostats \
   -i "$VOICEOVER_OUT" \
   -stream_loop -1 \
   -i "$BGM_FILE" \
-  -filter_complex "[0:a]aresample=44100,volume=1.0[vo];[1:a]aresample=44100,volume=${BGM_VOLUME},atrim=0:${EPISODE_DURATION},asetpts=N/SR/TB[bg];[vo][bg]amix=inputs=2:duration=first:dropout_transition=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[out]" \
-  -map "[out]" -ar 44100 -c:a aac -b:a 192k \
+  -filter_complex "[0:a]aresample=48000,volume=1.0[vo];[1:a]aresample=48000,volume=${BGM_VOLUME},atrim=0:${EPISODE_DURATION},asetpts=N/SR/TB[bg];[vo][bg]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[out]" \
+  -map "[out]" -ar 48000 -ac 2 -c:a aac -b:a 256k \
+  "$PREMASTER_OUT"
+
+# Measure the complete programme first, then apply a deterministic second pass.
+# Segment-level normalization keeps narration takes consistent; this programme-level
+# pass makes the actual upload file consistent after narration and BGM are combined.
+ffmpeg -hide_banner -nostats \
+  -i "$PREMASTER_OUT" \
+  -af "loudnorm=I=${MASTER_LUFS}:TP=${MASTER_TRUE_PEAK}:LRA=${MASTER_LRA}:print_format=json" \
+  -f null - >/dev/null 2>"$LOUDNORM_STATS"
+
+LOUDNORM_FILTER="$(node - "$LOUDNORM_STATS" "$MASTER_LUFS" "$MASTER_TRUE_PEAK" "$MASTER_LRA" <<'NODE'
+const fs = require('node:fs');
+const [statsPath, targetI, targetTp, targetLra] = process.argv.slice(2);
+const log = fs.readFileSync(statsPath, 'utf8');
+const match = log.match(/\{\s*"input_i"[\s\S]*?\}/);
+if (!match) throw new Error(`Could not parse loudnorm stats from ${statsPath}`);
+const stats = JSON.parse(match[0]);
+for (const key of ['input_i', 'input_tp', 'input_lra', 'input_thresh', 'target_offset']) {
+  if (!Number.isFinite(Number(stats[key]))) throw new Error(`Invalid loudnorm ${key}: ${stats[key]}`);
+}
+process.stdout.write([
+  `loudnorm=I=${targetI}`,
+  `TP=${targetTp}`,
+  `LRA=${targetLra}`,
+  `measured_I=${stats.input_i}`,
+  `measured_TP=${stats.input_tp}`,
+  `measured_LRA=${stats.input_lra}`,
+  `measured_thresh=${stats.input_thresh}`,
+  `offset=${stats.target_offset}`,
+  'linear=true',
+  'print_format=summary',
+].join(':'));
+NODE
+)"
+
+ffmpeg -y -hide_banner -nostats \
+  -i "$PREMASTER_OUT" \
+  -af "${LOUDNORM_FILTER},alimiter=limit=0.98" \
+  -ar 48000 -ac 2 -c:a aac -b:a 256k \
   "$MIX_OUT"
+
+ffmpeg -hide_banner -nostats \
+  -i "$MIX_OUT" \
+  -af "loudnorm=I=${MASTER_LUFS}:TP=${MASTER_TRUE_PEAK}:LRA=${MASTER_LRA}:print_format=json" \
+  -f null - >/dev/null 2>"$FINAL_LOUDNESS_STATS"
+
+node - "$FINAL_LOUDNESS_STATS" "$MASTER_LUFS" "$FINAL_TRUE_PEAK_CEILING" <<'NODE'
+const fs = require('node:fs');
+const [statsPath, targetIText, truePeakCeilingText] = process.argv.slice(2);
+const log = fs.readFileSync(statsPath, 'utf8');
+const match = log.match(/\{\s*"input_i"[\s\S]*?\}/);
+if (!match) throw new Error(`Could not parse final loudness stats from ${statsPath}`);
+const stats = JSON.parse(match[0]);
+const integrated = Number(stats.input_i);
+const truePeak = Number(stats.input_tp);
+const targetI = Number(targetIText);
+const truePeakCeiling = Number(truePeakCeilingText);
+if (!Number.isFinite(integrated) || Math.abs(integrated - targetI) > 0.6) {
+  throw new Error(`Final integrated loudness ${integrated} LUFS is outside ${targetI} +/- 0.6 LU`);
+}
+if (!Number.isFinite(truePeak) || truePeak > truePeakCeiling) {
+  throw new Error(`Final true peak ${truePeak} dBTP exceeds ${truePeakCeiling} dBTP`);
+}
+console.log(`Loudness QA: ${integrated.toFixed(1)} LUFS, ${truePeak.toFixed(1)} dBTP`);
+NODE
 
 if [ -n "$MAIN_VIDEO" ] && [ "${SKIP_REMUX:-0}" != "1" ]; then
   [ -f "$MAIN_VIDEO" ] || {

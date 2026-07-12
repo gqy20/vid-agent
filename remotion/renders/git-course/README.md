@@ -48,7 +48,7 @@ remotion/renders/git-course/<episode-id>/current/scenes/<NN>_<scene-id>.mp4
 
 不要把单集专属的审查目录直接放在 `remotion/renders/git-course/` 根目录下；应该放到对应单集的 `tmp/`。
 
-发布版只在正片确认后生成。公共片头、正片、公共片尾合成时优先用 FFmpeg concat filter 重新编码，避免直接 copy 拼接在段落边界产生音频时间戳警告。片头片尾 BGM 从课程统一 BGM 截取低音量片段，不单独换歌；发布封装默认片头增益 `0dB`、片尾增益 `-5dB`，让当前片尾 BGM 比片头约高 `2dB`。
+发布版只在正片确认后生成。公共片头、正片、公共片尾先统一视频 timebase 与 48 kHz 双声道 AAC，再使用 FFmpeg concat demuxer stream-copy；不得对已经兼容的完整正片重复执行 x264 编码。片头片尾 BGM 从课程统一 BGM 截取低音量片段，不单独换歌；发布封装默认片头增益 `0dB`、片尾增益 `-5dB`，让当前片尾 BGM 比片头约高 `2dB`。
 
 这些 mp4/mp3/m4a/srt 是本地生成产物，默认不由 git 管理；仓库保留源码、脚本、文稿、对齐说明和流程文档。
 
@@ -68,7 +68,8 @@ remotion/renders/git-course/<episode-id>/current/audio/
 - 原始 TTS 文件保留，规范化人声使用 `_norm.mp3` 后缀。
 - 全片对齐人声统一输出为 `voiceover-aligned.m4a`。
 - 最终混音统一输出为 `mix.m4a`。
-- 人声规范化目标约 `-20 LUFS`，峰值约 `-3 dBFS`。
+- 分段人声规范化目标约 `-20 LUFS`、峰值约 `-3 dBFS`；旁白与 BGM 混合后再对完整节目做两遍响度归一，最终上传混音目标为 `-16 LUFS`。母带滤镜以 `-2.2 dBTP` 留出 AAC 编码余量，交付文件不得高于 `-1.5 dBTP`。
+- 最终混音统一输出为 48 kHz 双声道 AAC，并通过 `±0.6 LU` 响度与 true-peak 门禁。
 - BGM 在 Git 课程内优先复用已确认版本；当前 EP01/EP02 使用同一条 BGM。
 - BGM 使用固定低音量混入，当前为 `volume=0.05`；不做 sidechain ducking。
 - 分段旁白必须通过 `remotion/scripts/git-course-build-voiceover.sh` 生成，不手工散跑 TTS。临时 `.txt` 与 manifest 由 episode JSON 派生。

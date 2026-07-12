@@ -122,11 +122,31 @@ const getComposition = (episode) => {
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
 
-const visualBaseHash = (ctx) => hashFiles([
-  ...walkFiles(join(REMOTION, 'src/videos/git-course'), (path) => /\.(?:ts|tsx)$/.test(path)),
-  join(REMOTION, 'src/fonts.css'),
-  ...walkFiles(join(REMOTION, 'public/git-course'), (path) => !path.endsWith('.srt')),
-]);
+const episodeSourceName = (episodeId) => ({
+  'ep01-what-git-stores': 'Ep01WhatGitStores.tsx',
+  'ep02-working-tree-index-repo': 'Ep02WorkingTreeIndexRepo.tsx',
+  'ep03-commit-snapshot': 'Ep03CommitSnapshot.tsx',
+  'ep04-branch-is-pointer': 'Ep04BranchIsPointer.tsx',
+  'ep05-head': 'Ep05Head.tsx',
+  'ep06-merge': 'Ep06Merge.tsx',
+  'ep07-rebase': 'Ep07Rebase.tsx',
+  'ep08-reset-revert-restore': 'Ep08ResetRevertRestore.tsx',
+}[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
+
+const visualBaseHash = (ctx) => {
+  const courseRoot = join(REMOTION, 'src/videos/git-course');
+  const episodeNumber = ctx.episode.episodeId.slice(0, 4);
+  const sharedSources = walkFiles(courseRoot, (path) => {
+    if (!/\.(?:ts|tsx)$/.test(path)) return false;
+    if (path.includes('/episodes/')) return false;
+    // This file contains every episode and would invalidate unrelated caches.
+    if (path.endsWith('/data/episodeTimelines.generated.ts')) return false;
+    return true;
+  });
+  const episodeSource = join(courseRoot, 'episodes', episodeSourceName(ctx.episode.episodeId));
+  const episodeAssets = walkFiles(join(REMOTION, 'public/git-course'), (path) => path.includes(`/manim/${episodeNumber}/`));
+  return hashFiles([...sharedSources, episodeSource, join(REMOTION, 'src/fonts.css'), ...episodeAssets]);
+};
 
 const sceneFingerprint = (ctx, scene, baseHash) => {
   const {narration: _narration, ...visualScene} = scene;
@@ -152,10 +172,24 @@ const bgmPath = (ctx) => {
 const audioFingerprint = (ctx, buildPlan) => {
   const bgm = bgmPath(ctx);
   return sha(JSON.stringify({
-    schema: 1,
-    tts: buildPlan.tts.map((task) => ({segmentId: task.scene.narration.segmentId, fingerprint: task.fingerprint, voiceStart: task.scene.narration.voiceStart})),
+    schema: 2,
+    durationSeconds: ctx.episode.durationSeconds,
+    tts: buildPlan.tts.map((task) => ({
+      segmentId: task.scene.narration.segmentId,
+      fingerprint: task.fingerprint,
+      voiceStart: task.scene.narration.voiceStart,
+      sceneEnd: task.scene.start + task.scene.duration,
+    })),
     bgm: bgm ? {path: rel(bgm), sha256: shaFile(bgm)} : null,
     volume: process.env.BGM_VOLUME ?? '0.05',
+    mastering: {
+      integratedLufs: process.env.MASTER_LUFS ?? '-16',
+      truePeakDbtp: process.env.MASTER_TRUE_PEAK ?? '-2.2',
+      finalTruePeakCeilingDbtp: process.env.FINAL_TRUE_PEAK_CEILING ?? '-1.5',
+      loudnessRange: process.env.MASTER_LRA ?? '7',
+      mixNormalization: 'amix-normalize-off+two-pass-loudnorm-v1',
+      scriptSha256: shaFile(join(REMOTION, 'scripts/git-course-build-voiceover.sh')),
+    },
   }));
 };
 
@@ -233,6 +267,17 @@ const buildAudio = async (ctx, buildPlan) => {
   const dirty = buildPlan.tts.filter((task) => !task.hit);
   const ids = dirty.map((task) => task.scene.narration.segmentId);
   const mainCandidate = join(ctx.build, 'candidate', `${ctx.episode.episodeId}.mp4`);
+  const mix = join(ctx.current, 'audio/mix.m4a');
+  const fingerprint = audioFingerprint(ctx, buildPlan);
+  if (
+    dirty.length === 0 &&
+    ctx.state.audioFingerprint === fingerprint &&
+    existsSync(mix) &&
+    ctx.state.audioMixSha256 === shaFile(mix)
+  ) {
+    console.log('HIT   audio mix');
+    return {mix, mainCandidate};
+  }
   const env = {
     TTS_SEGMENTS: ids.join(','),
     TTS_JOBS: 'all',
@@ -248,8 +293,9 @@ const buildAudio = async (ctx, buildPlan) => {
     existsSync(norm) || fail(`Missing normalized segment: ${norm}`);
     ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(norm), sha256: shaFile(norm), updatedAt: new Date().toISOString()};
   }
-  ctx.state.audioFingerprint = audioFingerprint(ctx, buildPlan);
-  return {mix: join(ctx.current, 'audio/mix.m4a'), mainCandidate};
+  ctx.state.audioFingerprint = fingerprint;
+  ctx.state.audioMixSha256 = shaFile(mix);
+  return {mix, mainCandidate};
 };
 
 const recoverValidTtsState = (ctx, buildPlan) => {
@@ -258,6 +304,9 @@ const recoverValidTtsState = (ctx, buildPlan) => {
     const segment = scene.narration.segmentId;
     const norm = join(ctx.current, 'audio/segments', `${segment}_norm.mp3`);
     if (!existsSync(norm)) continue;
+    const cached = ctx.state.tts[segment];
+    // Never label an old take with a new text/config fingerprint after a failed build.
+    if (cached?.fingerprint !== task.fingerprint || cached.sha256 !== shaFile(norm)) continue;
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
     if (scene.narration.voiceStart + duration > scene.start + scene.duration) continue;
     ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(norm), sha256: shaFile(norm), durationSeconds: duration, updatedAt: new Date().toISOString()};
@@ -274,11 +323,18 @@ const assembleMain = async (ctx, buildPlan, audio) => {
     existsSync(path) || fail(`Missing scene cache: ${path}`);
     return {sceneId: task.scene.id, path, sha256: shaFile(path)};
   });
-  writeFileSync(manifest, ordered.map((item) => `file '${item.path.replaceAll("'", "'\\''")}'`).join('\n') + '\n');
-  const silent = join(candidateDir, `${ctx.episode.episodeId}-silent.mp4`);
   const candidate = join(candidateDir, `${ctx.episode.episodeId}.mp4`);
-  await run('ffmpeg', ['-nostdin', '-y', '-f', 'concat', '-safe', '0', '-i', manifest, '-c', 'copy', silent], {log: join(ctx.build, 'logs/assemble-video.log')});
-  await run('ffmpeg', ['-nostdin', '-y', '-i', silent, '-i', audio.mix, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-f', 'mp4', `${candidate}.partial`], {log: join(ctx.build, 'logs/assemble-main.log')});
+  const inputFingerprint = sha(JSON.stringify({scenes: ordered.map((item) => item.sha256), mix: shaFile(audio.mix)}));
+  const artifactPath = join(ctx.build, 'artifact-manifest.json');
+  if (existsSync(candidate) && existsSync(artifactPath)) {
+    const cached = json(artifactPath);
+    if (cached.inputFingerprint === inputFingerprint && cached.sha256 === shaFile(candidate)) {
+      console.log(`HIT   assemble ${rel(candidate)}`);
+      return {candidate, artifact: cached};
+    }
+  }
+  writeFileSync(manifest, ordered.map((item) => `file '${item.path.replaceAll("'", "'\\''")}'`).join('\n') + '\n');
+  await run('ffmpeg', ['-nostdin', '-y', '-f', 'concat', '-safe', '0', '-i', manifest, '-i', audio.mix, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-f', 'mp4', `${candidate}.partial`], {log: join(ctx.build, 'logs/assemble-main.log')});
   renameSync(`${candidate}.partial`, candidate);
   const artifact = {
     schemaVersion: 1,
@@ -286,11 +342,11 @@ const assembleMain = async (ctx, buildPlan, audio) => {
     createdAt: new Date().toISOString(),
     path: rel(candidate),
     sha256: shaFile(candidate),
-    inputFingerprint: sha(JSON.stringify({scenes: ordered.map((item) => item.sha256), mix: shaFile(audio.mix)})),
+    inputFingerprint,
     scenes: ordered.map((item) => ({sceneId: item.sceneId, path: rel(item.path), sha256: item.sha256})),
     audio: {path: rel(audio.mix), sha256: shaFile(audio.mix)},
   };
-  writeJson(join(ctx.build, 'artifact-manifest.json'), artifact);
+  writeJson(artifactPath, artifact);
   console.log(`PASS  assemble ${rel(candidate)}`);
   return {candidate, artifact};
 };
@@ -356,6 +412,14 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     ...(expected === null ? [] : [{id: 'duration.main', status: Math.abs(duration - expected) <= 0.08 ? 'pass' : 'fail', details: `${duration}s expected ${expected}s`}]),
   ];
   const plan = samplingPlan(ctx, scope, duration);
+  const artifactSha256 = shaFile(candidate);
+  const auditFingerprint = sha(JSON.stringify({
+    schema: 2,
+    artifactSha256,
+    boundaries: readFileSync(plan.boundariesPath, 'utf8'),
+    keyframes: readFileSync(plan.keyframesPath, 'utf8'),
+    workerSha256: shaFile(join(REMOTION, 'scripts/audit-video-stills.sh')),
+  }));
   if (scope === 'release') {
     const intro = join(REMOTION, 'renders/git-course/visible-system-intro/current/visible-system-intro.mp4');
     const main = join(ctx.current, `${ctx.episode.episodeId}.mp4`);
@@ -371,6 +435,14 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
   const markerLeak = srtFiles.some((path) => /<#|#>/.test(readFileSync(path, 'utf8')));
   if (scope === 'main') checks.push({id: 'subtitle.pause-marker', status: markerLeak ? 'fail' : 'pass', details: markerLeak ? 'pause marker found' : 'clean'});
   const auditDir = join(ctx.build, 'audit', scope);
+  const cachedVerdictPath = join(auditDir, 'verdict.json');
+  if (existsSync(cachedVerdictPath) && existsSync(join(auditDir, 'report.html'))) {
+    const cached = json(cachedVerdictPath);
+    if (cached.auditFingerprint === auditFingerprint && cached.artifactSha256 === artifactSha256) {
+      console.log(`HIT   audit ${scope}: ${cached.verdict}`);
+      return cached;
+    }
+  }
   rmSync(auditDir, {recursive: true, force: true});
   await run(join(REMOTION, 'scripts/audit-video-stills.sh'), [candidate, auditDir], {
     env: {BOUNDARIES_FILE: plan.boundariesPath, KEYFRAMES_FILE: plan.keyframesPath},
@@ -390,7 +462,8 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     episodeId: ctx.episode.episodeId,
     scope,
     artifact: rel(candidate),
-    artifactSha256: shaFile(candidate),
+    artifactSha256,
+    auditFingerprint,
     inputFingerprint: scope === 'main' && existsSync(join(ctx.build, 'artifact-manifest.json')) ? json(join(ctx.build, 'artifact-manifest.json')).inputFingerprint : shaFile(candidate),
     createdAt: new Date().toISOString(),
     verdict: machineFailed ? 'fail' : 'needs_review',
