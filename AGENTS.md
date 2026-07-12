@@ -23,9 +23,12 @@
 - 渲染后要审查：元素重叠、字幕遮挡、Git 状态歧义、语义色误用、过度运动、命令和状态变化不匹配。
 - Git Course 默认使用 `pnpm --dir remotion git-course build <episode-id>`；所有 dirty scene、TTS、规范化和分段审查在依赖允许时最大并行。build 只写 `tmp/cache` 和 `tmp/build/candidate`，不得直接覆盖 current。
 - dirty Scene 必须复用一次 Remotion bundle；不要重新引入每个 Scene 单独 bundle 的 CLI 调度。总 render concurrency 默认使用全部逻辑 CPU，但每个 Scene 使用独立浏览器池，禁止让多个并行 `renderMedia` 共用同一个 Chrome 实例。
+- Scene 成功后必须立即写入内容寻址 cache；其他 Scene 失败不能丢弃已完成结果。并发上限由本机稳定 profile 与自动降级重试维护，不得重新写死成保守小常数。
 - 只有 main audit verdict 为 `pass` 且 SHA、scene/TTS/BGM 指纹匹配时，`git-course promote` 才能覆盖 `current/`。分段文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。
 - 抽帧检查可以临时放在 `tmp/`，但检查完成后要清理，避免当前审查目录被临时文件污染。
 - 编码后审查统一使用连续 `2fps`（30fps 每 15 帧一张），每张审查条最多 5 帧并按 `5×1` 合并；16 帧 `4×4` 总览只用于导航。scene 和发布拼接边界使用中心点前后各 `0.5s`、`10fps` burst，并补充计划内精确关键帧。
+- 审查 sheet 应由单次分页 montage 生成，最后一页不得补空白；原始连续帧默认在 sheet 校验后删除，只在 `AUDIT_KEEP_FRAMES=1` 调试时保留。
+- overview、2fps review 和完整 metrics 应并行扫描；boundary 与 keyframe 也应并行，禁止重新退化成所有审计阶段串行执行。
 - 单集完整成片统一覆盖 `current/<episode-id>.mp4`。历史成片只允许归档到 `tmp/legacy-final/`，不再作为新流程输入或输出。不要输出 `new`、`v2`、`final-final` 之类临时成片。
 - 每个 scene 的旁白正文、`segmentId` 和进入时间直接维护在 episode JSON 的 `scenes[].narration`。orchestrator 在 `tmp/narration-source/` 派生 `.txt` 和 `manifest.tsv`，仅重新生成指纹变化的 `.mp3`、`.srt`、`_norm.mp3`。不要直接调用底层 TTS 或散跑 FFmpeg 长命令。
 - TTS 文稿应使用短句和 MiniMax 停顿标记控制节奏，例如 `<#0.25#>`、`<#0.35#>`；生成后必须检查 `.srt`，确认停顿标记没有被读成文字。

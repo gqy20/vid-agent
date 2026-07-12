@@ -18,6 +18,7 @@ import {dirname, join, relative, resolve} from 'node:path';
 import {performance} from 'node:perf_hooks';
 import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
+import ts from 'typescript';
 
 const exec = promisify(execFile);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -135,6 +136,7 @@ const episodeSourceName = (episodeId) => ({
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {
+  if (ctx.episodeSourceParts) return ctx.episodeSourceParts;
   const path = join(REMOTION, 'src/videos/git-course/episodes', episodeSourceName(ctx.episode.episodeId));
   const source = readFileSync(path, 'utf8');
   const blocks = new Map();
@@ -151,7 +153,32 @@ const episodeSourceParts = (ctx) => {
     shared = shared.replace(source.slice(start, blockEnd), `// scene:${scene.id}`);
   }
   if (blocks.size > 0 && blocks.size !== ctx.episode.scenes.length) fail(`${path}: every scene must have fingerprint markers.`);
-  return {path, source, shared, blocks};
+  if (blocks.size === 0) {
+    const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const statements = new Map();
+    for (const statement of sourceFile.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) statements.set(declaration.name.text, statement);
+      }
+    }
+    const ranges = [];
+    for (const scene of ctx.episode.scenes) {
+      const pascal = scene.id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
+      const candidates = [`${pascal}Scene`, `Ep01${pascal}Scene`];
+      const statement = candidates.map((name) => statements.get(name)).find(Boolean);
+      statement || fail(`${scene.id}: no scene component found in ${path}; expected ${candidates.join(' or ')}`);
+      const start = statement.getStart(sourceFile);
+      const end = statement.getEnd();
+      blocks.set(scene.id, source.slice(start, end));
+      ranges.push({sceneId: scene.id, start, end});
+    }
+    for (const range of ranges.sort((a, b) => b.start - a.start)) {
+      shared = `${shared.slice(0, range.start)}// scene:${range.sceneId}${shared.slice(range.end)}`;
+    }
+  }
+  ctx.episodeSourceParts = {path, source, shared, blocks};
+  return ctx.episodeSourceParts;
 };
 
 const visualBaseHash = (ctx) => {
@@ -293,11 +320,33 @@ const printPlan = (ctx, buildPlan) => {
   for (const task of buildPlan.tts) console.log(`${task.hit ? 'HIT  ' : 'BUILD'} tts    ${task.scene.narration.segmentId}`);
 };
 
+const printFingerprints = (ctx, buildPlan) => {
+  console.log(JSON.stringify({
+    episodeId: ctx.episode.episodeId,
+    visualBaseHash: buildPlan.baseHash,
+    scenes: Object.fromEntries(buildPlan.scenes.map((task) => [task.scene.id, task.fingerprint])),
+    tts: Object.fromEntries(buildPlan.tts.map((task) => [task.scene.narration.segmentId, task.fingerprint])),
+  }, null, 2));
+};
+
 const renderScenes = async (ctx, tasks) => {
   if (tasks.length === 0) return [];
   const logicalCpus = cpus().length;
-  const concurrency = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(logicalCpus / tasks.length)));
+  const profilePath = join(REMOTION, 'renders/git-course/tmp/render-profile.json');
+  const profile = existsSync(profilePath) ? json(profilePath) : {maxStableConcurrencyPerBrowser: 16};
+  const requestedConcurrency = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(logicalCpus / tasks.length)));
+  const concurrency = FLAGS.has('render-concurrency') ? requestedConcurrency : Math.min(requestedConcurrency, profile.maxStableConcurrencyPerBrowser ?? 16);
+  const bundleFingerprint = hashFiles([
+    ...walkFiles(join(REMOTION, 'src'), (path) => /\.(?:ts|tsx|css)$/.test(path)),
+    join(REMOTION, 'package.json'),
+    join(REMOTION, 'pnpm-lock.yaml'),
+    join(REMOTION, 'remotion.config.ts'),
+    ...walkFiles(join(REMOTION, 'public/git-course')),
+  ]);
+  const bundleDir = join(REMOTION, 'renders/git-course/tmp/bundles', bundleFingerprint);
   const planPath = join(ctx.build, 'render-plan.json');
+  const cacheDir = join(ctx.cache, 'scenes');
+  mkdirSync(cacheDir, {recursive: true});
   const planned = tasks.map((task) => {
     const scene = task.scene;
     const index = task.index + 1;
@@ -305,37 +354,47 @@ const renderScenes = async (ctx, tasks) => {
     const end = (scene.start + scene.duration) * FPS - 1;
     const taskDir = join(ctx.build, 'tasks', `render-${scene.id}`);
     const output = join(taskDir, 'segments', `${String(index).padStart(3, '0')}_${String(start).padStart(6, '0')}-${String(end).padStart(6, '0')}.mp4`);
+    const cachePath = join(cacheDir, `${String(index).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}_${task.fingerprint.slice(0, 12)}.mp4`);
+    const completionPath = join(taskDir, 'render-completion.json');
     rmSync(taskDir, {recursive: true, force: true});
     mkdirSync(dirname(output), {recursive: true});
-    return {task, scene, index, start, end, taskDir, output, concurrency};
+    return {task, scene, index, start, end, taskDir, output, cachePath, completionPath, concurrency};
   });
   writeJson(planPath, {
     schemaVersion: 1,
     entryPoint: join(REMOTION, 'src/index.ts'),
     compositionId: getComposition(ctx.episode),
     logicalCpus,
+    requestedConcurrency,
+    profilePath,
+    bundleDir,
+    bundleFingerprint,
     timeoutInMilliseconds: 120000,
     telemetryPath: join(ctx.build, 'telemetry/render-scenes.json'),
-    tasks: planned.map(({scene, start, end, output, concurrency: taskConcurrency}) => ({sceneId: scene.id, start, end, output, concurrency: taskConcurrency})),
+    tasks: planned.map(({scene, start, end, output, cachePath, completionPath, concurrency: taskConcurrency}) => ({sceneId: scene.id, start, end, output, cacheOutput: cachePath, completionPath, concurrency: taskConcurrency, fallbackConcurrency: profile.maxStableConcurrencyPerBrowser ?? 16})),
   });
-  await run('node', [join(REMOTION, 'scripts/git-course-render-scenes.mjs'), planPath], {
-    log: join(ctx.build, 'logs/render-scenes.log'),
-  });
-  await Promise.all(planned.map(async ({taskDir}) => {
+  let renderError = null;
+  try {
+    await run('node', [join(REMOTION, 'scripts/git-course-render-scenes.mjs'), planPath], {
+      log: join(ctx.build, 'logs/render-scenes.log'),
+    });
+  } catch (error) {
+    renderError = error;
+  }
+  const completed = planned.filter(({cachePath, completionPath}) => existsSync(cachePath) && existsSync(completionPath));
+  await Promise.all(completed.map(async ({taskDir}) => {
     await run(join(REMOTION, 'scripts/audit-range-segments.sh'), [taskDir, join(taskDir, 'segment-audits'), 'all']);
   }));
-  const cacheDir = join(ctx.cache, 'scenes');
-  mkdirSync(cacheDir, {recursive: true});
-  return planned.map(({task, scene, index, output, end, start}) => {
-    const frames = Number(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=nb_frames', '-of', 'default=nw=1:nk=1', output], {encoding: 'utf8'}).trim());
+  const results = completed.map(({task, scene, cachePath, completionPath, end, start}) => {
+    const frames = Number(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=nb_frames', '-of', 'default=nw=1:nk=1', cachePath], {encoding: 'utf8'}).trim());
     frames === end - start + 1 || fail(`${scene.id}: expected ${end - start + 1} frames, found ${frames}`);
-    const cachePath = join(cacheDir, `${String(index).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}_${task.fingerprint.slice(0, 12)}.mp4`);
-    copyFileSync(output, `${cachePath}.partial`);
-    renameSync(`${cachePath}.partial`, cachePath);
-    ctx.state.scenes[scene.id] = {fingerprint: task.fingerprint, path: rel(cachePath), sha256: shaFile(cachePath), updatedAt: new Date().toISOString()};
+    const completion = json(completionPath);
+    ctx.state.scenes[scene.id] = {fingerprint: task.fingerprint, path: rel(cachePath), sha256: shaFile(cachePath), render: completion, updatedAt: new Date().toISOString()};
     console.log(`PASS  render ${scene.id}`);
     return cachePath;
   });
+  if (renderError) throw renderError;
+  return results;
 };
 
 const buildAudio = async (ctx, buildPlan) => {
@@ -755,6 +814,7 @@ const status = (ctx) => {
 const main = async () => {
   const ctx = loadContext();
   if (COMMAND === 'plan') printPlan(ctx, plan(ctx));
+  else if (COMMAND === 'fingerprints') printFingerprints(ctx, plan(ctx));
   else if (COMMAND === 'status') status(ctx);
   else if (COMMAND === 'build') await build(ctx);
   else if (COMMAND === 'audit') await auditArtifact(ctx, candidatePath(ctx, 'main'), 'main');

@@ -20,6 +20,7 @@ renders/*/renders/*/*.mp4
 
 # Series layout: renders/<series>/<episode>/{current,tmp}
 renders/*/*/tmp/
+renders/git-course/tmp/
 renders/*/*/current/release/
 renders/*/*/current/release/*.png
 renders/*/*/current/release/*.jpg

@@ -12,6 +12,21 @@ Remotion 通过无头 Chrome 把 React 组件**逐帧**渲成视频。做出*精
 精修。浪费时间多半来自首次渲染卡在 Chrome/字体下载,或全片渲染几分钟后才发现排版
 bug。
 
+## Skill 与项目的边界
+
+本 skill 定义通用能力，不定义某个系列视频的实现。开始工作时先查仓库的 `AGENTS.md`、
+项目工作流和已有 orchestrator：
+
+- **skill 负责**：内容指纹、增量任务、内容寻址缓存、共享 bundle、并行资源预算、候选产物、
+  审查证据、verdict、批准与晋升这些通用阶段。
+- **项目适配器负责**：内容 schema、目录、命令、scene 划分、品牌/教学规则、采样参数、响度目标、
+  发布平台和准入阈值。
+- 已有项目 orchestrator 时必须从它进入，不绕过它直接调用底层 TTS、Remotion 或 FFmpeg。
+- 没有项目适配器时，才使用本 skill 的 `scripts/` 作为轻量 fallback；通用脚本不是项目事实源。
+
+详见 `references/incremental-production.md`。不要把项目名、episode id、固定 voice、语义色或
+项目目录反写进 skill。
+
 ## 必读背景
 
 写任何动画代码前,先读官方 Remotion skill:**github.com/remotion-dev/skills**
@@ -127,19 +142,18 @@ export const RemotionRoot: React.FC = () => (
 6. **长视频先数据化时间线** —— 超过 90s 或未来可能到 5min 时,把场景时长、
    转场、fps、尺寸抽进 `timeline.ts`,Composition 的 `durationInFrames` 从常量计算
    (references/long-video-rendering.md)。
-7. **渲染 → 归档** —— 先用 `--concurrency=8` 起测,再按机器调到 12/16;渲进产物目录
+7. **渲染 → 归档** —— 优先读取项目资源策略；无策略时用短片 smoke test 探测最大稳定并发，
+   不把保守常量当生产默认值。渲进产物目录
    `renders/<id>/renders/{tmp,candidates,current,archive}/`,补上 `thumbnail.png` +
    `meta.json` + `README.md`;用 `ffprobe` 校验。分片、场景审查、抽帧都必须放
    `renders/<id>/renders/tmp/{chunks,scenes,audit}/`。绝不让 mp4 堆在工程根目录
    (references/render-project-layout.md)。
-8. **多个独立场景默认并行渲染** —— 一次修改影响两个及以上互不依赖的 scene 时,优先
-   写 `RANGES_FILE` 并使用 `scripts/render-ranges.sh` 并行生成,例如
-   `JOBS=3 CONCURRENCY=4 SKIP_CONCAT=1 AUDIT_SEGMENTS=1`。`JOBS × CONCURRENCY` 不应
-   明显超过机器可用核心数;含多个外部视频资产时先从 `JOBS=2` 开始。只有单场景、共享资源
-   会争用、或并行 smoke test 不稳定时才串行渲染。不要连续启动多个独立 Remotion CLI、
-   让每个进程重复 bundle 后再串行等待。ranges 内部的并发 Remotion 进程可能报告 webpack
-   cache rename 警告;只要所有 segment 的帧数校验和 encoded audit 都通过,该警告不影响产物。
-   若出现 bundle 失败而不只是 cache warning,先把 `JOBS` 降到 2,不要盲目提高并发。
+8. **多个独立任务默认最大稳定并行** —— 先由 orchestrator 计算全局资源预算，再让 dirty
+   scene、TTS、审查扫描等互不依赖任务并行。Remotion 源码只 bundle 一次并持久缓存；每个
+   并行 `renderMedia` 使用独立 browser pool，不能共享同一个 Chrome 实例。成功任务立即写入
+   内容寻址缓存，批次失败也不得丢弃已完成结果。无项目 orchestrator 时，才用
+   `scripts/render-ranges.sh` fallback。并发以机器探测到的最大稳定值为默认，遇到资源型失败
+   自动降档并记录可复用的机器 profile，而不是长期写死一个小数字。
 9. **需要更快时先测再拆** —— frame range 分片必须先 smoke test 当前 Remotion 版本是否
    会卡在 mp4 分片末帧,稳定后才用于生产。分析单段时用
    `SKIP_CONCAT=1 AUDIT_SEGMENTS=1`,不要为了看一个场景强行合成全片。
@@ -167,6 +181,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | references/terminal-scenes.md | 模拟终端场景:配色、打字命令、输出形态、spinner/进度条 |
 | references/anti-patterns.md | 让视频显廉价或出错的反模式及修法 |
 | references/audio-mmx.md | 用 mmx-cli 生成配音/BGM + ffmpeg 混音 + Remotion 音视频合流 |
+| references/incremental-production.md | **通用生产管线**：项目适配器、指纹/CAS、最大稳定并行、候选审查与晋升门禁 |
 | references/long-video-rendering.md | 长视频 timeline 数据化、frame-range 分片并发、scene segment 取舍 |
 | references/renderer-internals.md | **源码层**:Remotion 五层架构、项目做法↔源码模块对照、chunk/sequence/音频三条绕开路径、升级影响 |
 | scripts/check-env.sh | 探测 Chrome/字体/工具链,打印建议配置行 |

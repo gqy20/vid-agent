@@ -68,6 +68,7 @@ remotion/renders/git-course/<episode-id>/current/audio/
 - 原始 TTS 文件保留，规范化人声使用 `_norm.mp3` 后缀。
 - 全片对齐人声统一输出为 `voiceover-aligned.m4a`。
 - 最终混音统一输出为 `mix.m4a`。
+- `voiceover-aligned.m4a` 与 BGM premaster 由一次 FFmpeg filter graph 同时生成，避免中间 AAC 再解码；两遍节目响度归一和最终 QA 保持不变。
 - 分段人声规范化目标约 `-20 LUFS`、峰值约 `-3 dBFS`；旁白与 BGM 混合后再对完整节目做两遍响度归一，最终上传混音目标为 `-16 LUFS`。母带滤镜以 `-2.2 dBTP` 留出 AAC 编码余量，交付文件不得高于 `-1.5 dBTP`。
 - 最终混音统一输出为 48 kHz 双声道 AAC，并通过 `±0.6 LU` 响度与 true-peak 门禁。
 - BGM 在 Git 课程内优先复用已确认版本；当前 EP01/EP02 使用同一条 BGM。

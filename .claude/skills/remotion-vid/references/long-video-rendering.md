@@ -1,5 +1,8 @@
 # 长视频与并行渲染
 
+先读 [`incremental-production.md`](incremental-production.md)。项目已有 orchestrator 时，
+以下命令只作为 fallback，不应绕过项目入口。
+
 ## 先判断是否值得拆
 
 Remotion 默认已经按帧并发渲染,`--concurrency` 控制单个 render 进程里的浏览器并发。
@@ -30,8 +33,8 @@ Remotion 默认已经按帧并发渲染,`--concurrency` 控制单个 render 进�
   走这条路,改用单进程高 `--concurrency` 或 image sequence 分片。
 - 每个分片不要太短,否则 Remotion bundling/Chrome 启动成本会抵消收益。1080p 推荐
   `300-900` 帧一片;5 分钟 30fps 可先用 `600` 帧。
-- 总并发 = `JOBS * CONCURRENCY`。先从 `JOBS=4 CONCURRENCY=4` 起测,再看 CPU、
-  内存、Chrome 稳定性调到 `6x4` 或 `8x3`。
+- 总并发由统一资源预算控制。首次用短任务逐档探测机器最大稳定值，后续默认复用机器 profile；
+  不在通用规范里写死偏小的生产上限。
 - 并发启动多个 Chrome 时,把 `TIMEOUT` 提高到 `120000` 或更高,避免 30s setup timeout
   误失败。
 - 如果完整片内嵌音频,优先用 `MUTED=1` 分片只渲视频,最后统一 mux 全局配音/BGM。
@@ -44,6 +47,9 @@ OUT_ROOT="renders/<id>/renders/tmp/chunks" \
 JOBS=10 CONCURRENCY=2 TIMEOUT=120000 MUTED=1 \
 scripts/render-ranges.sh <CompId> <slug> <total_frames> 600
 ```
+
+这是没有 adapter 时的兼容路径。成熟管线应 bundle 一次并缓存 bundle，每个并行
+`renderMedia` 使用独立 browser pool；任务完成即写 CAS，批次部分失败时保留成功项。
 
 如果 smoke test 不稳定,先使用:
 

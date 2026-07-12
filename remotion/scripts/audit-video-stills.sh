@@ -9,8 +9,11 @@ REVIEW_FPS="${REVIEW_FPS:-2}"
 BOUNDARY_FPS="${BOUNDARY_FPS:-10}"
 FRAMES_PER_SHEET="${FRAMES_PER_SHEET:-5}"
 AUDIT_METRICS="${AUDIT_METRICS:-1}"
+AUDIT_KEEP_FRAMES="${AUDIT_KEEP_FRAMES:-0}"
+now_ms() { date +%s%3N; }
+AUDIT_STARTED_MS="$(now_ms)"
 
-for cmd in ffmpeg ffprobe sha256sum awk; do
+for cmd in ffmpeg ffprobe sha256sum awk montage identify convert; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "missing command: $cmd" >&2
     exit 1
@@ -27,49 +30,81 @@ DURATION="$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1
 VIDEO_DURATION="$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=nw=1:nk=1 "$VIDEO")"
 SOURCE_FPS="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nw=1:nk=1 "$VIDEO")"
 SHA256="$(sha256sum "$VIDEO" | awk '{print $1}')"
-OVERVIEW_INTERVAL="$(awk -v d="$VIDEO_DURATION" 'BEGIN {printf "%.6f", (d - 0.1) / 15}')"
 EXPECTED_REVIEW_FRAMES="$(awk -v d="$VIDEO_DURATION" -v fps="$REVIEW_FPS" 'BEGIN {v=d*fps; print int(v)+(v>int(v)?1:0)}')"
+OVERVIEW_INTERVAL="$(awk -v d="$VIDEO_DURATION" 'BEGIN {printf "%.6f", (d - 0.1) / 15}')"
 
 FONT_FILE="/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 STAMP="drawtext=fontfile=${FONT_FILE}:text='%{pts\\:hms}':x=14:y=14:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.58"
 
-# Overview is an index only: 16 samples in one 4x4 sheet.
-ffmpeg -nostdin -y -i "$VIDEO" \
-  -vf "fps=1/${OVERVIEW_INTERVAL},scale=480:-2,${STAMP},tile=4x4" \
-  -frames:v 1 "$OUT_DIR/overview/contact-16.jpg" >/dev/null 2>&1
+# Independent full-video scans run together. Each process still has one clear
+# responsibility, while wall time is bounded by the slowest scan.
+OVERVIEW_STARTED_MS="$(now_ms)"
+(
+  ffmpeg -nostdin -y -i "$VIDEO" \
+    -vf "fps=1/${OVERVIEW_INTERVAL},scale=480:-2,${STAMP},tile=4x4" \
+    -frames:v 1 "$OUT_DIR/overview/contact-16.jpg" >/dev/null 2>&1
+  now_ms > "$OUT_DIR/overview.finished-ms"
+) &
+OVERVIEW_PID=$!
 
-# Review evidence: encoded MP4 sampled continuously at 2fps.
-ffmpeg -nostdin -y -i "$VIDEO" \
-  -vf "fps=${REVIEW_FPS},scale=480:-2,${STAMP}" \
-  -q:v 3 "$OUT_DIR/review/frames/frame-%06d.jpg" >/dev/null 2>&1
+REVIEW_STARTED_MS="$(now_ms)"
+(
+  ffmpeg -nostdin -y -i "$VIDEO" \
+    -vf "fps=${REVIEW_FPS},scale=480:-2,${STAMP}" \
+    -q:v 3 "$OUT_DIR/review/frames/frame-%06d.jpg" >/dev/null 2>&1
+  now_ms > "$OUT_DIR/review.finished-ms"
+) &
+REVIEW_PID=$!
+
+METRICS_STARTED_MS="$(now_ms)"
+if [ "$AUDIT_METRICS" = "1" ]; then
+  (
+    ffmpeg -nostdin -i "$VIDEO" \
+      -filter_complex "[0:v]split=3[scene][black][freeze];[scene]select='gt(scene,0.015)',showinfo[sceneout];[black]blackdetect=d=0.10:pix_th=0.10[blackout];[freeze]freezedetect=n=-50dB:d=1.5[freezeout]" \
+      -map "[sceneout]" -map "[blackout]" -map "[freezeout]" -an -f null - \
+      2> "$OUT_DIR/metrics/video-metrics.log" || true
+    now_ms > "$OUT_DIR/metrics.finished-ms"
+  ) &
+  METRICS_PID=$!
+else
+  METRICS_PID=""
+  now_ms > "$OUT_DIR/metrics.finished-ms"
+fi
+
+set +e
+wait "$OVERVIEW_PID"; OVERVIEW_STATUS=$?
+wait "$REVIEW_PID"; REVIEW_STATUS=$?
+METRICS_STATUS=0
+if [ -n "$METRICS_PID" ]; then wait "$METRICS_PID"; METRICS_STATUS=$?; fi
+set -e
+[ "$OVERVIEW_STATUS" -eq 0 ] && [ "$REVIEW_STATUS" -eq 0 ] && [ "$METRICS_STATUS" -eq 0 ] || {
+  echo "parallel audit scan failed: overview=$OVERVIEW_STATUS review=$REVIEW_STATUS metrics=$METRICS_STATUS" >&2
+  exit 1
+}
+OVERVIEW_FINISHED_MS="$(<"$OUT_DIR/overview.finished-ms")"
+REVIEW_EXTRACT_FINISHED_MS="$(<"$OUT_DIR/review.finished-ms")"
+METRICS_FINISHED_MS="$(<"$OUT_DIR/metrics.finished-ms")"
+rm -f "$OUT_DIR/overview.finished-ms" "$OUT_DIR/review.finished-ms" "$OUT_DIR/metrics.finished-ms"
 
 make_sheets() {
   local frames_dir="$1"
   local sheets_dir="$2"
   local prefix="$3"
   local files=()
-  local index=0
-  local page=1
   mapfile -t files < <(find "$frames_dir" -maxdepth 1 -type f -name '*.jpg' | sort)
-  while [ "$index" -lt "${#files[@]}" ]; do
-    local inputs=()
-    local count=0
-    while [ "$count" -lt 5 ] && [ $((index + count)) -lt "${#files[@]}" ]; do
-      inputs+=("-i" "${files[$((index + count))]}")
-      count=$((count + 1))
-    done
-    if [ "$count" -eq 1 ]; then
-      cp "${files[$index]}" "$sheets_dir/${prefix}-$(printf '%03d' "$page").jpg"
-    else
-      ffmpeg -nostdin -y "${inputs[@]}" \
-        -filter_complex "hstack=inputs=${count}" \
-        -frames:v 1 "$sheets_dir/${prefix}-$(printf '%03d' "$page").jpg" >/dev/null 2>&1
-    fi
-    index=$((index + count))
-    page=$((page + 1))
-  done
+  [ "${#files[@]}" -gt 0 ] || return 0
+  montage "${files[@]}" -tile 5x1 -geometry +0+0 "$sheets_dir/${prefix}-%03d.jpg"
+  local remainder=$((${#files[@]} % 5))
+  if [ "$remainder" -gt 0 ]; then
+    local last_page=$(((${#files[@]} - 1) / 5))
+    local last_file="$sheets_dir/${prefix}-$(printf '%03d' "$last_page").jpg"
+    local frame_width
+    frame_width="$(identify -format '%w' "${files[0]}")"
+    convert "$last_file" -crop "$((frame_width * remainder))x+0+0" +repage "$last_file"
+  fi
 }
 
+SHEETS_STARTED_MS="$(now_ms)"
 make_sheets "$OUT_DIR/review/frames" "$OUT_DIR/review/sheets" "contact"
 ACTUAL_REVIEW_FRAMES="$(find "$OUT_DIR/review/frames" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')"
 ACTUAL_REVIEW_SHEETS="$(find "$OUT_DIR/review/sheets" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')"
@@ -83,45 +118,72 @@ EXPECTED_REVIEW_SHEETS=$(((EXPECTED_REVIEW_FRAMES + 4) / 5))
   echo "review sheet mismatch: expected=$EXPECTED_REVIEW_SHEETS actual=$ACTUAL_REVIEW_SHEETS" >&2
   exit 1
 }
-
-BOUNDARY_COUNT=0
-if [ -n "$BOUNDARIES_FILE" ]; then
-  [[ -f "$BOUNDARIES_FILE" ]] || { echo "boundaries file not found: $BOUNDARIES_FILE" >&2; exit 1; }
-  while IFS=$'\t' read -r label center rest; do
-    [[ -n "${label:-}" ]] || continue
-    [[ -z "${rest:-}" ]] || { echo "invalid boundary row: $label" >&2; exit 1; }
-    start="$(awk -v c="$center" 'BEGIN {v=c-0.5; printf "%.3f", v<0?0:v}')"
-    dir="$OUT_DIR/boundaries/$label"
-    mkdir -p "$dir/frames" "$dir/sheets"
-    ffmpeg -nostdin -y -ss "$start" -t 1.0 -i "$VIDEO" \
-      -vf "fps=${BOUNDARY_FPS},scale=480:-2,${STAMP}" \
-      -q:v 3 "$dir/frames/frame-%03d.jpg" >/dev/null 2>&1
-    make_sheets "$dir/frames" "$dir/sheets" "contact"
-    count="$(find "$dir/frames" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')"
-    [[ "$count" -ge 9 ]] || { echo "boundary $label has only $count frames" >&2; exit 1; }
-    BOUNDARY_COUNT=$((BOUNDARY_COUNT + 1))
-  done < "$BOUNDARIES_FILE"
+if [ "$AUDIT_KEEP_FRAMES" != "1" ]; then
+  rm -f "$OUT_DIR/review/frames"/*.jpg
 fi
+SHEETS_FINISHED_MS="$(now_ms)"
 
-KEYFRAME_COUNT=0
-if [ -n "$KEYFRAMES_FILE" ]; then
-  [[ -f "$KEYFRAMES_FILE" ]] || { echo "keyframes file not found: $KEYFRAMES_FILE" >&2; exit 1; }
-  while IFS=$'\t' read -r label second rest; do
-    [[ -n "${label:-}" ]] || continue
-    [[ -z "${rest:-}" ]] || { echo "invalid keyframe row: $label" >&2; exit 1; }
-    ffmpeg -nostdin -y -ss "$second" -i "$VIDEO" -frames:v 1 \
-      -vf "scale=960:-2,${STAMP}" "$OUT_DIR/keyframes/$label.jpg" >/dev/null 2>&1
-    KEYFRAME_COUNT=$((KEYFRAME_COUNT + 1))
-  done < "$KEYFRAMES_FILE"
-fi
+extract_boundaries() {
+  local boundary_count=0
+  if [ -n "$BOUNDARIES_FILE" ]; then
+    [[ -f "$BOUNDARIES_FILE" ]] || { echo "boundaries file not found: $BOUNDARIES_FILE" >&2; return 1; }
+    while IFS=$'\t' read -r label center rest; do
+      [[ -n "${label:-}" ]] || continue
+      [[ -z "${rest:-}" ]] || { echo "invalid boundary row: $label" >&2; return 1; }
+      local start dir count
+      start="$(awk -v c="$center" 'BEGIN {v=c-0.5; printf "%.3f", v<0?0:v}')"
+      dir="$OUT_DIR/boundaries/$label"
+      mkdir -p "$dir/frames" "$dir/sheets"
+      ffmpeg -nostdin -y -ss "$start" -t 1.0 -i "$VIDEO" \
+        -vf "fps=${BOUNDARY_FPS},scale=480:-2,${STAMP}" \
+        -q:v 3 "$dir/frames/frame-%03d.jpg" >/dev/null 2>&1
+      make_sheets "$dir/frames" "$dir/sheets" "contact"
+      count="$(find "$dir/frames" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')"
+      [[ "$count" -ge 9 ]] || { echo "boundary $label has only $count frames" >&2; return 1; }
+      if [ "$AUDIT_KEEP_FRAMES" != "1" ]; then rm -f "$dir/frames"/*.jpg; fi
+      boundary_count=$((boundary_count + 1))
+    done < "$BOUNDARIES_FILE"
+  fi
+  printf '%d\n' "$boundary_count" > "$OUT_DIR/boundary-count.txt"
+  now_ms > "$OUT_DIR/boundaries.finished-ms"
+}
 
-if [ "$AUDIT_METRICS" = "1" ]; then
-  # Decode once and fan out to all metric detectors.
-  ffmpeg -nostdin -i "$VIDEO" \
-    -filter_complex "[0:v]split=3[scene][black][freeze];[scene]select='gt(scene,0.015)',showinfo[sceneout];[black]blackdetect=d=0.10:pix_th=0.10[blackout];[freeze]freezedetect=n=-50dB:d=1.5[freezeout]" \
-    -map "[sceneout]" -map "[blackout]" -map "[freezeout]" -an -f null - \
-    2> "$OUT_DIR/metrics/video-metrics.log" || true
-fi
+extract_keyframes() {
+  local keyframe_count=0
+  if [ -n "$KEYFRAMES_FILE" ]; then
+    [[ -f "$KEYFRAMES_FILE" ]] || { echo "keyframes file not found: $KEYFRAMES_FILE" >&2; return 1; }
+    while IFS=$'\t' read -r label second rest; do
+      [[ -n "${label:-}" ]] || continue
+      [[ -z "${rest:-}" ]] || { echo "invalid keyframe row: $label" >&2; return 1; }
+      [[ "$label" =~ ^[A-Za-z0-9_.-]+$ ]] || { echo "invalid keyframe label: $label" >&2; return 1; }
+      ffmpeg -nostdin -y -ss "$second" -i "$VIDEO" -frames:v 1 \
+        -vf "scale=960:-2,${STAMP}" "$OUT_DIR/keyframes/$label.jpg" >/dev/null 2>&1
+      keyframe_count=$((keyframe_count + 1))
+    done < "$KEYFRAMES_FILE"
+  fi
+  printf '%d\n' "$keyframe_count" > "$OUT_DIR/keyframe-count.txt"
+  now_ms > "$OUT_DIR/keyframes.finished-ms"
+}
+
+BOUNDARIES_STARTED_MS="$(now_ms)"
+extract_boundaries &
+BOUNDARIES_PID=$!
+KEYFRAMES_STARTED_MS="$(now_ms)"
+extract_keyframes &
+KEYFRAMES_PID=$!
+set +e
+wait "$BOUNDARIES_PID"; BOUNDARIES_STATUS=$?
+wait "$KEYFRAMES_PID"; KEYFRAMES_STATUS=$?
+set -e
+[ "$BOUNDARIES_STATUS" -eq 0 ] && [ "$KEYFRAMES_STATUS" -eq 0 ] || {
+  echo "parallel audit evidence failed: boundaries=$BOUNDARIES_STATUS keyframes=$KEYFRAMES_STATUS" >&2
+  exit 1
+}
+BOUNDARY_COUNT="$(<"$OUT_DIR/boundary-count.txt")"
+KEYFRAME_COUNT="$(<"$OUT_DIR/keyframe-count.txt")"
+BOUNDARIES_FINISHED_MS="$(<"$OUT_DIR/boundaries.finished-ms")"
+KEYFRAMES_FINISHED_MS="$(<"$OUT_DIR/keyframes.finished-ms")"
+rm -f "$OUT_DIR/boundary-count.txt" "$OUT_DIR/keyframe-count.txt" "$OUT_DIR/boundaries.finished-ms" "$OUT_DIR/keyframes.finished-ms"
 
 cat > "$OUT_DIR/manifest.json" <<JSON
 {
@@ -132,6 +194,16 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "videoDurationSeconds": $VIDEO_DURATION,
   "sourceFps": "$SOURCE_FPS",
   "metricsEnabled": $([ "$AUDIT_METRICS" = "1" ] && echo true || echo false),
+  "rawFramesRetained": $([ "$AUDIT_KEEP_FRAMES" = "1" ] && echo true || echo false),
+  "timingsMilliseconds": {
+    "overview": $((OVERVIEW_FINISHED_MS - OVERVIEW_STARTED_MS)),
+    "reviewExtraction": $((REVIEW_EXTRACT_FINISHED_MS - REVIEW_STARTED_MS)),
+    "reviewSheets": $((SHEETS_FINISHED_MS - SHEETS_STARTED_MS)),
+    "boundaries": $((BOUNDARIES_FINISHED_MS - BOUNDARIES_STARTED_MS)),
+    "keyframes": $((KEYFRAMES_FINISHED_MS - KEYFRAMES_STARTED_MS)),
+    "metrics": $((METRICS_FINISHED_MS - METRICS_STARTED_MS)),
+    "total": $(($(now_ms) - AUDIT_STARTED_MS))
+  },
   "sampling": {
     "overview": {"count": 16, "layout": "4x4"},
     "review": {

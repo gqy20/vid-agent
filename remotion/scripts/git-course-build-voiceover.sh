@@ -254,23 +254,18 @@ for idx in "${!SEGMENTS[@]}"; do
   mix_inputs="${mix_inputs}[a${idx}]"
 done
 
-base_index="${#SEGMENTS[@]}"
+bgm_index="${#SEGMENTS[@]}"
+inputs+=("-stream_loop" "-1" "-i" "$BGM_FILE")
+base_index=$((${#SEGMENTS[@]} + 1))
 inputs+=("-f" "lavfi" "-t" "$EPISODE_DURATION" "-i" "anullsrc=channel_layout=mono:sample_rate=44100")
 filters+=("[${base_index}:a]anull[base]")
-filter_complex="$(IFS=';'; echo "${filters[*]}");${mix_inputs}amix=inputs=$((${#SEGMENTS[@]} + 1)):duration=first:dropout_transition=0:normalize=0,atrim=0:${EPISODE_DURATION}[out]"
+filter_complex="$(IFS=';'; echo "${filters[*]}");${mix_inputs}amix=inputs=$((${#SEGMENTS[@]} + 1)):duration=first:dropout_transition=0:normalize=0,atrim=0:${EPISODE_DURATION}[voice];[voice]asplit=2[voicefile][vo];[vo]aresample=48000,volume=1.0[vo48];[${bgm_index}:a]aresample=48000,volume=${BGM_VOLUME},atrim=0:${EPISODE_DURATION},asetpts=N/SR/TB[bg];[vo48][bg]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[premaster]"
 
 ffmpeg -y -hide_banner -nostats \
   "${inputs[@]}" \
   -filter_complex "$filter_complex" \
-  -map "[out]" -ar 44100 -ac 1 -c:a aac -b:a 192k \
-  "$VOICEOVER_OUT"
-
-ffmpeg -y -hide_banner -nostats \
-  -i "$VOICEOVER_OUT" \
-  -stream_loop -1 \
-  -i "$BGM_FILE" \
-  -filter_complex "[0:a]aresample=48000,volume=1.0[vo];[1:a]aresample=48000,volume=${BGM_VOLUME},atrim=0:${EPISODE_DURATION},asetpts=N/SR/TB[bg];[vo][bg]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.94,atrim=0:${EPISODE_DURATION}[out]" \
-  -map "[out]" -ar 48000 -ac 2 -c:a aac -b:a 256k \
+  -map "[voicefile]" -ar 44100 -ac 1 -c:a aac -b:a 192k "$VOICEOVER_OUT" \
+  -map "[premaster]" -ar 48000 -ac 2 -c:a aac -b:a 256k \
   "$PREMASTER_OUT"
 
 # Measure the complete programme first, then apply a deterministic second pass.

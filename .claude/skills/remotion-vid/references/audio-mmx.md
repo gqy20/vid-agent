@@ -6,6 +6,11 @@ Remotion 只生成 silent 视频。配音(voiceover)和背景音乐(BGM)用 **mm
 通用 mmx 命令全表见 `mmx-cli` skill。本文件只覆盖**视频场景**的子集:
 TTS + music generate + 混音 + Remotion 桥接。
 
+项目已有 orchestrator 时，从项目入口生成音频。通用增量原则见
+[`incremental-production.md`](incremental-production.md)：TTS 的内容指纹与时间轴摆放指纹分离，
+原始语音和规范化语音分别进入 CAS，只重做发生变化的层级。voice、model、speed、响度和 BGM
+音量均由项目策略提供，下面的命令和值只是无适配器时的示例。
+
 ## 0. 前置:认证(只做一次)
 
 ```bash

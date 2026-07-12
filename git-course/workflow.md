@@ -1,5 +1,16 @@
 # Git Course 生产流程
 
+## 与通用 Remotion skill 的边界
+
+`.claude/skills/remotion-vid/` 只定义可复用机制：指纹、CAS、共享 bundle、最大稳定并行、
+candidate、audit verdict 和 promote/publish 门禁。本文件和 Git Course orchestrator 才拥有
+具体实现：episode JSON schema、目录、CLI 命令、scene/TTS/BGM 指纹、教学与语义色规则、
+抽帧参数、响度目标、发布封装和 current/release 路径。
+
+因此调整 Git Course 规则时优先改 `AGENTS.md`、本文件和 orchestrator；只有发现对所有
+Remotion 项目都成立的机制时，才回写通用 skill。生产时始终从 Git Course CLI 进入，不能因
+通用 skill 提供了 fallback 脚本而绕过课程门禁。
+
 ## 唯一内容源
 
 每集只维护一个文件：
@@ -38,11 +49,12 @@ episode JSON
 
 ```bash
 pnpm --dir remotion git-course plan <episode-id>
+pnpm --dir remotion git-course fingerprints <episode-id>
 pnpm --dir remotion git-course status <episode-id>
 pnpm --dir remotion git-course build <episode-id>
 ```
 
-`plan` 只计算 scene/TTS 指纹并显示 `HIT` 或 `BUILD`。`build` 执行统一 DAG：
+`plan` 只计算 scene/TTS 指纹并显示 `HIT` 或 `BUILD`；`fingerprints` 输出完整 hash，用于验证 Scene 级失效边界。`build` 执行统一 DAG：
 
 ```text
 validate / generate
@@ -58,11 +70,13 @@ validate / generate
 
 默认并发为 `all`：所有依赖已满足的任务立即启动。Remotion 单进程 concurrency 默认按逻辑 CPU 数除以 dirty scene 数计算，尽量使用全部算力；可用 `--render-concurrency=<n>` 覆盖。TTS 和规范化默认对所有 dirty segment 同时执行。
 
-dirty Scene 共用一次 Remotion bundle，但各自使用独立浏览器池并行渲染，避免重复 Webpack 初始化，也避免多个 `renderMedia` 共享同一 Chrome 实例导致崩溃。默认总渲染 concurrency 不超过逻辑 CPU 数；`tmp/build/telemetry/render-scenes.json` 记录 bundle、总耗时和各 Scene 耗时。需要强制验证单个缓存时可用 `--force-scenes=<scene-id[,scene-id]>`。
+dirty Scene 共用一次 Remotion bundle，但各自使用独立浏览器池并行渲染，避免重复 Webpack 初始化，也避免多个 `renderMedia` 共享同一 Chrome 实例导致崩溃。bundle 按源码、配置、依赖锁和 public 资产生成指纹，复用到 `renders/git-course/tmp/bundles/`。默认总渲染 concurrency 不超过逻辑 CPU 数；本机稳定上限保存在 `renders/git-course/tmp/render-profile.json`，浏览器崩溃或本地 server 无响应时自动降低 concurrency 重试。`tmp/build/telemetry/render-scenes.json` 记录 bundle 命中、总耗时、各 Scene 耗时、实际 concurrency 和失败项。需要强制验证单个缓存时可用 `--force-scenes=<scene-id[,scene-id]>`。
 
 Scene 指纹只覆盖课程共享组件、当前 episode 源码、当前 scene 数据、字体和该集 Manim 资产；其他 episode 的源码、旁白或发布文案变化不得使本集 Scene 缓存失效。音频、candidate 和 audit 也分别按内容指纹缓存。完全没有输入变化时，`build` 应显示 `HIT audio mix`、`HIT assemble` 和 `HIT audit main`，不得重新编码或抽帧。
 
-支持 Scene 级源码指纹的 episode 使用成对标记包围每个 Scene 实现：`// @git-course-scene <id>:start` 与 `// @git-course-scene <id>:end`。标记外代码属于共享依赖；共享代码变化会使该集全部 Scene 失效，标记内变化只使对应 Scene 失效。一个文件只要开始使用标记，就必须覆盖该集所有 Scene。
+Scene 级源码指纹默认由 TypeScript AST 识别 `<PascalSceneId>Scene`，EP01 同时支持 `Ep01<PascalSceneId>Scene`。也可以用成对的 `// @git-course-scene <id>:start` 与 `:end` 显式标记。Scene 声明外的 helper、import 和 episode wrapper 属于共享依赖；共享代码变化会使该集全部 Scene 失效，Scene 函数内部变化只使对应 Scene 失效。EP01–EP08 均必须能解析出全部 Scene，否则 plan 直接失败。
+
+每个 Scene 渲染成功后必须立即复制到内容寻址 cache 并写 `render-completion.json`，不能等其他 Scene 全部成功。渲染器使用 `allSettled` 汇总；部分失败时保留成功 Scene，下次 build 只重试失败项。
 
 候选、缓存、日志、manifest 和 verdict 位于 `tmp/`：
 
@@ -96,7 +110,7 @@ tmp/build/audit/<main|release>/
 ├── report.html
 ├── verdict.json
 ├── overview/contact-16.jpg
-├── review/{frames,sheets}/
+├── review/{frames,sheets}/       # frames 默认在 sheet 生成后清空
 ├── boundaries/<boundary>/{frames,sheets}/
 ├── keyframes/
 └── metrics/
@@ -104,7 +118,11 @@ tmp/build/audit/<main|release>/
 
 `manifest.json` 记录预期和实际抽帧/拼图数量。数量不一致、边界或关键帧缺失都会使机器检查失败；机器通过后仍是 `needs_review`，人工必须完整查看 `report.html` 后才能 approve。
 
+连续帧通过一次 ImageMagick montage 调用分页为多张 `5×1` sheet，最后一页按实际帧数裁切，不补空白。默认 `AUDIT_KEEP_FRAMES=0`，sheet 验证完成后删除 review/boundary 原始 JPEG；只有排查单帧问题时设置 `AUDIT_KEEP_FRAMES=1`。
+
 分段审查仍执行统一 2fps、5×1、总览和关键帧协议，但不重复运行 scene-change、blackdetect 和 freezedetect；这些完整视频指标只在 main/release 审计执行，并在一次 FFmpeg 解码中并行检测。审计缓存由候选 SHA、采样计划和审计脚本版本共同决定；任一变化都会自动失效。
+
+overview、连续 2fps 抽帧和完整视频 metrics 是相互独立的扫描，默认并行运行；review sheet 在连续帧完成后生成，boundary burst 与精确 keyframe 随后并行提取。`manifest.json.timingsMilliseconds` 记录各阶段耗时和总墙钟，用于判断下一轮瓶颈。
 
 ## 审查、晋升与发布
 
@@ -131,6 +149,7 @@ release candidate 由片头、片头音频、current main、片尾、片尾音�
 - TTS 固定使用 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`。
 - TTS CAS 将文本合成与人声规范化拆成两级指纹。只修改 `segmentId`、`voiceStart` 或 scene 时间窗时复用原始语音；规范化参数未变时同时复用 `_norm.mp3`。`current/audio/segments/` 缺文件时应从 CAS 恢复，不重新请求 TTS。
 - 单段规范化目标约 `-20 LUFS`、峰值约 `-3 dBFS`。
+- 对齐旁白和 BGM premaster 在同一个 FFmpeg filter graph 内完成，一次处理同时输出 `voiceover-aligned.m4a` 与 premaster；不得重新拆成先编码旁白、再解码混 BGM 的两轮流程。
 - BGM 使用固定低音量，当前基准为 `0.05`，不做 sidechain ducking。
 - SRT 不得泄漏 `<#...#>` 停顿标记。
 

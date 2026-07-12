@@ -5,6 +5,10 @@
 > 这是 [`long-video-rendering.md`](long-video-rendering.md)（怎么用）和
 > [`anti-patterns.md`](anti-patterns.md)（怎么写）的**源码层补充**——解释为什么。
 
+这里列出的 shell 分片是 fallback 的历史实现，不是所有项目的默认架构。项目已有
+orchestrator 时遵守 [`incremental-production.md`](incremental-production.md)：共享并缓存一次
+bundle、并行任务各用独立 browser pool、成功结果立即进入 CAS。
+
 ## 五层架构（基于 4.0.484 实际安装）
 
 ```
@@ -17,8 +21,8 @@
 ```
 
 **CLI 是薄壳**：`still.js`/`render.js` 都只 `require("@remotion/renderer/client")`，自己几乎不干事。
-所以 shell 组装 CLI 命令 = 组装 renderer API。理论上也能用 Node 直接调 renderer API
-（更细粒度，能拿到 `onFrameUpdate`/`onBrowserDownload` 回调），但 shell + CLI 更薄、更易调试。
+所以 shell 组装 CLI 命令 = 组装 renderer API。单次任务用 CLI 更薄、更易调试；需要共享
+bundle、细粒度遥测、部分失败续跑和全局并发预算时，应由 Node orchestrator 直接调用 API。
 
 ## 项目做法 ↔ 源码模块 对照
 
