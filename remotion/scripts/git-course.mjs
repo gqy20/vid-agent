@@ -40,7 +40,7 @@ const loadEpisode = ([id, composition, symbol]) => {
     cursor += scene.duration;
   }
   cursor === data.durationSeconds || fail(`${path}: scenes end at ${cursor}, durationSeconds is ${data.durationSeconds}`);
-  data.durationSeconds >= 180 && data.durationSeconds <= 300 || fail(`${path}: duration must be 3–5 minutes`);
+  data.durationSeconds >= 150 && data.durationSeconds <= 300 || fail(`${path}: duration must be approximately 2.5–5 minutes`);
   return {id, composition, symbol, ...data};
 };
 

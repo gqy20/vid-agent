@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 180,
+  "durationSeconds": 150,
   "sourceOfTruth": {
     "references": [
       "docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc",
@@ -20,36 +20,13 @@
       "terminal",
       "state panel",
       "commit field card",
-      "final composition"
-    ],
-    "manimOwns": [
       "blob/tree/commit object relation",
       "parent chain geometry",
-      "hash identity transformation"
+      "hash identity transformation",
+      "final composition"
     ],
-    "completedManimScenes": [
-      {
-        "name": "Ep03ObjectModel",
-        "path": "scripts/manim/git-course/ep03_commit_snapshot.py",
-        "asset": "remotion/public/git-course/manim/ep03/object-model.mp4",
-        "requiredFor": "object-model",
-        "reason": "稳定表达 commit 指向 tree，tree 指向 blob 的对象引用关系。"
-      },
-      {
-        "name": "Ep03ParentChain",
-        "path": "scripts/manim/git-course/ep03_commit_snapshot.py",
-        "asset": "remotion/public/git-course/manim/ep03/parent-chain.mp4",
-        "requiredFor": "parent-chain",
-        "reason": "稳定表达普通 commit 的 parent 指针方向，并与后续 branch 图衔接。"
-      },
-      {
-        "name": "Ep03HashIdentity",
-        "path": "scripts/manim/git-course/ep03_commit_snapshot.py",
-        "asset": "remotion/public/git-course/manim/ep03/hash-identity.mp4",
-        "requiredFor": "hash-identity",
-        "reason": "统一课程配色和中文语义，表达任一 commit 字段变化都会产生不同身份。"
-      }
-    ],
+    "manimOwns": [],
+    "completedManimScenes": [],
     "externalAssets": {
       "needed": false,
       "policy": "不使用网络 Git object model 图片；对象关系必须自制，以便控制箭头方向、术语、动画节奏和重叠检查。"
@@ -97,7 +74,7 @@
       "id": "hook",
       "title": "问题",
       "start": 0,
-      "duration": 12,
+      "duration": 10,
       "primaryTechnique": "Remotion title + commit node",
       "components": [
         "EpisodeTitleCard",
@@ -105,6 +82,12 @@
         "CommitNode"
       ],
       "goal": "否定 commit 是保存按钮的误解。",
+      "audit": {
+        "keyframes": [
+          {"label": "save_rejected", "at": 5.2},
+          {"label": "commit_replaces_save", "at": 7.2}
+        ]
+      },
       "narration": {
         "segmentId": "01_hook",
         "voiceStart": 0.35,
@@ -114,112 +97,152 @@
     {
       "id": "from-index",
       "title": "读取 Index",
-      "start": 12,
-      "duration": 26,
-      "primaryTechnique": "Git state panel",
+      "start": 10,
+      "duration": 24,
+      "primaryTechnique": "Recorded terminal trigger -> StateTransitionScene: Index -> snapshot -> commit",
       "components": [
+        "RecordedTerminalPanel:ep03-commit",
         "GitStatePanel",
-        "StagingArea",
-        "FileMove",
+        "StateTransitionScene",
+        "SvgArrowLine",
         "CommitNode"
       ],
-      "goal": "展示 commit 读取 Index。",
+      "goal": "先用 git-course-lab 真实录屏触发 git commit，再让终端退场；高亮的 Index 接管主视觉，把 staged 内容收束成 snapshot 并写入 commit，Working Tree 和旧 Repository 只作为弱化对照。",
+      "audit": {
+        "keyframes": [
+          {"label": "terminal_result", "at": 5.2},
+          {"label": "index_takes_focus", "at": 10.2},
+          {"label": "snapshot_written", "at": 18.5}
+        ],
+        "bursts": [
+          {"label": "terminal_to_state", "from": 6.0, "to": 8.5}
+        ]
+      },
       "narration": {
         "segmentId": "02_from_index",
-        "voiceStart": 12.35,
+        "voiceStart": 10.35,
         "text": "上一集我们看到，commit 读取的是暂存区。<#0.30#>Git 不会把工作区里所有当前内容都提交进去。<#0.30#>它会把 Index 里的内容，形成一个快照。"
       }
     },
     {
       "id": "object-model",
       "title": "对象模型",
-      "start": 38,
-      "duration": 36,
-      "primaryTechnique": "Upgraded Manim GitObjectModelScene + Remotion captions",
+      "start": 34,
+      "duration": 30,
+      "primaryTechnique": "Remotion object reference model",
       "components": [
-        "GitObjectModelScene",
-        "ManimClip",
-        "NarrationSubtitle"
+        "ObjectBox",
+        "SvgArrowLine",
+        "SceneCaption"
       ],
-      "goal": "展示 blob/tree/commit 的指针关系。",
+      "goal": "只用课程统一的节点、字段和箭头逐层建立 commit -> tree -> blob。",
+      "audit": {
+        "keyframes": [
+          {"label": "tree_references_blobs", "at": 16.5},
+          {"label": "commit_references_tree", "at": 27.5}
+        ]
+      },
       "narration": {
         "segmentId": "03_object_model",
-        "voiceStart": 38.35,
+        "voiceStart": 34.35,
         "text": "Git 内部会把文件内容保存成 blob。<#0.25#>把目录结构保存成 tree。<#0.30#>再创建一个 commit 对象，指向这棵 tree。<#0.30#>tree 代表项目结构，blob 代表文件内容，commit 代表这次历史记录。"
       }
     },
     {
       "id": "commit-fields",
       "title": "commit 字段",
-      "start": 74,
-      "duration": 30,
-      "primaryTechnique": "Remotion object card",
+      "start": 64,
+      "duration": 24,
+      "primaryTechnique": "Semantic commit fields with outgoing references",
       "components": [
         "CommitObjectCard",
-        "LineHighlight",
-        "ArrowLine"
+        "SvgArrowLine",
+        "ReferenceTarget"
       ],
-      "goal": "解释 tree、parent、author、time、message。",
+      "goal": "把字段分成三个层次：tree 指向本次快照，parent 指向上一个历史节点，author/time/message 作为低权重 metadata。",
+      "audit": {
+        "keyframes": [
+          {"label": "tree_reference", "at": 8.0},
+          {"label": "parent_reference", "at": 14.0},
+          {"label": "metadata_settled", "at": 18.0}
+        ]
+      },
       "narration": {
         "segmentId": "04_commit_fields",
-        "voiceStart": 74.35,
+        "voiceStart": 64.35,
         "text": "一个 commit 不只是快照。<#0.25#>它还记录 parent、作者、时间和 message。<#0.30#>parent 说明它是从哪个 commit 走来的。<#0.25#>message 说明这次为什么提交。"
       }
     },
     {
       "id": "parent-chain",
       "title": "parent",
-      "start": 104,
-      "duration": 28,
-      "primaryTechnique": "New Manim CommitParentChainScene, Remotion GitGraph fallback only for simple graph",
+      "start": 88,
+      "duration": 22,
+      "primaryTechnique": "Remotion semantic parent chain",
       "components": [
-        "CommitParentChainScene",
-        "ManimClip",
-        "GitGraph",
-        "ArrowLine"
+        "CommitNode",
+        "SvgArrowLine",
+        "SceneCaption"
       ],
       "goal": "展示 commit 通过 parent 连成历史。",
+      "audit": {
+        "keyframes": [
+          {"label": "parent_chain_complete", "at": 13.0},
+          {"label": "metadata_points_to_c1", "at": 21.0}
+        ]
+      },
       "narration": {
         "segmentId": "05_parent_chain",
-        "voiceStart": 104.35,
+        "voiceStart": 88.35,
         "text": "当你连续提交，新的 commit 会指向上一个 commit。<#0.30#>C2 的 parent 是 C1。<#0.25#>C1 的 parent 是 C0。<#0.35#>Git 历史就是这样连起来的。"
       }
     },
     {
       "id": "hash-identity",
       "title": "hash",
-      "start": 132,
-      "duration": 26,
-      "primaryTechnique": "Manim HashScene + Remotion captions",
+      "start": 110,
+      "duration": 22,
+      "primaryTechnique": "Remotion field mutation and hash identity",
       "components": [
-        "HashScene",
-        "ManimClip",
-        "HashBadge",
-        "MorphText"
+        "ObjectBox",
+        "SvgArrowLine",
+        "SceneCaption"
       ],
       "goal": "说明 hash 是 commit 身份。",
+      "audit": {
+        "keyframes": [
+          {"label": "identity_a", "at": 12.0},
+          {"label": "message_mutates", "at": 18.0},
+          {"label": "identity_b", "at": 21.0}
+        ]
+      },
       "narration": {
         "segmentId": "06_hash_identity",
-        "voiceStart": 132.35,
+        "voiceStart": 110.35,
         "text": "commit 会有自己的 hash。<#0.25#>它不是随机编号，而是由内容和元数据计算出来的身份。<#0.35#>快照、parent 或 message 变了，commit 的身份也会变。"
       }
     },
     {
       "id": "takeaway",
       "title": "结论",
-      "start": 158,
-      "duration": 22,
-      "primaryTechnique": "Commit graph conclusion",
+      "start": 132,
+      "duration": 18,
+      "primaryTechnique": "Centered commit identity conclusion",
       "components": [
         "CenterGraph",
-        "CommitNode",
-        "BranchLabel",
-        "ArrowLine"
+        "CenterGraph",
+        "SemanticSummary"
       ],
-      "goal": "收束并铺垫 branch 指向 commit。",
+      "goal": "用单一居中模型收束 tree、parent、hash 三条结论，最后只让 main 落到 C2，铺垫下一集。",
+      "audit": {
+        "keyframes": [
+          {"label": "three_part_summary", "at": 12.0},
+          {"label": "main_points_to_c2", "at": 17.0}
+        ]
+      },
       "narration": {
         "segmentId": "07_takeaway",
-        "voiceStart": 158.35,
+        "voiceStart": 132.35,
         "text": "所以，commit 是一个带身份的历史节点。<#0.30#>它指向快照，也指向过去。<#0.35#>下一集，我们就可以解释，branch 为什么只需要指向某个 commit。"
       }
     }
@@ -231,7 +254,7 @@
     "qualityMarkdown": "# EP03 Commit 不是保存按钮 - Audit\n\n> 本文件是人工审查历史，不表示当前构建状态。机器状态以 `pnpm --dir remotion git-course:validate` 和最新渲染报告为准。\n\n## 当前状态\n\n- 文档状态：已完成制作脚本、beats、episode JSON 和本次审查记录。\n- Remotion 实现：已完成 `GitCourseEp03CommitSnapshot`，主线为 hook -> Index -> object model -> fields -> parent -> hash -> takeaway。\n- Manim 实现：已完成并接入 `object-model.mp4`、`parent-chain.mp4`、`hash-identity.mp4`。\n- 分段产物：已输出到 `remotion/renders/git-course/ep03-commit-snapshot/current/scenes/`。\n- 历史带音频成片已归档到 `tmp/legacy-final/`；当前成片使用 `current/ep03-commit-snapshot.mp4`。\n- 发布版：已输出 `current/release/ep03-commit-snapshot.mp4`。\n\n## 预渲染检查清单\n\n- commit 必须被表达为对象，不是按钮或动作结果。\n- `commit -> tree -> blob` 的箭头方向必须一致且可读。\n- parent chain 的方向需要稳定，不要一会儿向左一会儿向右。\n- hash 只展示短 hash，避免画面被字符串占满。\n- 片尾只轻微引入 main 指向 C2，不讲 branch 机制。\n\n## 抽帧检查点\n\n| 时间 | 检查内容 |\n|---:|---|\n| 2s | 标题独占画面 |\n| 22s | Index 是主视觉，Working Tree 已弱化 |\n| 48s | blob 标签可读 |\n| 62s | commit 指向 tree 的箭头不穿字 |\n| 86s | tree 字段高亮对应快照 |\n| 114s | C1 parent 箭头指向 C0 |\n| 142s | hash 变化清楚但不过度 |\n| 174s | main 标签只是铺垫，不解释 HEAD |\n\n## 待实现风险\n\n- 已修复：takeaway 初版出现 `HEAD` 标签；按本集审查点去掉，只保留 `main` 指向 C2。\n- 已确认：Manim 底色与课程浅色画布一致。\n- 已确认：对象模型按 blob、tree、commit 顺序出现，最终关系方向为 commit 指向 tree，tree 指向 blob。\n- 已确认：parent 箭头方向一致，C2 -> C1 -> C0。\n- 已确认：hash 只展示短 hash，不展开 40 位字符串。\n- 已确认：TTS SRT 未泄漏 `<#...#>` 停顿标记。\n\n## 本次渲染审查\n\n| 项目 | 结果 |\n|---|---|\n| 分段渲染 | 7 段均通过，帧数分别为 360 / 780 / 1080 / 900 / 840 / 780 / 660 |\n| 正片视频 | 180.000s，1920x1080，5400 帧 |\n| 正片音频 | 180.000s，AAC，BGM volume `0.05` |\n| 发布版 | 193.000s，5790 帧，包含公共片头和片尾 |\n| 抽帧 | 已审查分段 contact sheet、正片 contact sheet、发布版 contact sheet |\n| 类型检查 | `pnpm exec tsc --noEmit --pretty false` 通过 |\n",
     "readmeMarkdown": "# EP03 Commit 不是保存按钮 - 制作目录\n\n这个目录保存 EP03 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.voiceoverDesignMarkdown`：口播设计源、TTS 参数、分段句子和当前生成审查。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\ncommit 不是保存按钮。\ncommit 是一个对象：它指向项目快照，记录 parent、作者、时间和 message。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:9`\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:26`\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:37`\n- `docs/references/progit2-zh/book/10-git-internals/sections/objects.asc:250`\n- `docs/references/progit2-zh/book/10-git-internals/sections/objects.asc:280`\n- `docs/references/progit2-zh/book/10-git-internals/sections/objects.asc:330`\n\n原则：EP03 可以第一次使用 Manim 做对象模型，因为 blob/tree/commit 之间的指针关系需要更精密的图形动画。\n",
     "voiceoverDesignMarkdown": "# EP03 voiceover design\n\n本文件是 EP03 的口播设计源。修改配音文稿前，先改这里，再同步到\n`scenes[].narration.text`。\n\nEP02 解释 commit 读取 Index；EP03 接住这个结论，解释 commit 本身是什么：它不是保存按钮，而是一个指向快照、指向 parent、带有 hash 身份的历史对象。\n\n## TTS policy\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n- 同一集必须整集重生，不能混用不同 voice 或 speed。\n- 停顿优先使用 `<#0.25#>`、`<#0.30#>`、`<#0.35#>`；只在对象模型切换时使用较长停顿。\n- 本集不使用语气标签，定义句保持干净。\n- 生成后必须检查 `.srt`，确认 `<#...#>` 停顿标记没有进入字幕。\n\n## Scene sentence map\n\n| Time | Visual beat | Narration intent | Delivery |\n|---:|---|---|---|\n| 0.0-12.0 | 保存按钮被划掉，commit 节点出现 | 否定“commit = 保存按钮” | 开场直接，不铺垫编辑器概念 |\n| 12.0-38.0 | 终端输入 commit，三层面板接管，Index 指向 C2 | 承接 EP02：commit 读取 Index | “不是 Working Tree 当前所有内容”要读清楚 |\n| 38.0-74.0 | blob、tree、commit 对象关系 | 建立 commit -> tree -> blob | 先文件内容，再目录结构，再历史记录 |\n| 74.0-104.0 | commit 字段卡逐行出现 | 解释 tree、parent、author、time、message | 不展开 author/time，避免抢 parent 和 message |\n| 104.0-132.0 | C2 parent 指向 C1，C1 指向 C0 | 说明历史如何串起来 | 强调 parent 指向过去 |\n| 132.0-158.0 | 字段进入 hash，message 改一个字生成新身份 | 说明 hash 是身份，不是随机编号 | 不讲 SHA-1 细节和碰撞 |\n| 158.0-180.0 | commit graph 收束，main 指向 C2 | 总结并铺垫 EP04 | 只出现 main，不出现 HEAD |\n\n## Current sentence audit\n\n2026-07-08 generated at `speed=1.25`:\n\n| Segment | Voice duration | Voice ends | Sentence-level result | Follow-up |\n|---|---:|---:|---|---|\n| `01_hook` | 9.27s | 9.62s | 正确建立 commit 不是保存按钮，结尾留给问题句。 | 保持短，不加“保存文件”的额外展开。 |\n| `02_from_index` | 8.98s | 21.33s | 明确 commit 读取 Index，不读取 Working Tree 全部当前内容。 | 画面有足够观察时间。 |\n| `03_object_model` | 13.12s | 51.47s | blob/tree/commit 三层定义完整，未把对象模型讲成文件夹。 | 留白较长但服务 Manim 关系观察。 |\n| `04_commit_fields` | 10.60s | 84.95s | 字段含义清楚，parent/message 是重点。 | 后段字段卡保持视觉阅读时间。 |\n| `05_parent_chain` | 9.67s | 114.02s | C2 -> C1 -> C0 的 parent 链清楚。 | 不增加 branch 解释。 |\n| `06_hash_identity` | 9.81s | 142.16s | 说明 hash 由内容和元数据决定，字段变化导致身份变化。 | 不讲 SHA-1 或完整 hash。 |\n| `07_takeaway` | 9.52s | 167.87s | 总结“指向快照，也指向过去”，自然铺垫 branch 指向 commit。 | 已确认画面只保留 main，不出现 HEAD。 |\n\nFinal narration density is about 72.97s of narration in the 180s main episode. This is deliberately lower than EP02 because本集包含三段 Manim 原理动画，需要给对象关系和箭头方向留出观察时间。\n\n## Current segment text\n\n```text\n01_hook\n第三集，我们拆开一个 commit。<#0.30#>它不是保存按钮。<#0.35#>保存只是把文件写到磁盘。<#0.25#>commit 是把一次项目状态，写进 Git 历史。\n\n02_from_index\n上一集我们看到，commit 读取的是暂存区。<#0.30#>Git 不会把工作区里所有当前内容都提交进去。<#0.30#>它会把 Index 里的内容，形成一个快照。\n\n03_object_model\nGit 内部会把文件内容保存成 blob。<#0.25#>把目录结构保存成 tree。<#0.30#>再创建一个 commit 对象，指向这棵 tree。<#0.30#>tree 代表项目结构，blob 代表文件内容，commit 代表这次历史记录。\n\n04_commit_fields\n一个 commit 不只是快照。<#0.25#>它还记录 parent、作者、时间和 message。<#0.30#>parent 说明它是从哪个 commit 走来的。<#0.25#>message 说明这次为什么提交。\n\n05_parent_chain\n当你连续提交，新的 commit 会指向上一个 commit。<#0.30#>C2 的 parent 是 C1。<#0.25#>C1 的 parent 是 C0。<#0.35#>Git 历史就是这样连起来的。\n\n06_hash_identity\ncommit 会有自己的 hash。<#0.25#>它不是随机编号，而是由内容和元数据计算出来的身份。<#0.35#>快照、parent 或 message 变了，commit 的身份也会变。\n\n07_takeaway\n所以，commit 是一个带身份的历史节点。<#0.30#>它指向快照，也指向过去。<#0.35#>下一集，我们就可以解释，branch 为什么只需要指向某个 commit。\n```\n",
-    "alignmentMarkdown": "# EP03 Audio Alignment\n\nEpisode: `ep03-commit-snapshot`\n\nTTS settings:\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n\nScene windows:\n\n| Segment | Voice start | Scene end | Normalized file |\n|---|---:|---:|---|\n| `01_hook` | 0.35s | 12.00s | `01_hook_norm.mp3` |\n| `02_from_index` | 12.35s | 38.00s | `02_from_index_norm.mp3` |\n| `03_object_model` | 38.35s | 74.00s | `03_object_model_norm.mp3` |\n| `04_commit_fields` | 74.35s | 104.00s | `04_commit_fields_norm.mp3` |\n| `05_parent_chain` | 104.35s | 132.00s | `05_parent_chain_norm.mp3` |\n| `06_hash_identity` | 132.35s | 158.00s | `06_hash_identity_norm.mp3` |\n| `07_takeaway` | 158.35s | 180.00s | `07_takeaway_norm.mp3` |\n\nMix strategy:\n\n- Segment voice was generated from one `.txt` file per scene via `remotion/scripts/git-course-build-voiceover.sh`.\n- Each segment was normalized with FFmpeg compression and loudness normalization to approximately `-20 LUFS`, peak around `-3 dBFS`.\n- BGM is reused from EP02: `audio/bgm.mp3`.\n- BGM volume is fixed at `0.05`, with no sidechain ducking.\n- Aligned narration output: `audio/voiceover-aligned.m4a`.\n- Final mix output: `audio/mix.m4a`.\n\nSRT alignment:\n\n- Segment SRT files use the TTS engine timing within each generated segment.\n- Global sentence time = `manifest voice_start_seconds + segment_srt_time`.\n- Pause markers `<#...#>` were checked after generation and did not appear in `.srt` output.\n"
+    "alignmentMarkdown": "# EP03 Audio Alignment\n\nEpisode: `ep03-commit-snapshot`\n\nTTS settings:\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n\nScene windows:\n\n| Segment | Voice start | Scene end | Normalized file |\n|---|---:|---:|---|\n| `01_hook` | 0.35s | 10.00s | `01_hook_norm.mp3` |\n| `02_from_index` | 10.35s | 34.00s | `02_from_index_norm.mp3` |\n| `03_object_model` | 34.35s | 64.00s | `03_object_model_norm.mp3` |\n| `04_commit_fields` | 64.35s | 88.00s | `04_commit_fields_norm.mp3` |\n| `05_parent_chain` | 88.35s | 110.00s | `05_parent_chain_norm.mp3` |\n| `06_hash_identity` | 110.35s | 132.00s | `06_hash_identity_norm.mp3` |\n| `07_takeaway` | 132.35s | 150.00s | `07_takeaway_norm.mp3` |\n\nMix strategy:\n\n- Segment voice was generated from one `.txt` file per scene via `remotion/scripts/git-course-build-voiceover.sh`.\n- Each segment was normalized with FFmpeg compression and loudness normalization to approximately `-20 LUFS`, peak around `-3 dBFS`.\n- BGM is reused from EP02: `audio/bgm.mp3`.\n- BGM volume is fixed at `0.05`, with no sidechain ducking.\n- Aligned narration output: `audio/voiceover-aligned.m4a`.\n- Final mix output: `audio/mix.m4a`.\n\nSRT alignment:\n\n- Segment SRT files use the TTS engine timing within each generated segment.\n- Global sentence time = `manifest voice_start_seconds + segment_srt_time`.\n- Pause markers `<#...#>` were checked after generation and did not appear in `.srt` output.\n"
   },
   "release": {
     "bilibiliMarkdown": "# EP03 B 站发布物料\n\n## 标题\n\ncommit 不是保存按钮，它里面到底装了什么\n\n## 封面文字\n\n主标题：\n\n```text\nCommit 不是保存按钮\n```\n\n副标题：\n\n```text\n它指向快照，也指向过去\n```\n\n1. 简介\n\n很多人把 git commit 当成保存键，按一下就完事。\n\n这一集把 commit 拆开来看：它是 Git 中的一个对象，用 tree 指向项目快照，用 parent 指向上一个 commit，同时记录作者、时间和 message。每个 commit 都由 hash 标识，内容或元数据变化，身份也会变化。\n\n理解 commit 是一个对象，下一集再看 branch 指向某个 commit，就不会把分支误解成项目副本。\n\n2. 你会学到\n\n- commit 如何通过 tree 指向项目快照\n- commit 如何通过 parent 指向上一个 commit\n- blob、tree、commit 三种对象之间的关系\n- hash 为什么可以作为 commit 的身份\n- 为什么修改 message 也会改变 commit 的 hash\n\n3. 时间轴\n\n00:00 commit 不是保存按钮\n00:12 commit 从暂存区读取\n00:38 blob / tree / commit 的对象关系\n01:14 tree / parent / author / time / message 字段\n01:44 commit 通过 parent 连成历史\n02:12 hash 是 commit 的身份\n02:38 收束：branch 将指向某个 commit\n\n4. 适合谁\n\n- 会用 git commit，但不知道 commit 里面有什么的人\n- 听过 blob / tree / commit，但没有把它们串起来的人\n- 想理解 hash 到底在校验什么的人\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n编程基础\n计算机基础\n程序员\n开发工具\n源码管理\n```\n\n## 动态文案\n\n上一集讲了三层状态，这一集拆开 commit 这个对象，看它到底装了什么。\n\n把 tree、parent、hash 这些字段摆清楚，下一集讲 branch 就顺了。\n\n## 置顶评论\n\n这一集讲 commit 对象。下一集讲 branch 为什么只是一个指向 commit 的指针。\n",

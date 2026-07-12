@@ -42,6 +42,7 @@ case "$RECORDING_ID" in
   ep02-add) CURSOR_ROW=3 ;;
   ep02-status-mm) CURSOR_ROW=2 ;;
   ep02-commit) CURSOR_ROW=5 ;;
+  ep03-commit) CURSOR_ROW=5 ;;
   *) CURSOR_ROW=-1 ;;
 esac
 

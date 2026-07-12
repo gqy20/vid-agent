@@ -193,7 +193,14 @@ const visualBaseHash = (ctx) => {
   });
   const episodeSource = episodeSourceParts(ctx);
   const episodeAssets = walkFiles(join(REMOTION, 'public/git-course'), (path) => path.includes(`/manim/${episodeNumber}/`));
-  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...episodeAssets, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
+  const terminalAssets = walkFiles(join(REMOTION, 'public/git-course-lab/terminal'), (path) => path.includes(`/${episodeNumber}-`));
+  const terminalSources = [
+    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/demos'), (path) => path.includes(`/${episodeNumber}-`) || path.endsWith('/_lib.sh')),
+    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/fixtures'), (path) => path.includes(`/${episodeNumber}-`)),
+    join(ROOT, 'scripts/terminal-recordings/record-asciinema.sh'),
+    join(ROOT, 'scripts/terminal-recordings/build-metadata.mjs'),
+  ].filter((path) => existsSync(path));
+  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...episodeAssets, ...terminalAssets, ...terminalSources, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
   return sha(JSON.stringify({schema: 2, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
 };
 
@@ -811,11 +818,49 @@ const status = (ctx) => {
   }
 };
 
+const preview = async (ctx) => {
+  const buildPlan = plan(ctx);
+  const requested = (FLAGS.get('scenes') ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+  const known = new Set(buildPlan.scenes.map((task) => task.scene.id));
+  for (const sceneId of requested) known.has(sceneId) || fail(`Unknown scene for preview: ${sceneId}`);
+  const selected = requested.length > 0 ? buildPlan.scenes.filter((task) => requested.includes(task.scene.id)) : buildPlan.scenes.filter((task) => !task.hit);
+  const dirty = selected.filter((task) => !task.hit);
+  console.log(`PREVIEW ${selected.map((task) => task.scene.id).join(', ') || 'no dirty scenes'}`);
+  await renderScenes(ctx, dirty);
+  writeJson(ctx.statePath, ctx.state);
+  const previewDir = join(ctx.tmp, 'preview/scenes');
+  if (FLAGS.has('clean-preview')) rmSync(previewDir, {recursive: true, force: true});
+  mkdirSync(previewDir, {recursive: true});
+  const manifestPath = join(ctx.tmp, 'preview/manifest.json');
+  const previous = existsSync(manifestPath) ? json(manifestPath) : {schemaVersion: 1, episodeId: ctx.episode.episodeId, scenes: {}};
+  const manifest = {...previous, schemaVersion: 1, episodeId: ctx.episode.episodeId, updatedAt: new Date().toISOString(), scenes: {...(previous.scenes ?? {})}};
+  for (const task of selected) {
+    const cached = ctx.state.scenes?.[task.scene.id];
+    if (!cached?.path) continue;
+    const index = String(task.index + 1).padStart(2, '0');
+    const name = `${index}_${task.scene.id.replaceAll('-', '_')}.mp4`;
+    const source = join(ROOT, cached.path);
+    const target = join(previewDir, name);
+    copyFileSync(source, `${target}.partial`);
+    renameSync(`${target}.partial`, target);
+    manifest.scenes[task.scene.id] = {
+      fingerprint: cached.fingerprint,
+      sha256: cached.sha256,
+      cachePath: cached.path,
+      previewPath: rel(target),
+      updatedAt: new Date().toISOString(),
+    };
+    console.log(`${task.hit ? 'HIT   ' : 'READY '} ${task.scene.id}: ${rel(target)}`);
+  }
+  writeJson(manifestPath, manifest);
+};
+
 const main = async () => {
   const ctx = loadContext();
   if (COMMAND === 'plan') printPlan(ctx, plan(ctx));
   else if (COMMAND === 'fingerprints') printFingerprints(ctx, plan(ctx));
   else if (COMMAND === 'status') status(ctx);
+  else if (COMMAND === 'preview') await preview(ctx);
   else if (COMMAND === 'build') await build(ctx);
   else if (COMMAND === 'audit') await auditArtifact(ctx, candidatePath(ctx, 'main'), 'main');
   else if (COMMAND === 'approve') approve(ctx, 'main');

@@ -40,12 +40,30 @@
 
 ## Candidate、审查和门禁
 
-推荐状态流：
+不要把生产管线理解成每次源码编辑都从头走到 promote 的直线。推荐状态流包含一个明确的修复内循环：
 
 ```text
-source -> fingerprints -> incremental tasks -> CAS -> assemble candidate
-       -> encoded audit -> verdict -> approve -> promote -> publish
+                         ┌─ issue list <- point review <- local preview ─┐
+source -> fingerprints -> incremental tasks -> CAS ---------------------┘
+                                      |
+                                      └-> assemble candidate -> encoded audit
+                                          -> verdict -> approve -> promote -> publish
 ```
+
+### 迭代修复
+
+- 用户连续指出秒点、排版、字体、动画、字幕或品味问题时，默认停留在迭代修复。
+- 把反馈合并到问题清单，优先按 dirty scene、代表帧、`t-0.5/t/t+0.5/t+1.0` 或短区间验证。
+- 可更新 cache、debug 和 candidate；不得因为单个问题修完就自动 approve、promote 或 publish。
+- 修复一个问题时搜索同源实现，例如零长度线端帽、固定 opacity、重复容器和共享字号，避免只改点名帧。
+- 只有问题清单清空，或用户明确要求整体候选验收时，才离开内循环。
+
+### 候选验收与正式晋升
+
+- 候选验收才组装完整视频并运行连续采样、边界 burst、计划关键帧、音视频结构检查和人工审查。
+- `approve` 表示审查者接受某个 candidate SHA，不是普通的“保存修改”。
+- `promote` 会改变 current，只能在候选验收通过且得到明确的定稿/晋升授权后执行。
+- 用户验收后再次提出修改，立即回到迭代修复；旧批准必须失效，不得沿用。
 
 - build 只能写临时缓存和 candidate；失败或待审查产物不能污染 current。
 - 审查必须针对编码后的 candidate，而不只看 Remotion still。

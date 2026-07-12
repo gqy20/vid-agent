@@ -6,12 +6,13 @@ export const RecordedTerminalPanel: React.FC<{
   holdFrameSrc?: string;
   holdFromFrame?: number;
   title?: string;
-}> = ({src, holdFrameSrc, holdFromFrame = Number.POSITIVE_INFINITY, title = 'git-course-lab'}) => {
+  mediaFit?: 'fill' | 'cover';
+}> = ({src, holdFrameSrc, holdFromFrame = Number.POSITIVE_INFINITY, title = 'git-course-lab', mediaFit = 'fill'}) => {
   const frame = useCurrentFrame();
   const mediaStyle = {
     width: '100%',
     height: `calc(100% - ${TERMINAL_HEADER_HEIGHT}px)`,
-    objectFit: 'fill',
+    objectFit: mediaFit,
     objectPosition: 'top',
     display: 'block',
   } as const;

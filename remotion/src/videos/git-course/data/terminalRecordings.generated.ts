@@ -4,4 +4,5 @@ export const TERMINAL_RECORDINGS = {
   "ep02-add": {"id":"ep02-add","durationInFrames":168,"holdFromFrame":107,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep02-commit": {"id":"ep02-commit","durationInFrames":197,"holdFromFrame":136,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep02-status-mm": {"id":"ep02-status-mm","durationInFrames":96,"holdFromFrame":35,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep03-commit": {"id":"ep03-commit","durationInFrames":208,"holdFromFrame":147,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
 } as const;

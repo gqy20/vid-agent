@@ -11,10 +11,11 @@ export const ManimClip: React.FC<{
   opacity?: number;
   scale?: number;
   fit?: 'cover' | 'contain';
+  framed?: boolean;
   auditId?: string;
-}> = ({src, title, caption, width = '100%', height = '100%', opacity = 1, scale = 1, fit = 'cover', auditId = 'manim-clip'}) => {
+}> = ({src, title, caption, width = '100%', height = '100%', opacity = 1, scale = 1, fit = 'cover', framed = true, auditId = 'manim-clip'}) => {
   const frame = useCurrentFrame();
-  const mediaIn = interpolate(frame, [0, 24], [0, 1], {extrapolateRight: 'clamp'});
+  const mediaIn = interpolate(frame, [0, 8], [0, 1], {extrapolateRight: 'clamp'});
 
   return (
     <div
@@ -27,10 +28,10 @@ export const ManimClip: React.FC<{
         transform: `scale(${scale})`,
         transformOrigin: 'center',
         overflow: 'hidden',
-        borderRadius: 8,
-        border: `1px solid ${COLOR.stroke.soft}`,
-        background: COLOR.canvas.raised,
-        boxShadow: `0 24px 70px ${COLOR.effects.shadowPanel}`,
+        borderRadius: framed ? 8 : 0,
+        border: framed ? `1px solid ${COLOR.stroke.soft}` : 'none',
+        background: framed ? COLOR.canvas.raised : 'transparent',
+        boxShadow: framed ? `0 24px 70px ${COLOR.effects.shadowPanel}` : 'none',
         fontFamily: FONT.sans,
       }}
     >

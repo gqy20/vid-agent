@@ -1,17 +1,16 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {
-  CenterGraph,
   CommitNode,
   CourseLayout,
   EpisodeTitleCard,
   GitStatePanel,
-  ManimClip,
   QuestionCaption,
+  RecordedTerminalPanel,
   SceneCaption,
   SceneSequence,
   SvgArrowLine,
-  TypedCommandTerminal,
 } from '../kit';
+import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {seconds, WIDTH} from '../timeline';
 import {TYPE} from '../typography';
@@ -79,8 +78,9 @@ const HookScene: React.FC = () => {
   const titleOut = interpolate(frame, [seconds(1.8), seconds(2.3)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const buttonIn = interpolate(frame, [seconds(2.3), seconds(3.15)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const strike = interpolate(frame, [seconds(4.2), seconds(5.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const commitIn = interpolate(frame, [seconds(5.3), seconds(6.3)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const question = interpolate(frame, [seconds(9.2), seconds(10.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const saveOut = interpolate(frame, [seconds(5.15), seconds(5.75)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commitIn = interpolate(frame, [seconds(5.55), seconds(6.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const question = interpolate(frame, [seconds(8), seconds(8.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill style={{padding: '154px 154px 112px', boxSizing: 'border-box'}}>
@@ -100,7 +100,7 @@ const HookScene: React.FC = () => {
         data-audit-id="ep03-save-button"
         style={{
           position: 'absolute',
-          left: 284,
+          left: 675,
           top: 356,
           width: 570,
           height: 228,
@@ -110,15 +110,15 @@ const HookScene: React.FC = () => {
           boxShadow: `0 24px 70px ${COLOR.effects.shadowPanel}`,
           display: 'grid',
           placeItems: 'center',
-          opacity: buttonIn * interpolate(commitIn, [0, 1], [1, 0.32]),
+          opacity: buttonIn * saveOut,
         }}
       >
         <div style={{...TYPE.hero, fontSize: 70}}>保存</div>
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={330} y1={390} x2={790} y2={576} progress={strike} color={COLOR.git.conflict} width={8} opacity={0.78} dash="none" />
+        <line x1="724" y1="414" x2={interpolate(strike, [0, 1], [724, 1196])} y2={interpolate(strike, [0, 1], [414, 548])} stroke={COLOR.git.conflict} strokeWidth="9" strokeLinecap="round" opacity={0.82 * strike * saveOut} />
       </svg>
-      <div style={{position: 'absolute', left: 1012, top: 316, width: 560, opacity: commitIn}}>
+      <div style={{position: 'absolute', left: 680, top: 316, width: 560, opacity: commitIn}}>
         <svg width="560" height="360" viewBox="0 0 560 360">
           <CommitNode id="C2" x={280} y={158} progress={commitIn} radius={108} strong />
           <text x="280" y="324" textAnchor="middle" fontFamily={FONT.sans} fontSize="37" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
@@ -135,34 +135,53 @@ const HookScene: React.FC = () => {
 
 const FromIndexScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const terminalOut = interpolate(frame, [seconds(5.4), seconds(7.1)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const boardIn = interpolate(frame, [seconds(5.8), seconds(7.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const arrow = interpolate(frame, [seconds(10), seconds(14.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const snapshot = interpolate(frame, [seconds(14.3), seconds(18.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption = interpolate(frame, [seconds(20), seconds(21.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const recording = TERMINAL_RECORDINGS['ep03-commit'];
+  const terminalWidth = 1240;
+  const terminalHeight = 500;
+  const terminalOut = interpolate(frame, [seconds(6.2), seconds(7)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const titleIn = interpolate(frame, [seconds(6.7), seconds(7.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const boardIn = interpolate(frame, [seconds(7.1), seconds(8.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const arrow = interpolate(frame, [seconds(10.8), seconds(15.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const snapshot = interpolate(frame, [seconds(14.9), seconds(18.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const caption = interpolate(frame, [seconds(19), seconds(20.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
       <div
         style={{
           position: 'absolute',
-          left: interpolate(terminalOut, [0, 1], [156, 250]),
-          top: interpolate(terminalOut, [0, 1], [116, 218]),
-          width: interpolate(terminalOut, [0, 1], [680, 1360]),
-          height: interpolate(terminalOut, [0, 1], [118, 560]),
-          opacity: interpolate(terminalOut, [0, 1], [0, 1]),
-          zIndex: 8,
+          left: 340,
+          top: 166,
+          width: terminalWidth,
+          height: terminalHeight,
+          opacity: terminalOut,
+          zIndex: 9,
         }}
+        data-audit-id="ep03-commit-recording"
       >
-        <TypedCommandTerminal
-          command={'git commit -m "add search"'}
-          output={['[main C2] add search', '2 files changed']}
-          commandEndFrame={seconds(1.05)}
-          outputStartFrame={seconds(1.4)}
+        <RecordedTerminalPanel
+          src="git-course-lab/terminal/ep03-commit.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep03-commit-hold.png"
+          holdFromFrame={recording.holdFromFrame}
+          mediaFit="cover"
         />
       </div>
-      <div style={{position: 'absolute', left: 106, top: 254, width: 1450, opacity: boardIn}} data-audit-id="ep03-index-board">
+      <div
+        style={{
+          position: 'absolute',
+          left: 154,
+          top: 132,
+          ...TYPE.hero,
+          fontSize: 60,
+          opacity: titleIn,
+          transform: `translateY(${interpolate(titleIn, [0, 1], [16, 0])}px)`,
+        }}
+      >
+        commit 读取 Index
+      </div>
+      <div style={{position: 'absolute', left: 106, top: 316, width: 1450, opacity: boardIn}} data-audit-id="ep03-index-board">
         <GitStatePanel
+          prominent
           areas={[
             {id: 'working-tree', title: 'Working Tree', files: ['app.js:v2', 'search.js:draft']},
             {id: 'index', title: 'Index', files: ['app.js:v1', 'search.js:v1'], active: true},
@@ -171,10 +190,10 @@ const FromIndexScene: React.FC = () => {
         />
       </div>
       <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <SvgArrowLine x1={1035} y1={596} x2={1485} y2={596} progress={arrow} color={COLOR.git.head} width={8} opacity={0.78} dash="none" />
+        <SvgArrowLine x1={1035} y1={658} x2={1466} y2={658} progress={arrow} color={COLOR.git.head} width={8} opacity={0.78 * arrow} dash="none" />
         <g opacity={snapshot}>
-          <circle cx="1560" cy="596" r="72" fill={COLOR.canvas.base} stroke={COLOR.git.main} strokeWidth="8" />
-          <text x="1560" y="610" textAnchor="middle" fontFamily={FONT.mono} fontSize="40" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
+          <circle cx="1560" cy="658" r="72" fill={COLOR.canvas.base} stroke={COLOR.git.main} strokeWidth="8" />
+          <text x="1560" y="672" textAnchor="middle" fontFamily={FONT.mono} fontSize="40" fontWeight={WEIGHT.bold} fill={COLOR.text.primary}>
             C2
           </text>
         </g>
@@ -183,172 +202,216 @@ const FromIndexScene: React.FC = () => {
         style={{
           position: 'absolute',
           left: 1410,
-          top: 688,
+          top: 750,
           width: 330,
           opacity: snapshot,
           ...TYPE.ui,
+          fontSize: 26,
           color: COLOR.text.secondary,
           textAlign: 'center',
         }}
       >
-        snapshot from Index
+        来自 Index 的快照
       </div>
       <SceneCaption opacity={caption} width={1120} auditId="ep03-from-index-caption">
-        commit 读取的是 Index，不是把 Working Tree 当前所有内容都打包进去。
+        commit 读取的是 Index，不是把 Working Tree 当前所有内容都打包进去
       </SceneCaption>
     </AbsoluteFill>
   );
 };
 
-const ManimSceneFrame: React.FC<{src: string; auditId: string}> = ({src, auditId}) => (
-  <AbsoluteFill>
-    <div
-      style={{
-        position: 'absolute',
-        left: 154,
-        top: 104,
-        width: 1612,
-        aspectRatio: '16 / 9',
-      }}
-    >
-      <ManimClip src={src} width="100%" height="100%" fit="contain" auditId={auditId} />
-    </div>
-  </AbsoluteFill>
-);
+const ObjectModelScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const blobs = interpolate(frame, [seconds(1.2), seconds(3.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const tree = interpolate(frame, [seconds(5.4), seconds(7.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const blobLinks = interpolate(frame, [seconds(8), seconds(11.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commit = interpolate(frame, [seconds(13.2), seconds(15.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commitLink = interpolate(frame, [seconds(16), seconds(19.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const caption = interpolate(frame, [seconds(21), seconds(22.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
-const ObjectModelScene: React.FC = () => (
-  <ManimSceneFrame
-    src="git-course/manim/ep03/object-model.mp4"
-    auditId="ep03-object-model-manim"
-  />
-);
+  return (
+    <AbsoluteFill style={{padding: '118px 150px 112px', boxSizing: 'border-box'}} data-audit-id="ep03-object-model-remotion">
+      <div style={{...TYPE.hero, fontSize: 60, textAlign: 'center'}}>commit → tree → blob</div>
+      <ObjectBox title="blob" subtitle="app.js 内容" tone={COLOR.git.feature} x={170} y={330} width={330} height={170} opacity={blobs} scale={0.94 + blobs * 0.06} />
+      <ObjectBox title="blob" subtitle="search.js 内容" tone={COLOR.git.feature} x={170} y={560} width={330} height={170} opacity={blobs} scale={0.94 + blobs * 0.06} />
+      <ObjectBox title="tree" subtitle="目录结构" tone={COLOR.git.head} x={790} y={430} width={350} height={190} opacity={tree} scale={0.94 + tree * 0.06} />
+      <ObjectBox title="commit" subtitle="历史记录" tone={COLOR.git.main} x={1410} y={430} width={350} height={190} opacity={commit} scale={0.94 + commit * 0.06} />
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
+        <SvgArrowLine x1={790} y1={490} x2={520} y2={420} progress={blobLinks} color={COLOR.git.head} width={7} opacity={0.72 * blobLinks} dash="none" />
+        <SvgArrowLine x1={790} y1={560} x2={520} y2={645} progress={blobLinks} color={COLOR.git.head} width={7} opacity={0.72 * blobLinks} dash="none" />
+        <SvgArrowLine x1={1410} y1={525} x2={1164} y2={525} progress={commitLink} color={COLOR.git.main} width={8} opacity={0.82 * commitLink} dash="none" />
+      </svg>
+      <SceneCaption opacity={caption} width={1080}>commit 指向 tree，tree 再按文件名找到 blob</SceneCaption>
+    </AbsoluteFill>
+  );
+};
 
 const CommitFieldsScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const rows = [
-    {label: 'tree', value: 'a8f3c1...', note: '这次项目快照', tone: COLOR.git.main},
-    {label: 'parent', value: 'C1', note: '上一次提交', tone: COLOR.git.feature},
-    {label: 'author', value: 'Lin <lin@demo>', note: '谁提交', tone: COLOR.text.secondary},
-    {label: 'time', value: '2026-07-07 10:20', note: '何时提交', tone: COLOR.text.secondary},
-    {label: 'message', value: 'add search', note: '为什么提交', tone: COLOR.git.head},
-  ];
   const cardIn = interpolate(frame, [0, seconds(1.2)], [0, 1], {extrapolateRight: 'clamp'});
-  const active = Math.min(rows.length - 1, Math.max(0, Math.floor((frame - seconds(4)) / seconds(4.2))));
-  const caption = interpolate(frame, [seconds(24), seconds(25.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const treeIn = interpolate(frame, [seconds(3), seconds(4.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const treeLink = interpolate(frame, [seconds(5.2), seconds(7.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const parentIn = interpolate(frame, [seconds(9), seconds(10.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const parentLink = interpolate(frame, [seconds(11), seconds(13.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const metadataIn = interpolate(frame, [seconds(15), seconds(17)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const timeIn = interpolate(frame, [seconds(18), seconds(19.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const messageIn = interpolate(frame, [seconds(21), seconds(22.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const caption = interpolate(frame, [seconds(21.5), seconds(22.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill style={{padding: '118px 154px 112px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontSize: 58}}>commit 不只是快照</div>
+      <div style={{...TYPE.hero, fontSize: 58}}>一个 commit，三个层次</div>
       <div
         data-audit-id="ep03-commit-field-card"
         style={{
           position: 'absolute',
-          left: 224,
-          top: 314,
-          width: 1040,
-          borderRadius: 8,
-          border: `1px solid ${COLOR.stroke.default}`,
-          background: COLOR.canvas.overlay,
-          boxShadow: `0 24px 70px ${COLOR.effects.shadowPanel}`,
+          left: 164,
+          top: 286,
+          width: 790,
+          height: 520,
+          borderRadius: 0,
+          border: 'none',
+          background: 'transparent',
+          boxShadow: 'none',
           opacity: cardIn,
-          padding: '34px 42px',
+          padding: '34px 38px',
           boxSizing: 'border-box',
         }}
       >
-        <div style={{...TYPE.title, fontFamily: FONT.mono, fontSize: 34, color: COLOR.git.main, marginBottom: 22}}>commit C2</div>
-        {rows.map((row, index) => {
-          const rowIn = interpolate(frame, [seconds(2.4 + index * 2.8), seconds(3.2 + index * 2.8)], [0, 1], {
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-          });
-          const isActive = index === active;
-          return (
-            <div
-              key={row.label}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '148px 1fr 250px',
-                alignItems: 'center',
-                gap: 22,
-                minHeight: 64,
-                borderTop: index === 0 ? 'none' : `1px solid ${COLOR.stroke.soft}`,
-                opacity: rowIn,
-                background: isActive ? COLOR.effects.headHighlight : 'transparent',
-                margin: '0 -18px',
-                padding: '0 18px',
-                borderRadius: 8,
-              }}
-            >
-              <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: row.tone, fontWeight: WEIGHT.bold}}>{row.label}</div>
-              <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.text.primary}}>{row.value}</div>
-              <div style={{...TYPE.uiSmall, color: COLOR.text.secondary}}>{row.note}</div>
+        <div style={{...TYPE.title, fontFamily: FONT.mono, fontSize: 36, color: COLOR.git.main, marginBottom: 26}}>commit C2</div>
+        <div style={{display: 'grid', gap: 18}}>
+          <div style={{display: 'grid', gridTemplateColumns: '150px 1fr', alignItems: 'center', minHeight: 94, padding: '0 24px', borderRadius: 8, background: COLOR.effects.mainWash, opacity: treeIn}}>
+            <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.git.main, fontWeight: WEIGHT.bold}}>tree</div>
+            <div style={{...TYPE.subtitle, fontFamily: FONT.mono, color: COLOR.text.primary}}>7b4d2e1</div>
+          </div>
+          <div style={{display: 'grid', gridTemplateColumns: '150px 1fr', alignItems: 'center', minHeight: 94, padding: '0 24px', borderRadius: 8, background: COLOR.effects.featureWash, opacity: parentIn}}>
+            <div style={{...TYPE.codeSmall, fontFamily: FONT.mono, color: COLOR.git.feature, fontWeight: WEIGHT.bold}}>parent</div>
+            <div style={{...TYPE.subtitle, color: COLOR.text.primary}}>C1</div>
+          </div>
+          <div style={{padding: '18px 24px', borderTop: `1px solid ${COLOR.stroke.default}`, opacity: metadataIn}}>
+            <div style={{...TYPE.uiSmall, fontSize: 22, color: COLOR.text.secondary, marginBottom: 10}}>metadata</div>
+            <div style={{display: 'flex', gap: 14, alignItems: 'center', ...TYPE.codeSmall, fontSize: 24, fontFamily: FONT.mono, color: COLOR.text.primary}}>
+              <span>Lin</span><span style={{color: COLOR.stroke.strong}}>·</span>
+              <span style={{opacity: timeIn}}>10:20</span><span style={{color: COLOR.stroke.strong, opacity: timeIn}}>·</span>
+              <span style={{opacity: messageIn, color: COLOR.git.head}}>add search</span>
             </div>
-          );
-        })}
+          </div>
+        </div>
       </div>
-      <div style={{position: 'absolute', right: 230, top: 362, width: 360}}>
-        <svg width="360" height="360" viewBox="0 0 360 360">
-          <CommitNode id="C2" x={180} y={180} progress={cardIn} radius={106} strong />
-        </svg>
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
+        <SvgArrowLine x1={954} y1={420} x2={1250} y2={390} progress={treeLink} color={COLOR.git.main} width={7} opacity={0.82 * treeLink} dash="none" />
+        <SvgArrowLine x1={954} y1={534} x2={1250} y2={650} progress={parentLink} color={COLOR.git.feature} width={7} opacity={0.82 * parentLink} dash="none" />
+      </svg>
+      <div style={{position: 'absolute', left: 1260, top: 292, width: 470, height: 190, display: 'grid', placeItems: 'center', opacity: treeLink}}>
+        <div style={{textAlign: 'center'}}><div style={{...TYPE.title, fontFamily: FONT.mono, color: COLOR.git.main}}>tree 7b4d2e1</div><div style={{...TYPE.ui, color: COLOR.text.secondary, marginTop: 8}}>这次项目快照</div></div>
+      </div>
+      <div style={{position: 'absolute', left: 1260, top: 562, width: 470, height: 190, display: 'grid', placeItems: 'center', opacity: parentLink}}>
+        <div style={{textAlign: 'center'}}><div style={{...TYPE.title, fontFamily: FONT.mono, color: COLOR.git.feature}}>commit C1</div><div style={{...TYPE.ui, color: COLOR.text.secondary, marginTop: 8}}>上一个历史节点</div></div>
       </div>
       <SceneCaption opacity={caption} width={1120} auditId="ep03-fields-caption">
-        parent 让 commit 知道自己从哪里来；message 记录这次为什么提交。
+        tree 指向这次快照，parent 指向过去；其余字段说明谁、何时、为什么提交
       </SceneCaption>
     </AbsoluteFill>
   );
 };
 
-const ParentChainScene: React.FC = () => (
-  <ManimSceneFrame
-    src="git-course/manim/ep03/parent-chain.mp4"
-    auditId="ep03-parent-chain-manim"
-  />
-);
+const ParentChainScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const c0 = interpolate(frame, [seconds(1.2), seconds(2.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const c1 = interpolate(frame, [seconds(3.6), seconds(5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const link10 = interpolate(frame, [seconds(5.2), seconds(7.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const c2 = interpolate(frame, [seconds(8.2), seconds(9.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const link21 = interpolate(frame, [seconds(9.8), seconds(12.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const meta = interpolate(frame, [seconds(13.5), seconds(15.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const caption = interpolate(frame, [seconds(16), seconds(17.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  return (
+    <AbsoluteFill data-audit-id="ep03-parent-chain-remotion">
+      <div style={{position: 'absolute', top: 132, width: '100%', ...TYPE.hero, fontSize: 60, textAlign: 'center'}}>parent → 过去</div>
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
+        <CommitNode id="C0" x={470} y={500} progress={c0} radius={72} />
+        <CommitNode id="C1" x={960} y={500} progress={c1} radius={72} />
+        <CommitNode id="C2" x={1450} y={500} progress={c2} radius={78} strong />
+        <SvgArrowLine x1={874} y1={500} x2={566} y2={500} progress={link10} color={COLOR.git.feature} width={8} opacity={0.82 * link10} dash="none" />
+        <SvgArrowLine x1={1358} y1={500} x2={1056} y2={500} progress={link21} color={COLOR.git.feature} width={8} opacity={0.82 * link21} dash="none" />
+        <text x="720" y="450" textAnchor="middle" fontFamily={FONT.mono} fontSize="31" fontWeight={WEIGHT.bold} fill={COLOR.git.feature} opacity={link10}>parent</text>
+        <text x="1210" y="450" textAnchor="middle" fontFamily={FONT.mono} fontSize="31" fontWeight={WEIGHT.bold} fill={COLOR.git.feature} opacity={link21}>parent</text>
+      </svg>
+      <div style={{position: 'absolute', left: 1260, top: 650, width: 410, opacity: meta, padding: '22px 26px', borderTop: `2px solid ${COLOR.git.feature}`}}>
+        <div style={{...TYPE.code, fontFamily: FONT.mono, color: COLOR.git.main}}>commit C2</div>
+        <div style={{display: 'grid', gridTemplateColumns: '120px 1fr', marginTop: 16, ...TYPE.codeSmall, fontSize: 24, fontFamily: FONT.mono}}><span style={{color: COLOR.git.feature}}>parent</span><span>C1</span></div>
+      </div>
+      <SceneCaption opacity={caption} width={1040}>新的 commit 通过 parent 指向上一个 commit</SceneCaption>
+    </AbsoluteFill>
+  );
+};
 
-const HashIdentityScene: React.FC = () => (
-  <ManimSceneFrame
-    src="git-course/manim/ep03/hash-identity.mp4"
-    auditId="ep03-hash-identity-manim"
-  />
-);
+const HashIdentityScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fields = interpolate(frame, [seconds(1), seconds(2.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const machine = interpolate(frame, [seconds(3.4), seconds(4.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const outputA = interpolate(frame, [seconds(6), seconds(8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const mutation = interpolate(frame, [seconds(10), seconds(11.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const outputB = interpolate(frame, [seconds(13), seconds(15)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const caption = interpolate(frame, [seconds(16), seconds(17.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const rows = [['tree', '7b4d2e1'], ['parent', 'C1'], ['author', 'Lin'], ['time', '10:20']];
+  return (
+    <AbsoluteFill data-audit-id="ep03-hash-identity-remotion">
+      <div style={{position: 'absolute', top: 128, width: '100%', ...TYPE.hero, fontSize: 60, textAlign: 'center'}}>字段变化 → 新 hash</div>
+      <div style={{position: 'absolute', left: 150, top: 310, width: 500, opacity: fields, display: 'grid', gap: 12}}>
+        {rows.map(([key, value]) => <div key={key} style={{display: 'grid', gridTemplateColumns: '170px 1fr', padding: '13px 18px', borderBottom: `1px solid ${COLOR.stroke.default}`, ...TYPE.codeSmall, fontSize: 25, fontFamily: FONT.mono}}><span style={{color: key === 'tree' ? COLOR.git.main : key === 'parent' ? COLOR.git.feature : COLOR.text.secondary}}>{key}</span><span>{value}</span></div>)}
+        <div style={{display: 'grid', gridTemplateColumns: '170px 1fr', padding: '13px 18px', background: mutation ? 'rgba(192,87,74,0.07)' : 'transparent', ...TYPE.codeSmall, fontSize: 25, fontFamily: FONT.mono}}><span style={{color: mutation ? COLOR.git.conflict : COLOR.git.head}}>message</span><span>{mutation > 0.5 ? 'add Search' : 'add search'}</span></div>
+      </div>
+      <ObjectBox title="hash" subtitle="计算身份" tone={mutation ? COLOR.git.conflict : COLOR.git.main} x={800} y={420} width={280} height={180} opacity={machine} />
+      <ObjectBox title="commit A" subtitle="9f31a2e" tone={COLOR.git.main} x={1350} y={305} width={360} height={165} opacity={outputA} />
+      <ObjectBox title="commit B" subtitle="42c8d19" tone={COLOR.git.conflict} x={1350} y={610} width={360} height={165} opacity={outputB} />
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
+        <SvgArrowLine x1={650} y1={510} x2={776} y2={510} progress={machine} color={COLOR.stroke.strong} width={7} opacity={0.7 * machine} dash="none" />
+        <SvgArrowLine x1={1080} y1={475} x2={1326} y2={390} progress={outputA} color={COLOR.git.main} width={8} opacity={0.82 * outputA} dash="none" />
+        <SvgArrowLine x1={1080} y1={545} x2={1326} y2={690} progress={outputB} color={COLOR.git.conflict} width={8} opacity={0.82 * outputB} dash="none" />
+      </svg>
+      <div style={{position: 'absolute', left: 170, top: 790, ...TYPE.subtitle, fontSize: 28, color: COLOR.git.conflict, opacity: mutation}}>只改一个字符</div>
+      <SceneCaption opacity={caption} width={1080}>快照、parent 或 message 改变，commit 身份就会改变</SceneCaption>
+    </AbsoluteFill>
+  );
+};
 
 const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const state = {
-    commits: [{id: 'C0'}, {id: 'C1'}, {id: 'C2'}],
-    branches: [{name: 'main', target: 'C2', lane: 'bottom' as const}],
-  };
   const graphIn = interpolate(frame, [seconds(2.2), seconds(4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const mainIn = interpolate(frame, [seconds(13), seconds(14.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const bullets = ['指向快照：tree', '指向过去：parent', '拥有身份：hash'];
   const question = interpolate(frame, [seconds(15), seconds(17.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
-    <AbsoluteFill style={{padding: '150px 170px 130px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>
-        commit 是一个
-        <br />
-        带身份的历史节点
+    <AbsoluteFill style={{padding: '138px 150px 126px', boxSizing: 'border-box'}}>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, textAlign: 'center', width: '100%'}}>
+        commit 是带身份的历史节点
       </div>
-      <div style={{position: 'absolute', right: 160, top: 304, width: 960, opacity: graphIn}}>
-        <CenterGraph state={state} top={0} width={960} showHeadMarker={false} />
-      </div>
-      <div style={{position: 'absolute', left: 176, bottom: 190, display: 'grid', gap: 16}}>
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0, opacity: graphIn}}>
+        <line x1="620" y1="438" x2="900" y2="438" stroke={COLOR.stroke.default} strokeWidth="8" />
+        <line x1="1020" y1="438" x2="1300" y2="438" stroke={COLOR.stroke.default} strokeWidth="8" />
+        <CommitNode id="C0" x={560} y={438} progress={graphIn} radius={64} />
+        <CommitNode id="C1" x={960} y={438} progress={graphIn} radius={64} />
+        <CommitNode id="C2" x={1360} y={438} progress={graphIn} radius={76} strong />
+      </svg>
+      <div style={{position: 'absolute', left: 1300, top: 532, width: 120, padding: '9px 0', borderRadius: 6, background: COLOR.git.main, color: COLOR.canvas.base, ...TYPE.uiSmall, fontSize: 22, fontFamily: FONT.mono, fontWeight: WEIGHT.bold, textAlign: 'center', opacity: mainIn, transform: `translateY(${interpolate(mainIn, [0, 1], [12, 0])}px)`}}>main</div>
+      <div style={{position: 'absolute', left: 220, right: 220, top: 650, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 34}}>
         {bullets.map((line, idx) => {
           const item = interpolate(frame, [seconds(5 + idx * 2.2), seconds(6.1 + idx * 2.2)], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           });
           return (
-            <div key={line} style={{...TYPE.subtitle, color: COLOR.text.primary, opacity: item, transform: `translateY(${interpolate(item, [0, 1], [16, 0])}px)`}}>
+            <div key={line} style={{...TYPE.ui, fontSize: 28, fontWeight: WEIGHT.bold, color: COLOR.text.primary, opacity: item, transform: `translateY(${interpolate(item, [0, 1], [16, 0])}px)`, textAlign: 'center', padding: '18px 14px', borderTop: `3px solid ${idx === 0 ? COLOR.git.main : idx === 1 ? COLOR.git.feature : COLOR.git.head}`}}>
               <span
                 style={{
                   display: 'inline-block',
-                  width: 28,
-                  height: 28,
-                  marginRight: 16,
+                  width: 14,
+                  height: 14,
+                  marginRight: 12,
                   borderRadius: 999,
                   background: idx === 0 ? COLOR.git.main : idx === 1 ? COLOR.git.feature : COLOR.git.head,
-                  verticalAlign: -3,
+                  verticalAlign: 1,
                 }}
               />
               {line}

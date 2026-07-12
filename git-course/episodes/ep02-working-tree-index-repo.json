@@ -26,7 +26,7 @@
     "newManimScenes": [],
     "externalAssets": {
       "needed": false,
-      "policy": "不使用网络流程图或真实终端截图；终端、代码和三层状态全部用 Remotion 组件重建。"
+      "policy": "不使用网络流程图或终端截图；命令阶段使用 git-course-lab 在隔离仓库中生成的真实 PTY 录屏，并由 RecordedTerminalPanel 合成，代码和三层状态由 Remotion 组件构建。"
     }
   },
   "states": {
@@ -144,8 +144,7 @@
       "duration": 36,
       "primaryTechnique": "Terminal command + file move",
       "components": [
-        "TerminalPanel",
-        "TerminalTyping",
+        "RecordedTerminalPanel:ep02-add",
         "CommandStep",
         "FileMove"
       ],
@@ -165,7 +164,7 @@
       "components": [
         "CodeDiff",
         "CompareTable",
-        "TerminalPanel"
+        "RecordedTerminalPanel:ep02-status-mm"
       ],
       "goal": "说明同一文件可同时存在 staged 和 unstaged 变化。",
       "narration": {
@@ -181,7 +180,7 @@
       "duration": 30,
       "primaryTechnique": "Commit from index",
       "components": [
-        "TerminalTyping",
+        "RecordedTerminalPanel:ep02-commit",
         "RepositoryBox",
         "CommitNode",
         "DataPacket"

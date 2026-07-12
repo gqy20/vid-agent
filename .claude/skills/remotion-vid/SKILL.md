@@ -128,6 +128,22 @@ export const RemotionRoot: React.FC = () => (
 
 ## 工作流(第一遍——跑通,廉价验证)
 
+### 先判断当前工作模式
+
+执行渲染命令前，先明确当前属于哪一种模式：
+
+1. **迭代修复**：用户正在连续指出秒点、排版、字体、动画或字幕问题，或明确表示还在优化。
+   维护问题清单，只渲染 dirty scene、代表帧和问题点附近的短区间。产物保持在 cache、debug 或
+   candidate；禁止在每个小修复后执行完整 audit、approve、promote、release 或 publish。
+2. **候选验收**：问题已成批处理完，用户要求整体检查、确认候选或准备定稿。此时才组装完整
+   candidate，并执行项目规定的连续采样、边界 burst、关键帧和人工审查。
+3. **正式晋升**：只有候选验收通过，且用户明确确认定稿、发布、覆盖 current，或项目流程已明确
+   授权自动晋升时，才 approve/promote。任何后续修改都会使旧批准失效，并重新回到迭代修复。
+
+“修一下这里”“再看 30 秒”“还有类似问题”等连续反馈默认属于迭代修复，不等于授权发布。
+不要把 `build`、`audit`、`approve`、`promote` 绑成每次编辑后的固定尾动作。详细状态流见
+`references/incremental-production.md`。
+
 1. **内容基于真实** —— 读真实源头(用 `gh` 读仓库 README、文档),陈述真实信息,
    绝不编造数字。
 2. **脚手架** —— 一场景一组件;文案/数据/配色/字体/缓动都做成文件顶部常量
@@ -142,7 +158,8 @@ export const RemotionRoot: React.FC = () => (
 6. **长视频先数据化时间线** —— 超过 90s 或未来可能到 5min 时,把场景时长、
    转场、fps、尺寸抽进 `timeline.ts`,Composition 的 `durationInFrames` 从常量计算
    (references/long-video-rendering.md)。
-7. **渲染 → 归档** —— 优先读取项目资源策略；无策略时用短片 smoke test 探测最大稳定并发，
+7. **渲染 → 归档** —— 优先读取项目资源策略；迭代修复时只生成局部预览或 candidate，不覆盖
+   current。进入候选验收后，无策略时用短片 smoke test 探测最大稳定并发，
    不把保守常量当生产默认值。渲进产物目录
    `renders/<id>/renders/{tmp,candidates,current,archive}/`,补上 `thumbnail.png` +
    `meta.json` + `README.md`;用 `ffprobe` 校验。分片、场景审查、抽帧都必须放
