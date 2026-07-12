@@ -137,10 +137,11 @@
 
 ### 文件与自动检查
 
-- [ ] 分段预览已覆盖到 `current/scenes/`，命名为 `01_scene-id.mp4` 形式。
+- [ ] 修复阶段的分段预览已更新到 `tmp/preview/scenes/`，命名为 `01_scene_id.mp4` 形式，并由 manifest 记录 fingerprint 与 SHA。
+- [ ] 候选验收通过并 promote 后，已批准分段才同步到 `current/scenes/`。
 - [ ] 当前正片已覆盖 `current/<episode-id>.mp4`，没有创建 `new`、`v2` 或 `final-final`。
 - [ ] `current/` 下没有 `final/` 子目录；历史成片如需保留已移入 `tmp/legacy-final/`。
-- [ ] 视频为 1920×1080、30fps，视频与音频流均存在。
+- [ ] main 视频为 1920×1080、30fps，视频与音频流均存在。
 - [ ] 正片时长与 `episode JSON` 总时长一致，音画结尾没有被 `-shortest` 意外截断。
 - [ ] 所有可生成 MP4、音频、SRT、抽帧和临时审查文件均被 `.gitignore` 正确排除。
 
@@ -169,6 +170,8 @@
 - [ ] main candidate 的 `tmp/build/audit/main/verdict.json` 为 `pass`，且 SHA 与候选一致。
 - [ ] 已通过 `git-course promote` 原子晋升 current，没有手工复制候选文件。
 - [ ] 已通过 `git-course release-build` 生成发布候选，没有直接运行底层 publish Shell。
+- [ ] `release-build` 使用独立 `uhd30` scene/品牌缓存从源码渲染，过程中没有把 main 和日常预览升到 4K。
+- [ ] release candidate 为 3840×2160、30fps；片头、正片、片尾三段分辨率与帧率一致。
 - [ ] release candidate 的 `tmp/build/audit/release/verdict.json` 为 `pass`，且 SHA 与候选一致。
 - [ ] release 的两个拼接边界 burst 和六个发布关键帧均已检查。
 - [ ] 已通过 `git-course publish` 发布，没有绕过 verdict 门禁。

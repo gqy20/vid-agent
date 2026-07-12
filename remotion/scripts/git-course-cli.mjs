@@ -25,6 +25,10 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const REMOTION = join(ROOT, 'remotion');
 const EPISODES = join(ROOT, 'git-course/episodes');
 const FPS = 30;
+const RENDER_PROFILES = {
+  hd30: {name: 'hd30', scale: 1, width: 1920, height: 1080, fps: 30},
+  uhd30: {name: 'uhd30', scale: 2, width: 3840, height: 2160, fps: 30},
+};
 const COMMAND = process.argv[2] ?? 'status';
 const EPISODE_ID = process.argv[3];
 const FLAGS = new Map(process.argv.slice(4).filter((arg) => arg.startsWith('--')).map((arg) => {
@@ -336,13 +340,21 @@ const printFingerprints = (ctx, buildPlan) => {
   }, null, 2));
 };
 
-const renderScenes = async (ctx, tasks) => {
+const renderScenes = async (ctx, tasks, options = {}) => {
   if (tasks.length === 0) return [];
+  const renderProfile = options.renderProfile ?? RENDER_PROFILES.hd30;
+  const stateKey = options.stateKey ?? 'scenes';
+  const cacheSubdir = options.cacheSubdir ?? 'scenes';
+  const taskPrefix = options.taskPrefix ?? 'render';
+  const planName = options.planName ?? 'render-plan.json';
+  const compositionId = options.compositionId ?? getComposition(ctx.episode);
+  ctx.state[stateKey] ??= {};
   const logicalCpus = cpus().length;
-  const profilePath = join(REMOTION, 'renders/git-course/tmp/render-profile.json');
-  const profile = existsSync(profilePath) ? json(profilePath) : {maxStableConcurrencyPerBrowser: 16};
+  const profilePath = join(REMOTION, `renders/git-course/tmp/render-profile-${renderProfile.name}.json`);
+  const defaultConcurrency = renderProfile.scale > 1 ? 4 : 16;
+  const profile = existsSync(profilePath) ? json(profilePath) : {maxStableConcurrencyPerBrowser: defaultConcurrency};
   const requestedConcurrency = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(logicalCpus / tasks.length)));
-  const concurrency = FLAGS.has('render-concurrency') ? requestedConcurrency : Math.min(requestedConcurrency, profile.maxStableConcurrencyPerBrowser ?? 16);
+  const concurrency = FLAGS.has('render-concurrency') ? requestedConcurrency : Math.min(requestedConcurrency, profile.maxStableConcurrencyPerBrowser ?? defaultConcurrency);
   const bundleFingerprint = hashFiles([
     ...walkFiles(join(REMOTION, 'src'), (path) => /\.(?:ts|tsx|css)$/.test(path)),
     join(REMOTION, 'package.json'),
@@ -351,15 +363,15 @@ const renderScenes = async (ctx, tasks) => {
     ...walkFiles(join(REMOTION, 'public/git-course')),
   ]);
   const bundleDir = join(REMOTION, 'renders/git-course/tmp/bundles', bundleFingerprint);
-  const planPath = join(ctx.build, 'render-plan.json');
-  const cacheDir = join(ctx.cache, 'scenes');
+  const planPath = join(ctx.build, planName);
+  const cacheDir = options.cacheDir ?? join(ctx.cache, cacheSubdir);
   mkdirSync(cacheDir, {recursive: true});
   const planned = tasks.map((task) => {
     const scene = task.scene;
     const index = task.index + 1;
     const start = scene.start * FPS;
     const end = (scene.start + scene.duration) * FPS - 1;
-    const taskDir = join(ctx.build, 'tasks', `render-${scene.id}`);
+    const taskDir = join(ctx.build, 'tasks', `${taskPrefix}-${scene.id}`);
     const output = join(taskDir, 'segments', `${String(index).padStart(3, '0')}_${String(start).padStart(6, '0')}-${String(end).padStart(6, '0')}.mp4`);
     const cachePath = join(cacheDir, `${String(index).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}_${task.fingerprint.slice(0, 12)}.mp4`);
     const completionPath = join(taskDir, 'render-completion.json');
@@ -370,15 +382,15 @@ const renderScenes = async (ctx, tasks) => {
   writeJson(planPath, {
     schemaVersion: 1,
     entryPoint: join(REMOTION, 'src/index.ts'),
-    compositionId: getComposition(ctx.episode),
+    compositionId,
     logicalCpus,
     requestedConcurrency,
     profilePath,
     bundleDir,
     bundleFingerprint,
     timeoutInMilliseconds: 120000,
-    telemetryPath: join(ctx.build, 'telemetry/render-scenes.json'),
-    tasks: planned.map(({scene, start, end, output, cachePath, completionPath, concurrency: taskConcurrency}) => ({sceneId: scene.id, start, end, output, cacheOutput: cachePath, completionPath, concurrency: taskConcurrency, fallbackConcurrency: profile.maxStableConcurrencyPerBrowser ?? 16})),
+    telemetryPath: join(ctx.build, `telemetry/${taskPrefix}-scenes.json`),
+    tasks: planned.map(({scene, start, end, output, cachePath, completionPath, concurrency: taskConcurrency}) => ({sceneId: scene.id, start, end, output, cacheOutput: cachePath, completionPath, scale: renderProfile.scale, concurrency: taskConcurrency, fallbackConcurrency: profile.maxStableConcurrencyPerBrowser ?? defaultConcurrency})),
   });
   let renderError = null;
   try {
@@ -389,14 +401,17 @@ const renderScenes = async (ctx, tasks) => {
     renderError = error;
   }
   const completed = planned.filter(({cachePath, completionPath}) => existsSync(cachePath) && existsSync(completionPath));
-  await Promise.all(completed.map(async ({taskDir}) => {
-    await run(join(REMOTION, 'scripts/audit-range-segments.sh'), [taskDir, join(taskDir, 'segment-audits'), 'all']);
-  }));
+  const auditSegments = options.auditSegments ?? renderProfile.scale === 1;
+  if (auditSegments) {
+    await Promise.all(completed.map(async ({taskDir}) => {
+      await run(join(REMOTION, 'scripts/audit-range-segments.sh'), [taskDir, join(taskDir, 'segment-audits'), 'all']);
+    }));
+  }
   const results = completed.map(({task, scene, cachePath, completionPath, end, start}) => {
     const frames = Number(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=nb_frames', '-of', 'default=nw=1:nk=1', cachePath], {encoding: 'utf8'}).trim());
     frames === end - start + 1 || fail(`${scene.id}: expected ${end - start + 1} frames, found ${frames}`);
     const completion = json(completionPath);
-    ctx.state.scenes[scene.id] = {fingerprint: task.fingerprint, path: rel(cachePath), sha256: shaFile(cachePath), render: completion, updatedAt: new Date().toISOString()};
+    ctx.state[stateKey][scene.id] = {fingerprint: task.fingerprint, profile: renderProfile.name, path: rel(cachePath), sha256: shaFile(cachePath), render: completion, updatedAt: new Date().toISOString()};
     console.log(`PASS  render ${scene.id}`);
     return cachePath;
   });
@@ -594,12 +609,13 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
   const video = info.streams.find((stream) => stream.codec_type === 'video');
   const audio = info.streams.find((stream) => stream.codec_type === 'audio');
   const expected = scope === 'main' ? ctx.episode.durationSeconds : null;
+  const expectedProfile = scope === 'release' ? RENDER_PROFILES.uhd30 : RENDER_PROFILES.hd30;
   const duration = Number(info.format.duration);
   const checks = [
     {id: 'video.stream', status: video ? 'pass' : 'fail', details: video ? `${video.width}x${video.height} ${video.r_frame_rate}` : 'missing'},
     {id: 'audio.stream', status: audio ? 'pass' : 'fail', details: audio ? `${audio.codec_name} ${audio.sample_rate}Hz` : 'missing'},
-    {id: 'video.resolution', status: video?.width === 1920 && video?.height === 1080 ? 'pass' : 'fail', details: video ? `${video.width}x${video.height}` : 'missing'},
-    {id: 'video.fps', status: video?.r_frame_rate === '30/1' ? 'pass' : 'fail', details: video?.r_frame_rate ?? 'missing'},
+    {id: 'video.resolution', status: video?.width === expectedProfile.width && video?.height === expectedProfile.height ? 'pass' : 'fail', details: video ? `${video.width}x${video.height} expected ${expectedProfile.width}x${expectedProfile.height}` : 'missing'},
+    {id: 'video.fps', status: video?.r_frame_rate === `${expectedProfile.fps}/1` ? 'pass' : 'fail', details: video?.r_frame_rate ?? 'missing'},
     ...(expected === null ? [] : [{id: 'duration.main', status: Math.abs(duration - expected) <= 0.08 ? 'pass' : 'fail', details: `${duration}s expected ${expected}s`}]),
   ];
   const plan = samplingPlan(ctx, scope, duration);
@@ -728,21 +744,128 @@ const promote = (ctx) => {
   console.log(`PASS  promote ${rel(join(ctx.current, `${ctx.episode.episodeId}.mp4`))}`);
 };
 
+const recoverProfileCache = (cacheDir, fingerprint) => {
+  if (!existsSync(cacheDir)) return null;
+  const name = readdirSync(cacheDir).find((entry) => entry.endsWith(`_${fingerprint.slice(0, 12)}.mp4`));
+  return name ? join(cacheDir, name) : null;
+};
+
+const uhdScenePlan = (ctx) => {
+  const basePlan = plan(ctx);
+  const profile = RENDER_PROFILES.uhd30;
+  const cacheDir = join(ctx.cache, 'scenes', profile.name);
+  ctx.state.releaseScenes ??= {};
+  const scenes = basePlan.scenes.map((task) => {
+    const fingerprint = sha(JSON.stringify({schema: 1, sourceFingerprint: task.fingerprint, profile}));
+    let cached = ctx.state.releaseScenes[task.scene.id];
+    let hit = cached?.fingerprint === fingerprint && existsSync(join(ROOT, cached.path ?? ''));
+    if (!hit) {
+      const recovered = recoverProfileCache(cacheDir, fingerprint);
+      if (recovered) {
+        cached = {fingerprint, profile: profile.name, path: rel(recovered), sha256: shaFile(recovered), recoveredAt: new Date().toISOString()};
+        ctx.state.releaseScenes[task.scene.id] = cached;
+        hit = true;
+      }
+    }
+    return {...task, fingerprint, cached, hit};
+  });
+  return {...basePlan, profile, cacheDir, scenes};
+};
+
+const uhdBrandTask = (ctx, {sceneId, compositionId, duration}) => {
+  const profile = RENDER_PROFILES.uhd30;
+  const sourceHash = hashFiles([
+    ...walkFiles(join(REMOTION, 'src/videos/git-course/kit/brand'), (path) => /\.(?:ts|tsx)$/.test(path)),
+    join(REMOTION, 'src/videos/git-course/palette.ts'),
+    join(REMOTION, 'src/videos/git-course/typography.ts'),
+    join(REMOTION, 'src/videos/git-course/timeline.ts'),
+    join(REMOTION, 'src/fonts.css'),
+  ]);
+  const fingerprint = sha(JSON.stringify({schema: 1, compositionId, duration, sourceHash, profile}));
+  const cacheDir = join(REMOTION, 'renders/git-course/tmp/cache/brand', profile.name);
+  ctx.state.releaseAssets ??= {};
+  let cached = ctx.state.releaseAssets[sceneId];
+  let hit = cached?.fingerprint === fingerprint && existsSync(join(ROOT, cached.path ?? ''));
+  if (!hit) {
+    const recovered = recoverProfileCache(cacheDir, fingerprint);
+    if (recovered) {
+      cached = {fingerprint, profile: profile.name, path: rel(recovered), sha256: shaFile(recovered), recoveredAt: new Date().toISOString()};
+      ctx.state.releaseAssets[sceneId] = cached;
+      hit = true;
+    }
+  }
+  return {profile, cacheDir, compositionId, task: {scene: {id: sceneId, start: 0, duration}, index: 0, fingerprint, cached, hit}};
+};
+
+const assembleUhdMain = async (ctx, releasePlan) => {
+  const dir = join(ctx.build, 'release-main-candidate');
+  mkdirSync(dir, {recursive: true});
+  const manifestPath = join(dir, 'scenes.ffconcat');
+  const out = join(dir, `${ctx.episode.episodeId}.mp4`);
+  const audio = join(ctx.current, 'audio/mix.m4a');
+  existsSync(audio) || fail(`Approved main audio missing: ${audio}`);
+  const ordered = releasePlan.scenes.map((task) => {
+    const state = ctx.state.releaseScenes[task.scene.id] ?? fail(`No UHD scene cache state: ${task.scene.id}`);
+    const path = join(ROOT, state.path);
+    existsSync(path) || fail(`Missing UHD scene cache: ${path}`);
+    return {sceneId: task.scene.id, path, sha256: shaFile(path)};
+  });
+  const inputFingerprint = sha(JSON.stringify({schema: 1, profile: releasePlan.profile, scenes: ordered.map((item) => item.sha256), audio: shaFile(audio)}));
+  const artifactPath = join(dir, 'manifest.json');
+  if (existsSync(out) && existsSync(artifactPath)) {
+    const cached = json(artifactPath);
+    if (cached.inputFingerprint === inputFingerprint && cached.sha256 === shaFile(out)) return {out, manifest: cached};
+  }
+  writeFileSync(manifestPath, ordered.map((item) => `file '${item.path.replaceAll("'", "'\\''")}'`).join('\n') + '\n');
+  await run('ffmpeg', ['-nostdin', '-y', '-f', 'concat', '-safe', '0', '-i', manifestPath, '-i', audio, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-f', 'mp4', `${out}.partial`], {log: join(ctx.build, 'logs/assemble-uhd-main.log')});
+  renameSync(`${out}.partial`, out);
+  const manifest = {schemaVersion: 1, inputFingerprint, profile: releasePlan.profile, path: rel(out), sha256: shaFile(out), audio: {path: rel(audio), sha256: shaFile(audio)}, scenes: ordered.map((item) => ({...item, path: rel(item.path)})), createdAt: new Date().toISOString()};
+  writeJson(artifactPath, manifest);
+  return {out, manifest};
+};
+
 const releaseBuild = async (ctx) => {
   const currentMain = join(ctx.current, `${ctx.episode.episodeId}.mp4`);
   const currentVerdict = join(ctx.current, 'audit/verdict.json');
   existsSync(currentVerdict) || fail('Current main has no promoted audit verdict.');
   const gate = json(currentVerdict);
   gate.verdict === 'pass' && gate.artifactSha256 === shaFile(currentMain) || fail('Current main audit gate is stale or not passed.');
+  assertBuildFresh(ctx);
+
+  const releasePlan = uhdScenePlan(ctx);
+  await renderScenes(ctx, releasePlan.scenes.filter((task) => !task.hit), {
+    renderProfile: releasePlan.profile,
+    stateKey: 'releaseScenes',
+    cacheDir: releasePlan.cacheDir,
+    taskPrefix: 'release-render',
+    planName: 'release-render-plan.json',
+  });
+  const uhdMain = await assembleUhdMain(ctx, releasePlan);
+
+  const introTask = uhdBrandTask(ctx, {sceneId: 'visible-system-intro', compositionId: 'GitCourseVisibleSystemIntro', duration: 7});
+  const outroTask = uhdBrandTask(ctx, {sceneId: 'ref-lightbox-outro', compositionId: 'GitCourseVisibleSystemOutro', duration: 6});
+  for (const brand of [introTask, outroTask]) {
+    await renderScenes(ctx, brand.task.hit ? [] : [brand.task], {
+      renderProfile: brand.profile,
+      stateKey: 'releaseAssets',
+      cacheDir: brand.cacheDir,
+      taskPrefix: `release-brand-${brand.task.scene.id}`,
+      planName: `release-brand-${brand.task.scene.id}-plan.json`,
+      compositionId: brand.compositionId,
+    });
+  }
+  writeJson(ctx.statePath, ctx.state);
+
   const out = candidatePath(ctx, 'release');
-  const intro = join(REMOTION, 'renders/git-course/visible-system-intro/current/visible-system-intro.mp4');
+  const intro = join(ROOT, ctx.state.releaseAssets['visible-system-intro'].path);
   const introAudio = join(REMOTION, 'renders/git-course/visible-system-intro/current/audio/intro-bgm.m4a');
-  const outro = join(REMOTION, 'renders/git-course/outro/current/ref-lightbox-outro.mp4');
+  const outro = join(ROOT, ctx.state.releaseAssets['ref-lightbox-outro'].path);
   const outroAudio = join(REMOTION, 'renders/git-course/outro/current/audio/outro-bgm.m4a');
-  const inputs = [intro, introAudio, currentMain, outro, outroAudio];
+  const inputs = [intro, introAudio, uhdMain.out, outro, outroAudio];
   for (const path of inputs) existsSync(path) || fail(`Release input missing: ${path}`);
   const inputFingerprint = sha(JSON.stringify({
-    schema: 2,
+    schema: 3,
+    profile: releasePlan.profile,
     inputs: inputs.map((path) => ({path: rel(path), sha256: shaFile(path)})),
     introGainDb: process.env.INTRO_AUDIO_GAIN_DB ?? '0',
     outroGainDb: process.env.OUTRO_AUDIO_GAIN_DB ?? '-5',
@@ -757,8 +880,29 @@ const releaseBuild = async (ctx) => {
     }
   }
   mkdirSync(dirname(out), {recursive: true});
-  await run(join(REMOTION, 'scripts/git-course-publish-episode.sh'), [ctx.episode.episodeId, currentMain], {env: {OUT_FILE: out, GIT_COURSE_ORCHESTRATED: '1'}, log: join(ctx.build, 'logs/release-build.log')});
-  writeJson(manifestPath, {schemaVersion: 1, inputFingerprint, path: rel(out), sha256: shaFile(out), createdAt: new Date().toISOString()});
+  await run(join(REMOTION, 'scripts/git-course-publish-episode.sh'), [ctx.episode.episodeId, uhdMain.out], {
+    env: {
+      OUT_FILE: out,
+      GIT_COURSE_ORCHESTRATED: '1',
+      INTRO_VIDEO: intro,
+      INTRO_AUDIO: introAudio,
+      OUTRO_VIDEO: outro,
+      OUTRO_AUDIO: outroAudio,
+      EXPECTED_WIDTH: String(releasePlan.profile.width),
+      EXPECTED_HEIGHT: String(releasePlan.profile.height),
+      EXPECTED_FPS: `${releasePlan.profile.fps}/1`,
+    },
+    log: join(ctx.build, 'logs/release-build.log'),
+  });
+  writeJson(manifestPath, {
+    schemaVersion: 2,
+    inputFingerprint,
+    profile: releasePlan.profile,
+    path: rel(out),
+    sha256: shaFile(out),
+    inputs: {intro: rel(intro), main: rel(uhdMain.out), outro: rel(outro)},
+    createdAt: new Date().toISOString(),
+  });
   console.log(`PASS  release-build ${rel(out)}`);
 };
 
@@ -819,23 +963,33 @@ const status = (ctx) => {
 };
 
 const preview = async (ctx) => {
-  const buildPlan = plan(ctx);
+  const profileName = FLAGS.get('profile') ?? RENDER_PROFILES.hd30.name;
+  const renderProfile = profileName === 'uhd30' ? RENDER_PROFILES.uhd30 : profileName === 'hd30' ? RENDER_PROFILES.hd30 : null;
+  renderProfile || fail(`Unknown render profile: ${profileName}`);
+  const buildPlan = profileName === 'uhd30' ? uhdScenePlan(ctx) : plan(ctx);
   const requested = (FLAGS.get('scenes') ?? '').split(',').map((value) => value.trim()).filter(Boolean);
   const known = new Set(buildPlan.scenes.map((task) => task.scene.id));
   for (const sceneId of requested) known.has(sceneId) || fail(`Unknown scene for preview: ${sceneId}`);
   const selected = requested.length > 0 ? buildPlan.scenes.filter((task) => requested.includes(task.scene.id)) : buildPlan.scenes.filter((task) => !task.hit);
   const dirty = selected.filter((task) => !task.hit);
   console.log(`PREVIEW ${selected.map((task) => task.scene.id).join(', ') || 'no dirty scenes'}`);
-  await renderScenes(ctx, dirty);
+  const stateKey = profileName === 'uhd30' ? 'releaseScenes' : 'scenes';
+  await renderScenes(ctx, dirty, {
+    renderProfile,
+    stateKey,
+    cacheDir: buildPlan.cacheDir,
+    taskPrefix: profileName === 'uhd30' ? 'preview-uhd30' : 'render',
+    planName: profileName === 'uhd30' ? 'preview-uhd30-plan.json' : 'render-plan.json',
+  });
   writeJson(ctx.statePath, ctx.state);
-  const previewDir = join(ctx.tmp, 'preview/scenes');
+  const previewDir = join(ctx.tmp, profileName === 'hd30' ? 'preview/scenes' : `preview/${profileName}/scenes`);
   if (FLAGS.has('clean-preview')) rmSync(previewDir, {recursive: true, force: true});
   mkdirSync(previewDir, {recursive: true});
-  const manifestPath = join(ctx.tmp, 'preview/manifest.json');
+  const manifestPath = join(ctx.tmp, profileName === 'hd30' ? 'preview/manifest.json' : `preview/${profileName}/manifest.json`);
   const previous = existsSync(manifestPath) ? json(manifestPath) : {schemaVersion: 1, episodeId: ctx.episode.episodeId, scenes: {}};
-  const manifest = {...previous, schemaVersion: 1, episodeId: ctx.episode.episodeId, updatedAt: new Date().toISOString(), scenes: {...(previous.scenes ?? {})}};
+  const manifest = {...previous, schemaVersion: 1, episodeId: ctx.episode.episodeId, profile: renderProfile, updatedAt: new Date().toISOString(), scenes: {...(previous.scenes ?? {})}};
   for (const task of selected) {
-    const cached = ctx.state.scenes?.[task.scene.id];
+    const cached = ctx.state[stateKey]?.[task.scene.id];
     if (!cached?.path) continue;
     const index = String(task.index + 1).padStart(2, '0');
     const name = `${index}_${task.scene.id.replaceAll('-', '_')}.mp4`;
@@ -855,12 +1009,93 @@ const preview = async (ctx) => {
   writeJson(manifestPath, manifest);
 };
 
+const normalizedNarrationText = (value) => value
+  .replace(/<#[^>]+#>/g, '')
+  .replace(/[\s，。；;、：:！？?!,.·]/g, '')
+  .toLowerCase();
+
+const normalizedSrtText = (value) => value
+  .split(/\r?\n/)
+  .filter((line) => line.trim() && !/^\d+$/.test(line.trim()) && !line.includes('-->'))
+  .join('')
+  .replace(/[\s，。；;、：:！？?!,.·]/g, '')
+  .toLowerCase();
+
+const previewAudio = async (ctx) => {
+  await run('node', [join(REMOTION, 'scripts/git-course.mjs'), 'generate']);
+  const buildPlan = plan(ctx);
+  const requested = (FLAGS.get('scenes') ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+  const known = new Set(buildPlan.tts.map((task) => task.scene.id));
+  for (const sceneId of requested) known.has(sceneId) || fail(`Unknown scene for audio preview: ${sceneId}`);
+  const selected = requested.length > 0 ? buildPlan.tts.filter((task) => requested.includes(task.scene.id)) : buildPlan.tts.filter((task) => !task.hit);
+  selected.length > 0 || fail('No dirty narration segments to preview. Use --scenes=scene-id to select one explicitly.');
+  const previewAudioDir = join(ctx.tmp, 'preview/audio');
+  const previewSegmentsDir = join(previewAudioDir, 'segments');
+  mkdirSync(previewSegmentsDir, {recursive: true});
+  const currentSegmentsDir = join(ctx.current, 'audio/segments');
+  for (const source of walkFiles(currentSegmentsDir)) {
+    const target = join(previewSegmentsDir, source.slice(currentSegmentsDir.length + 1));
+    mkdirSync(dirname(target), {recursive: true});
+    copyFileSync(source, target);
+  }
+  const segmentIds = selected.map((task) => task.scene.narration.segmentId);
+  const bgm = bgmPath(ctx);
+  bgm || fail('Audio preview requires the current course BGM.');
+  console.log(`PREVIEW AUDIO ${segmentIds.join(', ')}`);
+  await run(join(REMOTION, 'scripts/git-course-build-voiceover.sh'), [ctx.episode.episodeId], {
+    env: {
+      AUDIO_DIR: previewAudioDir,
+      TMP_DIR: join(ctx.tmp, 'preview/audio-build'),
+      BGM_FILE: bgm,
+      TTS_SEGMENTS: segmentIds.join(','),
+      NORMALIZE_SEGMENTS: segmentIds.join(','),
+      TTS_JOBS: 'all',
+      NORMALIZE_JOBS: 'all',
+      SKIP_TTS: '0',
+      SKIP_NORM: '0',
+      SKIP_REMUX: '1',
+    },
+    log: join(ctx.tmp, 'preview/audio.log'),
+  });
+  const manifest = {schemaVersion: 1, episodeId: ctx.episode.episodeId, updatedAt: new Date().toISOString(), config: ttsConfig(), segments: {}};
+  for (const task of selected) {
+    const segment = task.scene.narration.segmentId;
+    const raw = join(previewSegmentsDir, `${segment}.mp3`);
+    const srt = join(previewSegmentsDir, `${segment}.srt`);
+    const textPath = join(previewSegmentsDir, `${segment}.txt`);
+    const norm = join(previewSegmentsDir, `${segment}_norm.mp3`);
+    for (const path of [raw, srt, textPath, norm]) existsSync(path) || fail(`Audio preview output missing: ${path}`);
+    const srtText = readFileSync(srt, 'utf8');
+    !/<#|#>/.test(srtText) || fail(`${segment}: pause marker leaked into SRT`);
+    !srtText.split(/\r?\n/).some((line) => line && !line.includes('-->') && /[。；;]\s*$/.test(line)) || fail(`${segment}: terminal subtitle punctuation was not cleaned`);
+    normalizedSrtText(srtText) === normalizedNarrationText(task.scene.narration.text) || fail(`${segment}: SRT text does not match narration source`);
+    readFileSync(textPath, 'utf8').trim() === task.scene.narration.text.trim() || fail(`${segment}: staged TTS text does not match episode JSON`);
+    const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
+    const voiceEnd = task.scene.narration.voiceStart + duration;
+    const sceneEnd = task.scene.start + task.scene.duration;
+    voiceEnd <= sceneEnd || fail(`${segment}: voice ends at ${voiceEnd.toFixed(3)}s after scene end ${sceneEnd}s`);
+    mkdirSync(task.cas.speechDir, {recursive: true});
+    mkdirSync(task.cas.normalizedDir, {recursive: true});
+    copyFileSync(raw, task.cas.raw);
+    copyFileSync(srt, task.cas.srt);
+    copyFileSync(textPath, task.cas.text);
+    copyFileSync(norm, task.cas.norm);
+    writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(raw), srtSha256: shaFile(srt)});
+    writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(norm)});
+    manifest.segments[segment] = {sceneId: task.scene.id, text: task.scene.narration.text, durationSeconds: duration, voiceStart: task.scene.narration.voiceStart, voiceEnd, sceneEnd, srtPath: rel(srt), audioPath: rel(norm)};
+    console.log(`PASS  audio ${segment}: ${duration.toFixed(3)}s, ends ${voiceEnd.toFixed(3)}s <= ${sceneEnd}s`);
+  }
+  writeJson(join(previewAudioDir, 'manifest.json'), manifest);
+  console.log(`READY audio preview: ${rel(join(previewAudioDir, 'mix.m4a'))}`);
+};
+
 const main = async () => {
   const ctx = loadContext();
   if (COMMAND === 'plan') printPlan(ctx, plan(ctx));
   else if (COMMAND === 'fingerprints') printFingerprints(ctx, plan(ctx));
   else if (COMMAND === 'status') status(ctx);
   else if (COMMAND === 'preview') await preview(ctx);
+  else if (COMMAND === 'preview-audio') await previewAudio(ctx);
   else if (COMMAND === 'build') await build(ctx);
   else if (COMMAND === 'audit') await auditArtifact(ctx, candidatePath(ctx, 'main'), 'main');
   else if (COMMAND === 'approve') approve(ctx, 'main');

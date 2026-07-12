@@ -30,6 +30,9 @@ OUTRO_VIDEO="${OUTRO_VIDEO:-renders/git-course/outro/current/ref-lightbox-outro.
 OUTRO_AUDIO="${OUTRO_AUDIO:-renders/git-course/outro/current/audio/outro-bgm.m4a}"
 INTRO_AUDIO_GAIN_DB="${INTRO_AUDIO_GAIN_DB:-0}"
 OUTRO_AUDIO_GAIN_DB="${OUTRO_AUDIO_GAIN_DB:--5}"
+EXPECTED_WIDTH="${EXPECTED_WIDTH:-3840}"
+EXPECTED_HEIGHT="${EXPECTED_HEIGHT:-2160}"
+EXPECTED_FPS="${EXPECTED_FPS:-30/1}"
 
 OUT_DIR="renders/git-course/${EPISODE_ID}/current/release"
 TMP_DIR="renders/git-course/${EPISODE_ID}/tmp/release-build"
@@ -43,6 +46,16 @@ CONCAT_MANIFEST="${TMP_DIR}/release.ffconcat"
 for file in "$INTRO_VIDEO" "$INTRO_AUDIO" "$MAIN_VIDEO" "$OUTRO_VIDEO" "$OUTRO_AUDIO"; do
   if [ ! -f "$file" ]; then
     echo "Required file not found: $file" >&2
+    exit 1
+  fi
+done
+
+for video in "$INTRO_VIDEO" "$MAIN_VIDEO" "$OUTRO_VIDEO"; do
+  VIDEO_WIDTH="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$video")"
+  VIDEO_HEIGHT="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 "$video")"
+  VIDEO_FPS="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nw=1:nk=1 "$video")"
+  if [ "$VIDEO_WIDTH" != "$EXPECTED_WIDTH" ] || [ "$VIDEO_HEIGHT" != "$EXPECTED_HEIGHT" ] || [ "$VIDEO_FPS" != "$EXPECTED_FPS" ]; then
+    echo "Release video profile mismatch: $video is ${VIDEO_WIDTH}x${VIDEO_HEIGHT} ${VIDEO_FPS}, expected ${EXPECTED_WIDTH}x${EXPECTED_HEIGHT} ${EXPECTED_FPS}" >&2
     exit 1
   fi
 done
@@ -65,12 +78,14 @@ ffmpeg -y -hide_banner \
 MAIN_AUDIO_SPEC="$(ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,channels -of csv=p=0:s=x "$MAIN_VIDEO")"
 MAIN_VIDEO_TIME_BASE="$(ffprobe -v error -select_streams v:0 -show_entries stream=time_base -of default=nw=1:nk=1 "$MAIN_VIDEO")"
 MAIN_CONCAT="$MAIN_NORMALIZED"
-if [ "$MAIN_AUDIO_SPEC" = "48000x2" ]; then
-  [ "$MAIN_VIDEO_TIME_BASE" = "1/15360" ] || {
-    echo "Current main has unsupported timebase: $MAIN_VIDEO_TIME_BASE" >&2
-    exit 1
-  }
+if [ "$MAIN_AUDIO_SPEC" = "48000x2" ] && [ "$MAIN_VIDEO_TIME_BASE" = "1/15360" ]; then
   MAIN_CONCAT="$MAIN_VIDEO"
+elif [ "$MAIN_AUDIO_SPEC" = "48000x2" ]; then
+  ffmpeg -y -hide_banner \
+    -i "$MAIN_VIDEO" \
+    -map 0:v:0 -map 0:a:0 \
+    -c copy -video_track_timescale 15360 \
+    "$MAIN_NORMALIZED"
 else
   ffmpeg -y -hide_banner \
     -i "$MAIN_VIDEO" \

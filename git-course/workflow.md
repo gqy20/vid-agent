@@ -137,9 +137,11 @@ pnpm --dir remotion git-course publish <episode-id>
 
 统一 verdict 只有 `pass`、`fail`、`needs_review`。机器检查覆盖音视频流、分辨率、FPS、时长、SRT 停顿标记、采样覆盖率和证据数量；机器通过后仍需人工 approve。approve、promote、publish 都校验候选 SHA；main 还会重新计算 scene、TTS 和 BGM 指纹，输入变化后必须重新 build/audit。
 
-发布封装先把片头、正片和片尾统一为 H.264、30fps、`1/15360` timebase 与 48 kHz 双声道 AAC。视频全程 stream-copy；符合新音频规范的正片也直接 copy，只有旧版正片音频需要兼容性转码。统一后通过 concat demuxer stream-copy，不再对整条发布视频执行 x264 重编码。
+开发、分段预览、main candidate 和 `current/<episode-id>.mp4` 固定使用 1920×1080、30fps。只有 `release-build` 从已批准 main 对应的 scene 源码重新以 `scale=2` 渲染 3840×2160、30fps，并使用独立的 `uhd30` 内容寻址缓存；旁白、BGM 和字幕时间轴直接复用已批准正片，不重新生成音频。封面不参与这次视频升档。
 
-release candidate 由片头、片头音频、current main、片尾、片尾音频、增益参数和发布脚本版本共同生成内容指纹。输入未变化时 `release-build` 必须显示 `HIT release-build`，不得重复封装。
+发布封装先把 4K 片头、4K 正片和 4K 片尾统一为 H.264、30fps、`1/15360` timebase 与 48 kHz 双声道 AAC。视频全程 stream-copy；符合新音频规范的正片也直接 copy，只有旧版正片音频需要兼容性转码。统一后通过 concat demuxer stream-copy，不再对整条发布视频执行 x264 重编码。
+
+release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已批准音频、增益参数和发布脚本版本共同生成内容指纹。输入未变化时 `release-build` 必须显示 `HIT release-build`，不得重复渲染或封装。
 
 ## 时间与音频约束
 

@@ -28,6 +28,8 @@ if (!bundleCacheHit) {
   writeFileSync(bundleReady, `${JSON.stringify({schemaVersion: 1, bundleFingerprint: plan.bundleFingerprint})}\n`);
 }
 const bundledAt = performance.now();
+const isUhd = plan.tasks.some((task) => (task.scale ?? 1) > 1);
+const chromiumOptions = isUhd ? {gl: 'angle', enableMultiProcessOnLinux: true} : undefined;
 const composition = await selectComposition({
   serveUrl,
   id: plan.compositionId,
@@ -35,6 +37,7 @@ const composition = await selectComposition({
   browserExecutable: process.env.REMOTION_BROWSER_EXECUTABLE ?? undefined,
   timeoutInMilliseconds: plan.timeoutInMilliseconds ?? 120000,
   logLevel: 'warn',
+  chromiumOptions,
 });
 
 const retryable = (error) => /Target closed|Session closed|got no response|browser crashed|Protocol error/i.test(error?.message ?? String(error));
@@ -54,12 +57,14 @@ const renderTask = async (task) => {
           composition,
           serveUrl,
           browserExecutable: process.env.REMOTION_BROWSER_EXECUTABLE ?? undefined,
+          chromiumOptions,
           codec: 'h264',
           pixelFormat: 'yuv420p',
           imageFormat: 'jpeg',
           jpegQuality: 80,
           outputLocation: partial,
           frameRange: [task.start, task.end],
+          scale: task.scale ?? 1,
           concurrency: attempt,
           timeoutInMilliseconds: plan.timeoutInMilliseconds ?? 120000,
           muted: true,
