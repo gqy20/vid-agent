@@ -136,6 +136,7 @@ const FlowHint: React.FC<{
   </div>
 );
 
+// @git-course-scene hook:start
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
   const titleOut = interpolate(frame, [seconds(2.15), seconds(2.85)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -255,7 +256,9 @@ const HookScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene hook:end
 
+// @git-course-scene three-areas:start
 const ThreeAreasScene: React.FC = () => {
   const frame = useCurrentFrame();
   const board = interpolate(frame, [0, seconds(0.65)], [0.35, 1], {extrapolateRight: 'clamp'});
@@ -291,7 +294,9 @@ const ThreeAreasScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene three-areas:end
 
+// @git-course-scene modify:start
 const ModifyScene: React.FC = () => {
   const frame = useCurrentFrame();
   const editor = interpolate(frame, [seconds(2.2), seconds(3.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -375,7 +380,9 @@ const ModifyScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene modify:end
 
+// @git-course-scene add:start
 const AddScene: React.FC = () => {
   const frame = useCurrentFrame();
   const terminalFullOpacity = interpolate(frame, [0, seconds(6.7), seconds(7.35)], [1, 1, 0], {extrapolateRight: 'clamp'});
@@ -477,7 +484,9 @@ const AddScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene add:end
 
+// @git-course-scene edit-after-add:start
 const EditAfterAddScene: React.FC = () => {
   const frame = useCurrentFrame();
   const diffIn = interpolate(frame, [0, seconds(0.45)], [0.72, 1], {extrapolateRight: 'clamp'});
@@ -570,7 +579,9 @@ const EditAfterAddScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene edit-after-add:end
 
+// @git-course-scene commit:start
 const CommitScene: React.FC = () => {
   const frame = useCurrentFrame();
   const terminalFullOpacity = interpolate(frame, [0, seconds(6.7), seconds(7.35)], [1, 1, 0], {extrapolateRight: 'clamp'});
@@ -628,7 +639,9 @@ const CommitScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene commit:end
 
+// @git-course-scene takeaway:start
 const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
   const flow = interpolate(frame, [0, seconds(0.85)], [0.35, 1], {extrapolateRight: 'clamp'});
@@ -671,6 +684,7 @@ const TakeawayScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+// @git-course-scene takeaway:end
 
 export const Ep02WorkingTreeIndexRepo: React.FC = () => {
   const frame = useCurrentFrame();

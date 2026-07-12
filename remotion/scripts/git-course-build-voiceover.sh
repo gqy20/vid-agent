@@ -25,6 +25,7 @@
 #   SKIP_NORM=1
 #   SKIP_REMUX=1
 #   TTS_SEGMENTS=01_hook,02_model  only regenerate these segments
+#   NORMALIZE_SEGMENTS=01_hook     only normalize these segments
 #   TTS_JOBS=all                    synthesize all dirty segments concurrently
 #   NORMALIZE_JOBS=all              normalize all dirty segments concurrently
 #   CLEAN_SRT_PUNCTUATION=0
@@ -59,6 +60,7 @@ TTS_VOICE="${TTS_VOICE:-Chinese (Mandarin)_Gentleman}"
 TTS_LANGUAGE="${TTS_LANGUAGE:-zh}"
 TTS_SPEED="${TTS_SPEED:-1.25}"
 TTS_SEGMENTS="${TTS_SEGMENTS:-}"
+NORMALIZE_SEGMENTS="${NORMALIZE_SEGMENTS:-$TTS_SEGMENTS}"
 TTS_JOBS="${TTS_JOBS:-all}"
 NORMALIZE_JOBS="${NORMALIZE_JOBS:-all}"
 BGM_VOLUME="${BGM_VOLUME:-0.05}"
@@ -126,6 +128,11 @@ done < "$MANIFEST"
 segment_selected() {
   local segment="$1"
   [ -z "$TTS_SEGMENTS" ] || [[ ",$TTS_SEGMENTS," == *",$segment,"* ]]
+}
+
+normalization_selected() {
+  local segment="$1"
+  [ -z "$NORMALIZE_SEGMENTS" ] || [[ ",$NORMALIZE_SEGMENTS," == *",$segment,"* ]]
 }
 
 wait_for_slot() {
@@ -208,7 +215,7 @@ rm -f "$srt_check"
 
 if [ "${SKIP_NORM:-0}" != "1" ]; then
   for segment in "${SEGMENTS[@]}"; do
-    segment_selected "$segment" || continue
+    normalization_selected "$segment" || continue
     wait_for_slot "$NORMALIZE_JOBS"
     (
       ffmpeg -y -hide_banner -nostats \

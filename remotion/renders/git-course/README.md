@@ -73,6 +73,7 @@ remotion/renders/git-course/<episode-id>/current/audio/
 - BGM 在 Git 课程内优先复用已确认版本；当前 EP01/EP02 使用同一条 BGM。
 - BGM 使用固定低音量混入，当前为 `volume=0.05`；不做 sidechain ducking。
 - 分段旁白必须通过 `remotion/scripts/git-course-build-voiceover.sh` 生成，不手工散跑 TTS。临时 `.txt` 与 manifest 由 episode JSON 派生。
+- 原始语音、SRT 和规范化音频分别缓存到单集 `tmp/cache/tts/speech/` 与 `tmp/cache/tts/normalized/`；`current/audio/segments/` 缺失时由 orchestrator 按内容指纹恢复，不重新请求相同 TTS。
 - TTS 必须显式固定 `model / voice / language / speed`。当前 Git course 默认使用 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`。
 - 人工对齐说明保存在根级 episode JSON 的 `content.alignmentMarkdown`；机器时间窗直接校验 `scenes[].narration`。
 - 发布版统一使用 `remotion/scripts/git-course-publish-episode.sh` 生成；默认 `INTRO_AUDIO_GAIN_DB=0`、`OUTRO_AUDIO_GAIN_DB=-5`。

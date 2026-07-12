@@ -22,6 +22,7 @@
 - 控制信息密度。一个镜头里不要让 commit 图、终端、branch refs、HEAD、工作区、暂存区和字幕同时争夺注意力。
 - 渲染后要审查：元素重叠、字幕遮挡、Git 状态歧义、语义色误用、过度运动、命令和状态变化不匹配。
 - Git Course 默认使用 `pnpm --dir remotion git-course build <episode-id>`；所有 dirty scene、TTS、规范化和分段审查在依赖允许时最大并行。build 只写 `tmp/cache` 和 `tmp/build/candidate`，不得直接覆盖 current。
+- dirty Scene 必须复用一次 Remotion bundle；不要重新引入每个 Scene 单独 bundle 的 CLI 调度。总 render concurrency 默认使用全部逻辑 CPU，但每个 Scene 使用独立浏览器池，禁止让多个并行 `renderMedia` 共用同一个 Chrome 实例。
 - 只有 main audit verdict 为 `pass` 且 SHA、scene/TTS/BGM 指纹匹配时，`git-course promote` 才能覆盖 `current/`。分段文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。
 - 抽帧检查可以临时放在 `tmp/`，但检查完成后要清理，避免当前审查目录被临时文件污染。
 - 编码后审查统一使用连续 `2fps`（30fps 每 15 帧一张），每张审查条最多 5 帧并按 `5×1` 合并；16 帧 `4×4` 总览只用于导航。scene 和发布拼接边界使用中心点前后各 `0.5s`、`10fps` burst，并补充计划内精确关键帧。

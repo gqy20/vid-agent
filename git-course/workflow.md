@@ -58,14 +58,21 @@ validate / generate
 
 默认并发为 `all`：所有依赖已满足的任务立即启动。Remotion 单进程 concurrency 默认按逻辑 CPU 数除以 dirty scene 数计算，尽量使用全部算力；可用 `--render-concurrency=<n>` 覆盖。TTS 和规范化默认对所有 dirty segment 同时执行。
 
+dirty Scene 共用一次 Remotion bundle，但各自使用独立浏览器池并行渲染，避免重复 Webpack 初始化，也避免多个 `renderMedia` 共享同一 Chrome 实例导致崩溃。默认总渲染 concurrency 不超过逻辑 CPU 数；`tmp/build/telemetry/render-scenes.json` 记录 bundle、总耗时和各 Scene 耗时。需要强制验证单个缓存时可用 `--force-scenes=<scene-id[,scene-id]>`。
+
 Scene 指纹只覆盖课程共享组件、当前 episode 源码、当前 scene 数据、字体和该集 Manim 资产；其他 episode 的源码、旁白或发布文案变化不得使本集 Scene 缓存失效。音频、candidate 和 audit 也分别按内容指纹缓存。完全没有输入变化时，`build` 应显示 `HIT audio mix`、`HIT assemble` 和 `HIT audit main`，不得重新编码或抽帧。
+
+支持 Scene 级源码指纹的 episode 使用成对标记包围每个 Scene 实现：`// @git-course-scene <id>:start` 与 `// @git-course-scene <id>:end`。标记外代码属于共享依赖；共享代码变化会使该集全部 Scene 失效，标记内变化只使对应 Scene 失效。一个文件只要开始使用标记，就必须覆盖该集所有 Scene。
 
 候选、缓存、日志、manifest 和 verdict 位于 `tmp/`：
 
 ```text
 tmp/cache/scenes/
+tmp/cache/tts/{speech,normalized}/
 tmp/build/candidate/<episode-id>.mp4
 tmp/build/artifact-manifest.json
+tmp/build/release-artifact-manifest.json
+tmp/build/telemetry/render-scenes.json
 tmp/build/audit/main/{manifest.json,report.html,verdict.json}
 tmp/build/audit/release/{manifest.json,report.html,verdict.json}
 tmp/build/logs/
@@ -114,12 +121,15 @@ pnpm --dir remotion git-course publish <episode-id>
 
 发布封装先把片头、正片和片尾统一为 H.264、30fps、`1/15360` timebase 与 48 kHz 双声道 AAC。视频全程 stream-copy；符合新音频规范的正片也直接 copy，只有旧版正片音频需要兼容性转码。统一后通过 concat demuxer stream-copy，不再对整条发布视频执行 x264 重编码。
 
+release candidate 由片头、片头音频、current main、片尾、片尾音频、增益参数和发布脚本版本共同生成内容指纹。输入未变化时 `release-build` 必须显示 `HIT release-build`，不得重复封装。
+
 ## 时间与音频约束
 
 - 每集通常 3–5 分钟，不为整数时长重复解释。
 - scene 必须首尾连续，总和等于 `durationSeconds`。
 - narration 的 `voiceStart` 必须位于对应 scene 窗口；历史过渡最多允许提前 `0.5s`。
 - TTS 固定使用 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`。
+- TTS CAS 将文本合成与人声规范化拆成两级指纹。只修改 `segmentId`、`voiceStart` 或 scene 时间窗时复用原始语音；规范化参数未变时同时复用 `_norm.mp3`。`current/audio/segments/` 缺文件时应从 CAS 恢复，不重新请求 TTS。
 - 单段规范化目标约 `-20 LUFS`、峰值约 `-3 dBFS`。
 - BGM 使用固定低音量，当前基准为 `0.05`，不做 sidechain ducking。
 - SRT 不得泄漏 `<#...#>` 停顿标记。

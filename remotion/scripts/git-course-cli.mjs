@@ -15,6 +15,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import {dirname, join, relative, resolve} from 'node:path';
+import {performance} from 'node:perf_hooks';
 import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
 
@@ -133,6 +134,26 @@ const episodeSourceName = (episodeId) => ({
   'ep08-reset-revert-restore': 'Ep08ResetRevertRestore.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
+const episodeSourceParts = (ctx) => {
+  const path = join(REMOTION, 'src/videos/git-course/episodes', episodeSourceName(ctx.episode.episodeId));
+  const source = readFileSync(path, 'utf8');
+  const blocks = new Map();
+  let shared = source;
+  for (const scene of ctx.episode.scenes) {
+    const startMarker = `// @git-course-scene ${scene.id}:start`;
+    const endMarker = `// @git-course-scene ${scene.id}:end`;
+    const start = source.indexOf(startMarker);
+    const end = source.indexOf(endMarker);
+    if (start === -1 && end === -1) continue;
+    start !== -1 && end > start || fail(`${scene.id}: incomplete scene fingerprint markers in ${path}`);
+    const blockEnd = end + endMarker.length;
+    blocks.set(scene.id, source.slice(start, blockEnd));
+    shared = shared.replace(source.slice(start, blockEnd), `// scene:${scene.id}`);
+  }
+  if (blocks.size > 0 && blocks.size !== ctx.episode.scenes.length) fail(`${path}: every scene must have fingerprint markers.`);
+  return {path, source, shared, blocks};
+};
+
 const visualBaseHash = (ctx) => {
   const courseRoot = join(REMOTION, 'src/videos/git-course');
   const episodeNumber = ctx.episode.episodeId.slice(0, 4);
@@ -143,14 +164,16 @@ const visualBaseHash = (ctx) => {
     if (path.endsWith('/data/episodeTimelines.generated.ts')) return false;
     return true;
   });
-  const episodeSource = join(courseRoot, 'episodes', episodeSourceName(ctx.episode.episodeId));
+  const episodeSource = episodeSourceParts(ctx);
   const episodeAssets = walkFiles(join(REMOTION, 'public/git-course'), (path) => path.includes(`/manim/${episodeNumber}/`));
-  return hashFiles([...sharedSources, episodeSource, join(REMOTION, 'src/fonts.css'), ...episodeAssets]);
+  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...episodeAssets, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
+  return sha(JSON.stringify({schema: 2, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
 };
 
 const sceneFingerprint = (ctx, scene, baseHash) => {
   const {narration: _narration, ...visualScene} = scene;
-  return sha(JSON.stringify({schema: 1, baseHash, durationSeconds: ctx.episode.durationSeconds, scene: visualScene, fps: FPS, width: 1920, height: 1080}));
+  const sourceBlock = episodeSourceParts(ctx).blocks.get(scene.id) ?? null;
+  return sha(JSON.stringify({schema: 2, baseHash, sourceBlock, durationSeconds: ctx.episode.durationSeconds, scene: visualScene, fps: FPS, width: 1920, height: 1080}));
 };
 
 const ttsConfig = () => ({
@@ -161,7 +184,38 @@ const ttsConfig = () => ({
   normalization: 'acompressor-v1+loudnorm-I-20-TP-3-LRA7',
 });
 
-const ttsFingerprint = (scene) => sha(JSON.stringify({schema: 1, segmentId: scene.narration.segmentId, text: scene.narration.text, config: ttsConfig()}));
+const speechFingerprint = (scene) => sha(JSON.stringify({
+  schema: 2,
+  text: scene.narration.text,
+  config: (() => {
+    const {normalization: _normalization, ...speechConfig} = ttsConfig();
+    return speechConfig;
+  })(),
+  engine: process.env.TTS_ENGINE_VERSION ?? 'mmx-cli-v1',
+}));
+const normalizedFingerprint = (scene) => sha(JSON.stringify({
+  schema: 2,
+  speechFingerprint: speechFingerprint(scene),
+  normalization: ttsConfig().normalization,
+}));
+const ttsCachePaths = (ctx, scene) => {
+  const speech = speechFingerprint(scene);
+  const normalized = normalizedFingerprint(scene);
+  const speechDir = join(ctx.cache, 'tts/speech', speech);
+  const normalizedDir = join(ctx.cache, 'tts/normalized', normalized);
+  return {
+    speech,
+    normalized,
+    speechDir,
+    normalizedDir,
+    raw: join(speechDir, 'raw.mp3'),
+    srt: join(speechDir, 'subtitles.srt'),
+    text: join(speechDir, 'source.txt'),
+    speechMetadata: join(speechDir, 'metadata.json'),
+    norm: join(normalizedDir, 'normalized.mp3'),
+    metadata: join(normalizedDir, 'metadata.json'),
+  };
+};
 
 const bgmPath = (ctx) => {
   const configured = process.env.BGM_FILE ? resolve(REMOTION, process.env.BGM_FILE) : null;
@@ -195,6 +249,7 @@ const audioFingerprint = (ctx, buildPlan) => {
 
 const plan = (ctx) => {
   const baseHash = visualBaseHash(ctx);
+  const forcedScenes = new Set((FLAGS.get('force-scenes') ?? '').split(',').filter(Boolean));
   const scenes = ctx.episode.scenes.map((scene, index) => {
     const fingerprint = sceneFingerprint(ctx, scene, baseHash);
     let cached = ctx.state.scenes?.[scene.id];
@@ -209,13 +264,25 @@ const plan = (ctx) => {
         hit = true;
       }
     }
+    if (forcedScenes.has(scene.id)) hit = false;
     return {scene, index, fingerprint, hit, cached};
   });
   const tts = ctx.episode.scenes.map((scene) => {
-    const fingerprint = ttsFingerprint(scene);
+    const fingerprint = normalizedFingerprint(scene);
     const cached = ctx.state.tts?.[scene.narration.segmentId];
     const norm = join(ctx.current, 'audio/segments', `${scene.narration.segmentId}_norm.mp3`);
-    return {scene, fingerprint, hit: cached?.fingerprint === fingerprint && existsSync(norm)};
+    const cas = ttsCachePaths(ctx, scene);
+    const currentHit = cached?.fingerprint === fingerprint && existsSync(norm) && cached.sha256 === shaFile(norm);
+    const speechMetadata = existsSync(cas.speechMetadata) ? json(cas.speechMetadata) : null;
+    const normalizedMetadata = existsSync(cas.metadata) ? json(cas.metadata) : null;
+    const casHit =
+      existsSync(cas.norm) && existsSync(cas.raw) && existsSync(cas.srt) &&
+      speechMetadata?.speechFingerprint === cas.speech &&
+      speechMetadata.rawSha256 === shaFile(cas.raw) &&
+      speechMetadata.srtSha256 === shaFile(cas.srt) &&
+      normalizedMetadata?.normalizedFingerprint === cas.normalized &&
+      normalizedMetadata.sha256 === shaFile(cas.norm);
+    return {scene, fingerprint, speechFingerprint: cas.speech, hit: currentHit || casHit, cas};
   });
   return {baseHash, scenes, tts};
 };
@@ -226,46 +293,91 @@ const printPlan = (ctx, buildPlan) => {
   for (const task of buildPlan.tts) console.log(`${task.hit ? 'HIT  ' : 'BUILD'} tts    ${task.scene.narration.segmentId}`);
 };
 
-const renderScene = async (ctx, task, dirtyCount) => {
-  const scene = task.scene;
-  const index = task.index + 1;
-  const start = scene.start * FPS;
-  const end = (scene.start + scene.duration) * FPS - 1;
-  const taskDir = join(ctx.build, 'tasks', `render-${scene.id}`);
-  const ranges = join(taskDir, 'range.tsv');
-  rmSync(taskDir, {recursive: true, force: true});
-  mkdirSync(taskDir, {recursive: true});
-  writeFileSync(ranges, `${index}\t${start}\t${end}\n`);
-  const maxConcurrency = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(cpus().length / Math.max(1, dirtyCount))));
-  await run(join(REMOTION, 'scripts/render-ranges.sh'), [getComposition(ctx.episode), ctx.episode.episodeId, String(ctx.episode.durationSeconds * FPS), String(scene.duration * FPS)], {
-    env: {
-      RANGES_FILE: ranges,
-      RUN_DIR: taskDir,
-      CLEAN_RUN_DIR: '0',
-      SKIP_CONCAT: '1',
-      AUDIT_SEGMENTS: '1',
-      SEGMENT_AUDIT_JOBS: 'all',
-      JOBS: '1',
-      CONCURRENCY: String(maxConcurrency),
-      MUTED: '1',
-    },
-    log: join(ctx.build, 'logs', `render-${scene.id}.log`),
+const renderScenes = async (ctx, tasks) => {
+  if (tasks.length === 0) return [];
+  const logicalCpus = cpus().length;
+  const concurrency = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(logicalCpus / tasks.length)));
+  const planPath = join(ctx.build, 'render-plan.json');
+  const planned = tasks.map((task) => {
+    const scene = task.scene;
+    const index = task.index + 1;
+    const start = scene.start * FPS;
+    const end = (scene.start + scene.duration) * FPS - 1;
+    const taskDir = join(ctx.build, 'tasks', `render-${scene.id}`);
+    const output = join(taskDir, 'segments', `${String(index).padStart(3, '0')}_${String(start).padStart(6, '0')}-${String(end).padStart(6, '0')}.mp4`);
+    rmSync(taskDir, {recursive: true, force: true});
+    mkdirSync(dirname(output), {recursive: true});
+    return {task, scene, index, start, end, taskDir, output, concurrency};
   });
-  const rendered = readdirSync(join(taskDir, 'segments')).filter((name) => name.endsWith('.mp4'));
-  rendered.length === 1 || fail(`${scene.id}: expected one rendered segment, found ${rendered.length}`);
+  writeJson(planPath, {
+    schemaVersion: 1,
+    entryPoint: join(REMOTION, 'src/index.ts'),
+    compositionId: getComposition(ctx.episode),
+    logicalCpus,
+    timeoutInMilliseconds: 120000,
+    telemetryPath: join(ctx.build, 'telemetry/render-scenes.json'),
+    tasks: planned.map(({scene, start, end, output, concurrency: taskConcurrency}) => ({sceneId: scene.id, start, end, output, concurrency: taskConcurrency})),
+  });
+  await run('node', [join(REMOTION, 'scripts/git-course-render-scenes.mjs'), planPath], {
+    log: join(ctx.build, 'logs/render-scenes.log'),
+  });
+  await Promise.all(planned.map(async ({taskDir}) => {
+    await run(join(REMOTION, 'scripts/audit-range-segments.sh'), [taskDir, join(taskDir, 'segment-audits'), 'all']);
+  }));
   const cacheDir = join(ctx.cache, 'scenes');
   mkdirSync(cacheDir, {recursive: true});
-  const cachePath = join(cacheDir, `${String(index).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}_${task.fingerprint.slice(0, 12)}.mp4`);
-  copyFileSync(join(taskDir, 'segments', rendered[0]), `${cachePath}.partial`);
-  renameSync(`${cachePath}.partial`, cachePath);
-  ctx.state.scenes[scene.id] = {fingerprint: task.fingerprint, path: rel(cachePath), sha256: shaFile(cachePath), updatedAt: new Date().toISOString()};
-  console.log(`PASS  render ${scene.id}`);
-  return cachePath;
+  return planned.map(({task, scene, index, output, end, start}) => {
+    const frames = Number(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=nb_frames', '-of', 'default=nw=1:nk=1', output], {encoding: 'utf8'}).trim());
+    frames === end - start + 1 || fail(`${scene.id}: expected ${end - start + 1} frames, found ${frames}`);
+    const cachePath = join(cacheDir, `${String(index).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}_${task.fingerprint.slice(0, 12)}.mp4`);
+    copyFileSync(output, `${cachePath}.partial`);
+    renameSync(`${cachePath}.partial`, cachePath);
+    ctx.state.scenes[scene.id] = {fingerprint: task.fingerprint, path: rel(cachePath), sha256: shaFile(cachePath), updatedAt: new Date().toISOString()};
+    console.log(`PASS  render ${scene.id}`);
+    return cachePath;
+  });
 };
 
 const buildAudio = async (ctx, buildPlan) => {
-  const dirty = buildPlan.tts.filter((task) => !task.hit);
-  const ids = dirty.map((task) => task.scene.narration.segmentId);
+  const segmentsDir = join(ctx.current, 'audio/segments');
+  mkdirSync(segmentsDir, {recursive: true});
+  for (const task of buildPlan.tts) {
+    const segment = task.scene.narration.segmentId;
+    const targets = {
+      raw: join(segmentsDir, `${segment}.mp3`),
+      srt: join(segmentsDir, `${segment}.srt`),
+      text: join(segmentsDir, `${segment}.txt`),
+      norm: join(segmentsDir, `${segment}_norm.mp3`),
+    };
+    const sourceMatches = existsSync(targets.text) && readFileSync(targets.text, 'utf8').trim() === task.scene.narration.text.trim();
+    if (sourceMatches && existsSync(targets.raw) && existsSync(targets.srt) && (!existsSync(task.cas.raw) || !existsSync(task.cas.srt))) {
+      mkdirSync(task.cas.speechDir, {recursive: true});
+      copyFileSync(targets.raw, task.cas.raw);
+      copyFileSync(targets.srt, task.cas.srt);
+      copyFileSync(targets.text, task.cas.text);
+      writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(targets.raw), srtSha256: shaFile(targets.srt)});
+    }
+    const previous = ctx.state.tts[segment];
+    if (sourceMatches && existsSync(targets.norm) && previous?.sha256 === shaFile(targets.norm) && !existsSync(task.cas.norm)) {
+      mkdirSync(task.cas.normalizedDir, {recursive: true});
+      copyFileSync(targets.norm, task.cas.norm);
+      writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(targets.norm), migrated: true});
+    }
+    if (existsSync(task.cas.raw) && !existsSync(targets.raw)) copyFileSync(task.cas.raw, targets.raw);
+    if (existsSync(task.cas.srt) && !existsSync(targets.srt)) copyFileSync(task.cas.srt, targets.srt);
+    if (existsSync(task.cas.text) && !existsSync(targets.text)) copyFileSync(task.cas.text, targets.text);
+    if (existsSync(task.cas.norm) && (!existsSync(targets.norm) || shaFile(targets.norm) !== shaFile(task.cas.norm))) copyFileSync(task.cas.norm, targets.norm);
+    if (existsSync(targets.norm) && existsSync(task.cas.norm) && shaFile(targets.norm) === shaFile(task.cas.norm)) {
+      ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(targets.norm), sha256: shaFile(targets.norm), updatedAt: new Date().toISOString()};
+    }
+  }
+  const dirty = buildPlan.tts.filter((task) => {
+    const segment = task.scene.narration.segmentId;
+    const norm = join(segmentsDir, `${segment}_norm.mp3`);
+    return !existsSync(norm) || ctx.state.tts[segment]?.fingerprint !== task.fingerprint || ctx.state.tts[segment]?.sha256 !== shaFile(norm);
+  });
+  const normalizeIds = dirty.map((task) => task.scene.narration.segmentId);
+  const synthesizeIds = dirty.filter((task) => !existsSync(task.cas.raw) || !existsSync(task.cas.srt)).map((task) => task.scene.narration.segmentId);
   const mainCandidate = join(ctx.build, 'candidate', `${ctx.episode.episodeId}.mp4`);
   const mix = join(ctx.current, 'audio/mix.m4a');
   const fingerprint = audioFingerprint(ctx, buildPlan);
@@ -279,11 +391,12 @@ const buildAudio = async (ctx, buildPlan) => {
     return {mix, mainCandidate};
   }
   const env = {
-    TTS_SEGMENTS: ids.join(','),
+    TTS_SEGMENTS: synthesizeIds.join(','),
+    NORMALIZE_SEGMENTS: normalizeIds.join(','),
     TTS_JOBS: 'all',
     NORMALIZE_JOBS: 'all',
-    SKIP_TTS: ids.length === 0 ? '1' : '0',
-    SKIP_NORM: ids.length === 0 ? '1' : '0',
+    SKIP_TTS: synthesizeIds.length === 0 ? '1' : '0',
+    SKIP_NORM: normalizeIds.length === 0 ? '1' : '0',
     SKIP_REMUX: '1',
   };
   await run(join(REMOTION, 'scripts/git-course-build-voiceover.sh'), [ctx.episode.episodeId], {env, log: join(ctx.build, 'logs/audio.log')});
@@ -292,6 +405,18 @@ const buildAudio = async (ctx, buildPlan) => {
     const norm = join(ctx.current, 'audio/segments', `${segment}_norm.mp3`);
     existsSync(norm) || fail(`Missing normalized segment: ${norm}`);
     ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(norm), sha256: shaFile(norm), updatedAt: new Date().toISOString()};
+    const raw = join(segmentsDir, `${segment}.mp3`);
+    const srt = join(segmentsDir, `${segment}.srt`);
+    const textPath = join(segmentsDir, `${segment}.txt`);
+    for (const path of [raw, srt]) existsSync(path) || fail(`Missing TTS cache input: ${path}`);
+    mkdirSync(task.cas.speechDir, {recursive: true});
+    mkdirSync(task.cas.normalizedDir, {recursive: true});
+    copyFileSync(raw, task.cas.raw);
+    copyFileSync(srt, task.cas.srt);
+    if (existsSync(textPath)) copyFileSync(textPath, task.cas.text);
+    writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(raw), srtSha256: shaFile(srt)});
+    copyFileSync(norm, task.cas.norm);
+    writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(norm)});
   }
   ctx.state.audioFingerprint = fingerprint;
   ctx.state.audioMixSha256 = shaFile(mix);
@@ -544,8 +669,30 @@ const releaseBuild = async (ctx) => {
   const gate = json(currentVerdict);
   gate.verdict === 'pass' && gate.artifactSha256 === shaFile(currentMain) || fail('Current main audit gate is stale or not passed.');
   const out = candidatePath(ctx, 'release');
+  const intro = join(REMOTION, 'renders/git-course/visible-system-intro/current/visible-system-intro.mp4');
+  const introAudio = join(REMOTION, 'renders/git-course/visible-system-intro/current/audio/intro-bgm.m4a');
+  const outro = join(REMOTION, 'renders/git-course/outro/current/ref-lightbox-outro.mp4');
+  const outroAudio = join(REMOTION, 'renders/git-course/outro/current/audio/outro-bgm.m4a');
+  const inputs = [intro, introAudio, currentMain, outro, outroAudio];
+  for (const path of inputs) existsSync(path) || fail(`Release input missing: ${path}`);
+  const inputFingerprint = sha(JSON.stringify({
+    schema: 2,
+    inputs: inputs.map((path) => ({path: rel(path), sha256: shaFile(path)})),
+    introGainDb: process.env.INTRO_AUDIO_GAIN_DB ?? '0',
+    outroGainDb: process.env.OUTRO_AUDIO_GAIN_DB ?? '-5',
+    scriptSha256: shaFile(join(REMOTION, 'scripts/git-course-publish-episode.sh')),
+  }));
+  const manifestPath = join(ctx.build, 'release-artifact-manifest.json');
+  if (existsSync(out) && existsSync(manifestPath)) {
+    const cached = json(manifestPath);
+    if (cached.inputFingerprint === inputFingerprint && cached.sha256 === shaFile(out)) {
+      console.log(`HIT   release-build ${rel(out)}`);
+      return;
+    }
+  }
   mkdirSync(dirname(out), {recursive: true});
   await run(join(REMOTION, 'scripts/git-course-publish-episode.sh'), [ctx.episode.episodeId, currentMain], {env: {OUT_FILE: out, GIT_COURSE_ORCHESTRATED: '1'}, log: join(ctx.build, 'logs/release-build.log')});
+  writeJson(manifestPath, {schemaVersion: 1, inputFingerprint, path: rel(out), sha256: shaFile(out), createdAt: new Date().toISOString()});
   console.log(`PASS  release-build ${rel(out)}`);
 };
 
@@ -560,13 +707,15 @@ const publish = (ctx) => {
 };
 
 const build = async (ctx) => {
+  const buildStartedAt = performance.now();
   execFileSync('node', ['scripts/git-course.mjs', 'generate'], {cwd: REMOTION, stdio: 'inherit'});
   const buildPlan = plan(ctx);
   printPlan(ctx, buildPlan);
   const dirtyScenes = buildPlan.scenes.filter((task) => !task.hit);
-  const renderPromise = Promise.all(dirtyScenes.map((task) => renderScene(ctx, task, dirtyScenes.length)));
+  const renderPromise = renderScenes(ctx, dirtyScenes);
   const audioPromise = buildAudio(ctx, buildPlan);
   const [renderResult, audioResult] = await Promise.allSettled([renderPromise, audioPromise]);
+  const independentFinishedAt = performance.now();
   if (audioResult.status === 'rejected') recoverValidTtsState(ctx, buildPlan);
   writeJson(ctx.statePath, ctx.state);
   const failures = [renderResult, audioResult].filter((result) => result.status === 'rejected');
@@ -575,7 +724,23 @@ const build = async (ctx) => {
     fail(`Independent tasks finished with ${failures.length} failure(s):\n${messages.join('\n')}`);
   }
   const assembled = await assembleMain(ctx, buildPlan, audioResult.value);
-  await auditArtifact(ctx, assembled.candidate, 'main');
+  const assembledAt = performance.now();
+  const audit = await auditArtifact(ctx, assembled.candidate, 'main');
+  const finishedAt = performance.now();
+  writeJson(join(ctx.build, 'telemetry/build.json'), {
+    schemaVersion: 1,
+    episodeId: ctx.episode.episodeId,
+    createdAt: new Date().toISOString(),
+    dirtyScenes: dirtyScenes.map((task) => task.scene.id),
+    dirtyTts: buildPlan.tts.filter((task) => !task.hit).map((task) => task.scene.narration.segmentId),
+    stages: {
+      generatePlanRenderAudioSeconds: Number(((independentFinishedAt - buildStartedAt) / 1000).toFixed(3)),
+      assembleSeconds: Number(((assembledAt - independentFinishedAt) / 1000).toFixed(3)),
+      auditSeconds: Number(((finishedAt - assembledAt) / 1000).toFixed(3)),
+      totalSeconds: Number(((finishedAt - buildStartedAt) / 1000).toFixed(3)),
+    },
+    auditVerdict: audit.verdict,
+  });
 };
 
 const status = (ctx) => {
