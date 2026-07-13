@@ -41,11 +41,13 @@ export const EP04_SCENES = [
   {id: "mental-model", title: "模型", duration: seconds(18)},
   {id: "terminal", title: "命令", duration: seconds(18)},
   {id: "branch-write", title: "写入 ref", duration: seconds(22)},
-  {id: "branch-result", title: "分支出现", duration: seconds(28)},
+  {id: "ref-storage", title: "ref 存在哪里", duration: seconds(28)},
+  {id: "branch-result", title: "分支出现", duration: seconds(24)},
+  {id: "start-point", title: "指针可以从哪里开始", duration: seconds(24)},
   {id: "switch", title: "HEAD 切换", duration: seconds(24)},
   {id: "commit", title: "feature 前进", duration: seconds(32)},
-  {id: "compare", title: "对比", duration: seconds(14)},
-  {id: "takeaway", title: "结论", duration: seconds(12)},
+  {id: "compare", title: "对比", duration: seconds(18)},
+  {id: "takeaway", title: "结论", duration: seconds(20)},
 ] as const;
 export const EP04_DURATION_IN_FRAMES = EP04_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 

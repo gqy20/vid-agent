@@ -1,0 +1,90 @@
+{
+  "episodeId": "ep01-agentic-loop",
+  "title": "Claude Code 不是聊天框",
+  "subtitle": "agentic loop 心智模型",
+  "fps": 30,
+  "resolution": { "width": 1920, "height": 1080 },
+  "durationSeconds": 195,
+  "goal": "破除『Claude Code 是聊天框』的误解，建立 think→tool_use→tool_result→think 的循环心智模型",
+  "coreMisconception": "以为：发一句指令 → 收一段回复 → 结束。实际：发一句指令 → N 次自主循环 → 完成。",
+  "sourceOfTruth": {
+    "references": []
+  },
+  "productionPolicy": {
+    "remotionOwns": ["*"],
+    "manimOwns": [],
+    "completedManimScenes": [],
+    "externalAssets": {}
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "它为什么不停下来等你",
+      "start": 0,
+      "duration": 15,
+      "goal": "制造意外：发完指令 Claude 自己跑起来",
+      "components": ["RecordedTmuxPanel:ep01-agentic-loop"],
+      "narration": {
+        "segmentId": "ep01-hook",
+        "voiceStart": 0,
+        "text": "你让它加个搜索功能。<#0.2#>它没回代码，反而自己翻开文件、动手改起来。<#0.3#>它为什么不停下来问你？"
+      }
+    },
+    {
+      "id": "illusion-vs-reality",
+      "title": "错觉 vs 真相",
+      "start": 15,
+      "duration": 30,
+      "goal": "对比线性问答 vs 循环",
+      "components": ["IllusionRealityCard"],
+      "narration": {
+        "segmentId": "ep01-illusion",
+        "voiceStart": 15,
+        "text": "你以为的 Claude Code 是这样：<#0.2#>发一句，收一段，结束。<#0.3#>但真实的 Claude Code 是这样：<#0.2#>发一句，它进入一个循环——读、想、改、看结果，自己转好几圈，直到做完。"
+      }
+    },
+    {
+      "id": "loop-anatomy",
+      "title": "拆开一次循环",
+      "start": 45,
+      "duration": 45,
+      "goal": "解释 think → tool_use → tool_result → think",
+      "components": ["AgenticLoopDiagram"],
+      "narration": {
+        "segmentId": "ep01-anatomy",
+        "voiceStart": 45,
+        "text": "这个循环长这样。<#0.2#>模型先想下一步，这叫 think。<#0.2#>想完决定调一个工具，叫 tool_use。<#0.2#>工具执行完把结果喂回去，叫 tool_result。<#0.2#>结果触发下一轮想——这就是循环。<#0.2#>模型自己决定调什么工具、什么时候停。"
+      }
+    },
+    {
+      "id": "live-run",
+      "title": "真实跑一遍",
+      "start": 90,
+      "duration": 60,
+      "goal": "证据：看它真的循环着干活，文件被真改",
+      "components": ["RecordedTmuxPanel:ep01-agentic-loop"],
+      "narration": {
+        "segmentId": "ep01-live",
+        "voiceStart": 90,
+        "text": "看真的跑一遍。<#0.2#>任务是在 foo.ts 里加一个搜索函数。<#0.3#>第一圈，它先 Read foo.ts 看现状。<#0.5#>右边文件面板还没变。<#0.3#>第二圈，它 Edit foo.ts。<#0.6#>文件面板刷出来了——foo.ts 真被改了。<#0.3#>第三圈，它判断做完了，回复你。"
+      }
+    },
+    {
+      "id": "so-what",
+      "title": "这改变什么",
+      "start": 150,
+      "duration": 45,
+      "goal": "三条结论 + 连下一集",
+      "components": ["ConclusionCard"],
+      "narration": {
+        "segmentId": "ep01-conclusion",
+        "voiceStart": 150,
+        "text": "所以记住三件事。<#0.2#>一，它是循环，不是问答。<#0.2#>二，循环里它自己说了算。<#0.2#>三，循环转得好不好，取决于你喂给它什么。<#0.4#>下一集，我们拆开那个喂给它的东西——上下文窗口。"
+      }
+    }
+  ],
+  "dialogue": {
+    "note": "对话流（prompt + assistant 回复 + 工具调用）在 scripts/terminal-recordings/claude-code-lab/ep01/run.sh，全脚本演绎。本 JSON 只记教学结构与旁白。"
+  },
+  "release": {}
+}

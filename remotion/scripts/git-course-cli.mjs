@@ -731,15 +731,28 @@ const requirePass = (ctx, scope) => {
 
 const promote = (ctx) => {
   const {verdict, artifact} = requirePass(ctx, 'main');
-  mkdirSync(join(ctx.current, 'scenes'), {recursive: true});
   copyFileSync(artifact, `${join(ctx.current, `${ctx.episode.episodeId}.mp4`)}.partial`);
   renameSync(`${join(ctx.current, `${ctx.episode.episodeId}.mp4`)}.partial`, join(ctx.current, `${ctx.episode.episodeId}.mp4`));
   const manifest = json(join(ctx.build, 'artifact-manifest.json'));
+  const sceneDir = join(ctx.current, 'scenes');
+  const nextSceneDir = join(ctx.current, 'scenes.next');
+  const previousSceneDir = join(ctx.current, 'scenes.previous');
+  rmSync(nextSceneDir, {recursive: true, force: true});
+  mkdirSync(nextSceneDir, {recursive: true});
   for (const [index, item] of manifest.scenes.entries()) {
-    const target = join(ctx.current, 'scenes', `${String(index + 1).padStart(2, '0')}_${item.sceneId.replaceAll('-', '_')}.mp4`);
+    const target = join(nextSceneDir, `${String(index + 1).padStart(2, '0')}_${item.sceneId.replaceAll('-', '_')}.mp4`);
     copyFileSync(join(ROOT, item.path), `${target}.partial`);
     renameSync(`${target}.partial`, target);
   }
+  rmSync(previousSceneDir, {recursive: true, force: true});
+  if (existsSync(sceneDir)) renameSync(sceneDir, previousSceneDir);
+  try {
+    renameSync(nextSceneDir, sceneDir);
+  } catch (error) {
+    if (!existsSync(sceneDir) && existsSync(previousSceneDir)) renameSync(previousSceneDir, sceneDir);
+    throw error;
+  }
+  rmSync(previousSceneDir, {recursive: true, force: true});
   writeJson(join(ctx.current, 'audit/verdict.json'), verdict);
   console.log(`PASS  promote ${rel(join(ctx.current, `${ctx.episode.episodeId}.mp4`))}`);
 };
@@ -985,9 +998,22 @@ const preview = async (ctx) => {
   const previewDir = join(ctx.tmp, profileName === 'hd30' ? 'preview/scenes' : `preview/${profileName}/scenes`);
   if (FLAGS.has('clean-preview')) rmSync(previewDir, {recursive: true, force: true});
   mkdirSync(previewDir, {recursive: true});
+  const expectedPreviewNames = new Set(buildPlan.scenes.map((task) => `${String(task.index + 1).padStart(2, '0')}_${task.scene.id.replaceAll('-', '_')}.mp4`));
+  for (const entry of readdirSync(previewDir)) {
+    if (entry.endsWith('.mp4') && !expectedPreviewNames.has(entry)) {
+      rmSync(join(previewDir, entry), {force: true});
+      console.log(`CLEAN stale preview: ${entry}`);
+    }
+  }
   const manifestPath = join(ctx.tmp, profileName === 'hd30' ? 'preview/manifest.json' : `preview/${profileName}/manifest.json`);
   const previous = existsSync(manifestPath) ? json(manifestPath) : {schemaVersion: 1, episodeId: ctx.episode.episodeId, scenes: {}};
-  const manifest = {...previous, schemaVersion: 1, episodeId: ctx.episode.episodeId, profile: renderProfile, updatedAt: new Date().toISOString(), scenes: {...(previous.scenes ?? {})}};
+  const retainedScenes = Object.fromEntries(Object.entries(previous.scenes ?? {}).filter(([sceneId, item]) => {
+    const task = buildPlan.scenes.find((candidate) => candidate.scene.id === sceneId);
+    if (!task) return false;
+    const expectedName = `${String(task.index + 1).padStart(2, '0')}_${task.scene.id.replaceAll('-', '_')}.mp4`;
+    return item?.previewPath === rel(join(previewDir, expectedName)) && existsSync(join(previewDir, expectedName));
+  }));
+  const manifest = {...previous, schemaVersion: 1, episodeId: ctx.episode.episodeId, profile: renderProfile, updatedAt: new Date().toISOString(), scenes: retainedScenes};
   for (const task of selected) {
     const cached = ctx.state[stateKey]?.[task.scene.id];
     if (!cached?.path) continue;

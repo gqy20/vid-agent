@@ -18,7 +18,7 @@ export const RefWriteBar: React.FC<{
   x,
   y,
   width = 568,
-  height = 66,
+  height = 76,
   accent = COLOR.git.feature,
   auditId = 'ref-write-bar',
 }) => (
@@ -58,7 +58,8 @@ export const RefWriteBar: React.FC<{
         justifyContent: 'center',
         gap: 18,
         fontFamily: FONT.mono,
-        ...TYPE.codeSmall,
+        ...TYPE.code,
+        fontSize: 28,
       }}
     >
       <span style={{color: accent}}>{refName}</span>

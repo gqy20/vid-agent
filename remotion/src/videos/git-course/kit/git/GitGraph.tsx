@@ -6,6 +6,7 @@ import type {BranchLabelData, GitGraphState} from './types';
 const BRANCH_COLORS: Record<string, string> = {
   main: COLOR.git.main,
   feature: COLOR.git.feature,
+  hotfix: COLOR.git.feature,
 };
 
 const getBranchColor = (branch: BranchLabelData) => BRANCH_COLORS[branch.name] ?? COLOR.git.workingTree;
@@ -22,12 +23,18 @@ export const GitGraph: React.FC<{
     to: string;
     progress: number;
   };
+  branchReveal?: {
+    name: string;
+    progress: number;
+  };
+  commitRevealProgress?: number;
   headMotion?: {
     from: string;
     to: string;
     progress: number;
   };
   headMarkerOffsetX?: number;
+  branchOffset?: number;
   showHeadMarker?: boolean;
   auditId?: string;
 }> = ({
@@ -37,8 +44,11 @@ export const GitGraph: React.FC<{
   height = 270,
   showFrame = false,
   branchMotion,
+  branchReveal,
+  commitRevealProgress,
   headMotion,
   headMarkerOffsetX = 124,
+  branchOffset = 71,
   showHeadMarker = true,
   auditId = 'git-graph',
 }) => {
@@ -50,7 +60,8 @@ export const GitGraph: React.FC<{
     x: 110 + idx * 150,
     y: 125,
   }));
-  const visiblePositions = positions.map((position, idx) => ({...position, opacity: idx === positions.length - 1 ? progress : 1}));
+  const commitProgress = commitRevealProgress ?? progress;
+  const visiblePositions = positions.map((position, idx) => ({...position, opacity: idx === positions.length - 1 ? commitProgress : 1}));
   const maxX = visiblePositions.length > 0 ? visiblePositions[visiblePositions.length - 1].x : 110;
   const branchLayout = state.branches.map((branch) => {
     const target = positions.find((commit) => commit.id === branch.target);
@@ -63,7 +74,7 @@ export const GitGraph: React.FC<{
     return {
       branch,
       x,
-      y: branch.lane === 'top' ? 54 : 194,
+      y: branch.lane === 'top' ? 125 - branchOffset : 125 + branchOffset,
     };
   }).filter(Boolean) as Array<{branch: BranchLabelData; x: number; y: number}>;
 
@@ -105,7 +116,7 @@ export const GitGraph: React.FC<{
         <line
           x1="410"
           y1="125"
-          x2={410 + (maxX - 410) * progress}
+          x2={410 + (maxX - 410) * commitProgress}
           y2="125"
           stroke={COLOR.git.graphLine}
           strokeWidth="8"
@@ -113,9 +124,14 @@ export const GitGraph: React.FC<{
           opacity="0.92"
         />
       ) : null}
-      {branchLayout.map(({branch, x, y}) => (
-        <BranchConnector key={`${branch.name}-connector`} color={getBranchColor(branch)} x={x} y={y} />
-      ))}
+      {branchLayout.map(({branch, x, y}) => {
+        const reveal = branchReveal?.name === branch.name ? branchReveal.progress : 1;
+        return (
+          <g key={`${branch.name}-connector`} opacity={reveal} transform={`translate(0 ${interpolate(reveal, [0, 1], [-18, 0])})`}>
+            <BranchConnector color={getBranchColor(branch)} x={x} y={y} />
+          </g>
+        );
+      })}
       {visiblePositions.map((point, idx) => (
         <g
           key={point.id}
@@ -152,15 +168,17 @@ export const GitGraph: React.FC<{
         </g>
       ))}
       {branchLayout.map(({branch, x, y}) => {
+        const reveal = branchReveal?.name === branch.name ? branchReveal.progress : 1;
         return (
-          <BranchLabel
-            key={branch.name}
-            auditId={`${auditId}-branch-${branch.name}`}
-            label={branch.name}
-            color={getBranchColor(branch)}
-            x={x}
-            y={y}
-          />
+          <g key={branch.name} opacity={reveal} transform={`translate(0 ${interpolate(reveal, [0, 1], [-18, 0])})`}>
+            <BranchLabel
+              auditId={`${auditId}-branch-${branch.name}`}
+              label={branch.name}
+              color={getBranchColor(branch)}
+              x={x}
+              y={y}
+            />
+          </g>
         );
       })}
       {showHeadMarker && currentHead ? <HeadMarker auditId={`${auditId}-head`} x={currentHead.x} y={currentHead.y} /> : null}
