@@ -489,6 +489,8 @@ const buildAudio = async (ctx, buildPlan) => {
     const segment = task.scene.narration.segmentId;
     const norm = join(ctx.current, 'audio/segments', `${segment}_norm.mp3`);
     existsSync(norm) || fail(`Missing normalized segment: ${norm}`);
+    const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
+    validateNarrationDuration(task, duration);
     ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(norm), sha256: shaFile(norm), updatedAt: new Date().toISOString()};
     const raw = join(segmentsDir, `${segment}.mp3`);
     const srt = join(segmentsDir, `${segment}.srt`);
@@ -1052,6 +1054,12 @@ const normalizedSrtText = (value) => value
   .replace(/[\s，。；;、：:！？?!,.·]/g, '')
   .toLowerCase();
 
+const validateNarrationDuration = (task, duration) => {
+  const textLength = normalizedNarrationText(task.scene.narration.text).length;
+  const minimumDuration = textLength * 0.065;
+  duration >= minimumDuration || fail(`${task.scene.narration.segmentId}: audio is suspiciously short (${duration.toFixed(3)}s for ${textLength} normalized characters; minimum ${minimumDuration.toFixed(3)}s)`);
+};
+
 const canonicalNarrationCues = (value) => value
   .split(/<#[^>]+#>|\n+/)
   .map((line) => line.trim())
@@ -1061,19 +1069,59 @@ const canonicalNarrationCues = (value) => value
     .replace(/[。；;]+\s*$/u, '')
     .replace(/([\p{Script=Han}A-Za-z0-9])\.\s*$/u, '$1'));
 
+const distributeCanonicalText = (sourceCues, targetCount) => {
+  targetCount > 0 || fail('SRT has no timed text cues');
+  let units = sourceCues.flatMap((cue) => cue.match(/[^，、：？！!?.,]+[，、：？！!?.,]?/gu) ?? [cue]).filter(Boolean);
+  while (units.length < targetCount) {
+    const index = units.reduce((best, unit, current) => unit.length > units[best].length ? current : best, 0);
+    const unit = units[index];
+    unit.length > 1 || fail(`Cannot distribute narration text across ${targetCount} SRT cues`);
+    const midpoint = Math.ceil(unit.length / 2);
+    units.splice(index, 1, unit.slice(0, midpoint), unit.slice(midpoint));
+  }
+  const totalLength = units.reduce((sum, unit) => sum + unit.length, 0);
+  const groups = [];
+  let unitIndex = 0;
+  let consumed = 0;
+  for (let groupIndex = 0; groupIndex < targetCount; groupIndex += 1) {
+    const remainingGroups = targetCount - groupIndex;
+    const targetEnd = totalLength * (groupIndex + 1) / targetCount;
+    const group = [];
+    while (unitIndex < units.length) {
+      const remainingUnits = units.length - unitIndex;
+      if (group.length > 0 && remainingUnits === remainingGroups - 1) break;
+      const next = units[unitIndex];
+      if (group.length > 0 && consumed + next.length > targetEnd) break;
+      group.push(next);
+      consumed += next.length;
+      unitIndex += 1;
+    }
+    if (group.length === 0) {
+      group.push(units[unitIndex]);
+      consumed += units[unitIndex].length;
+      unitIndex += 1;
+    }
+    groups.push(group.join(''));
+  }
+  unitIndex === units.length || fail('Failed to distribute all narration text into SRT cues');
+  return groups;
+};
+
 const canonicalizeSrtText = (task, srtPath) => {
   const sourceCues = canonicalNarrationCues(task.scene.narration.text);
-  const raw = readFileSync(srtPath).toString('utf8');
+  const raw = readFileSync(srtPath).toString('utf8').replace(/\r\n/g, '\n').trim();
+  const blocks = raw.split(/\n{2,}/).map((block) => block.split('\n'));
+  const timedBlocks = blocks.filter((lines) => lines.some((line) => line.includes('-->')));
+  const distributed = distributeCanonicalText(sourceCues, timedBlocks.length);
   let cueIndex = 0;
-  const lines = raw.split(/\r?\n/).map((line) => {
-    if (!line.trim() || /^\d+$/.test(line.trim()) || line.includes('-->')) return line;
-    const source = sourceCues[cueIndex];
-    source !== undefined || fail(`${task.scene.narration.segmentId}: SRT contains more text cues than narration source`);
+  const canonicalBlocks = blocks.map((lines) => {
+    const timingIndex = lines.findIndex((line) => line.includes('-->'));
+    if (timingIndex === -1) return lines.join('\n');
+    const canonical = [...lines.slice(0, timingIndex + 1), distributed[cueIndex]];
     cueIndex += 1;
-    return source;
+    return canonical.join('\n');
   });
-  cueIndex === sourceCues.length || fail(`${task.scene.narration.segmentId}: SRT cue count ${cueIndex} does not match narration cue count ${sourceCues.length}`);
-  writeFileSync(srtPath, lines.join('\n'));
+  writeFileSync(srtPath, `${canonicalBlocks.join('\n\n')}\n`);
 };
 
 const validateTtsTextArtifacts = (task, srtPath, textPath) => {
@@ -1134,6 +1182,7 @@ const previewAudio = async (ctx) => {
     for (const path of [raw, srt, textPath, norm]) existsSync(path) || fail(`Audio preview output missing: ${path}`);
     validateTtsTextArtifacts(task, srt, textPath);
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
+    validateNarrationDuration(task, duration);
     const voiceEnd = task.scene.narration.voiceStart + duration;
     const sceneEnd = task.scene.start + task.scene.duration;
     voiceEnd <= sceneEnd || fail(`${segment}: voice ends at ${voiceEnd.toFixed(3)}s after scene end ${sceneEnd}s`);

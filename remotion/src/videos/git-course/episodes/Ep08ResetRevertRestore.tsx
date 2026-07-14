@@ -256,7 +256,7 @@ const RestoreScene: React.FC = () => {
   const frame = useSceneFrame();
   const copy = interpolate(frame, [seconds(8), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(20), seconds(21)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption = frame < seconds(20) ? 'restore 把文件从 HEAD 恢复到 Working Tree' : 'branch 和 HEAD 保持不动';
+  const caption = frame < seconds(27) ? '明确 source=HEAD，把文件恢复到 Working Tree' : 'branch 和 HEAD 保持不动';
   const dirtyDiff: DiffLine[] = [
     {type: 'context', text: 'function pay() {'},
     {type: 'remove', text: '  return stableCheckout();'},
@@ -271,7 +271,7 @@ const RestoreScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '112px 142px 110px', boxSizing: 'border-box'}}>
-      <CommandPill command="git restore app.js" branch="main" />
+      <CommandPill command="git restore --source=HEAD app.js" branch="main" />
       <div style={{position: 'absolute', left: 160, top: 250, width: 560}}>
         <CodeDiff title="Working Tree / app.js" lines={frame < seconds(16) ? dirtyDiff : cleanDiff} />
       </div>

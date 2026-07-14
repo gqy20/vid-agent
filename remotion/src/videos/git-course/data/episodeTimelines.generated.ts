@@ -52,45 +52,45 @@ export const EP04_SCENES = [
 export const EP04_DURATION_IN_FRAMES = EP04_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP05_SCENES = [
-  {id: "hook", title: "问题", duration: seconds(12)},
-  {id: "symbolic-ref", title: "符号引用", duration: seconds(22)},
-  {id: "terminal", title: "命令", duration: seconds(22)},
-  {id: "switch", title: "HEAD 切换", duration: seconds(32)},
-  {id: "commit-current", title: "当前分支前进", duration: seconds(32)},
-  {id: "detached", title: "分离 HEAD", duration: seconds(36)},
-  {id: "takeaway", title: "总结", duration: seconds(24)},
+  {id: "hook", title: "问题", duration: seconds(14)},
+  {id: "symbolic-ref", title: "符号引用", duration: seconds(32)},
+  {id: "terminal", title: "命令", duration: seconds(30)},
+  {id: "switch", title: "HEAD 切换", duration: seconds(44)},
+  {id: "commit-current", title: "当前分支前进", duration: seconds(44)},
+  {id: "detached", title: "分离 HEAD", duration: seconds(48)},
+  {id: "takeaway", title: "总结", duration: seconds(28)},
 ] as const;
 export const EP05_DURATION_IN_FRAMES = EP05_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP06_SCENES = [
-  {id: "hook", title: "问题", duration: seconds(12)},
-  {id: "fast-forward", title: "快进", duration: seconds(30)},
-  {id: "diverged", title: "分叉", duration: seconds(26)},
-  {id: "three-way", title: "三方合并", duration: seconds(40)},
-  {id: "merge-commit", title: "合并提交", duration: seconds(30)},
-  {id: "conflict", title: "冲突", duration: seconds(28)},
-  {id: "takeaway", title: "结论", duration: seconds(14)},
+  {id: "hook", title: "问题", duration: seconds(14)},
+  {id: "fast-forward", title: "快进", duration: seconds(34)},
+  {id: "diverged", title: "分叉", duration: seconds(30)},
+  {id: "three-way", title: "三方合并", duration: seconds(52)},
+  {id: "merge-commit", title: "合并提交", duration: seconds(42)},
+  {id: "conflict", title: "冲突", duration: seconds(42)},
+  {id: "takeaway", title: "结论", duration: seconds(26)},
 ] as const;
 export const EP06_DURATION_IN_FRAMES = EP06_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP07_SCENES = [
-  {id: "hook", title: "问题", duration: seconds(12)},
-  {id: "compare-merge", title: "对比 merge", duration: seconds(26)},
-  {id: "replay-model", title: "重放模型", duration: seconds(44)},
-  {id: "new-identity", title: "新身份", duration: seconds(30)},
-  {id: "fast-forward-after", title: "快进", duration: seconds(26)},
-  {id: "public-risk", title: "公开历史", duration: seconds(28)},
-  {id: "takeaway", title: "结论", duration: seconds(14)},
+  {id: "hook", title: "问题", duration: seconds(14)},
+  {id: "compare-merge", title: "对比 merge", duration: seconds(32)},
+  {id: "replay-model", title: "重放模型", duration: seconds(58)},
+  {id: "new-identity", title: "新身份", duration: seconds(40)},
+  {id: "fast-forward-after", title: "快进", duration: seconds(34)},
+  {id: "public-risk", title: "公开历史", duration: seconds(38)},
+  {id: "takeaway", title: "结论", duration: seconds(24)},
 ] as const;
 export const EP07_DURATION_IN_FRAMES = EP07_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP08_SCENES = [
-  {id: "hook", title: "问题", duration: seconds(12)},
-  {id: "three-trees", title: "三棵树", duration: seconds(28)},
-  {id: "reset-modes", title: "reset", duration: seconds(46)},
-  {id: "revert", title: "revert", duration: seconds(30)},
-  {id: "restore", title: "restore", duration: seconds(30)},
-  {id: "choose", title: "选择", duration: seconds(22)},
-  {id: "takeaway", title: "总结", duration: seconds(12)},
+  {id: "hook", title: "问题", duration: seconds(14)},
+  {id: "three-trees", title: "三棵树", duration: seconds(34)},
+  {id: "reset-modes", title: "reset", duration: seconds(58)},
+  {id: "revert", title: "revert", duration: seconds(38)},
+  {id: "restore", title: "restore", duration: seconds(42)},
+  {id: "choose", title: "选择", duration: seconds(30)},
+  {id: "takeaway", title: "总结", duration: seconds(24)},
 ] as const;
 export const EP08_DURATION_IN_FRAMES = EP08_SCENES.reduce((sum, scene) => sum + scene.duration, 0);

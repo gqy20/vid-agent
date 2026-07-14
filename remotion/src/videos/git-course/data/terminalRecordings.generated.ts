@@ -6,4 +6,5 @@ export const TERMINAL_RECORDINGS = {
   "ep02-status-mm": {"id":"ep02-status-mm","durationInFrames":96,"holdFromFrame":35,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep03-commit": {"id":"ep03-commit","durationInFrames":208,"holdFromFrame":147,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep04-branch-flow": {"id":"ep04-branch-flow","durationInFrames":310,"holdFromFrame":249,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep05-head-flow": {"id":"ep05-head-flow","durationInFrames":363,"holdFromFrame":302,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
 } as const;

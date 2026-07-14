@@ -268,7 +268,7 @@ const ThreeWayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '86px 132px 118px', boxSizing: 'border-box'}}>
-      <ManimClip src="git-course/manim/ep06/three-way-merge.mp4" fit="contain" auditId="ep06-three-way-manim" />
+      <ManimClip src="git-course/manim/ep06/three-way-merge.mp4" fit="contain" playbackRate={0.77} auditId="ep06-three-way-manim" />
       <SceneCaption opacity={opacity} width={1120} bottom={64} auditId="ep06-three-way-caption">
         {captionText}
       </SceneCaption>

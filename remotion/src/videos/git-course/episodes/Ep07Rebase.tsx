@@ -232,7 +232,7 @@ const ReplayModelScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '78px 132px 126px', boxSizing: 'border-box'}}>
-      <ManimClip src="git-course/manim/ep07/rebase-replay.mp4" fit="contain" auditId="ep07-replay-manim" />
+      <ManimClip src="git-course/manim/ep07/rebase-replay.mp4" fit="contain" playbackRate={0.76} auditId="ep07-replay-manim" />
       <SceneCaption opacity={opacity} width={920} bottom={54} auditId="ep07-replay-caption">
         {captionText}
       </SceneCaption>
@@ -250,7 +250,7 @@ const NewIdentityScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '84px 132px 118px', boxSizing: 'border-box'}}>
-      <ManimClip src="git-course/manim/ep07/rebase-identity.mp4" fit="contain" auditId="ep07-identity-manim" />
+      <ManimClip src="git-course/manim/ep07/rebase-identity.mp4" fit="contain" playbackRate={0.75} auditId="ep07-identity-manim" />
       <SceneCaption opacity={opacity} width={980} bottom={62} auditId="ep07-identity-caption">
         {captionText}
       </SceneCaption>

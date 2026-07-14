@@ -11,9 +11,10 @@ export const ManimClip: React.FC<{
   opacity?: number;
   scale?: number;
   fit?: 'cover' | 'contain';
+  playbackRate?: number;
   framed?: boolean;
   auditId?: string;
-}> = ({src, title, caption, width = '100%', height = '100%', opacity = 1, scale = 1, fit = 'cover', framed = true, auditId = 'manim-clip'}) => {
+}> = ({src, title, caption, width = '100%', height = '100%', opacity = 1, scale = 1, fit = 'cover', playbackRate = 1, framed = true, auditId = 'manim-clip'}) => {
   const frame = useCurrentFrame();
   const mediaIn = interpolate(frame, [0, 8], [0, 1], {extrapolateRight: 'clamp'});
 
@@ -35,7 +36,7 @@ export const ManimClip: React.FC<{
         fontFamily: FONT.sans,
       }}
     >
-      <Video src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: fit, display: 'block'}} />
+      <Video src={staticFile(src)} playbackRate={playbackRate} style={{width: '100%', height: '100%', objectFit: fit, display: 'block'}} />
       {title ? (
         <div
           style={{

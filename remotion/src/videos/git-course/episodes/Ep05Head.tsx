@@ -1,6 +1,6 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP05} from '../data/episodes';
-import {EP05_TERMINAL} from '../data/terminalScripts';
+import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds} from '../timeline';
 import {
   CenterGraph,
@@ -12,7 +12,7 @@ import {
   MiniRefLine,
   SceneCaption,
   SceneSequence,
-  TerminalFocusScene,
+  RecordedTerminalPanel,
   type GitGraphState,
 } from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
@@ -200,12 +200,30 @@ const SymbolicRefScene: React.FC = () => {
   );
 };
 
-const TerminalScene: React.FC = () => <TerminalFocusScene steps={EP05_TERMINAL} frameOffset={getEp05SceneStart('terminal')} />;
+const TerminalScene: React.FC = () => {
+  const recording = TERMINAL_RECORDINGS['ep05-head-flow'];
+  return (
+    <AbsoluteFill>
+      <div data-audit-id="ep05-head-terminal-recording" style={{position: 'absolute', left: 290, top: 176, width: 1340, height: 660}}>
+        <RecordedTerminalPanel
+          src="git-course-lab/terminal/ep05-head-flow.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep05-head-flow-hold.png"
+          holdFromFrame={recording.holdFromFrame}
+          playbackRate={0.55}
+          mediaFit="cover"
+        />
+      </div>
+      <SceneCaption opacity={1} width={980} fontSize={32} bottom={104} auditId="ep05-terminal-caption">
+        分支名、符号引用、commit ID：同一个位置的三个层级
+      </SceneCaption>
+    </AbsoluteFill>
+  );
+};
 
 const SwitchScene: React.FC = () => {
   const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(4), seconds(14)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const fileProgress = interpolate(frame, [seconds(14.2), seconds(19)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const progress = interpolate(frame, [seconds(7), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const fileProgress = interpolate(frame, [seconds(20), seconds(29)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
@@ -217,13 +235,13 @@ const SwitchScene: React.FC = () => {
         headMotion={{from: 'main', to: 'feature', progress}}
         headMarkerOffsetX={118}
       />
-      <TimedSideLabel x={1320} y={382} tone="head" frame={frame} start={4}>
+      <TimedSideLabel x={1320} y={382} tone="head" frame={frame} start={7}>
         HEAD 从 main 到 feature。
       </TimedSideLabel>
       <div style={{position: 'absolute', left: 700, top: 744, width: 560, opacity: fileProgress}}>
         <CodeBlock title=".git/HEAD" lines={['ref: refs/heads/feature']} highlight={[0]} />
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(23.5), seconds(24.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={118}>
+      <SceneCaption opacity={interpolate(frame, [seconds(34), seconds(35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={118}>
         commit 没变，当前所在分支变了
       </SceneCaption>
     </AbsoluteFill>
@@ -232,8 +250,8 @@ const SwitchScene: React.FC = () => {
 
 const CommitCurrentScene: React.FC = () => {
   const frame = useSceneFrame();
-  const commitIn = interpolate(frame, [seconds(6), seconds(13)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const pointer = interpolate(frame, [seconds(13.2), seconds(23.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commitIn = interpolate(frame, [seconds(8), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const pointer = interpolate(frame, [seconds(19), seconds(31)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const state = commitIn < 0.55 ? STATES.switched : STATES.committed;
 
   return (
@@ -247,13 +265,13 @@ const CommitCurrentScene: React.FC = () => {
         headMarkerOffsetX={118}
       />
       <MiniRefLine title=".git/refs/heads/feature" line="feature -> C3" top={742} left={704} />
-      <TimedSideLabel x={1335} y={288} tone="feature" frame={frame} start={13.2}>
+      <TimedSideLabel x={1335} y={288} tone="feature" frame={frame} start={19}>
         HEAD 在 feature 上，feature 前进。
       </TimedSideLabel>
-      <TimedSideLabel x={236} y={674} tone="main" frame={frame} start={16}>
+      <TimedSideLabel x={236} y={674} tone="main" frame={frame} start={23}>
         main 停在 C2。
       </TimedSideLabel>
-      <SceneCaption opacity={interpolate(frame, [seconds(24.3), seconds(25.3)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={116}>
+      <SceneCaption opacity={interpolate(frame, [seconds(35), seconds(36)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={116}>
         HEAD 没有变成 commit；它仍然指向当前分支
       </SceneCaption>
     </AbsoluteFill>
@@ -301,9 +319,9 @@ const DetachedGraph: React.FC<{progress: number}> = ({progress}) => {
 
 const DetachedScene: React.FC = () => {
   const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(6), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const fileIn = interpolate(frame, [seconds(16.5), seconds(22.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const warningIn = interpolate(frame, [seconds(27.5), seconds(29)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const progress = interpolate(frame, [seconds(8), seconds(20)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const fileIn = interpolate(frame, [seconds(21), seconds(31)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const warningIn = interpolate(frame, [seconds(37), seconds(38.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
