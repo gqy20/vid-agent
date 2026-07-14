@@ -1,90 +1,114 @@
 {
   "episodeId": "ep01-agentic-loop",
-  "title": "Claude Code 不是聊天框",
-  "subtitle": "agentic loop 心智模型",
+  "title": "从零安装 Claude Code",
+  "subtitle": "安装、两种配置方式与首次对话",
   "fps": 30,
-  "resolution": { "width": 1920, "height": 1080 },
-  "durationSeconds": 195,
-  "goal": "破除『Claude Code 是聊天框』的误解，建立 think→tool_use→tool_result→think 的循环心智模型",
-  "coreMisconception": "以为：发一句指令 → 收一段回复 → 结束。实际：发一句指令 → N 次自主循环 → 完成。",
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 96,
+  "goal": "从干净环境安装 Claude Code，理解临时环境变量与用户级 settings.json 两种配置方式，并完成首次连接验证",
   "sourceOfTruth": {
-    "references": []
+    "references": [
+      "https://code.claude.com/docs/en/setup",
+      "https://code.claude.com/docs/en/configuration",
+      "https://code.claude.com/docs/en/env-vars",
+      "https://code.claude.com/docs/en/model-config"
+    ]
   },
   "productionPolicy": {
-    "remotionOwns": ["*"],
-    "manimOwns": [],
-    "completedManimScenes": [],
-    "externalAssets": {}
+    "remotionOwns": ["course shell", "recorded terminal", "narration", "subtitles"],
+    "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep01-agentic-loop/run.sh",
+    "sensitiveValues": "录制源输入真实 token；成片保留前三位，其余使用像素马赛克；敏感中间文件随录制进程退出清理"
   },
   "scenes": [
     {
       "id": "hook",
-      "title": "它为什么不停下来等你",
+      "title": "开场",
       "start": 0,
-      "duration": 15,
-      "goal": "制造意外：发完指令 Claude 自己跑起来",
-      "components": ["RecordedTmuxPanel:ep01-agentic-loop"],
-      "narration": {
-        "segmentId": "ep01-hook",
-        "voiceStart": 0,
-        "text": "你让它加个搜索功能。<#0.2#>它没回代码，反而自己翻开文件、动手改起来。<#0.3#>它为什么不停下来问你？"
-      }
+      "duration": 8,
+      "goal": "明确本集会从干净环境跑通安装与第一次对话",
+      "narration": [
+        {
+          "segmentId": "01-hook",
+          "voiceStart": 0.7,
+          "durationSeconds": 4.788,
+          "text": "这一集，我们从一台干净的环境开始，装好 Claude Code，并跑通第一次对话。",
+          "subtitle": "从干净环境开始，跑通第一次对话"
+        }
+      ]
     },
     {
-      "id": "illusion-vs-reality",
-      "title": "错觉 vs 真相",
-      "start": 15,
-      "duration": 30,
-      "goal": "对比线性问答 vs 循环",
-      "components": ["IllusionRealityCard"],
-      "narration": {
-        "segmentId": "ep01-illusion",
-        "voiceStart": 15,
-        "text": "你以为的 Claude Code 是这样：<#0.2#>发一句，收一段，结束。<#0.3#>但真实的 Claude Code 是这样：<#0.2#>发一句，它进入一个循环——读、想、改、看结果，自己转好几圈，直到做完。"
-      }
+      "id": "install",
+      "title": "安装与配置",
+      "start": 8,
+      "duration": 80,
+      "goal": "展示真实安装、临时配置、持久配置、权限保护与连接验证",
+      "narration": [
+        {
+          "segmentId": "02-install",
+          "voiceStart": 9,
+          "durationSeconds": 8.28,
+          "text": "第一步，运行官方安装脚本。安装完成后，把 Claude 的本地目录加入当前 shell 的 PATH，再用版本命令确认安装成功。",
+          "subtitle": "官方脚本安装，再用版本命令确认"
+        },
+        {
+          "segmentId": "03-shell-env",
+          "voiceStart": 37,
+          "durationSeconds": 8.496,
+          "text": "接下来配置模型服务。第一种方式，是直接导出三个环境变量。它只影响当前 shell，关掉终端后就会失效。",
+          "subtitle": "方式一：export 只影响当前 shell"
+        },
+        {
+          "segmentId": "04-real-token",
+          "voiceStart": 48.5,
+          "durationSeconds": 5.184,
+          "text": "这里输入的是真实 token。成片只保留前三位，其余部分用像素马赛克遮住。",
+          "subtitle": "真实 token：仅保留前三位，其余像素打码"
+        },
+        {
+          "segmentId": "05-settings",
+          "voiceStart": 56.5,
+          "durationSeconds": 7.848,
+          "text": "如果希望每次启动都生效，就用 Vim 编辑用户级的 settings.json。把地址和 token 放进 env，再用 model 指定模型。",
+          "subtitle": "方式二：settings.json 持久配置"
+        },
+        {
+          "segmentId": "06-permissions",
+          "voiceStart": 69,
+          "durationSeconds": 4.356,
+          "text": "保存后，把文件权限收紧到六百，避免其他本机用户读取凭据。",
+          "subtitle": "chmod 600：仅当前用户可读写"
+        },
+        {
+          "segmentId": "07-first-run",
+          "voiceStart": 76,
+          "durationSeconds": 5.364,
+          "text": "最后运行 claude，完成首次启动流程，再发送一句简单指令验证连接。",
+          "subtitle": "启动 Claude Code，验证第一次连接"
+        }
+      ]
     },
     {
-      "id": "loop-anatomy",
-      "title": "拆开一次循环",
-      "start": 45,
-      "duration": 45,
-      "goal": "解释 think → tool_use → tool_result → think",
-      "components": ["AgenticLoopDiagram"],
-      "narration": {
-        "segmentId": "ep01-anatomy",
-        "voiceStart": 45,
-        "text": "这个循环长这样。<#0.2#>模型先想下一步，这叫 think。<#0.2#>想完决定调一个工具，叫 tool_use。<#0.2#>工具执行完把结果喂回去，叫 tool_result。<#0.2#>结果触发下一轮想——这就是循环。<#0.2#>模型自己决定调什么工具、什么时候停。"
-      }
-    },
-    {
-      "id": "live-run",
-      "title": "真实跑一遍",
-      "start": 90,
-      "duration": 60,
-      "goal": "证据：看它真的循环着干活，文件被真改",
-      "components": ["RecordedTmuxPanel:ep01-agentic-loop"],
-      "narration": {
-        "segmentId": "ep01-live",
-        "voiceStart": 90,
-        "text": "看真的跑一遍。<#0.2#>任务是在 foo.ts 里加一个搜索函数。<#0.3#>第一圈，它先 Read foo.ts 看现状。<#0.5#>右边文件面板还没变。<#0.3#>第二圈，它 Edit foo.ts。<#0.6#>文件面板刷出来了——foo.ts 真被改了。<#0.3#>第三圈，它判断做完了，回复你。"
-      }
-    },
-    {
-      "id": "so-what",
-      "title": "这改变什么",
-      "start": 150,
-      "duration": 45,
-      "goal": "三条结论 + 连下一集",
-      "components": ["ConclusionCard"],
-      "narration": {
-        "segmentId": "ep01-conclusion",
-        "voiceStart": 150,
-        "text": "所以记住三件事。<#0.2#>一，它是循环，不是问答。<#0.2#>二，循环里它自己说了算。<#0.2#>三，循环转得好不好，取决于你喂给它什么。<#0.4#>下一集，我们拆开那个喂给它的东西——上下文窗口。"
-      }
+      "id": "takeaway",
+      "title": "收尾",
+      "start": 88,
+      "duration": 8,
+      "goal": "区分两种配置方式并强调密钥安全",
+      "narration": [
+        {
+          "segmentId": "08-takeaway",
+          "voiceStart": 88.4,
+          "durationSeconds": 7.524,
+          "text": "记住：export 适合临时测试，settings.json 适合持久配置。真实密钥不要写进项目仓库。",
+          "subtitle": "临时用 export，长期用 settings.json"
+        }
+      ]
     }
   ],
-  "dialogue": {
-    "note": "对话流（prompt + assistant 回复 + 工具调用）在 scripts/terminal-recordings/claude-code-lab/ep01/run.sh，全脚本演绎。本 JSON 只记教学结构与旁白。"
+  "tts": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25
   },
   "release": {}
 }

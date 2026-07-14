@@ -238,7 +238,7 @@ const MentalModelScene: React.FC = () => {
         translateY={interpolate(summaryIn, [0, 1], [18, 0])}
         auditId="mental-summary"
       >
-        branch 是一个 ref。它可以和 main 指向同一个 commit。
+        branch 是一个 ref，它可以和 main 指向同一个 commit。
       </SceneCaption>
     </AbsoluteFill>
   );
@@ -256,6 +256,7 @@ const TerminalScene: React.FC = () => {
           src="git-course-lab/terminal/ep04-branch-flow.mp4"
           holdFrameSrc="git-course-lab/terminal/ep04-branch-flow-hold.png"
           holdFromFrame={recording.holdFromFrame}
+          playbackRate={0.75}
           mediaFit="cover"
         />
       </div>
@@ -275,7 +276,7 @@ const BranchWriteScene: React.FC = () => {
       <CommandPill command="git branch feature" branch="main" />
       <CenterGraph state={graphState(STATES.base)} top={374} width={980} />
       <RefWriteBar refName="refs/heads/feature" target="C2" progress={refProgress} x={676} y={744} auditId="branch-write-ref-bar" />
-      <div style={{opacity: noteIn}}><SideLabel x={1235} y={748} tone="feature">Git 写入一条 ref。</SideLabel></div>
+      <div style={{opacity: noteIn}}><SideLabel x={1272} y={760} tone="feature">Git 写入一条 ref</SideLabel></div>
     </AbsoluteFill>
   );
 };
@@ -301,13 +302,15 @@ const RefStorageScene: React.FC = () => {
         >
           <div style={{...TYPE.title, fontFamily: FONT.mono, color: COLOR.git.feature}}>feature</div>
           <div style={{height: 1, background: COLOR.stroke.soft, margin: '22px 0'}} />
-          <div style={{...TYPE.code, fontFamily: FONT.mono, color: COLOR.text.primary, opacity: hashIn}}>7b4d2e1…</div>
+          <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 24, opacity: hashIn}}>
+            <div style={{...TYPE.code, fontFamily: FONT.mono, color: COLOR.text.primary}}>7b4d2e1</div>
+            <div style={{...TYPE.ui, color: COLOR.text.tertiary}}>C2 的 commit ID</div>
+          </div>
         </div>
       </div>
       <div style={{position: 'absolute', right: 120, top: 350, width: 760, opacity: graphIn, transform: `translateX(${interpolate(graphIn, [0, 1], [24, 0])}px)`}}>
         <GitGraph state={graphState(STATES.withFeature)} width={760} height={310} showHeadMarker={false} auditId="ref-storage-graph" />
       </div>
-      <div style={{position: 'absolute', left: 930, top: 520, width: 120, height: 2, background: COLOR.git.feature, opacity: graphIn, transformOrigin: 'left', transform: `scaleX(${graphIn})`}} />
       <SceneCaption opacity={summaryIn} width={980} fontSize={35} bottom={112} auditId="ref-storage-summary">
         ref 保存提交对象 ID，不保存另一份项目
       </SceneCaption>
@@ -325,7 +328,7 @@ const BranchResultScene: React.FC = () => {
     <AbsoluteFill>
       <CommandPill command="git branch feature" branch="main" top={128} />
       <CenterGraph state={graphState(STATES.withFeature)} top={270} width={1380} branchOffset={77} branchReveal={{name: 'feature', progress}} />
-      <div style={{opacity: progress}}><MiniRefLine line="feature -> C2" top={672} left={700} /></div>
+      <div style={{opacity: progress}}><MiniRefLine line="feature -> C2" top={752} left={700} /></div>
       <div style={{opacity: featureNote}}><SideLabel x={1280} y={330} tone="feature">新增的是 feature</SideLabel></div>
       <div style={{opacity: mainNote}}><SideLabel x={230} y={620} tone="main">main 没有移动</SideLabel></div>
       <SceneCaption opacity={summaryIn} width={820} fontSize={34} bottom={106} auditId="branch-result-summary">
@@ -358,16 +361,16 @@ const StartPointScene: React.FC = () => {
 
 const SwitchScene: React.FC = () => {
   const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(3.67), seconds(7.93)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const refIn = interpolate(frame, [seconds(8.2), seconds(9.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const headNote = interpolate(frame, [seconds(9.4), seconds(10.4), seconds(12.2), seconds(13)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const commitNote = interpolate(frame, [seconds(13.4), seconds(14.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const progress = interpolate(frame, [seconds(5.7), seconds(8.9)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const refIn = interpolate(frame, [seconds(9.15), seconds(9.75)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const headNote = interpolate(frame, [seconds(6), seconds(6.7), seconds(8.5), seconds(9.2)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commitNote = interpolate(frame, [seconds(14), seconds(14.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill>
       <CommandPill command="git switch feature" branch="main" />
       <CenterGraph state={graphState(STATES.switched)} top={350} width={1130} headMotion={{from: 'main', to: 'feature', progress}} headMarkerOffsetX={118} />
       <div style={{opacity: refIn}}><MiniRefLine title=".git/HEAD" line="HEAD -> feature" top={736} left={700} /></div>
-      <div style={{opacity: headNote}}><SideLabel x={1360} y={420} tone="head">HEAD 从 main 滑到 feature。</SideLabel></div>
+      <div style={{opacity: headNote}}><SideLabel x={1360} y={420} tone="head">HEAD 从 main 滑到 feature</SideLabel></div>
       <div style={{opacity: commitNote}}><SideLabel x={220} y={690} tone="main">commit 没变，当前分支变了</SideLabel></div>
     </AbsoluteFill>
   );
@@ -377,9 +380,9 @@ const CommitScene: React.FC = () => {
   const frame = useSceneFrame();
   const commitIn = interpolate(frame, [seconds(3.47), seconds(6.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const pointer = interpolate(frame, [seconds(6.27), seconds(9.53)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const featureNote = interpolate(frame, [seconds(9.8), seconds(10.8), seconds(13), seconds(14)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const featureNote = interpolate(frame, [seconds(7.2), seconds(8), seconds(10.7), seconds(11.3)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const mainNote = interpolate(frame, [seconds(14.4), seconds(15.4), seconds(18), seconds(19)], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const summaryIn = interpolate(frame, [seconds(19.5), seconds(20.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const summaryIn = interpolate(frame, [seconds(17.8), seconds(18.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill>
       <CommandPill command={'git commit -m "try new header"'} branch="feature" />
@@ -411,11 +414,11 @@ const CompareScene: React.FC = () => {
     <div style={{...TYPE.hero, fontSize: 62, opacity: title, transform: `translateY(${interpolate(title, [0, 1], [18, 0])}px)`}}>创建不移动，提交才移动</div>
     <div style={{position: 'absolute', left: 118, top: 388, width: 800, opacity: left, transform: `translateY(${interpolate(left, [0, 1], [22, 0])}px)`}}>
       <GitGraph state={graphState(STATES.withFeature)} width={800} height={310} />
-      <div style={{...TYPE.subtitle, color: COLOR.text.secondary, marginTop: 34}}>创建后 · 两个名字都在 C2</div>
+      <div style={{...TYPE.subtitle, color: COLOR.text.secondary, marginTop: 34, width: '100%', textAlign: 'center'}}>创建后 · 两个名字都在 C2</div>
     </div>
     <div style={{position: 'absolute', right: 92, top: 388, width: 820, opacity: right, transform: `translateY(${interpolate(right, [0, 1], [22, 0])}px)`}}>
       <GitGraph state={graphState(STATES.committed)} width={820} height={320} />
-      <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 34, fontWeight: WEIGHT.bold}}>提交后 · feature 前进到 C3</div>
+      <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 34, width: '100%', textAlign: 'center', fontWeight: WEIGHT.bold}}>提交后 · feature 前进到 C3</div>
     </div>
   </AbsoluteFill>
   );
@@ -423,8 +426,8 @@ const CompareScene: React.FC = () => {
 
 const TakeawayScene: React.FC = () => {
   const frame = useSceneFrame();
-  const state = frame < seconds(6.5) ? STATES.withFeature : frame < seconds(13) ? STATES.switched : STATES.committed;
-  const step = frame < seconds(6.5) ? '创建：新增名字' : frame < seconds(13) ? '切换：HEAD 改指向' : '提交：当前名字前进';
+  const state = frame < seconds(8.4) ? STATES.withFeature : frame < seconds(11.7) ? STATES.switched : STATES.committed;
+  const step = frame < seconds(8.4) ? '创建：新增名字' : frame < seconds(11.7) ? '切换：HEAD 改指向' : '提交：当前名字前进';
   const titleIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(0.9), seconds(2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (

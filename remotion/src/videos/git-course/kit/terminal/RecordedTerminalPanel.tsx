@@ -7,8 +7,10 @@ export const RecordedTerminalPanel: React.FC<{
   holdFromFrame?: number;
   title?: string;
   mediaFit?: 'fill' | 'cover';
-}> = ({src, holdFrameSrc, holdFromFrame = Number.POSITIVE_INFINITY, title = 'git-course-lab', mediaFit = 'fill'}) => {
+  playbackRate?: number;
+}> = ({src, holdFrameSrc, holdFromFrame = Number.POSITIVE_INFINITY, title = 'git-course-lab', mediaFit = 'fill', playbackRate = 1}) => {
   const frame = useCurrentFrame();
+  const compositionHoldFrame = holdFromFrame / playbackRate;
   const mediaStyle = {
     width: '100%',
     height: `calc(100% - ${TERMINAL_HEADER_HEIGHT}px)`,
@@ -19,10 +21,10 @@ export const RecordedTerminalPanel: React.FC<{
 
   return (
     <TerminalPanel title={title}>
-      {holdFrameSrc && frame >= holdFromFrame ? (
+      {holdFrameSrc && frame >= compositionHoldFrame ? (
         <Img src={staticFile(holdFrameSrc)} style={mediaStyle} />
       ) : (
-        <OffthreadVideo src={staticFile(src)} muted style={mediaStyle} />
+        <OffthreadVideo src={staticFile(src)} muted playbackRate={playbackRate} style={mediaStyle} />
       )}
     </TerminalPanel>
   );

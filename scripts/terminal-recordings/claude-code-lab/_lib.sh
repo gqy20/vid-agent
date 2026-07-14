@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # claude-code-lab 录制原语。
-# 由 <EP>/run.sh source。run.sh 是左 pane 进程，这些函数 printf 到该 pane。
-# 右 pane 由 run.sh 起的常驻 yazi 负责，文件改动后 yazi 自动刷新。
+# 由 <EP>/run.sh source。这些函数向课程录制终端输出导演内容。
 set -euo pipefail
 
 # Claude Code 主题色 (truecolor)

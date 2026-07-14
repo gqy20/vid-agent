@@ -12,7 +12,8 @@
       "docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc",
       "docs/references/progit2-zh/book/10-git-internals/sections/refs.asc",
       "https://git-scm.com/docs/git-branch",
-      "https://git-scm.com/docs/git-switch"
+      "https://git-scm.com/docs/git-switch",
+      "https://git-scm.com/docs/git-symbolic-ref"
     ]
   },
   "states": {
@@ -248,7 +249,7 @@
       "narration": {
         "segmentId": "03_terminal",
         "voiceStart": 30.35,
-        "text": "现在看真实命令。<#0.25#>\n从 main 创建 feature，切换过去，再提交一次。<#0.35#>\n接下来只盯住三个名字：main、feature 和 HEAD。"
+        "text": "现在看真实命令。<#0.25#>\n先创建 feature。命令通常没有输出，但 ref 已经写入。<#0.25#>\n随后切到 feature，再提交一次。<#0.35#>\n最后的 log 会把 HEAD、feature 和 main 一起标在提交旁边。<#0.35#>\n接下来就沿着这三个名字，逐步拆开状态变化。"
       }
     },
     {
@@ -274,7 +275,7 @@
           "visual": "命令胶囊、base 图、ref 写入条",
           "motion": "ref 条从左向右填充",
           "state": "base-to-withFeature",
-          "narration": "Git 写入一条 ref。",
+          "narration": "Git 写入一条 ref",
           "audit": [
             "ref 行可读",
             "命令不抢主视觉"
@@ -298,7 +299,7 @@
       "narration": {
         "segmentId": "04_branch_write",
         "voiceStart": 48.35,
-        "text": "执行 git branch feature。<#0.35#>\nGit 做的核心动作，是写入一条 ref：refs slash heads slash feature，指向 C2。<#0.35#>\n这条记录的意思是，feature 这个名字指向 C2。"
+        "text": "执行 git branch feature。<#0.35#>\nGit 先读取当前 HEAD 所在的 C2，再创建一条 ref：refs slash heads slash feature，指向 C2。<#0.35#>\n这条记录把 feature 这个名字和 C2 关联起来。<#0.35#>\n命令只创建分支，没有切换分支，所以 HEAD 仍然留在 main。"
       }
     },
     {
@@ -340,7 +341,7 @@
       "narration": {
         "segmentId": "05_ref_storage",
         "voiceStart": 70.35,
-        "text": "这个指针不是比喻。<#0.35#>\n本地分支通常记录在 dot git slash refs slash heads 下面。<#0.35#>\nfeature 对应一个简单的 ref，内容是它指向的提交对象 ID。<#0.35#>\n它不保存文件副本，也不保存另一套历史。<#0.35#>\n所以创建分支，只需要增加一个名字和一个目标。"
+        "text": "这个指针不是比喻。<#0.35#>\n本地分支通常记录在 dot git slash refs slash heads 下面。<#0.35#>\nfeature 对应一个简单的 ref，内容是它指向的提交对象 ID。<#0.35#>\n它不保存文件副本，也不保存另一套历史。<#0.35#>\n从这个核心结构看，仓库再大，也不需要复制工作区里的每个文件。<#0.35#>\n创建分支，只是在历史上增加一个名字和一个目标。"
       }
     },
     {
@@ -391,7 +392,7 @@
       "narration": {
         "segmentId": "06_branch_result",
         "voiceStart": 98.35,
-        "text": "写入以后，画面上多了一个 feature 标签。<#0.35#>\n注意，它没有生成新的 commit，也没有复制 C0 到 C2。<#0.35#>\nmain 和 feature 只是两个名字，同时指向同一个 C2。"
+        "text": "写入完成后，feature 标签落到 C2。<#0.35#>\n新增的只是这个分支名字，提交链仍然只有 C0、C1、C2。<#0.35#>\n再看 main，它没有移动，也仍然指向 C2。<#0.35#>\n因此此刻并没有两条历史，只有两个名字共同指向同一个 commit。"
       }
     },
     {
@@ -434,7 +435,7 @@
       "narration": {
         "segmentId": "07_start_point",
         "voiceStart": 122.35,
-        "text": "分支也不一定从当前提交创建。<#0.35#>\n例如 git branch hotfix C1，会让 hotfix 直接指向 C1。<#0.35#>\n官方命令把这个位置叫作 start point。<#0.35#>\n省略它时，Git 才默认使用当前 HEAD。<#0.35#>\n这再次说明，创建分支只是建立名字和目标之间的关系。"
+        "text": "分支也不一定从当前提交创建。<#0.35#>\n例如 git branch hotfix C1，会让 hotfix 直接指向 C1。<#0.35#>\n官方命令把这个位置叫作 start point。<#0.35#>\n省略它时，Git 才默认使用当前 HEAD。<#0.35#>\n这再次说明，创建分支只是建立名字和目标之间的关系。<#0.35#>\nmain、HEAD 都不动。"
       }
     },
     {
@@ -483,7 +484,7 @@
       "narration": {
         "segmentId": "08_switch",
         "voiceStart": 146.35,
-        "text": "接着执行 git switch feature。<#0.35#>\n这一步也没有改变提交历史。<#0.35#>\n改变的是 HEAD：HEAD 从 main 移到 feature。<#0.35#>\n也就是说，你现在站在 feature 这个名字上继续工作。"
+        "text": "接着执行 git switch feature。<#0.35#>\n命令开始时，main 和 feature 仍共同指向 C2。<#0.35#>\n随后 HEAD 从 main 改为选择 feature。<#0.35#>\n点 git slash HEAD 记录的当前分支，也随之变成 feature。<#0.35#>\nC0 到 C2 的提交链完全没变，变化的只是接下来由哪个分支名字继续向前移动。"
       }
     },
     {
@@ -534,7 +535,7 @@
       "narration": {
         "segmentId": "09_commit",
         "voiceStart": 170.35,
-        "text": "现在在 feature 上提交一次。<#0.35#>\n新的 commit C3 出现。<#0.35#>\n因为 HEAD 在 feature 上，所以前进的是 feature 指针。<#0.35#>\nmain 不动，仍然停在 C2。<#0.35#>\n到这里，两个分支才真正分开。"
+        "text": "现在在 feature 上执行一次 commit。<#0.35#>\nGit 先创建新的提交 C3，并让它把 C2 记录为 parent。<#0.35#>\n新提交接到历史末端以后，当前的 feature ref 从 C2 更新到 C3。<#0.35#>\nHEAD 仍然选择 feature，所以它会跟着来到 C3。<#0.35#>\nmain 没有参与这次更新，仍然停在 C2。<#0.35#>\nC2 没有被改写，Git 只是新增 C3。<#0.35#>\n两个名字现在指向不同提交，分支历史才从这里产生分歧。"
       }
     },
     {
@@ -599,7 +600,7 @@
       "narration": {
         "segmentId": "11_takeaway",
         "voiceStart": 220.25,
-        "text": "所以记住这一句：branch 是一个轻量、可移动的 ref。<#0.35#>\n它保存名字和提交对象 ID 的关系。<#0.35#>\n创建分支，是增加一个名字。<#0.25#>\n切换分支，是让 HEAD 选择当前名字。<#0.25#>\n提交，则让当前 branch 前进。"
+        "text": "所以记住这一句：branch 是一个轻量、可移动的 ref。<#0.35#>\n它保存名字和提交对象 ID 的关系。<#0.35#>\n创建分支，是增加一个名字。<#0.25#>\n切换分支，是让 HEAD 选择当前名字。<#0.25#>\n提交，则让当前 branch 前进。<#0.35#>\n以后看分支图，先找当前名字，再看它指向哪个 commit。"
       }
     }
   ],
@@ -611,11 +612,24 @@
     "qualityMarkdown": "# EP04 Branch 只是一个指针 - 审查记录\n\n> 本文件是人工审查历史，不表示当前构建状态。机器状态以 `pnpm --dir remotion git-course:validate` 和最新渲染报告为准。\n\n## 审查原则\n\n每次渲染后至少检查：\n\n- 关键帧是否有物理重叠。\n- 是否存在半透明 ghost 残影。\n- 元素是否虽然没有相交但距离过近。\n- 字幕是否遮挡 Git 图、终端、branch 标签或 HEAD。\n- 每个节拍是否只有一个主视觉。\n- 动画是否只发生一次，不能来回晃动或循环。\n- 命令和状态变化之间是否有因果感。\n\n## 自动审查命令\n\n```bash\npnpm --dir remotion run audit:overlaps GitCourseEp04BranchIsPointer 600,615,630,645,660,690 renders/git-course/ep04-branch-is-pointer/tmp/scenes/mental-model/overlap-audit-9s\npnpm --dir remotion run audit:overlaps GitCourseEp04BranchIsPointer 870,885,899 renders/git-course/ep04-branch-is-pointer/tmp/scenes/mental-model/overlap-audit-17s\npnpm --dir remotion git-course:render ep04-branch-is-pointer --scene mental-model\n```\n\n## 已完成核对\n\n### mental-model / 9s 附近\n\n问题：\n\n- `RefWrite` 在 9s 附近低透明度提前出现，虽然没有 bbox 硬重叠，但视觉上像一条白色残影。\n\n处理：\n\n- `RefWrite` 的 opacity 从 progress 0.26 后才开始进入。\n- Git 图在 ref 写入阶段轻微上移。\n- `main` 标签与 C2 拉开距离。\n- 审计脚本新增 `ghost` 和 `near` 检测。\n\n结果：\n\n- frames `600,615,630,645,660,690`：`0 overlaps`，`0 visual issues`。\n\n### mental-model / 17s 附近\n\n问题：\n\n- `feature` 与 `main` 指向 C2 时只有竖线，没有箭头，语义不够明确。\n\n处理：\n\n- 新增 `ArrowLine` 基础组件。\n- `BranchTag` 改为使用 `ArrowLine`。\n- `feature/main -> C2` 都显示箭头。\n- 箭头头部缩小，避免抢 C2 的视觉权重。\n\n结果：\n\n- frames `870,885,899`：`0 overlaps`，`0 visual issues`。\n\n## 当前待优化\n\n| Scene | 问题 | 建议 |\n|---|---|---|\n| branch-result | feature 出现仍偏状态切换，不够像从 ref 行落到 C2 | 增加 `BranchTag` 的 from/to motion，并让 ref 行和标签建立空间因果 |\n| commit | C3 出现还可以更有生成感 | 增加 commit node birth 动画：右侧生成、连线绘制、feature 指针滑动 |\n| terminal | 终端片段需要继续降低同屏叙事层 | 输入命令时只保留终端，命令执行后再切 Git 图 |\n| compare | 左右对比容易像课件 | 左图先出现，右图再出现，中间用一句短字幕承接 |\n| takeaway | 结论画面信息量可再收敛 | 保留大标题和动态图，减少底部列表文字 |\n\n## 输出位置\n\n第二片段最新渲染：\n\n```text\nremotion/renders/git-course/ep04-branch-is-pointer/tmp/scenes/mental-model/segments/001_000360-000899.mp4\n```\n\n第二片段抽帧总览：\n\n```text\nremotion/renders/git-course/ep04-branch-is-pointer/tmp/scenes/mental-model/segment-audits/001_000360-000899/contact-16.jpg\n```\n",
     "readmeMarkdown": "# EP04 Branch 只是一个指针 - 制作目录\n\n这个目录保存 EP04 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点；后半部分包含可反查代码与帧范围的执行规格卡。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前代码入口：\n\n```text\nremotion/src/videos/git-course/episodes/Ep04BranchIsPointer.tsx\n```\n\n当前时间线入口：\n\n```text\nremotion/src/videos/git-course/episodes/Ep04BranchIsPointer.tsx\n```\n\n## 当前制作状态\n\n- Remotion 主视频：已对齐 EP01/EP02 的 episode 内 scene 结构。\n- 分段渲染：已生成 9 个分段，文件输出到 `remotion/renders/git-course/ep04-branch-is-pointer/current/scenes/`：\n  - `01_hook.mp4`（0-12s）\n  - `02_mental-model.mp4`（12-30s）\n  - `03_terminal.mp4`（30-48s）\n  - `04_branch-write.mp4`（48-70s）\n  - `05_branch-result.mp4`（70-98s）\n  - `06_switch.mp4`（98-122s）\n  - `07_commit.mp4`（122-154s）\n  - `08_compare.mp4`（154-168s）\n  - `09_takeaway.mp4`（168-180s）\n- 说明：每次命令分段默认走 `tmp/scenes/<scene-id>/`，完成后会拷贝到 current 场景目录。\n- 命令入口：\n  - `pnpm --dir remotion git-course:render ep04-branch-is-pointer --scene hook`\n  - 把 `hook` 换成任意 `episode JSON` scene id 即可；不再维护逐 scene package script。\n\n原则：先审 `content.scriptMarkdown` 和 `content.beatsMarkdown`，再改 Remotion。任何“9s 重叠”“17s 没箭头”这类问题，都应该能回到 beat spec 判断是脚本遗漏还是实现偏差。\n",
     "voiceoverDesignMarkdown": null,
-    "alignmentMarkdown": "# EP04 Audio Alignment\n\nEpisode: `ep04-branch-is-pointer`\n\nTTS settings:\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n\nScene windows:\n\n| Segment | Voice start | Scene end | Normalized file |\n|---|---:|---:|---|\n| `01_hook` | 0.35s | 12.00s | `01_hook_norm.mp3` |\n| `02_mental_model` | 12.35s | 30.00s | `02_mental_model_norm.mp3` |\n| `03_terminal` | 30.35s | 48.00s | `03_terminal_norm.mp3` |\n| `04_branch_write` | 48.35s | 70.00s | `04_branch_write_norm.mp3` |\n| `05_branch_result` | 70.35s | 98.00s | `05_branch_result_norm.mp3` |\n| `06_switch` | 98.35s | 122.00s | `06_switch_norm.mp3` |\n| `07_commit` | 122.35s | 154.00s | `07_commit_norm.mp3` |\n| `08_compare` | 154.35s | 168.00s | `08_compare_norm.mp3` |\n| `09_takeaway` | 168.25s | 180.00s | `09_takeaway_norm.mp3` |\n\nMix strategy:\n\n- Segment voice is generated from one `.txt` file per scene via `remotion/scripts/git-course-build-voiceover.sh`.\n- Each segment is normalized with FFmpeg compression and loudness normalization to approximately `-20 LUFS`, peak around `-3 dBFS`.\n- BGM is reused from EP03/EP02 at `audio/bgm.mp3`.\n- BGM volume is fixed at `0.05`, with no sidechain ducking.\n- Aligned narration output: `audio/voiceover-aligned.m4a`.\n- Final mix output: `audio/mix.m4a`.\n\nSRT alignment:\n\n- Segment SRT files use the TTS engine timing within each generated segment.\n- Global sentence time = `manifest voice_start_seconds + segment_srt_time`.\n- Pause markers `<#...#>` must not appear in `.srt` output after generation.\n"
+    "alignmentMarkdown": "# EP04 Audio Alignment\n\nEpisode: `ep04-branch-is-pointer`\n\nTTS settings:\n\n- model: `speech-2.8-hd`\n- voice: `Chinese (Mandarin)_Gentleman`\n- language: `zh`\n- speed: `1.25`\n- normalization: approximately `-20 LUFS`, peak near `-3 dBFS`\n- BGM volume: `0.05`, no sidechain ducking\n\n| Segment | Voice start | Voice duration | Voice end | Scene end |\n|---|---:|---:|---:|---:|\n| `01_hook` | 0.35s | 9.665s | 10.015s | 12.00s |\n| `02_mental_model` | 12.35s | 14.759s | 27.109s | 30.00s |\n| `03_terminal` | 30.35s | 15.360s | 45.710s | 48.00s |\n| `04_branch_write` | 48.35s | 18.312s | 66.662s | 70.00s |\n| `05_ref_storage` | 70.35s | 21.995s | 92.345s | 98.00s |\n| `06_branch_result` | 98.35s | 15.830s | 114.180s | 122.00s |\n| `07_start_point` | 122.35s | 20.010s | 142.360s | 146.00s |\n| `08_switch` | 146.35s | 20.793s | 167.143s | 170.00s |\n| `09_commit` | 170.35s | 23.850s | 194.200s | 202.00s |\n| `10_compare` | 202.35s | 13.453s | 215.803s | 220.00s |\n| `11_takeaway` | 220.25s | 17.946s | 238.196s | 240.00s |\n\nTotal normalized narration duration is 191.974 seconds in the 240-second main episode, a 79.99% narration-to-video ratio. Every narration window fits inside its scene. The build pipeline canonicalizes SRT text from episode JSON while preserving TTS timestamps, validates UTF-8, removes terminal punctuation, and rejects cue-count or text mismatches. Final aligned narration is `current/audio/voiceover-aligned.m4a`; final mix is `current/audio/mix.m4a`.\n"
   },
   "release": {
-    "bilibiliMarkdown": "# EP04 B 站发布物料\n\n## 标题\n\n为什么 git branch 瞬间完成？因为它根本没复制\n\n## 封面文字\n\n主标题：\n\n```text\nBranch 不是项目副本\n```\n\n副标题：\n\n```text\n它只是一个指针\n```\n\n1. 简介\n\n很多人以为创建分支会复制一份项目，所以不理解为什么 git branch 可以瞬间完成。\n\n这一集用 main 和 feature 两个指针演示：创建分支只是写入一个名字，让它指向当前 commit；切到 feature 后再提交，移动的是 feature 指针，main 仍停在原来的 commit，没有被复制，也没有丢失。\n\n理解分支是指针之后，switch、merge、rebase 等操作就有了共同基础。\n\n2. 你会学到\n\n- git branch 创建的是指针，不是项目副本\n- 新分支刚创建时为什么和当前分支指向同一个 commit\n- 切到新分支继续提交后，哪个指针会移动\n- main 为什么停在原地，没有丢失也没有被复制\n- 分支为什么轻量，而且创建速度很快\n\n3. 时间轴\n\n00:00 branch 是什么\n00:12 不是复制目录，而是写入一个名字\n00:30 命令顺序：branch / switch / commit\n00:48 git branch feature：写入 refs/heads/feature → C2\n01:10 feature 出现，main 没有移动\n01:38 HEAD 从 main 切到 feature\n02:02 提交后 feature 前进到 C3，main 停在 C2\n02:34 对比：刚创建与提交之后\n02:48 收束：branch 是会移动的名字\n\n4. 适合谁\n\n- 会用 git branch，但以为它会复制项目的人\n- 不理解 git switch 到底改变了什么的人\n- 想弄清 main 为什么不会因创建分支而移动的人\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n编程基础\n计算机基础\n程序员\n开发工具\n源码管理\n```\n\n## 动态文案\n\n前三集讲了对象、三层状态和 commit，这一集讲分支为什么只是一个指针。\n\n把 main、feature、HEAD 的关系理清，后面学习 merge 和 rebase 就有基础了。\n\n## 置顶评论\n\n这一集讲 branch 指针。前四集已经建立 Git 的核心心智模型：对象、三层状态、commit 和分支指针。后续会在这个模型上继续讲 HEAD、merge 与 rebase。\n",
+    "bilibiliMarkdown": "# EP04 B 站发布物料\n\n## 标题\n\n创建 Git 分支为什么这么快？它根本没复制\n\n## 封面文字\n\n主标题：\n\n```text\nBranch 不是项目副本\n```\n\n副标题：\n\n```text\n它只是一个指针\n```\n\n## 简介\n\n很多人以为创建分支会复制一份项目，所以不理解为什么 git branch 几乎瞬间完成。\n\n这一集从真实命令出发，把分支还原成 .git/refs/heads/ 下的一条 ref：它保存名字与 commit ID 的关系，而不是另一份项目。新建 feature 时，它可以和 main 同时指向 C2；切换后继续提交，只有当前的 feature 前进到 C3，main 仍停在 C2。\n\n视频还会说明新分支默认从当前 HEAD 创建，但也可以显式指定 start-point。理解这套模型后，HEAD、merge 和 rebase 就有了共同基础。\n\n## 你会学到\n\n- git branch 创建的是 ref，不是项目副本\n- branch ref 实际存放在哪里，以及文件里保存什么\n- 新分支为什么可以和 main 指向同一个 commit\n- 如何从指定 start-point 创建分支\n- 切换与提交分别会改变 HEAD 还是 branch\n\n## 时间轴\n\n00:00 看得见的 Git\n00:07 branch 到底是什么\n00:19 创建分支不是复制目录\n00:37 真实命令：branch / switch / commit\n00:55 git branch feature 写入一条 ref\n01:17 branch ref 实际存在哪里\n01:45 feature 与 main 同时指向 C2\n02:09 从指定 start-point 创建分支\n02:33 HEAD 从 main 切到 feature\n02:57 提交后 feature 前进，main 不动\n03:29 对比创建分支与提交之后\n03:47 收束：branch 是可移动的名字\n04:07 片尾\n\n## 适合谁\n\n- 会用 git branch，但以为它会复制项目的人\n- 不理解 branch、HEAD 与 commit 关系的人\n- 想继续学习 merge、rebase，却缺少底层模型的人\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n编程基础\n计算机基础\n程序员\n开发工具\n源码管理\n```\n\n## 动态文案\n\n前三集讲了对象、三层状态和 commit，这一集继续把 branch 还原成一个轻量、可移动的 ref。\n\n把 main、feature、HEAD 的关系理清，后面学习 merge 和 rebase 就不会只剩命令。\n\n## 置顶评论\n\n这一集讲 branch 指针。前四集已经建立 Git 的核心心智模型：对象、三层状态、commit 和 branch ref。下一集会继续拆解 HEAD，包括 symbolic ref 与 detached HEAD。\n\n## 上传文件\n\n```text\nremotion/renders/git-course/ep04-branch-is-pointer/current/release/ep04-branch-is-pointer.mp4\n```\n\n- 规格：3840×2160 / 30fps / H.264 / AAC 48kHz\n- 时长：04:13.021\n- SHA-256：`83ae213267ca5c2ec80b6e0cddbcf3b02454748d1c2b8f43524ed1e32c16ace7`\n",
     "coverBriefMarkdown": "# EP04 封面 Brief\n\n## 目标\n\n让观众在一秒内看懂本集问题：\n\n```text\n分支不是一份项目副本。分支只是一个名字，指向某个 commit。\n```\n\n## 主视觉\n\n画面采用小尺寸优先的强冲突对照：\n\n- 上半屏：左侧用超大红色 `branch` 作为第一视觉焦点，右侧两行中文判断；视觉阅读顺序与“branch 不是项目副本”的语序一致。\n- 下半屏左侧：只保留一个标有\"项目副本\"的文件夹，代表被否定的误解。\n- 下半屏右侧：极简 commit 链，`main` 和 `feature` 两个标签都指向同一个 commit。\n- 中间用大号 `≠` 表达：项目副本不等于轻量的分支指针；去掉副本堆、便签和 commit 编号。\n\n## 文案层级\n\n一级标题：\n\n```text\nBranch 不是项目副本\n```\n\n二级标题：\n\n```text\n它只是一个指针\n```\n\n角标：\n\n```text\n看得见的 Git\nEP.04 · branch pointer\n```\n\n## 视觉要求\n\n- `branch` 必须是最大单一文字块，中文问题句退居第二层。\n- 左侧文件夹要\"笨重\"，右侧指针要\"轻\"，对比传达\"创建分支没有复制\"。\n- `main` 与 `feature` 必须都明确指向同一个 commit，把\"两个名字、同一个 commit\"讲清楚。\n- 右侧提交链要比左侧更稳定、更有秩序。\n- 移动端缩略图只需读出标题、`≠` 和两个模型，不展示解释性小字。\n\n## 候选标题\n\n```text\n为什么创建分支这么快\n```\n\n```text\nbranch 到底复制了什么\n```\n\n```text\n分支不是复制一份\n```\n\n## 推荐输出\n\n```text\nremotion/renders/git-course/ep04-branch-is-pointer/current/release/cover.png\n```\n",
-    "checklistMarkdown": "# EP04 发布检查清单\n\n## 视频\n\n- [ ] 使用 `current/release/ep04-branch-is-pointer.mp4`\n- [ ] 包含片头和片尾\n- [ ] 正片字幕末尾不使用句号\n- [ ] 音色统一\n- [ ] 人声响度稳定，BGM 低于人声\n- [ ] 片头和片尾 BGM 音量符合当前默认值\n\n## 封面\n\n- [ ] 使用 `current/release/cover.png`\n- [ ] 标题在移动端缩略图可读\n- [ ] 主标题和视频主题一致\n- [ ] 没有使用临时版本目录\n\n## B 站上传内容\n\n- [ ] 标题不超过 25 字左右，重点前置\n- [ ] 简介第一段说明本集解决的问题\n- [ ] 时间轴与成片内容对应\n- [ ] 标签包含 `Git`、`Git教程`、`版本控制`\n- [ ] 置顶评论说明下一集承接关系\n\n## 发布后\n\n- [ ] 检查网页端播放音量\n- [ ] 检查移动端封面裁切\n- [ ] 检查时间轴是否可点击\n- [ ] 检查合集顺序是否正确\n"
+    "checklistMarkdown": "# EP04 发布检查清单\n\n## 已完成验证\n\n- [x] 上传源为 `current/release/ep04-branch-is-pointer.mp4`\n- [x] 视频为 3840×2160、30fps、H.264\n- [x] 音频为 AAC、48kHz\n- [x] 总时长为 253.021 秒\n- [x] 包含 7 秒片头和 6 秒片尾\n- [x] 主片 audit verdict 为 `pass`\n- [x] release audit verdict 为 `pass`\n- [x] 连续 2fps、场景边界和关键帧审查完成\n- [x] TTS 音色与速度全片一致\n- [x] BGM 使用课程固定音量，不做 sidechain ducking\n- [x] B 站时间轴已按最终 release 的真实时间更新\n\n## 上传前确认\n\n- [ ] 确认采用标题：`创建 Git 分支为什么这么快？它根本没复制`\n- [ ] 确认封面使用 `current/release/cover.png`\n- [ ] 在移动端预览封面标题与裁切\n- [ ] 复制 `bilibili.md` 中的简介、标签和时间轴\n- [ ] 确认上传文件 SHA-256 为 `83ae213267ca5c2ec80b6e0cddbcf3b02454748d1c2b8f43524ed1e32c16ace7`\n- [ ] 加入“看得见的 Git”合集并放在 EP03 之后\n\n## 发布后检查\n\n- [ ] 网页端检查 00:00、00:07、04:07 三个包装边界\n- [ ] 移动端检查字幕大小和封面裁切\n- [ ] 检查时间轴能否正确跳转\n- [ ] 检查人声响度与背景音乐比例\n- [ ] 发布置顶评论\n",
+    "artifact": {
+      "path": "remotion/renders/git-course/ep04-branch-is-pointer/current/release/ep04-branch-is-pointer.mp4",
+      "sha256": "83ae213267ca5c2ec80b6e0cddbcf3b02454748d1c2b8f43524ed1e32c16ace7",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "durationSeconds": 253.021029,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "audioSampleRate": 48000,
+      "releaseVerdict": "pass",
+      "releaseAuditCreatedAt": "2026-07-14T09:13:28.894Z"
+    }
   }
 }

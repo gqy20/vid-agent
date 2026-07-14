@@ -100,12 +100,20 @@ const generateNarrationSource = (episode) => {
 };
 
 const generateReleaseSource = (episode) => {
-  if (!episode.release?.bilibiliMarkdown) return null;
+  const documents = [
+    ['bilibili.md', episode.release?.bilibiliMarkdown],
+    ['checklist.md', episode.release?.checklistMarkdown],
+    ['cover-brief.md', episode.release?.coverBriefMarkdown],
+    ['audio-alignment.md', episode.content?.alignmentMarkdown],
+  ].filter(([, content]) => typeof content === 'string' && content.length > 0);
+  if (documents.length === 0) return [];
   const dir = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'current/release');
   mkdirSync(dir, {recursive: true});
-  const path = join(dir, 'bilibili.md');
-  writeFileSync(path, episode.release.bilibiliMarkdown);
-  return path;
+  return documents.map(([name, content]) => {
+    const path = join(dir, name);
+    writeFileSync(path, content);
+    return path;
+  });
 };
 
 const validateTypographyTokens = () => {
@@ -151,14 +159,14 @@ if (command === 'validate') {
   console.log(`Validated ${episodes.length} episode JSON files and narration timelines.`);
 } else if (command === 'generate') {
   generateTimelines(episodes);
-  episodes.forEach(generateReleaseSource);
   console.log('Generated Remotion timelines from episode JSON files.');
 } else if (command === 'narration') {
   const episode = episodes.find((item) => item.id === episodeId) ?? fail(`Unknown episode: ${episodeId}`);
   console.log(generateNarrationSource(episode));
 } else if (command === 'release') {
   const episode = episodes.find((item) => item.id === episodeId) ?? fail(`Unknown episode: ${episodeId}`);
-  console.log(generateReleaseSource(episode) ?? `${episode.id}: no release source`);
+  const generated = generateReleaseSource(episode);
+  console.log(generated.length > 0 ? generated.join('\n') : `${episode.id}: no release source`);
 } else if (command === 'render') {
   const episode = episodes.find((item) => item.id === episodeId) ?? fail(`Unknown episode: ${episodeId}`);
   generateTimelines(episodes);

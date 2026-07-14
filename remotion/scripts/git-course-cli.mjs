@@ -2,6 +2,7 @@
 
 import {createHash} from 'node:crypto';
 import {execFile, execFileSync} from 'node:child_process';
+import {isUtf8} from 'node:buffer';
 import {cpus} from 'node:os';
 import {
   copyFileSync,
@@ -431,6 +432,7 @@ const buildAudio = async (ctx, buildPlan) => {
       norm: join(segmentsDir, `${segment}_norm.mp3`),
     };
     const sourceMatches = existsSync(targets.text) && readFileSync(targets.text, 'utf8').trim() === task.scene.narration.text.trim();
+    if (sourceMatches && existsSync(targets.srt)) validateTtsTextArtifacts(task, targets.srt, targets.text);
     if (sourceMatches && existsSync(targets.raw) && existsSync(targets.srt) && (!existsSync(task.cas.raw) || !existsSync(task.cas.srt))) {
       mkdirSync(task.cas.speechDir, {recursive: true});
       copyFileSync(targets.raw, task.cas.raw);
@@ -444,10 +446,12 @@ const buildAudio = async (ctx, buildPlan) => {
       copyFileSync(targets.norm, task.cas.norm);
       writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(targets.norm), migrated: true});
     }
-    if (existsSync(task.cas.raw) && !existsSync(targets.raw)) copyFileSync(task.cas.raw, targets.raw);
-    if (existsSync(task.cas.srt) && !existsSync(targets.srt)) copyFileSync(task.cas.srt, targets.srt);
-    if (existsSync(task.cas.text) && !existsSync(targets.text)) copyFileSync(task.cas.text, targets.text);
+    if (existsSync(task.cas.raw) && (!existsSync(targets.raw) || shaFile(targets.raw) !== shaFile(task.cas.raw))) copyFileSync(task.cas.raw, targets.raw);
+    if (existsSync(task.cas.srt) && (!existsSync(targets.srt) || shaFile(targets.srt) !== shaFile(task.cas.srt))) copyFileSync(task.cas.srt, targets.srt);
+    if (existsSync(task.cas.text) && (!existsSync(targets.text) || shaFile(targets.text) !== shaFile(task.cas.text))) copyFileSync(task.cas.text, targets.text);
     if (existsSync(task.cas.norm) && (!existsSync(targets.norm) || shaFile(targets.norm) !== shaFile(task.cas.norm))) copyFileSync(task.cas.norm, targets.norm);
+    const stagedSourceMatches = existsSync(targets.text) && readFileSync(targets.text, 'utf8').trim() === task.scene.narration.text.trim();
+    if (stagedSourceMatches && existsSync(targets.srt)) validateTtsTextArtifacts(task, targets.srt, targets.text);
     if (existsSync(targets.norm) && existsSync(task.cas.norm) && shaFile(targets.norm) === shaFile(task.cas.norm)) {
       ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(targets.norm), sha256: shaFile(targets.norm), updatedAt: new Date().toISOString()};
     }
@@ -489,7 +493,8 @@ const buildAudio = async (ctx, buildPlan) => {
     const raw = join(segmentsDir, `${segment}.mp3`);
     const srt = join(segmentsDir, `${segment}.srt`);
     const textPath = join(segmentsDir, `${segment}.txt`);
-    for (const path of [raw, srt]) existsSync(path) || fail(`Missing TTS cache input: ${path}`);
+    for (const path of [raw, srt, textPath]) existsSync(path) || fail(`Missing TTS cache input: ${path}`);
+    validateTtsTextArtifacts(task, srt, textPath);
     mkdirSync(task.cas.speechDir, {recursive: true});
     mkdirSync(task.cas.normalizedDir, {recursive: true});
     copyFileSync(raw, task.cas.raw);
@@ -1047,6 +1052,42 @@ const normalizedSrtText = (value) => value
   .replace(/[\s，。；;、：:！？?!,.·]/g, '')
   .toLowerCase();
 
+const canonicalNarrationCues = (value) => value
+  .split(/<#[^>]+#>|\n+/)
+  .map((line) => line.trim())
+  .filter(Boolean)
+  .map((line) => line
+    .replace(/^\s*\((?:breath|sighs?|sigh|clear-throat|clears throat|laughs?|chuckles?)\)\s*/i, '')
+    .replace(/[。；;]+\s*$/u, '')
+    .replace(/([\p{Script=Han}A-Za-z0-9])\.\s*$/u, '$1'));
+
+const canonicalizeSrtText = (task, srtPath) => {
+  const sourceCues = canonicalNarrationCues(task.scene.narration.text);
+  const raw = readFileSync(srtPath).toString('utf8');
+  let cueIndex = 0;
+  const lines = raw.split(/\r?\n/).map((line) => {
+    if (!line.trim() || /^\d+$/.test(line.trim()) || line.includes('-->')) return line;
+    const source = sourceCues[cueIndex];
+    source !== undefined || fail(`${task.scene.narration.segmentId}: SRT contains more text cues than narration source`);
+    cueIndex += 1;
+    return source;
+  });
+  cueIndex === sourceCues.length || fail(`${task.scene.narration.segmentId}: SRT cue count ${cueIndex} does not match narration cue count ${sourceCues.length}`);
+  writeFileSync(srtPath, lines.join('\n'));
+};
+
+const validateTtsTextArtifacts = (task, srtPath, textPath) => {
+  const segment = task.scene.narration.segmentId;
+  canonicalizeSrtText(task, srtPath);
+  const srtBytes = readFileSync(srtPath);
+  isUtf8(srtBytes) || fail(`${segment}: SRT is not valid UTF-8`);
+  const srtText = srtBytes.toString('utf8');
+  !/<#|#>/.test(srtText) || fail(`${segment}: pause marker leaked into SRT`);
+  !srtText.split(/\r?\n/).some((line) => line && !line.includes('-->') && /[。；;]\s*$/.test(line)) || fail(`${segment}: terminal subtitle punctuation was not cleaned`);
+  normalizedSrtText(srtText) === normalizedNarrationText(task.scene.narration.text) || fail(`${segment}: SRT text does not match narration source`);
+  readFileSync(textPath, 'utf8').trim() === task.scene.narration.text.trim() || fail(`${segment}: staged TTS text does not match episode JSON`);
+};
+
 const previewAudio = async (ctx) => {
   await run('node', [join(REMOTION, 'scripts/git-course.mjs'), 'generate']);
   const buildPlan = plan(ctx);
@@ -1091,11 +1132,7 @@ const previewAudio = async (ctx) => {
     const textPath = join(previewSegmentsDir, `${segment}.txt`);
     const norm = join(previewSegmentsDir, `${segment}_norm.mp3`);
     for (const path of [raw, srt, textPath, norm]) existsSync(path) || fail(`Audio preview output missing: ${path}`);
-    const srtText = readFileSync(srt, 'utf8');
-    !/<#|#>/.test(srtText) || fail(`${segment}: pause marker leaked into SRT`);
-    !srtText.split(/\r?\n/).some((line) => line && !line.includes('-->') && /[。；;]\s*$/.test(line)) || fail(`${segment}: terminal subtitle punctuation was not cleaned`);
-    normalizedSrtText(srtText) === normalizedNarrationText(task.scene.narration.text) || fail(`${segment}: SRT text does not match narration source`);
-    readFileSync(textPath, 'utf8').trim() === task.scene.narration.text.trim() || fail(`${segment}: staged TTS text does not match episode JSON`);
+    validateTtsTextArtifacts(task, srt, textPath);
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
     const voiceEnd = task.scene.narration.voiceStart + duration;
     const sceneEnd = task.scene.start + task.scene.duration;
