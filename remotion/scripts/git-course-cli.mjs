@@ -1043,6 +1043,7 @@ const preview = async (ctx) => {
 };
 
 const normalizedNarrationText = (value) => value
+  .replace(/\((?:breath|sighs?|sigh|clear-throat|clears throat|laughs?|chuckles?)\)/gi, '')
   .replace(/<#[^>]+#>/g, '')
   .replace(/[\s，。；;、：:！？?!,.·]/g, '')
   .toLowerCase();

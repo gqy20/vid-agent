@@ -60,6 +60,17 @@ const validateNarration = (episode) => {
   });
 };
 
+const validateReleaseMetadata = (episode) => {
+  const markdown = episode.release?.bilibiliMarkdown;
+  typeof markdown === 'string' && markdown.trim().length > 0 || fail(`${episode.id}: release.bilibiliMarkdown is required`);
+  markdown.split('## 官方参考').length === 2 || fail(`${episode.id}: bilibiliMarkdown must contain exactly one 官方参考 section`);
+  const referenceStart = markdown.indexOf('\n## 官方参考\n');
+  const tagStart = markdown.indexOf('\n## 标签\n', referenceStart);
+  referenceStart >= 0 && tagStart > referenceStart || fail(`${episode.id}: 官方参考 must appear immediately before 标签`);
+  const referenceSection = markdown.slice(referenceStart, tagStart);
+  /https:\/\/git-scm\.com\/[^)\s]+/.test(referenceSection) || fail(`${episode.id}: 官方参考 must include at least one git-scm.com link`);
+};
+
 const timelineSource = (episodes) => {
   const blocks = episodes.map((episode) => {
     const scenes = episode.scenes.map(({id, title, duration}) => `  {id: ${JSON.stringify(id)}, title: ${JSON.stringify(title)}, duration: seconds(${duration})},`).join('\n');
@@ -141,6 +152,7 @@ const validateTypographyTokens = () => {
 const validate = ({checkGenerated = true} = {}) => {
   const episodes = EPISODES.map(loadEpisode);
   episodes.forEach(validateNarration);
+  episodes.forEach(validateReleaseMetadata);
   validateTypographyTokens();
   const generated = join(REMOTION_ROOT, 'src/videos/git-course/data/episodeTimelines.generated.ts');
   if (checkGenerated && existsSync(generated)) {
@@ -156,7 +168,7 @@ const sceneId = sceneIndex >= 0 ? process.argv[sceneIndex + 1] : null;
 const episodes = validate({checkGenerated: command !== 'generate'});
 
 if (command === 'validate') {
-  console.log(`Validated ${episodes.length} episode JSON files and narration timelines.`);
+  console.log(`Validated ${episodes.length} episode JSON files, narration timelines, and release metadata.`);
 } else if (command === 'generate') {
   generateTimelines(episodes);
   console.log('Generated Remotion timelines from episode JSON files.');
