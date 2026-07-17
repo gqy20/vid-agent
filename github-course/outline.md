@@ -58,4 +58,4 @@
 
 ## 制作状态
 
-所有条目目前都是规划，不表示 episode 已进入制作。开始制作时先创建 `episodes/<episode-id>.json`；教学、scene、旁白、浏览器 scenario、审查和发布数据随后只在该 JSON 中维护。
+`gh01-git-vs-github` 已进入第一版制作，其教学、scene、旁白和浏览器录制声明维护在 `episodes/gh01-git-vs-github.json`。其余条目仍是规划；开始制作时先创建各自的 episode JSON。

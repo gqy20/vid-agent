@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
-from playwright.async_api import Page
+from playwright.async_api import Locator, Page
 
 
 @dataclass(frozen=True)
@@ -72,17 +72,28 @@ async def install_recording_cursor(page: Page) -> None:
 
 
 async def click_with_cursor(page: Page, selector: str, *, settle_ms: int = 700) -> None:
-    locator = page.locator(selector)
+    await click_locator_with_cursor(page, page.locator(selector), settle_ms=settle_ms)
+
+
+async def move_cursor_to_locator(page: Page, locator: Locator, *, settle_ms: int = 700) -> None:
     await locator.wait_for(state="visible")
+    await locator.scroll_into_view_if_needed()
     box = await locator.bounding_box()
     if box is None:
-        raise RuntimeError(f"Cannot resolve click target box: {selector}")
+        raise RuntimeError("Cannot resolve browser target box")
     await page.mouse.move(
         box["x"] + box["width"] / 2,
         box["y"] + box["height"] / 2,
         steps=18,
     )
-    await page.wait_for_timeout(250)
+    await page.wait_for_timeout(settle_ms)
+
+
+async def click_locator_with_cursor(page: Page, locator: Locator, *, settle_ms: int = 700) -> None:
+    await move_cursor_to_locator(page, locator, settle_ms=250)
+    box = await locator.bounding_box()
+    if box is None:
+        raise RuntimeError("Cannot resolve browser click target box")
     await page.mouse.click(
         box["x"] + box["width"] / 2,
         box["y"] + box["height"] / 2,

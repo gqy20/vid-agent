@@ -17,12 +17,13 @@ export const BrowserPanel: React.FC<{
   recording: BrowserRecordingSource;
   highlights?: readonly BrowserFocusRegion[];
   preferPoster?: boolean;
+  holdFromFrame?: number;
   playbackRate?: number;
   auditId?: string;
-}> = ({recording, highlights = [], preferPoster = false, playbackRate = 1, auditId = 'browser-panel'}) => {
+}> = ({recording, highlights = [], preferPoster = false, holdFromFrame, playbackRate = 1, auditId = 'browser-panel'}) => {
   const frame = useCurrentFrame();
   const panelIn = interpolate(frame, [0, 10], [0, 1], {extrapolateRight: 'clamp'});
-  const hasVideo = Boolean(recording.src) && !preferPoster;
+  const hasVideo = Boolean(recording.src) && !preferPoster && (holdFromFrame === undefined || frame < holdFromFrame);
   const hasPoster = Boolean(recording.poster);
 
   return (
@@ -38,7 +39,7 @@ export const BrowserPanel: React.FC<{
         background: COLOR.browser.viewport,
         boxShadow: `0 24px 70px ${COLOR.effects.shadowPanel}`,
         opacity: panelIn,
-        transform: `translateY(${(1 - panelIn) * 12}px)`,
+        translate: `0 ${(1 - panelIn) * 12}px`,
         fontFamily: FONT.sans,
       }}
     >

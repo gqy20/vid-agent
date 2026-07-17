@@ -9,8 +9,10 @@ export const BrowserEvidenceScene: React.FC<{
   highlights: readonly BrowserFocusRegion[];
   conclusion: string;
 }> = ({recording, highlights, conclusion}) => (
-  <AbsoluteFill style={{padding: '126px 150px 142px', boxSizing: 'border-box'}}>
-    <BrowserPanel recording={recording} highlights={highlights} preferPoster auditId="browser-evidence" />
+  <AbsoluteFill style={{padding: '126px 150px 142px', boxSizing: 'border-box', display: 'grid', placeItems: 'center'}}>
+    <div style={{height: '100%', aspectRatio: '1600 / 958', maxWidth: '100%'}}>
+      <BrowserPanel recording={recording} highlights={highlights} preferPoster auditId="browser-evidence" />
+    </div>
     <div
       style={{
         position: 'absolute',

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from .base import Scenario
+from .gh01_repository_layers import Gh01RepositoryLayersScenario
 from .smoke import SmokeScenario
 
 
 SCENARIOS: dict[str, Scenario] = {
+    "gh01-repository-layers": Gh01RepositoryLayersScenario(),
     "smoke": SmokeScenario(),
 }
 

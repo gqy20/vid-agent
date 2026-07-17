@@ -61,4 +61,4 @@ remotion/public/github-course/browser/<recording-id>.json
 
 ## 当前框架边界
 
-当前只建立内容 schema、浏览器 runner、Remotion 组件和 gallery。正式 orchestrator、TTS、scene CAS、audit verdict、promote 和 publish 应在第一集内容稳定后，复用 Git Course 的通用机制另行接入。
+当前已建立内容 schema、浏览器 runner、Remotion 组件和 gallery，并完成 GH01 的 episode JSON、只读浏览器场景与 Remotion 第一版。正式 orchestrator、TTS、scene CAS、audit verdict、promote 和 publish 应在第一集内容稳定后，复用 Git Course 的通用机制另行接入。

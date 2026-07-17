@@ -48,7 +48,7 @@ export const GitHubStateBridge: React.FC<{
               background: COLOR.canvas.raised,
               boxShadow: `0 16px 40px ${COLOR.effects.shadowSoft}`,
               opacity: inProgress,
-              transform: `translateY(${(1 - inProgress) * 12}px)`,
+              translate: `0 ${(1 - inProgress) * 12}px`,
             }}
           >
             <div style={{...TYPE.uiSmall, color, fontFamily: FONT.mono}}>{state.eyebrow}</div>

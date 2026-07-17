@@ -31,6 +31,17 @@ remotion/public/github-course/browser/smoke.json
 
 这些文件是派生产物，默认被 Git 忽略。
 
+## GH01 只读场景
+
+`gh01-repository-layers` 打开 `github/docs` 公开仓库，只在 Code、Pull requests 和 Actions 之间移动与点击，不登录、不执行写操作：
+
+```bash
+uv run python scripts/browser-recordings/github-course-lab/record.py gh01-repository-layers
+```
+
+场景只依赖仓库级导航，不读取或断言会变化的 star、fork、issue、PR 或 commit 数量。
+runner 会先完成页面准备，再按实际准备耗时裁掉网络加载段，只保留短 lead-in 和正式动作。
+
 ## 认证状态
 
 真实 GitHub 场景只能使用专用测试账户或组织。storage state 放在：
