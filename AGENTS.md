@@ -2,6 +2,13 @@
 
 这个仓库用于视频生产。当前主线是 Git 课程，相关内容主要位于 `git-course/`、`remotion/src/videos/git-course/` 和 `scripts/manim/git-course/`。
 
+## Skill 使用边界
+
+- 本仓库的视频任务只使用项目内 `.claude/skills/` 提供的 skills，以及仓库已有的生产脚本和 orchestrator。
+- 禁止使用任何 HyperFrames 相关 skill，包括但不限于 `hyperframes-read-first`、`hyperframes-creative`、`hyperframes-media`、`hyperframes-registry`、`general-video` 和 `website-to-video`。
+- Remotion 视频使用项目内 `remotion-vid`，Manim 原理动画使用项目内 `manim-viz`；浏览器、终端、TTS、审查和发布必须从本仓库既有流程进入。
+- 如果项目内 skill 暂时没有覆盖某个步骤，优先补充或复用仓库脚本，不得切换到 HyperFrames 工作流。
+
 ## Git 课程品味
 
 处理 Git 课程时，遵守这些标准：
