@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/github-course-episode.schema.json",
+  "title": "GitHub Course Episode",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "episodeId",
+    "title",
+    "status",
+    "fps",
+    "resolution",
+    "durationSeconds",
+    "sourceOfTruth",
+    "scenes"
+  ],
+  "properties": {
+    "episodeId": {
+      "type": "string",
+      "pattern": "^gh[0-9]{2}-[a-z0-9-]+$"
+    },
+    "title": {"type": "string", "minLength": 1},
+    "status": {
+      "enum": ["outline", "draft", "production", "review", "released"]
+    },
+    "fps": {"const": 30},
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": {"const": 1920},
+        "height": {"const": 1080}
+      }
+    },
+    "durationSeconds": {"type": "number", "exclusiveMinimum": 0},
+    "sourceOfTruth": {
+      "type": "object",
+      "required": ["references"],
+      "properties": {
+        "references": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "verifiedAt": {"type": "string", "format": "date"}
+      }
+    },
+    "browserRecordings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "scenarioId", "src", "viewport"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "scenarioId": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "src": {"type": "string", "pattern": "^github-course/browser/.+\\.mp4$"},
+          "poster": {"type": "string", "pattern": "^github-course/browser/.+-poster\\.png$"},
+          "viewport": {
+            "type": "object",
+            "required": ["width", "height"],
+            "properties": {
+              "width": {"type": "integer", "minimum": 1280},
+              "height": {"type": "integer", "minimum": 720}
+            }
+          },
+          "containsSensitiveState": {"const": false}
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "start", "duration", "goal", "primaryTechnique"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "title": {"type": "string", "minLength": 1},
+          "start": {"type": "number", "minimum": 0},
+          "duration": {"type": "number", "exclusiveMinimum": 0},
+          "goal": {"type": "string", "minLength": 1},
+          "primaryTechnique": {
+            "enum": [
+              "Remotion",
+              "BrowserFocusScene",
+              "BrowserEvidenceScene",
+              "GitHubStateBridge",
+              "GitGraph",
+              "ManimBridge"
+            ]
+          },
+          "browserRecordingId": {"type": "string"},
+          "components": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "narration": {
+            "type": "object",
+            "required": ["segmentId", "voiceStart", "text"],
+            "properties": {
+              "segmentId": {"type": "string"},
+              "voiceStart": {"type": "number", "minimum": 0},
+              "text": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    }
+  }
+}
