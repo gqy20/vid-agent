@@ -10,11 +10,10 @@ import subprocess
 from pathlib import Path
 
 
-IDLE_TIME_LIMIT = 5.0  # Must match agg's --idle-time-limit.
 ANSI_ESCAPE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-def find_markers(cast: Path) -> tuple[float, float]:
+def find_markers(cast: Path, idle_time_limit: float) -> tuple[float, float]:
     elapsed = 0.0
     token_time: float | None = None
     settings_time: float | None = None
@@ -26,7 +25,7 @@ def find_markers(cast: Path) -> tuple[float, float]:
             item = json.loads(line)
             if not isinstance(item, list):
                 continue
-            elapsed += min(float(item[0]), IDLE_TIME_LIMIT)
+            elapsed += min(float(item[0]), idle_time_limit)
             output = item[2]
             plain_output += ANSI_ESCAPE.sub("", output)
             marker_count = plain_output.count("ANTHROPIC_AUTH_TOKEN")
@@ -48,9 +47,10 @@ def main() -> None:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--secret-length", type=int, required=True)
+    parser.add_argument("--idle-time-limit", type=float, default=5.0)
     args = parser.parse_args()
 
-    token_time, settings_time = find_markers(args.cast)
+    token_time, settings_time = find_markers(args.cast, args.idle_time_limit)
     hidden_chars = max(1, args.secret_length - 3)
     mask_width = min(1000, max(32, round(hidden_chars * 14.63)))
     if mask_width % 2:

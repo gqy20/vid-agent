@@ -76,8 +76,7 @@ const NarrationTrack: React.FC = () => {
         {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
       )
     : 0;
-  const subtitleAtTop = cue?.segmentId === '03-shell-env' || cue?.segmentId === '04-real-token';
-
+  const tokenSafetyCallout = cue?.segmentId === '04-real-token';
   return (
     <>
       {NARRATION_CUES.map((item) => (
@@ -97,11 +96,12 @@ const NarrationTrack: React.FC = () => {
           style={{
             position: 'absolute',
             zIndex: 80,
-            left: '50%',
-            top: subtitleAtTop ? 86 : undefined,
-            bottom: subtitleAtTop ? undefined : 30,
-            width: 1420,
-            transform: 'translateX(-50%)',
+            left: tokenSafetyCallout ? undefined : '50%',
+            right: tokenSafetyCallout ? 64 : undefined,
+            top: tokenSafetyCallout ? 570 : undefined,
+            bottom: tokenSafetyCallout ? undefined : 30,
+            width: tokenSafetyCallout ? 820 : 1420,
+            transform: tokenSafetyCallout ? undefined : 'translateX(-50%)',
             opacity: cueOpacity,
             color: COLOR.text.inverse,
             background: 'rgba(20,23,41,0.88)',
@@ -282,8 +282,8 @@ export const Ep01Install: React.FC = () => {
       episodeTitle="从零装 Claude Code"
       scenes={EP01_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp01SceneStart('install')}
-      showEpisodeTitle={(current) => current >= getEp01SceneStart('install')}
+      showHeader={(current) => current >= getEp01SceneStart('takeaway')}
+      showEpisodeTitle={(current) => current >= getEp01SceneStart('takeaway')}
     >
       <SceneSequence from={getEp01SceneStart('hook')} durationInFrames={getEp01SceneDuration('hook')}>
         <HookScene />
