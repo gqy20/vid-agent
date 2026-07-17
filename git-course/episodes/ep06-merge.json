@@ -121,8 +121,8 @@
       "beats": [
         {
           "time": [
-            12,
-            24
+            14,
+            30
           ],
           "visual": "main=C2, hotfix=C3",
           "motion": "命令出现",
@@ -134,8 +134,8 @@
         },
         {
           "time": [
-            24,
-            42
+            30,
+            46
           ],
           "visual": "main 前进到 C3",
           "motion": "main 指针滑动",
@@ -168,8 +168,8 @@
       "beats": [
         {
           "time": [
-            42,
-            54
+            48,
+            62
           ],
           "visual": "main 和 feature 各自提交",
           "motion": "C3/C4 依次出现",
@@ -181,8 +181,8 @@
         },
         {
           "time": [
-            54,
-            68
+            62,
+            76
           ],
           "visual": "base/ours/theirs 标签",
           "motion": "三个标签进入",
@@ -214,8 +214,8 @@
       "beats": [
         {
           "time": [
-            68,
-            88
+            78,
+            104
           ],
           "visual": "base、ours、theirs 三个快照",
           "motion": "从 DAG 抽出三者",
@@ -227,8 +227,8 @@
         },
         {
           "time": [
-            88,
-            108
+            104,
+            128
           ],
           "visual": "result 形成",
           "motion": "可自动判断的修改流入 result",
@@ -260,8 +260,8 @@
       "beats": [
         {
           "time": [
-            108,
-            126
+            130,
+            150
           ],
           "visual": "M1 与两个 parent 箭头",
           "motion": "M1 出现，parent 箭头依次绘制",
@@ -273,8 +273,8 @@
         },
         {
           "time": [
-            126,
-            138
+            150,
+            170
           ],
           "visual": "main 指向 M1",
           "motion": "main 前进",
@@ -307,8 +307,8 @@
       "beats": [
         {
           "time": [
-            138,
-            156
+            172,
+            192
           ],
           "visual": "同一行两种修改和 conflict marker",
           "motion": "diff 到 marker",
@@ -320,8 +320,8 @@
         },
         {
           "time": [
-            156,
-            166
+            192,
+            212
           ],
           "visual": "unmerged 状态",
           "motion": "状态板显示未解决",
@@ -352,8 +352,8 @@
       "beats": [
         {
           "time": [
-            166,
-            180
+            214,
+            238
           ],
           "visual": "快进小图与 merge commit 小图",
           "motion": "两种模型依次高亮",
@@ -375,7 +375,7 @@
     "overviewMarkdown": "# EP06：Merge 做了什么\n\n## 核心句\n\nmerge 不是把两个文件夹粗暴拼在一起。Git 会看分叉点、当前分支和目标分支；能快进就移动指针，不能快进就做三方合并并生成 merge commit。\n\n## 观众要带走的理解\n\n- fast-forward merge 只是把当前分支指针向前移动。\n- 真正分叉后，Git 会找共同祖先、当前分支末端和目标分支末端。\n- merge commit 有两个 parent。\n- 冲突表示 Git 无法自动决定同一位置的不同修改。\n\n## 镜头结构\n\n1. 用问题结构区分“合并内容”和“合并历史”。\n2. 先讲 fast-forward：没有分歧，只移动指针。\n3. 再讲三方合并：base / ours / theirs。\n4. 用 Manim 展示三个快照如何形成新快照。\n5. 用 merge commit 展示两个 parent。\n6. 用冲突标记做最小边界，不展开高级冲突工具。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep06-merge/`](ep06-merge/README.md)。\n",
     "scriptMarkdown": "# EP06 当前脚本（240s）\n\n本集先区分 fast-forward 与已分叉历史，再用 Manim 精确展示 merge base、三方合并和双 parent 结果，最后说明冲突为何需要人工判断。逐 scene 旁白、segmentId 与进入时间以 `scenes[].narration` 为准；实测音频窗口见 `content.alignmentMarkdown`。\n",
     "beatsMarkdown": "# EP06 Beats（240s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0-14s | hook | 提问 merge 是否总会创建新提交 |\n| 14-48s | fast-forward | 目标在前方时只移动当前分支 |\n| 48-78s | diverged | 显示两边都前进后的分叉拓扑 |\n| 78-130s | three-way | 用共同祖先解释三方合并 |\n| 130-172s | merge-commit | 生成具有两个 parent 的 merge commit |\n| 172-214s | conflict | 解释冲突来自同一区域的不同修改 |\n| 214-240s | takeaway | 用提交图收束两种 merge 路径 |\n",
-    "qualityMarkdown": "# EP06 Merge 做了什么 - 审查记录\n\n> 本文件是人工审查历史，不表示当前构建状态。机器状态以 `pnpm --dir remotion git-course:validate` 和最新渲染报告为准。\n\n## 当前状态\n\n- 仅完成制作脚本初稿。\n- Remotion 主视频未实现。\n- Manim 三方合并资产待新增或规划。\n- 尚未渲染抽帧。\n\n## 重点审查项\n\n- fast-forward 必须只表现为当前 branch 指针移动，不能生成新 commit。\n- 三方合并必须同时可见 base、ours、theirs，且不要让三者颜色混淆。\n- merge commit 必须有两个 parent 箭头。\n- 冲突片段不能把 conflict marker 当装饰色使用。\n",
+    "qualityMarkdown": "# EP06 Merge 做了什么 - 审查记录\n\n## 当前状态\n\n- Remotion 240 秒主视频、三方合并 Manim、TTS 与自动抽帧流程均已实现。\n- 上一版 candidate 的机器审计通过，当前修改需要重新渲染 Manim 并构建 dirty scene。\n- 尚待人工视觉审查、approve / promote 与 release 流程。\n\n## 重点审查项\n\n- fast-forward 必须只表现为当前 branch 指针移动，不能生成新 commit。\n- 三方合并示例中 ours 只改 title、theirs 只改 body，result 应清楚组合两处独立修改。\n- 正常 result 与 merge commit 使用中性 commit 语义，conflict 红色只用于无法自动合并的状态。\n- merge commit 必须有两个 parent 箭头。\n",
     "readmeMarkdown": "# EP06 Merge 做了什么 - 制作目录\n\n这个目录保存 EP06 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nmerge 有两种基础形态。\n没有分歧时只是 fast-forward；有分歧时使用共同祖先、ours、theirs 做三方合并。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:111`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:115`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:172`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:177`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:178`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:196`\n\n原则：EP06 的主角是“分叉历史如何合到一起”。冲突只讲到为什么出现和 Git 停在哪里，不讲高级冲突排查。\n",
     "voiceoverDesignMarkdown": null,
     "alignmentMarkdown": "# EP06 Audio Alignment\n\nEpisode: `ep06-merge`\n\nTTS: `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`; normalized near `-20 LUFS`, peak near `-3 dBFS`; BGM `0.05`, no sidechain.\n\n| Segment | Start | Duration | End | Scene end |\n|---|---:|---:|---:|---:|\n| `01_hook` | 0.35s | 12.513s | 12.863s | 14.00s |\n| `02_fast_forward` | 14.35s | 27.820s | 42.170s | 48.00s |\n| `03_diverged` | 48.35s | 20.323s | 68.673s | 78.00s |\n| `04_three_way` | 78.35s | 42.214s | 120.564s | 130.00s |\n| `05_merge_commit` | 130.35s | 32.601s | 162.951s | 172.00s |\n| `06_conflict` | 172.35s | 39.288s | 211.638s | 214.00s |\n| `07_takeaway` | 214.25s | 18.233s | 232.483s | 240.00s |\n\nTotal normalized narration is 192.993 seconds in a 240-second main episode: 80.41%. Every narration window fits its scene. SRT text is canonicalized from episode JSON while TTS cue timestamps are preserved; UTF-8, pause markers, punctuation, cue distribution and suspiciously short audio are validated.\n"

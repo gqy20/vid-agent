@@ -39,7 +39,7 @@ const useSceneFrame = () => useCurrentFrame();
 
 const commitX = (idx: number) => 140 + idx * 154;
 
-const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature' | 'merge'; opacity?: number}> = ({
+const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number}> = ({
   id,
   x,
   y,
@@ -47,7 +47,7 @@ const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'm
   opacity = 1,
 }) => {
   const stroke =
-    tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : tone === 'merge' ? COLOR.git.conflict : tone === 'base' ? COLOR.git.head : COLOR.git.commit;
+    tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : tone === 'base' ? COLOR.git.head : COLOR.git.commit;
   return (
     <g opacity={opacity}>
       <circle cx={x} cy={y + 9} r="31" fill={COLOR.effects.shadowSoft} opacity="0.52" />
@@ -133,7 +133,7 @@ const MergeGraph: React.FC<{
       <CommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : undefined} />
       {mode === 'ff-before' || mode === 'ff-after' ? <CommitNode id="C3" x={c3} y={y} tone="feature" /> : <CommitNode id="C3" x={c3} y={98} tone="main" />}
       {showC4 ? <CommitNode id="C4" x={c4} y={254} tone="feature" /> : null}
-      {showM1 ? <CommitNode id="M1" x={m1} y={y} tone="merge" /> : null}
+      {showM1 ? <CommitNode id="M1" x={m1} y={y} /> : null}
       {mode === 'ff-before' || mode === 'ff-after' ? (
         <>
           <BranchLabel name="hotfix" x={c3} y={92} color={COLOR.git.feature} />
@@ -290,9 +290,9 @@ const MergeCommitScene: React.FC = () => {
         <MergeGraph mode="merged" width={1160} showParentArrows={arrowsIn > 0} />
       </div>
       <div style={{position: 'absolute', left: 667, top: 732, width: 586, opacity: refIn}}>
-        <CodeBlock title="commit M1" lines={['parent C3', 'parent C4', 'tree result']} highlight={[0, 1]} highlightBorderColor={COLOR.git.conflict} />
+        <CodeBlock title="commit M1" lines={['parent C3', 'parent C4', 'tree result']} highlight={[0, 1]} highlightBorderColor={COLOR.stroke.strong} />
       </div>
-      <SideNote x={1294} y={382} color={COLOR.git.conflict} opacity={arrowsIn}>
+      <SideNote x={1294} y={382} color={COLOR.git.commit} opacity={arrowsIn}>
         M1 有两个 parent
       </SideNote>
       <SceneCaption opacity={captionIn} bottom={116} auditId="ep06-merge-commit-caption">
@@ -358,7 +358,7 @@ const TakeawayScene: React.FC = () => {
           <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 12}}>移动 branch 指针</div>
         </div>
         <div style={{opacity: right}}>
-          <div style={{...TYPE.title, color: COLOR.git.conflict, marginBottom: 16}}>已经分叉</div>
+          <div style={{...TYPE.title, color: COLOR.text.primary, marginBottom: 16}}>已经分叉</div>
           <MergeGraph mode="merged" width={760} small showParentArrows />
           <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 12}}>三方合并，生成 M1</div>
         </div>

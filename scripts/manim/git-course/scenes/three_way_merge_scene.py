@@ -27,7 +27,7 @@ from manim import (
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from shared.palette import CANVAS, CONFLICT, FEATURE, HEAD, LINE, MAIN, MUTED, TEXT
+from shared.palette import CANVAS, FEATURE, HEAD, LINE, MAIN, MUTED, TEXT
 from shared.primitives import assert_inside_frame, assert_no_overlap
 
 
@@ -41,8 +41,8 @@ def commit(label_text: str, color: ManimColor = TEXT) -> VGroup:
     return VGroup(circle, text)
 
 
-def branch_tag(text: str, color: ManimColor) -> VGroup:
-    box = RoundedRectangle(width=1.35, height=0.44, corner_radius=0.09, color=color, fill_color=color, fill_opacity=1, stroke_width=0)
+def branch_tag(text: str, color: ManimColor, width: float = 1.35) -> VGroup:
+    box = RoundedRectangle(width=width, height=0.44, corner_radius=0.09, color=color, fill_color=color, fill_opacity=1, stroke_width=0)
     txt = label(text, size=22, color=WHITE, weight="BOLD").move_to(box.get_center())
     return VGroup(box, txt)
 
@@ -85,22 +85,21 @@ class ThreeWayMergeScene(Scene):
         dag = VGroup(edges, c0, c1, c2, c3, c4, main, feature).shift(0.35 * RIGHT)
 
         base_card = snapshot_card("base", "C2", ["title: A", "body: old"], HEAD).shift(4.2 * LEFT + 1.55 * DOWN)
-        ours_card = snapshot_card("ours", "C3 / main", ["title: A", "body: main"], MAIN).shift(0.25 * LEFT + 2.5 * UP)
+        ours_card = snapshot_card("ours", "C3 / main", ["title: main", "body: old"], MAIN).shift(0.25 * LEFT + 2.5 * UP)
         theirs_card = snapshot_card("theirs", "C4 / feature", ["title: A", "body: feature"], FEATURE).shift(0.25 * LEFT + 1.65 * DOWN)
-        result_card = snapshot_card("result", "ready for M1", ["title: A", "body: merged"], CONFLICT).shift(3.25 * RIGHT + 0.15 * UP)
+        result_card = snapshot_card("result", "ready for M1", ["title: main", "body: feature"], TEXT).shift(3.25 * RIGHT + 0.15 * UP)
 
         base_label = label("共同祖先", size=20, color=HEAD).next_to(base_card, DOWN, buff=0.18)
         ours_label = label("当前分支", size=20, color=MAIN).next_to(ours_card, RIGHT, buff=0.2)
         theirs_label = label("要合进来", size=20, color=FEATURE).next_to(theirs_card, RIGHT, buff=0.2)
-        result_label = label("自动判断的修改合成结果", size=20, color=CONFLICT).next_to(result_card, DOWN, buff=0.18)
+        result_label = label("两处独立修改的合成结果", size=20, color=TEXT).next_to(result_card, DOWN, buff=0.18)
 
         base_arrow = flow_arrow(base_card, result_card, HEAD)
         ours_arrow = flow_arrow(ours_card, result_card, MAIN)
         theirs_arrow = flow_arrow(theirs_card, result_card, FEATURE)
 
-        m1 = commit("M1", CONFLICT).shift(3.45 * RIGHT + 1.6 * DOWN)
-        m1_tag = branch_tag("merge commit", CONFLICT).next_to(m1, DOWN, buff=0.28)
-        m1_arrow = Arrow(result_card.get_bottom(), m1.get_top(), color=CONFLICT, stroke_width=5, buff=0.18, max_tip_length_to_length_ratio=0.12)
+        m1 = commit("M1").shift(3.45 * RIGHT + 1.6 * DOWN)
+        m1_tag = branch_tag("merge commit", TEXT, width=2.15).next_to(m1, DOWN, buff=0.28)
 
         all_objects = VGroup(title, subtitle, dag, base_card, ours_card, theirs_card, result_card, m1, m1_tag)
         assert_inside_frame(all_objects, margin=0.12)
@@ -122,7 +121,8 @@ class ThreeWayMergeScene(Scene):
 
         self.play(TransformFromCopy(c3, ours_card), FadeIn(ours_label, shift=0.1 * LEFT), run_time=1.7)
         self.play(TransformFromCopy(c4, theirs_card), FadeIn(theirs_label, shift=0.1 * LEFT), run_time=1.7)
-        self.wait(5.6)
+        self.play(dag.animate.set_opacity(0.18), run_time=0.6)
+        self.wait(5.0)
 
         self.play(GrowArrow(base_arrow), run_time=1.2)
         self.play(GrowArrow(ours_arrow), GrowArrow(theirs_arrow), run_time=1.6)
@@ -132,6 +132,10 @@ class ThreeWayMergeScene(Scene):
         result_card.generate_target()
         result_card.target.scale(0.62).move_to(m1.get_center())
         self.play(FadeOut(VGroup(base_label, ours_label, theirs_label, result_label)), run_time=0.5)
-        self.play(MoveToTarget(result_card), run_time=1.4)
-        self.play(ReplacementTransform(result_card, m1), GrowArrow(m1_arrow), FadeIn(m1_tag, shift=0.1 * UP), run_time=1.3)
+        self.play(
+            MoveToTarget(result_card),
+            VGroup(dag, base_card, ours_card, theirs_card, base_arrow, ours_arrow, theirs_arrow).animate.set_opacity(0.14),
+            run_time=1.4,
+        )
+        self.play(ReplacementTransform(result_card, m1), FadeIn(m1_tag, shift=0.1 * UP), run_time=1.3)
         self.wait(3.8)

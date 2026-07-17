@@ -279,8 +279,11 @@ const CommitCurrentScene: React.FC = () => {
 };
 
 const DetachedGraph: React.FC<{progress: number}> = ({progress}) => {
-  const headX = interpolate(progress, [0, 1], [110 + 2 * 150 + 118, 110 + 1 * 150]);
-  const headY = interpolate(progress, [0, 1], [194, 52]);
+  const featureX = 110 + 3 * 150;
+  const detachedX = 110 + 1 * 150;
+  const headX = interpolate(progress, [0, 0.25, 1], [featureX + 118, featureX + 118, detachedX]);
+  const headY = interpolate(progress, [0, 0.25, 0.72, 1], [52, -20, -20, 52]);
+  const headTargetX = interpolate(progress, [0, 0.25, 1], [featureX, featureX, detachedX]);
   const commits = ['C0', 'C1', 'C2', 'C3'];
 
   return (
@@ -307,7 +310,12 @@ const DetachedGraph: React.FC<{progress: number}> = ({progress}) => {
       <text x="410" y="202" textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
         main
       </text>
-      <path d={`M${headX} ${headY + 22} C${headX} ${headY + 48} 260 78 260 94`} fill="none" stroke={COLOR.git.head} strokeWidth="4.4" strokeLinecap="round" opacity="0.72" />
+      <path d={`M${featureX} 76 C${featureX} 88 ${featureX} 92 ${featureX} 94`} fill="none" stroke={COLOR.git.feature} strokeWidth="4.4" strokeLinecap="round" opacity="0.88" />
+      <rect x={featureX - 58} y="28" width="116" height="48" rx="8" fill={COLOR.git.feature} opacity="0.96" />
+      <text x={featureX} y="60" textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
+        feature
+      </text>
+      <path d={`M${headX} ${headY + 22} C${headX} ${headY + 40} ${headTargetX} 88 ${headTargetX} 94`} fill="none" stroke={COLOR.git.head} strokeWidth="4.4" strokeLinecap="round" opacity="0.72" />
       <rect x={headX - 49} y={headY - 22} width="98" height="44" rx="22" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
       <circle cx={headX - 28} cy={headY} r="5" fill={COLOR.git.head} />
       <text x={headX + 10} y={headY + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>

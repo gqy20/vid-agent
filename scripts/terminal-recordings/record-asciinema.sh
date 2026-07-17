@@ -48,6 +48,9 @@ case "$RECORDING_ID" in
   ep03-commit) CURSOR_ROW=5 ;;
   ep04-branch-flow) CURSOR_ROW=10 ;;
   ep05-head-flow) CURSOR_ROW=11 ;;
+  ep08-restore-flow) CURSOR_ROW=11 ;;
+  ep08-reset-soft|ep08-reset-mixed|ep08-reset-hard) CURSOR_ROW=4 ;;
+  ep08-revert) CURSOR_ROW=7 ;;
   *) CURSOR_ROW=-1 ;;
 esac
 
