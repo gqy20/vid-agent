@@ -39,6 +39,9 @@ CAST="$TMP_ROOT/$RECORDING_ID.cast"
 GIF="$TMP_ROOT/$RECORDING_ID.gif"
 
 case "$RECORDING_ID" in
+  ep01-log) CURSOR_ROW=4 ;;
+  ep01-show-stat) CURSOR_ROW=10 ;;
+  ep01-show-name-only) CURSOR_ROW=9 ;;
   ep02-add) CURSOR_ROW=3 ;;
   ep02-status-mm) CURSOR_ROW=2 ;;
   ep02-commit) CURSOR_ROW=5 ;;

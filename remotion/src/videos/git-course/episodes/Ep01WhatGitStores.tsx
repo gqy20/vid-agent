@@ -1,4 +1,4 @@
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Sequence, interpolate, useCurrentFrame} from 'remotion';
 import {seconds} from '../timeline';
 import {
   CenterGraph,
@@ -9,12 +9,13 @@ import {
   MotionTitle,
   PositionedMotion,
   QuestionCaption,
+  RecordedTerminalPanel,
   SceneCaption,
   SceneSequence,
   SvgArrowLine,
-  TerminalPanel,
   type GitGraphState,
 } from '../kit';
+import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
@@ -36,6 +37,10 @@ const sceneTitleOpacity = (frame: number) => {
   const titleOut = interpolate(frame, [seconds(1.72), seconds(2.12)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return titleIn * titleOut;
 };
+
+const TERMINAL_HEADER_HEIGHT = 42;
+const recordedTerminalHeight = (width: number, recording: {width: number; height: number}) =>
+  TERMINAL_HEADER_HEIGHT + (width * recording.height) / recording.width;
 
 const FileVersionCard: React.FC<{
   label: string;
@@ -515,96 +520,48 @@ export const Ep01SnapshotModelScene: React.FC = () => {
   );
 };
 
-const TerminalCommandBlock: React.FC<{
-  title: string;
-  lines: Array<{text: string; tone?: 'cmd' | 'main' | 'muted' | 'accent'}>;
-  visible: number;
-  fontSize?: number;
-}> = ({title, lines, visible, fontSize = 28}) => (
-  <TerminalPanel title={title}>
-    <div style={{padding: '28px 32px', ...TYPE.code, fontSize, lineHeight: 1.42}}>
-      {lines.slice(0, visible).map((line, idx) => {
-        const color =
-          line.tone === 'cmd'
-            ? COLOR.text.inverse
-            : line.tone === 'main'
-              ? COLOR.git.main
-              : line.tone === 'accent'
-                ? COLOR.git.head
-                : COLOR.terminal.output;
-        return (
-          <div key={`${line.text}-${idx}`} style={{marginBottom: 10, color, whiteSpace: 'pre-wrap'}}>
-            {line.text}
-          </div>
-        );
-      })}
-      <span style={{display: 'inline-block', width: 10, height: 25, background: COLOR.git.head, opacity: Math.floor(visible * 0.7) % 2 ? 0.2 : 0.9}} />
-    </div>
-  </TerminalPanel>
-);
-
 export const Ep01PracticeCheckScene: React.FC = () => {
   const frame = useCurrentFrame();
   const titleOpacity = sceneTitleOpacity(frame);
-  const logIn = interpolate(frame, [seconds(1.5), seconds(2.3)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const statIn = interpolate(frame, [seconds(9.5), seconds(10.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const nameIn = interpolate(frame, [seconds(17.8), seconds(19)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const logIn = interpolate(frame, [seconds(1.5), seconds(2.15)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const logOut = interpolate(frame, [seconds(8.8), seconds(9.4)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const statIn = interpolate(frame, [seconds(9.5), seconds(10.15)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const statOut = interpolate(frame, [seconds(17.2), seconds(17.8)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const nameIn = interpolate(frame, [seconds(17.8), seconds(18.45)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const nameOut = interpolate(frame, [seconds(24), seconds(24.6)], [1, 0.18], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(4.2), seconds(6.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const statHighlight = interpolate(frame, [seconds(14.6), seconds(16.4), seconds(17.6), seconds(18.7)], [0, 1, 1, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
   const finalCaption = interpolate(frame, [seconds(24.2), seconds(25.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const logLines = [
-    {text: 'demo $ git log --oneline', tone: 'cmd' as const},
-    {text: 'c2a4f11  update checkout flow', tone: 'accent' as const},
-    {text: '8b7d9e3  add landing copy', tone: 'main' as const},
-    {text: '31a6c04  initial commit', tone: 'main' as const},
-  ];
-  const statLines = [
-    {text: 'demo $ git show --stat HEAD', tone: 'cmd' as const},
-    {text: 'commit c2a4f11', tone: 'accent' as const},
-    {text: ' README.md   | 4 +++-', tone: 'main' as const},
-    {text: ' app.ts      | 8 ++++++--', tone: 'main' as const},
-    {text: ' 2 files changed, 10 insertions(+), 2 deletions(-)', tone: 'muted' as const},
-  ];
-  const nameLines = [
-    {text: 'demo $ git show --name-only HEAD', tone: 'cmd' as const},
-    {text: 'commit c2a4f11', tone: 'accent' as const},
-    {text: 'README.md', tone: 'main' as const},
-    {text: 'app.ts', tone: 'main' as const},
-  ];
-  const logVisible = Math.min(logLines.length, Math.floor(interpolate(frame, [seconds(2.1), seconds(7.2)], [0, logLines.length], {extrapolateRight: 'clamp'})));
-  const statVisible = Math.min(statLines.length, Math.floor(interpolate(frame, [seconds(10.4), seconds(15.4)], [0, statLines.length], {extrapolateRight: 'clamp'})));
-  const nameVisible = Math.min(nameLines.length, Math.floor(interpolate(frame, [seconds(18.6), seconds(22.6)], [0, nameLines.length], {extrapolateRight: 'clamp'})));
+  const logWidth = 1020;
+  const logHeight = recordedTerminalHeight(logWidth, TERMINAL_RECORDINGS['ep01-log']);
+  const inspectWidth = 1320;
+  const inspectHeight = recordedTerminalHeight(inspectWidth, TERMINAL_RECORDINGS['ep01-show-stat']);
 
   return (
     <AbsoluteFill>
       <MotionTitle opacity={titleOpacity} y={90} size={58} auditId="ep01-practice-title">
-        用两条命令看见这条历史
+        用 log 和 show 看见这条历史
       </MotionTitle>
+      <Sequence from={seconds(1.5)} layout="none">
+        <div
+          style={{position: 'absolute', left: 100, top: 224, width: logWidth, height: logHeight, opacity: logIn * logOut}}
+          data-audit-id="ep01-practice-log-terminal"
+        >
+          <RecordedTerminalPanel
+            src="git-course-lab/terminal/ep01-log.mp4"
+            holdFrameSrc="git-course-lab/terminal/ep01-log-hold.png"
+            holdFromFrame={TERMINAL_RECORDINGS['ep01-log'].holdFromFrame}
+            title="commit-history"
+          />
+        </div>
+      </Sequence>
       <div
         style={{
           position: 'absolute',
-          left: 126,
-          top: 186,
-          width: 760,
-          height: 360,
-          opacity: logIn,
-          transform: `translateY(${interpolate(logIn, [0, 1], [20, 0])}px)`,
-        }}
-        data-audit-id="ep01-practice-log-terminal"
-      >
-        <TerminalCommandBlock title="commit-history" lines={logLines} visible={logVisible} fontSize={28} />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: 1036,
-          top: 206,
-          width: 690,
-          height: 300,
-          opacity: graphIn,
+          left: 1220,
+          top: 324,
+          width: 580,
+          height: 260,
+          opacity: graphIn * logOut,
           transform: `translateX(${interpolate(graphIn, [0, 1], [28, 0])}px)`,
         }}
         data-audit-id="ep01-practice-history-card"
@@ -615,50 +572,39 @@ export const Ep01PracticeCheckScene: React.FC = () => {
             border: `2px solid ${COLOR.stroke.default}`,
             background: COLOR.canvas.raised,
             boxShadow: `0 18px 38px ${COLOR.effects.shadowSoft}`,
-            padding: '30px 36px',
+            padding: '28px 30px',
           }}
         >
-          <div style={{...TYPE.ui, fontSize: 31, fontWeight: WEIGHT.bold, color: COLOR.text.secondary, marginBottom: 18}}>log 列出 commit 历史链</div>
-          <GitGraph state={ep01GraphState(3)} width={610} height={180} auditId="ep01-practice-graph" />
+          <div style={{...TYPE.ui, fontSize: 29, fontWeight: WEIGHT.bold, color: COLOR.text.secondary, marginBottom: 14}}>log 列出 commit 历史链</div>
+          <GitGraph state={ep01GraphState(3)} width={520} height={168} auditId="ep01-practice-graph" />
         </div>
       </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: 126,
-          top: 586,
-          width: 760,
-          height: 338,
-          opacity: statIn,
-          transform: `translateY(${interpolate(statIn, [0, 1], [24, 0])}px)`,
-        }}
-        data-audit-id="ep01-practice-stat-terminal"
-      >
-        <TerminalCommandBlock title="open-head" lines={statLines} visible={statVisible} fontSize={25} />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: 1036,
-          top: 586,
-          width: 690,
-          height: 338,
-          opacity: nameIn,
-          transform: `translateY(${interpolate(nameIn, [0, 1], [24, 0])}px)`,
-        }}
-        data-audit-id="ep01-practice-name-terminal"
-      >
-        <TerminalCommandBlock title="paths-in-head" lines={nameLines} visible={nameVisible} fontSize={27} />
-      </div>
-      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0}}>
-        <g opacity={statHighlight}>
-          <rect x="1106" y="780" width="248" height="58" rx="29" fill={COLOR.effects.mainWash} stroke={COLOR.git.main} strokeWidth="3" />
-          <text x="1230" y="818" textAnchor="middle" fontFamily={FONT.sans} fontSize="27" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
-            打开最近一次提交
-          </text>
-          <SvgArrowLine x1={902} y1={756} x2={1088} y2={806} progress={statHighlight} color={COLOR.git.main} width={5} opacity={0.7} dash="none" />
-        </g>
-      </svg>
+      <Sequence from={seconds(9.5)} layout="none">
+        <div
+          style={{position: 'absolute', left: 300, top: 146, width: inspectWidth, height: inspectHeight, opacity: statIn * statOut}}
+          data-audit-id="ep01-practice-stat-terminal"
+        >
+          <RecordedTerminalPanel
+            src="git-course-lab/terminal/ep01-show-stat.mp4"
+            holdFrameSrc="git-course-lab/terminal/ep01-show-stat-hold.png"
+            holdFromFrame={TERMINAL_RECORDINGS['ep01-show-stat'].holdFromFrame}
+            title="open-head"
+          />
+        </div>
+      </Sequence>
+      <Sequence from={seconds(17.8)} layout="none">
+        <div
+          style={{position: 'absolute', left: 300, top: 146, width: inspectWidth, height: inspectHeight, opacity: nameIn * nameOut}}
+          data-audit-id="ep01-practice-name-terminal"
+        >
+          <RecordedTerminalPanel
+            src="git-course-lab/terminal/ep01-show-name-only.mp4"
+            holdFrameSrc="git-course-lab/terminal/ep01-show-name-only-hold.png"
+            holdFromFrame={TERMINAL_RECORDINGS['ep01-show-name-only'].holdFromFrame}
+            title="paths-in-head"
+          />
+        </div>
+      </Sequence>
       <SceneCaption opacity={finalCaption} bottom={112} width={1240} fontSize={34} auditId="ep01-practice-caption">
         现在先不用理解所有字段，只看一件事：commit 可以被列出、打开和检查。
       </SceneCaption>
@@ -671,9 +617,8 @@ export const Ep01LocalHistoryScene: React.FC = () => {
   const shrink = interpolate(frame, [seconds(14), seconds(17)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(17), seconds(19)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const queryProgress = interpolate(frame, [seconds(20), seconds(23)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const outputLines = ['main $ git log --oneline', 'C2  snapshot checkout flow', 'C1  add landing copy', 'C0  initial commit'];
-  const visible = Math.min(outputLines.length, Math.floor(interpolate(frame, [seconds(1), seconds(10)], [0, outputLines.length], {extrapolateRight: 'clamp'})));
-  const terminalFinal = {left: 152, top: 260, width: 612, height: 404};
+  const terminalFinal = {left: 152, top: 260, width: 612, height: recordedTerminalHeight(612, TERMINAL_RECORDINGS['ep01-log'])};
+  const terminalInitial = {left: 190, top: 128, width: 1540, height: recordedTerminalHeight(1540, TERMINAL_RECORDINGS['ep01-log'])};
   const repoCard = {left: 944, top: 260, width: 790, height: 430};
   const linkY = terminalFinal.top + terminalFinal.height / 2;
 
@@ -682,24 +627,20 @@ export const Ep01LocalHistoryScene: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          left: interpolate(shrink, [0, 1], [190, terminalFinal.left]),
-          top: interpolate(shrink, [0, 1], [172, terminalFinal.top]),
-          width: interpolate(shrink, [0, 1], [1540, terminalFinal.width]),
-          height: interpolate(shrink, [0, 1], [748, terminalFinal.height]),
+          left: interpolate(shrink, [0, 1], [terminalInitial.left, terminalFinal.left]),
+          top: interpolate(shrink, [0, 1], [terminalInitial.top, terminalFinal.top]),
+          width: interpolate(shrink, [0, 1], [terminalInitial.width, terminalFinal.width]),
+          height: interpolate(shrink, [0, 1], [terminalInitial.height, terminalFinal.height]),
           opacity: interpolate(shrink, [0, 1], [1, 0.84]),
         }}
         data-audit-id="ep01-local-terminal"
       >
-        <TerminalPanel title="local-history">
-          <div style={{padding: '30px 34px', ...TYPE.code, fontSize: 30, color: COLOR.terminal.output}}>
-            {outputLines.slice(0, visible).map((line, idx) => (
-              <div key={line} style={{marginBottom: 18, color: idx === 0 ? COLOR.text.inverse : COLOR.terminal.output}}>
-                {line}
-              </div>
-            ))}
-            <span style={{display: 'inline-block', width: 11, height: 28, background: COLOR.git.head, opacity: Math.floor(frame / 12) % 2 ? 0.18 : 1}} />
-          </div>
-        </TerminalPanel>
+        <RecordedTerminalPanel
+          src="git-course-lab/terminal/ep01-log.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep01-log-hold.png"
+          holdFromFrame={TERMINAL_RECORDINGS['ep01-log'].holdFromFrame}
+          title="local-history"
+        />
       </div>
       <div
         style={{
