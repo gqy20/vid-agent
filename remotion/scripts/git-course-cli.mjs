@@ -564,6 +564,86 @@ const assembleMain = async (ctx, buildPlan, audio) => {
   return {candidate, artifact};
 };
 
+const materializeReviewScenes = async (ctx, candidate) => {
+  const candidateDir = join(ctx.build, 'candidate');
+  const scenesDir = join(candidateDir, 'scenes');
+  const nextScenesDir = join(candidateDir, 'scenes.next');
+  const previousScenesDir = join(candidateDir, 'scenes.previous');
+  const manifestPath = join(candidateDir, 'scenes-manifest.json');
+  const candidateSha256 = shaFile(candidate);
+
+  if (existsSync(manifestPath)) {
+    const cached = json(manifestPath);
+    const complete = cached.candidateSha256 === candidateSha256
+      && cached.scenes?.length === ctx.episode.scenes.length
+      && cached.scenes.every((scene) => {
+        const path = join(ROOT, scene.path);
+        return existsSync(path) && shaFile(path) === scene.sha256;
+      });
+    if (complete) {
+      console.log(`HIT   review scenes ${rel(scenesDir)}`);
+      return cached;
+    }
+  }
+
+  rmSync(nextScenesDir, {recursive: true, force: true});
+  mkdirSync(nextScenesDir, {recursive: true});
+  const artifact = json(join(ctx.build, 'artifact-manifest.json'));
+  const sourceScenes = new Map(artifact.scenes.map((scene) => [scene.sceneId, join(ROOT, scene.path)]));
+  const scenes = await Promise.all(ctx.episode.scenes.map(async (scene, index) => {
+    const safe = scene.id.replaceAll('-', '_');
+    const name = `${String(index + 1).padStart(2, '0')}_${safe}.mp4`;
+    const output = join(nextScenesDir, name);
+    const sourceVideo = sourceScenes.get(scene.id) ?? fail(`Missing source scene in artifact manifest: ${scene.id}`);
+    existsSync(sourceVideo) || fail(`Missing source scene: ${sourceVideo}`);
+    await run('ffmpeg', [
+      '-nostdin', '-y',
+      '-i', sourceVideo,
+      '-ss', String(scene.start),
+      '-i', candidate,
+      '-t', String(scene.duration),
+      '-map', '0:v:0',
+      '-map', '1:a:0',
+      '-c:v', 'copy',
+      '-c:a', 'aac',
+      '-b:a', '192k',
+      '-shortest',
+      '-movflags', '+faststart',
+      output,
+    ], {log: join(ctx.build, 'logs/review-scenes', `${String(index + 1).padStart(2, '0')}_${safe}.log`)});
+    const durationSeconds = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', output], {encoding: 'utf8'}).trim());
+    Math.abs(durationSeconds - scene.duration) <= 0.08 || fail(`${name}: review scene duration ${durationSeconds}s, expected ${scene.duration}s`);
+    return {
+      sceneId: scene.id,
+      start: scene.start,
+      duration: scene.duration,
+      path: rel(join(scenesDir, name)),
+      sha256: shaFile(output),
+    };
+  }));
+
+  rmSync(previousScenesDir, {recursive: true, force: true});
+  if (existsSync(scenesDir)) renameSync(scenesDir, previousScenesDir);
+  try {
+    renameSync(nextScenesDir, scenesDir);
+  } catch (error) {
+    if (!existsSync(scenesDir) && existsSync(previousScenesDir)) renameSync(previousScenesDir, scenesDir);
+    throw error;
+  }
+  rmSync(previousScenesDir, {recursive: true, force: true});
+  const manifest = {
+    schemaVersion: 1,
+    episodeId: ctx.episode.episodeId,
+    candidate: rel(candidate),
+    candidateSha256,
+    createdAt: new Date().toISOString(),
+    scenes,
+  };
+  writeJson(manifestPath, manifest);
+  console.log(`PASS  review scenes ${rel(scenesDir)}`);
+  return manifest;
+};
+
 const probe = (path) => JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', path], {encoding: 'utf8'}));
 
 const samplingPlan = (ctx, scope, duration) => {
@@ -649,10 +729,18 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
   const markerLeak = srtFiles.some((path) => /<#|#>/.test(readFileSync(path, 'utf8')));
   if (scope === 'main') checks.push({id: 'subtitle.pause-marker', status: markerLeak ? 'fail' : 'pass', details: markerLeak ? 'pause marker found' : 'clean'});
   const auditDir = join(ctx.build, 'audit', scope);
+  const reviewScenesEvidence = scope === 'main' && existsSync(join(ctx.build, 'candidate/scenes'))
+    ? rel(join(ctx.build, 'candidate/scenes'))
+    : null;
   const cachedVerdictPath = join(auditDir, 'verdict.json');
   if (existsSync(cachedVerdictPath) && existsSync(join(auditDir, 'report.html'))) {
     const cached = json(cachedVerdictPath);
     if (cached.auditFingerprint === auditFingerprint && cached.artifactSha256 === artifactSha256) {
+      if (reviewScenesEvidence && cached.evidence?.scenes !== reviewScenesEvidence) {
+        cached.evidence ??= {};
+        cached.evidence.scenes = reviewScenesEvidence;
+        writeJson(cachedVerdictPath, cached);
+      }
       console.log(`HIT   audit ${scope}: ${cached.verdict}`);
       return cached;
     }
@@ -689,6 +777,7 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
       reviewSheets: rel(join(auditDir, 'review/sheets')),
       boundaries: rel(join(auditDir, 'boundaries')),
       keyframes: rel(join(auditDir, 'keyframes')),
+      ...(reviewScenesEvidence ? {scenes: reviewScenesEvidence} : {}),
     },
   };
   writeJson(join(auditDir, 'verdict.json'), verdict);
@@ -955,6 +1044,8 @@ const build = async (ctx) => {
   }
   const assembled = await assembleMain(ctx, buildPlan, audioResult.value);
   const assembledAt = performance.now();
+  await materializeReviewScenes(ctx, assembled.candidate);
+  const reviewScenesReadyAt = performance.now();
   const audit = await auditArtifact(ctx, assembled.candidate, 'main');
   const finishedAt = performance.now();
   writeJson(join(ctx.build, 'telemetry/build.json'), {
@@ -966,7 +1057,8 @@ const build = async (ctx) => {
     stages: {
       generatePlanRenderAudioSeconds: Number(((independentFinishedAt - buildStartedAt) / 1000).toFixed(3)),
       assembleSeconds: Number(((assembledAt - independentFinishedAt) / 1000).toFixed(3)),
-      auditSeconds: Number(((finishedAt - assembledAt) / 1000).toFixed(3)),
+      reviewScenesSeconds: Number(((reviewScenesReadyAt - assembledAt) / 1000).toFixed(3)),
+      auditSeconds: Number(((finishedAt - reviewScenesReadyAt) / 1000).toFixed(3)),
       totalSeconds: Number(((finishedAt - buildStartedAt) / 1000).toFixed(3)),
     },
     auditVerdict: audit.verdict,
