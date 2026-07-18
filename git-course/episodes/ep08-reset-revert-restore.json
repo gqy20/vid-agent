@@ -115,7 +115,8 @@
           "state": "start",
           "narration": "HEAD 是当前快照，Index 是下一次提交，Working Tree 是正在编辑。",
           "audit": [
-            "和 EP02 语义一致"
+            "和 EP02 语义一致",
+            "branch 到 commit 的关系使用真正的 → 字形"
           ]
         },
         {
@@ -163,7 +164,8 @@
           "state": "soft",
           "narration": "soft 只移动 HEAD 所在的 branch。",
           "audit": [
-            "Index/WT 不变"
+            "Index/WT 不变",
+            "HEAD 和 branch 指向使用真正的 → 字形"
           ]
         },
         {
@@ -189,7 +191,8 @@
           "state": "hard",
           "narration": "hard 会覆盖工作区。",
           "audit": [
-            "危险提示明确"
+            "危险提示明确",
+            "连续 2fps PNG 抽帧不得出现半帧或切片画面"
           ]
         }
       ],
@@ -236,7 +239,8 @@
           "state": "reverted",
           "narration": "它新增一个反向提交。",
           "audit": [
-            "R1 明确是新 commit"
+            "R1 明确是新 commit",
+            "wrong change 与 inverse commit 标签不重叠"
           ]
         }
       ],
@@ -270,7 +274,8 @@
           "state": "restored",
           "narration": "restore 面向文件内容。",
           "audit": [
-            "复制方向明确"
+            "复制方向明确",
+            "source 到 target 的关系使用真正的 → 字形"
           ]
         },
         {

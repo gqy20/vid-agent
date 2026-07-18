@@ -172,7 +172,8 @@
           "state": "patches",
           "narration": "先找共同祖先，再提取独有修改。",
           "audit": [
-            "patch 不是 commit"
+            "patch 不是 commit",
+            "Manim 步骤关系使用真正的 → 字形"
           ]
         },
         {
@@ -217,7 +218,8 @@
           "state": "identity-compare",
           "narration": "parent 变了。",
           "audit": [
-            "字段可读"
+            "字段可读",
+            "parent 到 hash 的因果箭头使用真正的 → 字形"
           ]
         },
         {

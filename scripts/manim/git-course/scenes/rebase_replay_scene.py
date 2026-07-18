@@ -78,7 +78,7 @@ class RebaseReplayScene(Scene):
         self.camera.background_color = CANVAS
 
         title = label("rebase = replay patches", size=34, color=TEXT, weight="BOLD").to_edge(UP, buff=0.42)
-        subtitle = label("find base -> extract unique changes -> replay on new base", size=22, color=MUTED).next_to(title, DOWN, buff=0.08)
+        subtitle = label("find base → extract unique changes → replay on new base", size=22, color=MUTED).next_to(title, DOWN, buff=0.08)
 
         c0 = commit("C0").shift(5.0 * LEFT + 1.15 * UP)
         c1 = commit("C1").shift(3.55 * LEFT + 1.15 * UP)
@@ -146,7 +146,7 @@ class RebaseIdentityScene(Scene):
         self.camera.background_color = CANVAS
 
         title = label("same patch, new commit identity", size=34, color=TEXT, weight="BOLD").to_edge(UP, buff=0.44)
-        subtitle = label("parent changes -> hash changes", size=23, color=MUTED).next_to(title, DOWN, buff=0.09)
+        subtitle = label("parent changes → hash changes", size=23, color=MUTED).next_to(title, DOWN, buff=0.09)
 
         old = commit_card("C4", "C2", "patch-A", "8f31a2", FEATURE).shift(2.65 * LEFT + 0.35 * UP)
         new = commit_card("C4'", "C3", "patch-A", "b7c91e", FEATURE).shift(2.65 * RIGHT + 0.35 * UP)

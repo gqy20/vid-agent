@@ -33,6 +33,10 @@ export const GitGraph: React.FC<{
     to: string;
     progress: number;
   };
+  detachedHeadMotion?: {
+    fromBranch: string;
+    progress: number;
+  };
   headMarkerOffsetX?: number;
   branchOffset?: number;
   showHeadMarker?: boolean;
@@ -47,6 +51,7 @@ export const GitGraph: React.FC<{
   branchReveal,
   commitRevealProgress,
   headMotion,
+  detachedHeadMotion,
   headMarkerOffsetX = 124,
   branchOffset = 71,
   showHeadMarker = true,
@@ -78,12 +83,18 @@ export const GitGraph: React.FC<{
     };
   }).filter(Boolean) as Array<{branch: BranchLabelData; x: number; y: number}>;
 
-  const headBranch = state.head?.branch ?? state.branches.find((branch) => branch.active)?.name ?? state.branches[0]?.name;
-  const currentHead = headBranch
-    ? headMotion
-    ? getHeadMarkerPosition(branchLayout, headMotion.from, headMotion.to, headMotion.progress, headMarkerOffsetX)
-      : getHeadMarkerPosition(branchLayout, headBranch, headBranch, 1, headMarkerOffsetX)
-    : undefined;
+  const detachedTarget = state.head && !state.head.branch ? positions.find((commit) => commit.id === state.head?.target) : undefined;
+  const headBranch = state.head?.branch ?? (state.head ? undefined : state.branches.find((branch) => branch.active)?.name ?? state.branches[0]?.name);
+  const currentHead = detachedTarget
+    ? getDetachedHeadMarkerPosition(branchLayout, detachedTarget.x, detachedHeadMotion, headMarkerOffsetX)
+    : headBranch
+      ? headMotion
+        ? getHeadMarkerPosition(branchLayout, headMotion.from, headMotion.to, headMotion.progress, headMarkerOffsetX)
+        : getHeadMarkerPosition(branchLayout, headBranch, headBranch, 1, headMarkerOffsetX)
+      : undefined;
+  const detachedConnectorOpacity = detachedTarget
+    ? interpolate(detachedHeadMotion?.progress ?? 1, [0.78, 1], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})
+    : 0;
 
   return (
     <svg data-audit-id={auditId} width={width} height={height} viewBox="0 0 730 270" style={{display: 'block', overflow: 'visible'}}>
@@ -150,10 +161,22 @@ export const GitGraph: React.FC<{
             cy={point.y}
             r="28"
             fill={COLOR.canvas.base}
-            stroke={idx === positions.length - 1 && positions.length > 3 ? COLOR.git.head : COLOR.git.commit}
-            strokeWidth={idx === positions.length - 1 && positions.length > 3 ? 6.8 : 5.6}
-            filter={idx === positions.length - 1 && positions.length > 3 ? `url(#${auditId}-graph-glow)` : undefined}
+            stroke={!detachedTarget && idx === positions.length - 1 && positions.length > 3 ? COLOR.git.head : COLOR.git.commit}
+            strokeWidth={!detachedTarget && idx === positions.length - 1 && positions.length > 3 ? 6.8 : 5.6}
+            filter={!detachedTarget && idx === positions.length - 1 && positions.length > 3 ? `url(#${auditId}-graph-glow)` : undefined}
           />
+          {detachedTarget && point.id === detachedTarget.id ? (
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="28"
+              fill="none"
+              stroke={COLOR.git.head}
+              strokeWidth="6.8"
+              opacity={detachedConnectorOpacity}
+              filter={`url(#${auditId}-graph-glow)`}
+            />
+          ) : null}
           <text
             x={point.x}
             y={point.y + 8}
@@ -181,6 +204,16 @@ export const GitGraph: React.FC<{
           </g>
         );
       })}
+      {detachedTarget && currentHead ? (
+        <path
+          d={`M${detachedTarget.x} ${currentHead.y + 22} L${detachedTarget.x} 97`}
+          fill="none"
+          stroke={COLOR.git.head}
+          strokeWidth="4.4"
+          strokeLinecap="round"
+          opacity={detachedConnectorOpacity * 0.88}
+        />
+      ) : null}
       {showHeadMarker && currentHead ? <HeadMarker auditId={`${auditId}-head`} x={currentHead.x} y={currentHead.y} /> : null}
       {note ? (
         <text x="62" y="244" fontFamily={FONT.sans} fontSize={TYPE.ui.fontSize} fill={COLOR.text.secondary}>
@@ -191,11 +224,29 @@ export const GitGraph: React.FC<{
   );
 };
 
+const getDetachedHeadMarkerPosition = (
+  branches: Array<{branch: BranchLabelData; x: number; y: number}>,
+  targetX: number,
+  motion: {fromBranch: string; progress: number} | undefined,
+  offsetX: number,
+) => {
+  if (!motion) return {x: targetX, y: 52};
+  const from = branches.find(({branch}) => branch.name === motion.fromBranch);
+  if (!from) return {x: targetX, y: 52};
+
+  return {
+    x: interpolate(motion.progress, [0, 0.24, 0.72, 1], [from.x + offsetX, from.x + offsetX, targetX, targetX]),
+    y: interpolate(motion.progress, [0, 0.24, 0.72, 1], [from.y, -20, -20, 52]),
+  };
+};
+
 const BranchConnector: React.FC<{color: string; x: number; y: number}> = ({color, x, y}) => {
   const isTop = y < 120;
+  const labelEdgeY = isTop ? y + 24 : y - 24;
+  const nodeEdgeY = isTop ? 97 : 153;
   return (
     <path
-      d={`M${x} ${isTop ? y + 28 : y - 28} C${x} ${isTop ? y + 56 : y - 56} ${x} ${isTop ? 92 : 158} ${x} ${isTop ? 94 : 156}`}
+      d={`M${x} ${labelEdgeY} C${x} ${(labelEdgeY + nodeEdgeY) / 2} ${x} ${(labelEdgeY + nodeEdgeY) / 2} ${x} ${nodeEdgeY}`}
       fill="none"
       stroke={color}
       strokeWidth="4.4"

@@ -67,7 +67,7 @@ class ThreeWayMergeScene(Scene):
         self.camera.background_color = CANVAS
 
         title = label("three-way merge", size=34, color=TEXT, weight="BOLD").to_edge(UP, buff=0.44)
-        subtitle = label("base / ours / theirs -> result", size=23, color=MUTED).next_to(title, DOWN, buff=0.1)
+        subtitle = label("base / ours / theirs → result", size=23, color=MUTED).next_to(title, DOWN, buff=0.1)
 
         c0 = commit("C0").shift(4.2 * LEFT + 0.9 * UP)
         c1 = commit("C1").shift(2.85 * LEFT + 0.9 * UP)

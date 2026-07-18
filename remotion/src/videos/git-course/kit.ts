@@ -13,6 +13,7 @@ export {CenterGraph} from './kit/git/CenterGraph';
 export {GitGraph} from './kit/git/GitGraph';
 export {GitRefWritePanel} from './kit/git/GitRefWritePanel';
 export {MiniRefLine} from './kit/git/MiniRefLine';
+export {RefInspectorCard} from './kit/git/RefInspectorCard';
 export {RefWriteBar} from './kit/git/RefWriteBar';
 export type {GitRefWriteCommit} from './kit/git/GitRefWritePanel';
 export type {BranchLabelData, CommitNodeData, GitGraphState} from './kit/git/types';

@@ -90,12 +90,12 @@ const HistoryGraph: React.FC<{
       <BranchLabel name="main" x={mainX} y={78} color={COLOR.git.main} />
       {showHead ? <HeadBadge x={mainX + 114} y={78} /> : null}
       {mode === 'bad' || mode === 'revert' ? (
-        <text x={c3} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
+        <text x={c3 - 18} y={y + 76} textAnchor="end" fontFamily={FONT.sans} fontSize="21" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
           wrong change
         </text>
       ) : null}
       {mode === 'revert' ? (
-        <text x={r1} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.feature} opacity={revertIn}>
+        <text x={r1 + 18} y={y + 76} textAnchor="start" fontFamily={FONT.sans} fontSize="21" fontWeight={WEIGHT.bold} fill={COLOR.git.feature} opacity={revertIn}>
           inverse commit
         </text>
       ) : null}
@@ -110,11 +110,11 @@ const resetAreas = (mode: ResetMode): GitArea[] => {
     mixed: 'index',
     hard: 'working-tree',
   };
-  const headVersion = mode === 'start' ? 'HEAD -> C3 / snapshot v3' : 'HEAD -> C2 / snapshot v2';
+  const headVersion = mode === 'start' ? 'HEAD → C3 / snapshot v3' : 'HEAD → C2 / snapshot v2';
   const indexVersion = mode === 'mixed' || mode === 'hard' ? 'app.js  v2' : 'app.js  v3 staged';
   const workingVersion = mode === 'hard' ? 'app.js  v2' : mode === 'start' ? 'app.js  v3 dirty' : 'app.js  v3 dirty';
   return [
-    {id: 'repository', title: 'HEAD / Repository', files: [headVersion, mode === 'start' ? 'main -> C3' : 'main -> C2'], active: active[mode] === 'repository'},
+    {id: 'repository', title: 'HEAD / Repository', files: [headVersion, mode === 'start' ? 'main → C3' : 'main → C2'], active: active[mode] === 'repository'},
     {id: 'index', title: 'Index', files: [indexVersion, mode === 'mixed' ? 'unstaged change remains' : 'ready for next commit'], active: active[mode] === 'index'},
     {id: 'working-tree', title: 'Working Tree', files: [workingVersion, mode === 'hard' ? 'dirty work overwritten' : 'local edits still here'], active: active[mode] === 'working-tree'},
   ];
@@ -131,19 +131,19 @@ const restoreAreas = (mode: RestoreMode): GitArea[] => {
     return [
       {id: 'repository', title: 'HEAD / Repository', files: ['app.js  v1', 'branch unchanged']},
       {id: 'index', title: 'Index · source', files: ['app.js  v2 staged'], active: true},
-      {id: 'working-tree', title: 'Working Tree · target', files: ['v3 working -> v2 staged'], active: true},
+      {id: 'working-tree', title: 'Working Tree · target', files: ['v3 working → v2 staged'], active: true},
     ];
   }
   if (mode === 'head-to-worktree') {
     return [
       {id: 'repository', title: 'HEAD · source', files: ['app.js  v1 committed'], active: true},
       {id: 'index', title: 'Index', files: ['app.js  v2 staged']},
-      {id: 'working-tree', title: 'Working Tree · target', files: ['v2 staged -> v1 committed'], active: true},
+      {id: 'working-tree', title: 'Working Tree · target', files: ['v2 staged → v1 committed'], active: true},
     ];
   }
   return [
     {id: 'repository', title: 'HEAD · source', files: ['app.js  v1 committed'], active: true},
-    {id: 'index', title: 'Index · target', files: ['v2 staged -> v1 committed'], active: true},
+    {id: 'index', title: 'Index · target', files: ['v2 staged → v1 committed'], active: true},
     {id: 'working-tree', title: 'Working Tree', files: ['app.js  v1 unchanged']},
   ];
 };
@@ -184,7 +184,7 @@ const ThreeTreesScene: React.FC = () => {
   const wtIn = interpolate(frame, [seconds(16), seconds(16.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const captionIn = interpolate(frame, [seconds(24), seconds(24.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const areas: GitArea[] = [
-    {id: 'repository', title: 'HEAD / Repository', files: ['当前提交快照', 'main -> C3'], active: frame < seconds(8)},
+    {id: 'repository', title: 'HEAD / Repository', files: ['当前提交快照', 'main → C3'], active: frame < seconds(8)},
     {id: 'index', title: 'Index', files: ['下一次提交的准备区', 'app.js staged v3'], active: frame >= seconds(8) && frame < seconds(16)},
     {id: 'working-tree', title: 'Working Tree', files: ['正在编辑的文件', 'app.js dirty v3'], active: frame >= seconds(16)},
   ];
@@ -229,7 +229,7 @@ const ResetModesScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '104px 132px 112px', boxSizing: 'border-box'}}>
-      <div style={{opacity: modelOpacity}}>
+      <div style={{opacity: modelOpacity}} data-audit-id="ep08-reset-model-continuity">
         <CommandPill command={command} branch="main" />
         <div style={{position: 'absolute', left: 150, top: 168, width: 670}}>
           <HistoryGraph mode="reset" width={670} progress={move} small />
@@ -317,7 +317,7 @@ const RestoreScene: React.FC = () => {
   const modelIn = interpolate(frame, [seconds(9.4), seconds(10.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const mode: RestoreMode = frame < seconds(20) ? 'index-to-worktree' : frame < seconds(30) ? 'head-to-worktree' : 'head-to-index';
   const command = mode === 'index-to-worktree' ? 'git restore app.js' : mode === 'head-to-worktree' ? 'git restore --source=HEAD app.js' : 'git restore --staged app.js';
-  const relation = mode === 'index-to-worktree' ? '默认：Index -> Working Tree' : mode === 'head-to-worktree' ? '显式来源：HEAD -> Working Tree' : '--staged：HEAD -> Index';
+  const relation = mode === 'index-to-worktree' ? '默认：Index → Working Tree' : mode === 'head-to-worktree' ? '显式来源：HEAD → Working Tree' : '--staged：HEAD → Index';
   const caption = mode === 'index-to-worktree' ? '不写 source 时，Working Tree 默认从 Index 恢复' : mode === 'head-to-worktree' ? '写明 source=HEAD，才从提交快照恢复文件' : '加 --staged，目标改为 Index；branch 和 HEAD 始终不动';
   const bothTargetsIn = interpolate(frame, [seconds(36), seconds(37)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 

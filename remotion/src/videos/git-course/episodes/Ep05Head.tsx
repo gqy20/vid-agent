@@ -1,21 +1,20 @@
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
 import {EP05} from '../data/episodes';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds} from '../timeline';
 import {
   CenterGraph,
-  CodeBlock,
   CommandPill,
   CourseLayout,
   EpisodeTitleCard,
   GitGraph,
-  MiniRefLine,
+  RefInspectorCard,
   SceneCaption,
   SceneSequence,
   RecordedTerminalPanel,
   type GitGraphState,
 } from '../kit';
-import {COLOR, FONT, WEIGHT} from '../palette';
+import {COLOR, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
 import {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
@@ -59,32 +58,22 @@ const graphState = (state: Ep05GitState): GitGraphState => ({
   head: {target: state.headBranch === 'main' ? state.main : state.feature, branch: state.headBranch},
 });
 
-const useSceneFrame = () => useCurrentFrame();
-
-const FadeIn: React.FC<{children: React.ReactNode; start?: number; duration?: number; y?: number}> = ({
-  children,
-  start = 0,
-  duration = 0.55,
-  y = 18,
-}) => {
-  const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(start), seconds(start + duration)], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  return <div style={{opacity: progress, transform: `translateY(${(1 - progress) * y}px)`}}>{children}</div>;
+const SYMBOLIC_REF_GRAPH: GitGraphState = {
+  commits: ['C0', 'C1', 'C2'].map((id) => ({id})),
+  branches: [{name: 'main', target: 'C2', lane: 'bottom', active: true}],
+  head: {target: 'C2', branch: 'main'},
 };
 
-const HeadChainLabel: React.FC<{left?: number; top?: number; text?: string; opacity?: number}> = ({
-  left = 668,
-  top = 770,
-  text = 'HEAD -> main -> C2',
-  opacity = 1,
-}) => (
-  <div style={{position: 'absolute', left, top, width: 584, opacity}}>
-    <CodeBlock title=".git/HEAD + refs" lines={[text]} highlight={[0]} />
-  </div>
-);
+const DETACHED_GRAPH: GitGraphState = {
+  commits: ['C0', 'C1', 'C2', 'C3'].map((id) => ({id})),
+  branches: [
+    {name: 'main', target: 'C2', lane: 'bottom'},
+    {name: 'feature', target: 'C3', lane: 'top'},
+  ],
+  head: {target: 'C1'},
+};
+
+const useSceneFrame = () => useCurrentFrame();
 
 const toneColor = (tone: 'main' | 'feature' | 'head') =>
   tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : COLOR.git.head;
@@ -135,7 +124,6 @@ const HookScene: React.FC = () => {
   const titleIn = interpolate(frame, [0, seconds(0.55)], [0, 1], {extrapolateRight: 'clamp'});
   const titleOut = interpolate(frame, [seconds(1.7), seconds(2.15)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(2.15), seconds(2.75)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const evidenceOut = interpolate(frame, [seconds(7.6), seconds(8.25)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const captionIn = interpolate(frame, [seconds(8.4), seconds(9.05)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
@@ -152,8 +140,7 @@ const HookScene: React.FC = () => {
         auditId="ep05-hook-title"
       />
       <div style={{opacity: graphIn, transform: `translateY(${(1 - graphIn) * 22}px)`}}>
-        <CenterGraph state={graphState(STATES.base)} top={322} width={1080} headMarkerOffsetX={118} />
-        <HeadChainLabel top={742} opacity={evidenceOut} />
+        <CenterGraph state={SYMBOLIC_REF_GRAPH} top={250} width={1160} headMarkerOffsetX={118} branchOffset={84} />
       </div>
       <SceneCaption opacity={captionIn} width={930} fontSize={35} bottom={126} auditId="ep05-hook-caption">
         HEAD 回答的是：我现在站在哪里？
@@ -164,34 +151,44 @@ const HookScene: React.FC = () => {
 
 const SymbolicRefScene: React.FC = () => {
   const frame = useSceneFrame();
-  const fileIn = interpolate(frame, [0, seconds(0.7)], [0, 1], {extrapolateRight: 'clamp'});
-  const graphIn = interpolate(frame, [seconds(8.7), seconds(9.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const chainPulse = interpolate(frame, [seconds(12), seconds(13.3), seconds(15.2)], [0, 1, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const cardIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
+  const headStateOut = interpolate(frame, [seconds(3.8), seconds(4.35)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const refStateIn = interpolate(frame, [seconds(4.45), seconds(5.05)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const traceLift = interpolate(frame, [seconds(6.2), seconds(7.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(7), seconds(8.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const captionIn = interpolate(frame, [seconds(18.2), seconds(19)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const cardTop = interpolate(traceLift, [0, 1], [376, 116]);
 
   return (
-    <AbsoluteFill style={{padding: '112px 152px', boxSizing: 'border-box'}}>
-      <div style={{position: 'absolute', left: 190, top: 244, width: 650, opacity: fileIn}}>
-        <CodeBlock title=".git/HEAD" lines={['ref: refs/heads/main']} highlight={[0]} />
-      </div>
-      <div style={{position: 'absolute', left: 1030, top: 246, width: 560, opacity: interpolate(fileIn, [0.45, 1], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}}>
-        <CodeBlock title=".git/refs/heads/main" lines={['C2']} highlight={[0]} highlightBorderColor={COLOR.git.main} highlightBackground={COLOR.effects.mainWash} />
-      </div>
-      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0, pointerEvents: 'none'}}>
-        <path
-          d="M840 356 C910 356 950 356 1028 356"
-          fill="none"
-          stroke={COLOR.git.head}
-          strokeWidth={5}
-          strokeLinecap="round"
-          opacity={(0.35 + chainPulse * 0.45) * fileIn}
+    <AbsoluteFill>
+      <div style={{position: 'absolute', left: 500, top: cardTop, width: 920, height: 132, opacity: cardIn, transform: `translateY(${(1 - cardIn) * 18}px)`}}>
+        <RefInspectorCard
+          pathLabel="HEAD FILE"
+          path=".git/HEAD"
+          pathAccent="HEAD"
+          valueLabel="CONTENTS"
+          valuePrefix="ref: refs/heads/"
+          value="main"
+          tone={COLOR.git.main}
+          pathColumnWidth={230}
+          style={{position: 'absolute', inset: 0, opacity: headStateOut, transform: `translateY(${(headStateOut - 1) * 12}px)`}}
+          auditId="ep05-symbolic-head-file"
         />
-      </svg>
+        <RefInspectorCard
+          pathLabel="BRANCH REF"
+          path=".git/refs/heads/main"
+          pathAccent="main"
+          valueLabel="OBJECT ID"
+          value="C2"
+          tone={COLOR.git.main}
+          pathColumnWidth={620}
+          valueFontSize={48}
+          style={{position: 'absolute', inset: 0, opacity: refStateIn, transform: `translateY(${(1 - refStateIn) * 12}px)`}}
+          auditId="ep05-symbolic-branch-ref"
+        />
+      </div>
       <div style={{opacity: graphIn, transform: `translateY(${(1 - graphIn) * 24}px)`}}>
-        <CenterGraph state={graphState(STATES.base)} top={500} width={960} headMarkerOffsetX={118} />
+        <CenterGraph state={SYMBOLIC_REF_GRAPH} top={390} width={1080} headMarkerOffsetX={118} branchOffset={84} />
       </div>
       <SceneCaption opacity={captionIn} width={1020} bottom={120} auditId="ep05-symbolic-caption">
         通常是 HEAD 指向 branch，branch 再指向 commit
@@ -236,10 +233,20 @@ const SwitchScene: React.FC = () => {
         headMarkerOffsetX={118}
       />
       <TimedSideLabel x={1320} y={382} tone="head" frame={frame} start={7}>
-        HEAD 从 main 到 feature。
+        HEAD 从 main 到 feature
       </TimedSideLabel>
-      <div style={{position: 'absolute', left: 700, top: 744, width: 560, opacity: fileProgress}}>
-        <CodeBlock title=".git/HEAD" lines={['ref: refs/heads/feature']} highlight={[0]} />
+      <div style={{position: 'absolute', left: 560, top: 730, width: 800, opacity: fileProgress}}>
+        <RefInspectorCard
+          pathLabel="HEAD FILE"
+          path=".git/HEAD"
+          pathAccent="HEAD"
+          valueLabel="CONTENTS"
+          valuePrefix="ref: refs/heads/"
+          value="feature"
+          tone={COLOR.git.feature}
+          pathColumnWidth={230}
+          auditId="ep05-switch-head-file"
+        />
       </div>
       <SceneCaption opacity={interpolate(frame, [seconds(34), seconds(35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={118}>
         commit 没变，当前所在分支变了
@@ -264,12 +271,21 @@ const CommitCurrentScene: React.FC = () => {
         branchMotion={state.feature === 'C3' ? {name: 'feature', from: 'C2', to: 'C3', progress: pointer} : undefined}
         headMarkerOffsetX={118}
       />
-      <MiniRefLine title=".git/refs/heads/feature" line="feature -> C3" top={742} left={704} />
+      <div style={{position: 'absolute', left: 560, top: 730, width: 800}}>
+        <RefInspectorCard
+          pathLabel="BRANCH REF"
+          path=".git/refs/heads/feature"
+          pathAccent="feature"
+          valueLabel="OBJECT ID"
+          value="C3"
+          tone={COLOR.git.feature}
+          pathColumnWidth={590}
+          valueFontSize={46}
+          auditId="ep05-commit-feature-ref"
+        />
+      </div>
       <TimedSideLabel x={1335} y={288} tone="feature" frame={frame} start={19}>
-        HEAD 在 feature 上，feature 前进。
-      </TimedSideLabel>
-      <TimedSideLabel x={236} y={674} tone="main" frame={frame} start={23}>
-        main 停在 C2。
+        HEAD 在 feature 上，feature 前进
       </TimedSideLabel>
       <SceneCaption opacity={interpolate(frame, [seconds(35), seconds(36)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={116}>
         HEAD 没有变成 commit；它仍然指向当前分支
@@ -278,67 +294,38 @@ const CommitCurrentScene: React.FC = () => {
   );
 };
 
-const DetachedGraph: React.FC<{progress: number}> = ({progress}) => {
-  const featureX = 110 + 3 * 150;
-  const detachedX = 110 + 1 * 150;
-  const headX = interpolate(progress, [0, 0.25, 1], [featureX + 118, featureX + 118, detachedX]);
-  const headY = interpolate(progress, [0, 0.25, 0.72, 1], [52, -20, -20, 52]);
-  const headTargetX = interpolate(progress, [0, 0.25, 1], [featureX, featureX, detachedX]);
-  const commits = ['C0', 'C1', 'C2', 'C3'];
-
-  return (
-    <svg width="1030" height="380" viewBox="0 0 730 270" style={{display: 'block', overflow: 'visible'}}>
-      <line x1="110" y1="125" x2="560" y2="125" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-      {commits.map((commit, idx) => (
-        <g key={commit}>
-          <circle cx={110 + idx * 150} cy={134} r="31" fill={COLOR.effects.shadowSoft} opacity="0.5" />
-          <circle
-            cx={110 + idx * 150}
-            cy="125"
-            r="28"
-            fill={COLOR.canvas.base}
-            stroke={commit === 'C1' ? COLOR.git.head : COLOR.git.commit}
-            strokeWidth={commit === 'C1' ? 6.8 : 5.6}
-          />
-          <text x={110 + idx * 150} y="133" textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphNode.fontSize} fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
-            {commit}
-          </text>
-        </g>
-      ))}
-      <path d="M410 166 C410 188 410 194 410 194" fill="none" stroke={COLOR.git.main} strokeWidth="4.4" strokeLinecap="round" opacity="0.88" />
-      <rect x="352" y="170" width="116" height="48" rx="8" fill={COLOR.git.main} opacity="0.96" />
-      <text x="410" y="202" textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
-        main
-      </text>
-      <path d={`M${featureX} 76 C${featureX} 88 ${featureX} 92 ${featureX} 94`} fill="none" stroke={COLOR.git.feature} strokeWidth="4.4" strokeLinecap="round" opacity="0.88" />
-      <rect x={featureX - 58} y="28" width="116" height="48" rx="8" fill={COLOR.git.feature} opacity="0.96" />
-      <text x={featureX} y="60" textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
-        feature
-      </text>
-      <path d={`M${headX} ${headY + 22} C${headX} ${headY + 40} ${headTargetX} 88 ${headTargetX} 94`} fill="none" stroke={COLOR.git.head} strokeWidth="4.4" strokeLinecap="round" opacity="0.72" />
-      <rect x={headX - 49} y={headY - 22} width="98" height="44" rx="22" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
-      <circle cx={headX - 28} cy={headY} r="5" fill={COLOR.git.head} />
-      <text x={headX + 10} y={headY + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
-        HEAD
-      </text>
-    </svg>
-  );
-};
-
 const DetachedScene: React.FC = () => {
   const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(8), seconds(20)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const progress = interpolate(frame, [seconds(8), seconds(20)], [0, 1], {
+    easing: Easing.bezier(0.45, 0, 0.55, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
   const fileIn = interpolate(frame, [seconds(21), seconds(31)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const warningIn = interpolate(frame, [seconds(37), seconds(38.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
       <CommandPill command="git switch --detach C1" branch="feature" />
-      <div style={{position: 'absolute', left: '50%', top: 322, width: 1030, transform: 'translateX(-50%)'}}>
-        <DetachedGraph progress={progress} />
-      </div>
-      <div style={{position: 'absolute', left: 710, top: 728, width: 500, opacity: fileIn}}>
-        <CodeBlock title=".git/HEAD" lines={['9a4c1e7']} highlight={[0]} />
+      <CenterGraph
+        state={DETACHED_GRAPH}
+        top={322}
+        width={1030}
+        detachedHeadMotion={{fromBranch: 'feature', progress}}
+        headMarkerOffsetX={118}
+      />
+      <div style={{position: 'absolute', left: 630, top: 720, width: 660, opacity: fileIn}}>
+        <RefInspectorCard
+          pathLabel="HEAD FILE"
+          path=".git/HEAD"
+          pathAccent="HEAD"
+          valueLabel="DIRECT OBJECT"
+          value="9a4c1e7"
+          tone={COLOR.git.head}
+          pathColumnWidth={230}
+          valueFontSize={38}
+          auditId="ep05-detached-head-file"
+        />
       </div>
       <div
         style={{
@@ -361,38 +348,28 @@ const DetachedScene: React.FC = () => {
 
 const TakeawayScene: React.FC = () => {
   const frame = useSceneFrame();
-  const state = frame < seconds(8) ? STATES.base : frame < seconds(16) ? STATES.switched : STATES.committed;
-  const lines = ['HEAD -> branch -> commit', 'switch：改 HEAD', 'commit：推进当前 branch'];
+  const state = frame < seconds(8.4) ? STATES.base : frame < seconds(16) ? STATES.switched : STATES.committed;
+  const step = frame < seconds(8.4) ? 'HEAD → branch → commit' : frame < seconds(16) ? 'switch：改 HEAD' : 'commit：推进当前 branch';
+  const titleIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(0.9), seconds(2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
-    <AbsoluteFill style={{padding: '158px 170px 128px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>
-        HEAD 是当前位置，
-        <br />
-        不是另一个分支。
+    <AbsoluteFill>
+      <div
+        data-audit-id="ep05-takeaway-title"
+        style={{position: 'absolute', top: 150, left: 120, right: 120, ...TYPE.hero, fontSize: 76, fontWeight: WEIGHT.bold, textAlign: 'center', whiteSpace: 'nowrap', opacity: titleIn, transform: `translateY(${interpolate(titleIn, [0, 1], [16, 0])}px)`}}
+      >
+        HEAD 是当前位置，不是另一个分支
       </div>
-      <div style={{position: 'absolute', right: 230, top: 348, width: 760}}>
-        <GitGraph state={graphState(state)} width={760} height={306} />
+      <div
+        data-audit-id="ep05-takeaway-main-graph"
+        style={{position: 'absolute', left: '50%', top: 304, width: 1420, transform: `translateX(-50%) scale(${interpolate(graphIn, [0, 1], [0.96, 1])})`, transformOrigin: 'center top', opacity: graphIn}}
+      >
+        <GitGraph state={graphState(state)} width={1420} height={520} auditId="ep05-takeaway-graph" />
       </div>
-      <div style={{position: 'absolute', left: 176, bottom: 158, display: 'grid', gap: 16}}>
-        {lines.map((line, idx) => (
-          <FadeIn key={line} start={idx * 2.2} duration={0.55} y={12}>
-            <div style={{...TYPE.subtitle, color: idx === 0 ? COLOR.text.primary : COLOR.text.secondary, fontWeight: idx === 0 ? 760 : 560}}>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 28,
-                  height: 28,
-                  marginRight: 16,
-                  borderRadius: 999,
-                  background: idx === 0 ? COLOR.git.head : COLOR.stroke.default,
-                  verticalAlign: -3,
-                }}
-              />
-              {line}
-            </div>
-          </FadeIn>
-        ))}
+      <div style={{position: 'absolute', left: '50%', bottom: 126, transform: 'translateX(-50%)', ...TYPE.subtitle, fontSize: 34, color: COLOR.text.primary, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>
+        <span style={{display: 'inline-block', width: 18, height: 18, marginRight: 16, borderRadius: 999, background: COLOR.git.head}} />
+        {step}
       </div>
     </AbsoluteFill>
   );
