@@ -153,11 +153,15 @@ thumbnail-fix.png
 thumbnail-*.png
 
 # ── Remotion 工程临时（非视频产物）──
+# 项目级抽帧、渲染和审查工作区；正式产物使用各自的规范目录。
+/tmp/
 remotion/node_modules/
 remotion/node_modules.pnp
 remotion/out/
 remotion/.next/
 remotion/dist/
+tools/git-course-dashboard/node_modules/
+tools/git-course-dashboard/dist/
 mmx-renders/
 .playwright-cli/
 remotion/.playwright-cli/
