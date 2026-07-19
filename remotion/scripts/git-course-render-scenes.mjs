@@ -2,7 +2,7 @@
 
 import {bundle} from '@remotion/bundler';
 import {renderMedia, selectComposition} from '@remotion/renderer';
-import {copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync} from 'node:fs';
+import {copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {performance} from 'node:perf_hooks';
 
@@ -12,20 +12,76 @@ if (!planPath) throw new Error('Usage: git-course-render-scenes.mjs <plan.json>'
 const plan = JSON.parse(readFileSync(resolve(planPath), 'utf8'));
 if (!Array.isArray(plan.tasks) || plan.tasks.length === 0) throw new Error('Render plan has no tasks.');
 
+const processIsAlive = (pid) => {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const sleep = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
+
 const startedAt = performance.now();
 const bundleDir = resolve(plan.bundleDir);
 const bundleReady = `${bundleDir}/bundle-ready.json`;
-const bundleCacheHit = existsSync(`${bundleDir}/index.html`) && existsSync(bundleReady) && JSON.parse(readFileSync(bundleReady, 'utf8')).bundleFingerprint === plan.bundleFingerprint;
+const bundleIsReady = () => {
+  if (!existsSync(`${bundleDir}/index.html`) || !existsSync(bundleReady)) return false;
+  try {
+    return JSON.parse(readFileSync(bundleReady, 'utf8')).bundleFingerprint === plan.bundleFingerprint;
+  } catch {
+    return false;
+  }
+};
+const bundleCacheHit = bundleIsReady();
 let serveUrl = bundleDir;
 if (!bundleCacheHit) {
-  rmSync(bundleDir, {recursive: true, force: true});
-  serveUrl = await bundle({
-    entryPoint: resolve(plan.entryPoint ?? 'src/index.ts'),
-    outDir: bundleDir,
-    onProgress: () => undefined,
-    symlinkPublicDir: true,
-  });
-  writeFileSync(bundleReady, `${JSON.stringify({schemaVersion: 1, bundleFingerprint: plan.bundleFingerprint})}\n`);
+  const lockDir = `${bundleDir}.lock`;
+  mkdirSync(dirname(bundleDir), {recursive: true});
+  let ownsLock = false;
+  const deadline = Date.now() + (plan.timeoutInMilliseconds ?? 120000);
+  while (!bundleIsReady() && Date.now() < deadline) {
+    try {
+      mkdirSync(lockDir);
+      writeFileSync(`${lockDir}/owner.json`, `${JSON.stringify({pid: process.pid, bundleFingerprint: plan.bundleFingerprint, startedAt: new Date().toISOString()})}\n`);
+      ownsLock = true;
+      break;
+    } catch (error) {
+      if (error?.code !== 'EEXIST') throw error;
+      let owner = null;
+      try {
+        owner = JSON.parse(readFileSync(`${lockDir}/owner.json`, 'utf8'));
+      } catch {
+        // The owner may still be initializing the lock.
+      }
+      const abandoned = owner ? !processIsAlive(owner.pid) : Date.now() - statSync(lockDir).mtimeMs > 30000;
+      if (abandoned) {
+        rmSync(lockDir, {recursive: true, force: true});
+        continue;
+      }
+      await sleep(250);
+    }
+  }
+  if (!bundleIsReady() && !ownsLock) throw new Error(`Timed out waiting for bundle lock: ${lockDir}`);
+  if (ownsLock) {
+    try {
+      if (!bundleIsReady()) {
+        rmSync(bundleDir, {recursive: true, force: true});
+        serveUrl = await bundle({
+          entryPoint: resolve(plan.entryPoint ?? 'src/index.ts'),
+          outDir: bundleDir,
+          onProgress: () => undefined,
+          symlinkPublicDir: true,
+        });
+        const partialReady = `${bundleReady}.partial-${process.pid}`;
+        writeFileSync(partialReady, `${JSON.stringify({schemaVersion: 1, bundleFingerprint: plan.bundleFingerprint})}\n`);
+        renameSync(partialReady, bundleReady);
+      }
+    } finally {
+      rmSync(lockDir, {recursive: true, force: true});
+    }
+  }
 }
 const bundledAt = performance.now();
 const isUhd = plan.tasks.some((task) => (task.scale ?? 1) > 1);
@@ -113,7 +169,9 @@ if (results.length > 0 && plan.profilePath) {
     ? Math.min(...downgraded.map((result) => result.usedConcurrency))
     : Math.max(existing.maxStableConcurrencyPerBrowser ?? 1, ...results.map((result) => result.usedConcurrency));
   mkdirSync(dirname(profilePath), {recursive: true});
-  writeFileSync(profilePath, `${JSON.stringify({...existing, schemaVersion: 1, maxStableConcurrencyPerBrowser: stable, updatedAt: new Date().toISOString()}, null, 2)}\n`);
+  const partialProfile = `${profilePath}.partial-${process.pid}`;
+  writeFileSync(partialProfile, `${JSON.stringify({...existing, schemaVersion: 1, maxStableConcurrencyPerBrowser: stable, updatedAt: new Date().toISOString()}, null, 2)}\n`);
+  renameSync(partialProfile, profilePath);
 }
 
 const telemetry = {

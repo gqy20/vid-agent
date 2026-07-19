@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-import {execFileSync} from 'node:child_process';
-import {copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const REMOTION_ROOT = join(ROOT, 'remotion');
 const COURSE_ROOT = join(ROOT, 'git-course/episodes');
-const FPS = 30;
 const EPISODES = [
   ['ep01-what-git-stores', 'GitCourseEp01WhatGitStores', 'EP01'],
   ['ep02-working-tree-index-repo', 'GitCourseEp02WorkingTreeIndexRepo', 'EP02'],
@@ -98,16 +96,6 @@ const generateTimelines = (episodes) => {
   writeFileSync(target, timelineSource(episodes));
 };
 
-const generateRanges = (episode, sceneId) => {
-  const selected = sceneId ? episode.scenes.filter((scene) => scene.id === sceneId) : episode.scenes;
-  selected.length > 0 || fail(`${episode.id}: unknown scene ${sceneId}`);
-  const dir = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'tmp/generated-ranges');
-  mkdirSync(dir, {recursive: true});
-  const path = join(dir, `${sceneId ?? 'scenes'}.tsv`);
-  writeFileSync(path, selected.map((scene) => `${String(episode.scenes.indexOf(scene) + 1).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}\t${scene.start * FPS}\t${(scene.start + scene.duration) * FPS - 1}`).join('\n') + '\n');
-  return path;
-};
-
 const generateNarrationSource = (episode) => {
   const dir = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'tmp/narration-source');
   mkdirSync(dir, {recursive: true});
@@ -177,8 +165,6 @@ const validate = ({checkGenerated = true} = {}) => {
 
 const command = process.argv[2] ?? 'validate';
 const episodeId = process.argv[3];
-const sceneIndex = process.argv.indexOf('--scene');
-const sceneId = sceneIndex >= 0 ? process.argv[sceneIndex + 1] : null;
 const episodes = validate({checkGenerated: command !== 'generate'});
 
 if (command === 'validate') {
@@ -193,30 +179,6 @@ if (command === 'validate') {
   const episode = episodes.find((item) => item.id === episodeId) ?? fail(`Unknown episode: ${episodeId}`);
   const generated = generateReleaseSource(episode);
   console.log(generated.length > 0 ? generated.join('\n') : `${episode.id}: no release source`);
-} else if (command === 'render') {
-  const episode = episodes.find((item) => item.id === episodeId) ?? fail(`Unknown episode: ${episodeId}`);
-  generateTimelines(episodes);
-  const ranges = generateRanges(episode, sceneId);
-  const current = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'current');
-  const sceneRunDir = sceneId ? join(REMOTION_ROOT, 'renders/git-course', episode.id, 'tmp/scenes', sceneId) : null;
-  const env = {
-    ...process.env,
-    RANGES_FILE: ranges,
-    OUT_ROOT: join(REMOTION_ROOT, 'renders/git-course', episode.id, 'tmp/chunks'),
-    FINAL_PATH: join(current, `${episode.id}.mp4`),
-    ...(sceneRunDir ? {RUN_DIR: sceneRunDir, CLEAN_RUN_DIR: '1', SKIP_CONCAT: '1', AUDIT_SEGMENTS: '1'} : {}),
-  };
-  execFileSync(join(REMOTION_ROOT, 'scripts/render-ranges.sh'), [episode.composition, episode.id, String(episode.durationSeconds * FPS), '600'], {cwd: REMOTION_ROOT, env, stdio: 'inherit'});
-  if (sceneRunDir) {
-    const rendered = readdirSync(join(sceneRunDir, 'segments')).filter((name) => name.endsWith('.mp4'));
-    rendered.length === 1 || fail(`${sceneRunDir}: expected one rendered scene, found ${rendered.length}`);
-    const scene = episode.scenes.find((item) => item.id === sceneId);
-    const name = `${String(episode.scenes.indexOf(scene) + 1).padStart(2, '0')}_${scene.id.replaceAll('-', '_')}.mp4`;
-    const sceneDir = join(current, 'scenes');
-    mkdirSync(sceneDir, {recursive: true});
-    copyFileSync(join(sceneRunDir, 'segments', rendered[0]), join(sceneDir, name));
-    console.log(`Current scene: ${join(sceneDir, name)}`);
-  }
 } else {
-  fail(`Usage: git-course.mjs validate|generate|narration|release|render <episode-id> [--scene <scene-id>]`);
+  fail(`Usage: git-course.mjs validate|generate|narration|release <episode-id>`);
 }

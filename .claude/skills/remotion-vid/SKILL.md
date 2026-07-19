@@ -162,9 +162,9 @@ export const RemotionRoot: React.FC = () => (
    current。进入候选验收后，无策略时用短片 smoke test 探测最大稳定并发，
    不把保守常量当生产默认值。渲进产物目录
    `renders/<id>/renders/{tmp,candidates,current,archive}/`,补上 `thumbnail.png` +
-   `meta.json` + `README.md`;用 `ffprobe` 校验。分片、场景审查、抽帧都必须放
-   `renders/<id>/renders/tmp/{chunks,scenes,audit}/`。绝不让 mp4 堆在工程根目录
-   (references/render-project-layout.md)。
+   `meta.json` + `README.md`;用 `ffprobe` 校验。已有 orchestrator 时，临时产物完全服从项目的
+   cache、preview、task、candidate 和 audit 布局；只有无适配器 fallback 才使用通用 tmp 目录。
+   绝不让 mp4 堆在工程根目录(references/render-project-layout.md)。
 8. **多个独立任务默认最大稳定并行** —— 先由 orchestrator 计算全局资源预算，再让 dirty
    scene、TTS、审查扫描等互不依赖任务并行。Remotion 源码只 bundle 一次并持久缓存；每个
    并行 `renderMedia` 使用独立 browser pool，不能共享同一个 Chrome 实例。成功任务立即写入
@@ -174,6 +174,10 @@ export const RemotionRoot: React.FC = () => (
 9. **需要更快时先测再拆** —— frame range 分片必须先 smoke test 当前 Remotion 版本是否
    会卡在 mp4 分片末帧,稳定后才用于生产。分析单段时用
    `SKIP_CONCAT=1 AUDIT_SEGMENTS=1`,不要为了看一个场景强行合成全片。
+10. **让生命周期自动收尾** —— CAS 是唯一可复用存储，preview/debug 只是视图，task 是工作区，
+    current 只放已批准产物。preview 优先 hardlink/reflink；成功任务进入 CAS 且权威审查生成后清理
+    重复大文件。GC 必须引用感知、带宽限期并默认 dry-run，不能删除活动 candidate、有效 verdict、
+    current 或最近一次失败诊断。详见 `references/incremental-production.md`。
 
 ## 第二遍——按官方 skill 精修(按收益排序)
 
@@ -218,7 +222,7 @@ references/api-cheatsheet.md 与 references/anti-patterns.md。
 | 全片渲染后才发现排版 bug | 先逐场景抽帧自检(references/still-check.md) |
 | 用户指出某秒框位不准 | 从 final mp4 抽该秒附近帧,按语义重定框位,不要只微调像素 |
 | 渲染卡住 / 字体不对 | `@remotion/google-fonts` 渲染时联网;改用 `fc-list` 本地字体 |
-| 一个 episode 出现很多 `out/` 目录 | 给项目脚本显式设置 `OUT_ROOT=renders/<id>/renders/tmp/{chunks,scenes}`;根 `out/` 只可做短期 scratch |
+| 一个 episode 出现很多 `out/` 或重复 preview 文件 | 先使用项目 orchestrator；让 CAS 成为唯一复用存储，preview 用链接物化，task 成功后自动清理 |
 | 加转场后结尾被截 | `durationInFrames` = Σ场景 − Σ转场 |
 | 转场中两套 UI 糊在一起 | 高密度场景不做 crossfade;改硬切/短黑场/先退场 |
 | Manim/Lottie/视频资产嵌入后遮挡 | 先抽嵌入后的 still;必要时裁切、遮罩或重渲资产 |

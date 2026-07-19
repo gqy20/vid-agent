@@ -12,9 +12,12 @@
 # Example:
 #   01_hook  0.2  12.0
 #
-# Outputs:
-#   renders/git-course/<episode-id>/current/audio/voiceover-aligned.m4a
-#   renders/git-course/<episode-id>/current/audio/mix.m4a
+# Outputs under AUDIO_DIR (the orchestrator stages candidates under tmp/build):
+#   <audio-dir>/voiceover-aligned.m4a
+#   <audio-dir>/mix.m4a
+#
+# Required env (set by the project orchestrator):
+#   AUDIO_DIR=<candidate-or-preview-audio-dir>
 #
 # Optional env:
 #   TTS_MODEL=speech-2.8-hd
@@ -29,6 +32,7 @@
 #   TTS_JOBS=all                    synthesize all dirty segments concurrently
 #   NORMALIZE_JOBS=all              normalize all dirty segments concurrently
 #   CLEAN_SRT_PUNCTUATION=0
+#   TMP_DIR=<scratch-dir>
 #   BGM_FILE=<path>
 #   OUT_VIDEO=<path>
 #   MASTER_LUFS=-16
@@ -38,7 +42,7 @@
 set -euo pipefail
 
 usage() {
-  sed -n '2,34p' "$0" >&2
+  sed -n '2,40p' "$0" >&2
 }
 
 [ $# -ge 1 ] || {
@@ -50,7 +54,7 @@ EPISODE_ID="$1"
 MAIN_VIDEO="${2:-}"
 MANIFEST="${NARRATION_MANIFEST:-$(node scripts/git-course.mjs narration "$EPISODE_ID" | tail -n 1)}"
 
-AUDIO_DIR="${AUDIO_DIR:-renders/git-course/${EPISODE_ID}/current/audio}"
+AUDIO_DIR="${AUDIO_DIR:?AUDIO_DIR must be set by the project orchestrator}"
 SOURCE_SEGMENTS_DIR="$(dirname "$MANIFEST")"
 SEGMENTS_DIR="${AUDIO_DIR}/segments"
 mkdir -p "$SEGMENTS_DIR"
@@ -87,7 +91,7 @@ fi
 }
 
 # Keep maintainable narration sources under git-course; stage only the files
-# needed by the media build into current.
+# needed by the media build into the orchestrator-selected AUDIO_DIR.
 cp "$MANIFEST" "${SEGMENTS_DIR}/manifest.tsv"
 [ -f "$BGM_FILE" ] || {
   echo "BGM file not found: $BGM_FILE" >&2

@@ -13,7 +13,6 @@
     "git-course:generate": "node scripts/git-course.mjs generate",
     "git-course:narration": "node scripts/git-course.mjs narration",
     "git-course:release": "node scripts/git-course.mjs release",
-    "git-course:render": "node scripts/git-course.mjs render",
     "git-course": "node scripts/git-course-cli.mjs",
     "github-course": "node scripts/github-course-cli.mjs",
     "segments:audit": "scripts/audit-range-segments.sh",

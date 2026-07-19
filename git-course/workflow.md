@@ -34,10 +34,12 @@ git-course/episodes/<episode-id>.json
 ```text
 episode JSON
   ├── Remotion typed timeline
-  ├── tmp/generated-ranges/*.tsv
   ├── tmp/narration-source/*.txt + manifest.tsv
-  ├── current/audio/segments/*.{mp3,srt}
-  ├── current/audio/{voiceover-aligned,mix}.m4a
+  ├── tmp/cache/{scenes,tts}/
+  ├── tmp/build/candidate/audio/
+  ├── tmp/build/candidate/<episode-id>.mp4
+  ├── tmp/build/audit/<main|release>/
+  ├── current/audio/                 # promote 后才写入
   ├── current/scenes/*.mp4
   ├── current/<episode-id>.mp4
   └── current/release/{cover.png,<episode-id>.mp4}
@@ -51,13 +53,14 @@ episode JSON
 pnpm --dir remotion git-course plan <episode-id>
 pnpm --dir remotion git-course fingerprints <episode-id>
 pnpm --dir remotion git-course status <episode-id>
+pnpm --dir remotion git-course preview <episode-id> --scenes=<scene-id>
 pnpm --dir remotion git-course build <episode-id>
 ```
 
 `plan` 只计算 scene/TTS 指纹并显示 `HIT` 或 `BUILD`；`fingerprints` 输出完整 hash，用于验证 Scene 级失效边界。`build` 执行统一 DAG：
 
 ```text
-validate / generate
+validate（timeline 必须已显式 generate）
   ├── 所有 dirty scene 并行 render -> segment audit
   └── 所有 dirty TTS 并行 synthesize -> normalize
         ↓
@@ -68,15 +71,17 @@ validate / generate
 按 artifact + sampling fingerprint 审计（命中则复用）
 ```
 
+`build` 只执行 `validate`，不会代替开发者改写受版本控制的 timeline。修改 episode JSON 后先运行 `pnpm --dir remotion git-course:generate`；生成文件过期时 build 会拒绝继续。
+
 默认并发为 `all`：所有依赖已满足的任务立即启动。Remotion 单进程 concurrency 默认按逻辑 CPU 数除以 dirty scene 数计算，尽量使用全部算力；可用 `--render-concurrency=<n>` 覆盖。TTS 和规范化默认对所有 dirty segment 同时执行。
 
-dirty Scene 共用一次 Remotion bundle，但各自使用独立浏览器池并行渲染，避免重复 Webpack 初始化，也避免多个 `renderMedia` 共享同一 Chrome 实例导致崩溃。bundle 按源码、配置、依赖锁和 public 资产生成指纹，复用到 `renders/git-course/tmp/bundles/`。默认总渲染 concurrency 不超过逻辑 CPU 数；本机稳定上限保存在 `renders/git-course/tmp/render-profile.json`，浏览器崩溃或本地 server 无响应时自动降低 concurrency 重试。`tmp/build/telemetry/render-scenes.json` 记录 bundle 命中、总耗时、各 Scene 耗时、实际 concurrency 和失败项。需要强制验证单个缓存时可用 `--force-scenes=<scene-id[,scene-id]>`。
+dirty Scene 共用一次 Remotion bundle，但各自使用独立浏览器池并行渲染，避免重复 Webpack 初始化，也避免多个 `renderMedia` 共享同一个 Chrome 实例导致崩溃。bundle 按源码、配置、依赖锁和 public 资产生成指纹，复用到 `renders/git-course/tmp/bundles/`。默认总渲染 concurrency 不超过逻辑 CPU 数；本机稳定上限按 profile 分别保存在 `renders/git-course/tmp/render-profile-hd30.json` 与 `render-profile-uhd30.json`，浏览器崩溃或本地 server 无响应时自动降低 concurrency 重试。`tmp/build/telemetry/render-scenes.json` 记录 bundle 命中、总耗时、各 Scene 耗时、实际 concurrency 和失败项。需要强制验证单个缓存时可用 `--force-scenes=<scene-id[,scene-id]>`。
 
 Scene 指纹只覆盖课程共享组件、当前 episode 源码、当前 scene 数据、字体和该集 Manim 资产；其他 episode 的源码、旁白或发布文案变化不得使本集 Scene 缓存失效。音频、candidate 和 audit 也分别按内容指纹缓存。完全没有输入变化时，`build` 应显示 `HIT audio mix`、`HIT assemble` 和 `HIT audit main`，不得重新编码或抽帧。
 
 Scene 级源码指纹默认由 TypeScript AST 识别 `<PascalSceneId>Scene`，EP01 同时支持 `Ep01<PascalSceneId>Scene`。也可以用成对的 `// @git-course-scene <id>:start` 与 `:end` 显式标记。Scene 声明外的 helper、import 和 episode wrapper 属于共享依赖；共享代码变化会使该集全部 Scene 失效，Scene 函数内部变化只使对应 Scene 失效。EP01–EP08 均必须能解析出全部 Scene，否则 plan 直接失败。
 
-每个 Scene 渲染成功后必须立即复制到内容寻址 cache 并写 `render-completion.json`，不能等其他 Scene 全部成功。渲染器使用 `allSettled` 汇总；部分失败时保留成功 Scene，下次 build 只重试失败项。
+每个 Scene 渲染成功后必须立即原子写入内容寻址 cache 并写 `render-completion.json`，不能等其他 Scene 全部成功。渲染器使用 `allSettled` 汇总；部分失败时保留成功 Scene，下次 build 只重试失败项。分段审查完成后删除 task 中与 cache 重复的 MP4；main/release 权威 audit 生成且机器未失败后，自动清理对应成功 task 工作目录。
 
 候选、缓存、日志、manifest 和 verdict 位于 `tmp/`：
 
@@ -84,12 +89,46 @@ Scene 级源码指纹默认由 TypeScript AST 识别 `<PascalSceneId>Scene`，EP
 tmp/cache/scenes/
 tmp/cache/tts/{speech,normalized}/
 tmp/build/candidate/<episode-id>.mp4
+tmp/build/candidate/audio/{segments,voiceover-aligned.m4a,mix.m4a}
+tmp/build/candidate/scenes/             # 带最终音频的人工分段审查视图
 tmp/build/artifact-manifest.json
 tmp/build/release-artifact-manifest.json
 tmp/build/telemetry/render-scenes.json
 tmp/build/audit/main/{manifest.json,report.html,verdict.json}
 tmp/build/audit/release/{manifest.json,report.html,verdict.json}
 tmp/build/logs/
+```
+
+## 存储所有权与清理
+
+目录角色固定如下，不能把 preview 或 tasks 发展成第二套缓存：
+
+```text
+episode JSON  唯一内容源
+tmp/cache/    唯一可复用二进制存储（CAS）
+tmp/preview/  cache 的稳定命名视图，可删除重建
+tmp/build/tasks/  单次任务工作区
+tmp/build/candidate/  待审批产物
+tmp/build/audit/      与 candidate SHA 绑定的门禁证据
+current/      approve/promote 后的正式产物
+```
+
+- scene preview 优先用 hardlink 指向 CAS；文件系统不支持时才回退为复制。preview manifest 同时记录 cache path、SHA 和物化方式。
+- build 音频先写 `tmp/build/candidate/audio/`，不得在候选审查前改变 `current/audio/`；promote 先复核主 candidate、scene 和 candidate audio 清单中的全部 SHA，再将正片、scene、音频和 verdict 分别通过临时路径原子替换。
+- task 输出成功进入 CAS 后删除重复 MP4；权威 audit 机器检查通过后删除对应 task 目录。失败任务和失败审查证据保留用于排查。
+- `clean` 只处理已存在且机器 verdict 不为 `fail` 的权威 audit 工作区；失败证据必须保留。`--preview` 和 `--legacy` 必须显式指定。默认 dry-run，布尔值为真的 `--apply` 才执行。
+- `gc` 基于 state、artifact/preview manifest、当前 episode 指纹和 verdict 收集引用；默认保留 7 天宽限期，默认 dry-run。bundle 只在显式 `--bundles` 时参与回收，并至少保留最新 3 个及当前源码指纹对应 bundle。
+- 所有会写产物的 orchestrator 命令通过原子创建 `tmp/build/activity.json` 互斥。bundle 构建使用指纹级原子锁；bundle GC 发现任意其他 Git Course 命令活动时必须拒绝执行。进程不存在的 stale marker 会在下一次命令开始时清理。
+- `current/`、活动 candidate、有效 verdict 和它们引用的 CAS 永不由 clean/GC 删除。原始审查帧仍按 `AUDIT_KEEP_FRAMES` 规则由审查器自身清理。
+- 旧 `tmp/scenes/`、`tmp/chunks/`、`tmp/audit/`、`tmp/audit-15f/` 不是现行流程输入；确认不再需要历史诊断后，可用 `clean --legacy --apply` 删除。
+
+维护命令：
+
+```bash
+pnpm --dir remotion git-course clean <episode-id>
+pnpm --dir remotion git-course clean <episode-id> --preview --legacy --apply
+pnpm --dir remotion git-course gc <episode-id> --grace-days=7
+pnpm --dir remotion git-course gc <episode-id> --grace-days=7 --bundles --keep-bundles=3 --apply
 ```
 
 ## 统一采样审查
@@ -149,7 +188,7 @@ release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已�
 - scene 必须首尾连续，总和等于 `durationSeconds`。
 - narration 的 `voiceStart` 必须位于对应 scene 窗口；历史过渡最多允许提前 `0.5s`。
 - TTS 固定使用 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`。
-- TTS CAS 将文本合成与人声规范化拆成两级指纹。只修改 `segmentId`、`voiceStart` 或 scene 时间窗时复用原始语音；规范化参数未变时同时复用 `_norm.mp3`。`current/audio/segments/` 缺文件时应从 CAS 恢复，不重新请求 TTS。
+- TTS CAS 将文本合成与人声规范化拆成两级指纹。只修改 `segmentId`、`voiceStart` 或 scene 时间窗时复用原始语音；规范化参数未变时同时复用 `_norm.mp3`。历史 current 只有在 state 中的 TTS 指纹和 norm SHA 都匹配时才能迁入 CAS；无机器证明的旧音频不得冒充当前 voice/model 产物。build 从 CAS 物化到 `tmp/build/candidate/audio/segments/`，不得直接修补 current。
 - 单段规范化目标约 `-20 LUFS`、峰值约 `-3 dBFS`。
 - 对齐旁白和 BGM premaster 在同一个 FFmpeg filter graph 内完成，一次处理同时输出 `voiceover-aligned.m4a` 与 premaster；不得重新拆成先编码旁白、再解码混 BGM 的两轮流程。
 - BGM 使用固定低音量，当前基准为 `0.05`，不做 sidechain ducking。
@@ -164,7 +203,7 @@ release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已�
 ## 审查与晋升
 
 ```text
-tmp/       临时渲染、ranges、TTS 源、抽帧和历史归档
+tmp/       CAS、candidate、审查证据、可重建 preview、任务工作区和历史归档
 current/   当前通过审查的单集、scene、音频和 release
 ```
 

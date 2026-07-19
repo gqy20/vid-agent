@@ -5,7 +5,7 @@
 
 ## 项目适配器契约
 
-通用管线只依赖六类能力：
+通用管线只依赖七类能力：
 
 1. `resolve`：读取项目唯一内容源，解析 timeline、scene、音频和发布配置。
 2. `fingerprint`：按依赖边界生成稳定 hash，并能解释某次 dirty 的原因。
@@ -13,6 +13,7 @@
 4. `audit`：产生机器检查、视觉证据、manifest 和统一 verdict。
 5. `approve`：把人工结论绑定到 candidate SHA 与审查策略版本。
 6. `promote/publish`：只接受 SHA、指纹和 verdict 全部匹配的 candidate。
+7. `clean/gc`：清理可重建视图和工作区，并按引用回收过期 CAS；默认 dry-run。
 
 项目可以用任意 CLI 或脚本实现这些能力。skill 不规定命令名和路径；若仓库已经提供入口，
 所有底层工具都应由该入口编排。
@@ -25,6 +26,18 @@
 - 每个成功任务立即原子写入 CAS，并记录输入 hash、输出 hash、时长和工具版本。
 - 聚合任务只依赖子产物 hash。单个任务失败时，用 `allSettled` 语义保留成功结果，重跑只补失败项。
 - bundle 也应持久缓存；key 至少覆盖入口、源码、构建配置、lockfile 和 public 资产。
+
+## 产物所有权与回收
+
+项目适配器应明确五类不同所有权，不能用多个目录保存同一份长期缓存：
+
+- CAS/cache 是唯一可复用二进制存储；成功任务原子进入 CAS 后，工作区中的重复大文件应释放。
+- preview/debug 是稳定命名的可重建视图。优先 hardlink 或 reflink，文件系统不支持时才复制；manifest 应记录来源 hash 和物化方式。
+- task/work 是运行中与失败诊断的工作区。成功任务可在权威 audit 生成后清理，失败证据应按项目宽限期保留。
+- candidate/audit 是待审批产物和与其 SHA 绑定的门禁证据，在批准失效或产物被替换前不得清理。
+- current/published 只保存已批准产物，build 和 preview 不得把它当 staging 目录。
+
+GC 必须从 state、artifact/preview manifest、verdict 和当前输入指纹构建 live reference set，再对未引用对象应用宽限期。禁止只按修改时间删除整个 cache。GC 默认 dry-run，执行删除需要显式确认；bundle 至少保护当前源码指纹、活动任务和最近若干可回退版本。原始连续审查帧在 sheet 数量校验后可以删除，但最终 report、manifest、verdict 和计划关键帧按门禁策略保留。
 
 ## 最大稳定并行
 

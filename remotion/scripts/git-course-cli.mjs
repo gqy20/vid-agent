@@ -5,9 +5,12 @@ import {execFile, execFileSync} from 'node:child_process';
 import {isUtf8} from 'node:buffer';
 import {cpus} from 'node:os';
 import {
+  closeSync,
   copyFileSync,
   existsSync,
+  linkSync,
   mkdirSync,
+  openSync,
   readFileSync,
   readdirSync,
   renameSync,
@@ -41,6 +44,14 @@ const fail = (message) => {
   throw new Error(message);
 };
 
+const flagEnabled = (name) => {
+  const value = FLAGS.get(name);
+  if (value === undefined) return false;
+  if (['1', 'true', 'yes'].includes(value.toLowerCase())) return true;
+  if (['0', 'false', 'no'].includes(value.toLowerCase())) return false;
+  return fail(`Invalid boolean --${name}=${value}; use true/false or 1/0.`);
+};
+
 const sha = (value) => createHash('sha256').update(value).digest('hex');
 const shaFile = (path) => {
   const hash = createHash('sha256');
@@ -56,6 +67,34 @@ const writeJson = (path, value) => {
 };
 const rel = (path) => relative(ROOT, path).replaceAll('\\', '/');
 
+const copyAtomically = (source, target) => {
+  mkdirSync(dirname(target), {recursive: true});
+  const partial = `${target}.partial`;
+  rmSync(partial, {force: true});
+  copyFileSync(source, partial);
+  renameSync(partial, target);
+};
+
+const materializeView = (source, target) => {
+  mkdirSync(dirname(target), {recursive: true});
+  const partial = `${target}.partial`;
+  rmSync(partial, {force: true});
+  if (existsSync(target)) {
+    const sourceStat = statSync(source);
+    const targetStat = statSync(target);
+    if (sourceStat.dev === targetStat.dev && sourceStat.ino === targetStat.ino) return 'hardlink';
+  }
+  let mode = 'hardlink';
+  try {
+    linkSync(source, partial);
+  } catch {
+    copyFileSync(source, partial);
+    mode = 'copy';
+  }
+  renameSync(partial, target);
+  return mode;
+};
+
 const walkFiles = (root, accept = () => true) => {
   if (!existsSync(root)) return [];
   const result = [];
@@ -68,6 +107,40 @@ const walkFiles = (root, accept = () => true) => {
   };
   walk(root);
   return result.sort();
+};
+
+const pathBytes = (path) => {
+  if (!existsSync(path)) return 0;
+  const stat = statSync(path);
+  if (!stat.isDirectory()) return stat.size;
+  return walkFiles(path).reduce((sum, file) => sum + statSync(file).size, 0);
+};
+
+const formatBytes = (bytes) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MiB`;
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GiB`;
+};
+
+const removeTargets = (targets, {apply = false, label = 'clean'} = {}) => {
+  const existing = [...new Set(targets)].filter((path) => existsSync(path)).sort();
+  const bytes = existing.reduce((sum, path) => sum + pathBytes(path), 0);
+  const visible = flagEnabled('verbose') ? existing : existing.slice(0, 20);
+  for (const path of visible) console.log(`${apply ? 'DELETE' : 'WOULD DELETE'} ${rel(path)} (${formatBytes(pathBytes(path))})`);
+  if (visible.length < existing.length) console.log(`... ${existing.length - visible.length} more target(s); use --verbose to list all`);
+  if (apply) for (const path of existing) rmSync(path, {recursive: true, force: true});
+  console.log(`${apply ? 'PASS' : 'DRY'}  ${label}: ${existing.length} target(s), ${formatBytes(bytes)}`);
+  return {count: existing.length, bytes};
+};
+
+const pruneEmptyDirectories = (root) => {
+  if (!existsSync(root)) return;
+  const visit = (dir) => {
+    for (const entry of readdirSync(dir, {withFileTypes: true})) if (entry.isDirectory()) visit(join(dir, entry.name));
+    if (dir !== root && readdirSync(dir).length === 0) rmSync(dir, {recursive: true, force: true});
+  };
+  visit(root);
 };
 
 const hashFiles = (files) => {
@@ -100,9 +173,11 @@ const run = async (file, args, {cwd = REMOTION, env = {}, log} = {}) => {
 
 const loadContext = () => {
   EPISODE_ID || fail('Usage: pnpm git-course <command> <episode-id>');
+  /^ep\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(EPISODE_ID) || fail(`Invalid episode id: ${EPISODE_ID}`);
   const episodePath = join(EPISODES, `${EPISODE_ID}.json`);
   existsSync(episodePath) || fail(`Unknown episode: ${EPISODE_ID}`);
   const episode = json(episodePath);
+  episode.episodeId === EPISODE_ID || fail(`${rel(episodePath)}: episodeId must be ${EPISODE_ID}`);
   const base = join(REMOTION, 'renders/git-course', EPISODE_ID);
   const tmp = join(base, 'tmp');
   const build = join(tmp, 'build');
@@ -113,6 +188,55 @@ const loadContext = () => {
   state.scenes ??= {};
   state.tts ??= {};
   return {episode, episodePath, base, tmp, build, cache, current, statePath, state};
+};
+
+const activityPath = (ctx) => join(ctx.build, 'activity.json');
+const processIsAlive = (pid) => {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const acquireActivity = (ctx, command) => {
+  const path = activityPath(ctx);
+  mkdirSync(dirname(path), {recursive: true});
+  const payload = {schemaVersion: 1, episodeId: ctx.episode.episodeId, command, pid: process.pid, startedAt: new Date().toISOString()};
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const fd = openSync(path, 'wx');
+      try {
+        writeFileSync(fd, `${JSON.stringify(payload, null, 2)}\n`);
+      } finally {
+        closeSync(fd);
+      }
+      return;
+    } catch (error) {
+      if (error?.code !== 'EEXIST') throw error;
+      let activity = null;
+      try {
+        activity = json(path);
+      } catch {
+        const ageMs = Date.now() - statSync(path).mtimeMs;
+        if (ageMs < 30000) fail(`Episode lock is initializing: ${rel(path)}`);
+      }
+      if (activity && processIsAlive(activity.pid)) fail(`Episode is busy: ${activity.command} (pid ${activity.pid})`);
+      rmSync(path, {force: true});
+      console.log(`CLEAN stale activity marker: ${rel(path)}`);
+    }
+  }
+  fail(`Could not acquire episode lock: ${rel(path)}`);
+};
+const withActivity = async (ctx, command, action) => {
+  const path = activityPath(ctx);
+  acquireActivity(ctx, command);
+  try {
+    return await action();
+  } finally {
+    if (existsSync(path) && json(path).pid === process.pid) rmSync(path, {force: true});
+  }
 };
 
 const getComposition = (episode) => {
@@ -408,11 +532,12 @@ const renderScenes = async (ctx, tasks, options = {}) => {
       await run(join(REMOTION, 'scripts/audit-range-segments.sh'), [taskDir, join(taskDir, 'segment-audits'), 'all']);
     }));
   }
-  const results = completed.map(({task, scene, cachePath, completionPath, end, start}) => {
+  const results = completed.map(({task, scene, taskDir, cachePath, completionPath, end, start}) => {
     const frames = Number(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=nb_frames', '-of', 'default=nw=1:nk=1', cachePath], {encoding: 'utf8'}).trim());
     frames === end - start + 1 || fail(`${scene.id}: expected ${end - start + 1} frames, found ${frames}`);
     const completion = json(completionPath);
     ctx.state[stateKey][scene.id] = {fingerprint: task.fingerprint, profile: renderProfile.name, path: rel(cachePath), sha256: shaFile(cachePath), render: completion, updatedAt: new Date().toISOString()};
+    rmSync(join(taskDir, 'segments'), {recursive: true, force: true});
     console.log(`PASS  render ${scene.id}`);
     return cachePath;
   });
@@ -421,7 +546,9 @@ const renderScenes = async (ctx, tasks, options = {}) => {
 };
 
 const buildAudio = async (ctx, buildPlan) => {
-  const segmentsDir = join(ctx.current, 'audio/segments');
+  const audioDir = join(ctx.build, 'candidate/audio');
+  const segmentsDir = join(audioDir, 'segments');
+  const legacySegmentsDir = join(ctx.current, 'audio/segments');
   mkdirSync(segmentsDir, {recursive: true});
   for (const task of buildPlan.tts) {
     const segment = task.scene.narration.segmentId;
@@ -431,29 +558,33 @@ const buildAudio = async (ctx, buildPlan) => {
       text: join(segmentsDir, `${segment}.txt`),
       norm: join(segmentsDir, `${segment}_norm.mp3`),
     };
-    const sourceMatches = existsSync(targets.text) && readFileSync(targets.text, 'utf8').trim() === task.scene.narration.text.trim();
-    if (sourceMatches && existsSync(targets.srt)) validateTtsTextArtifacts(task, targets.srt, targets.text);
-    if (sourceMatches && existsSync(targets.raw) && existsSync(targets.srt) && (!existsSync(task.cas.raw) || !existsSync(task.cas.srt))) {
-      mkdirSync(task.cas.speechDir, {recursive: true});
-      copyFileSync(targets.raw, task.cas.raw);
-      copyFileSync(targets.srt, task.cas.srt);
-      copyFileSync(targets.text, task.cas.text);
-      writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(targets.raw), srtSha256: shaFile(targets.srt)});
-    }
+    const legacy = {
+      raw: join(legacySegmentsDir, `${segment}.mp3`),
+      srt: join(legacySegmentsDir, `${segment}.srt`),
+      text: join(legacySegmentsDir, `${segment}.txt`),
+      norm: join(legacySegmentsDir, `${segment}_norm.mp3`),
+    };
+    const legacyComplete = Object.values(legacy).every((path) => existsSync(path))
+      && readFileSync(legacy.text, 'utf8').trim() === task.scene.narration.text.trim();
     const previous = ctx.state.tts[segment];
-    if (sourceMatches && existsSync(targets.norm) && previous?.sha256 === shaFile(targets.norm) && !existsSync(task.cas.norm)) {
+    const trustedLegacy = legacyComplete
+      && previous?.fingerprint === task.fingerprint
+      && previous.sha256 === shaFile(legacy.norm);
+    if (trustedLegacy && ![task.cas.raw, task.cas.srt, task.cas.text, task.cas.norm].every((path) => existsSync(path))) {
+      for (const key of ['raw', 'srt', 'text', 'norm']) copyAtomically(legacy[key], targets[key]);
+      validateTtsTextArtifacts(task, targets.srt, targets.text);
+      mkdirSync(task.cas.speechDir, {recursive: true});
       mkdirSync(task.cas.normalizedDir, {recursive: true});
-      copyFileSync(targets.norm, task.cas.norm);
-      writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(targets.norm), migrated: true});
+      for (const key of ['raw', 'srt', 'text', 'norm']) copyAtomically(targets[key], task.cas[key]);
+      writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(task.cas.raw), srtSha256: shaFile(task.cas.srt), migrated: true});
+      writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(task.cas.norm), migrated: true});
     }
-    if (existsSync(task.cas.raw) && (!existsSync(targets.raw) || shaFile(targets.raw) !== shaFile(task.cas.raw))) copyFileSync(task.cas.raw, targets.raw);
-    if (existsSync(task.cas.srt) && (!existsSync(targets.srt) || shaFile(targets.srt) !== shaFile(task.cas.srt))) copyFileSync(task.cas.srt, targets.srt);
-    if (existsSync(task.cas.text) && (!existsSync(targets.text) || shaFile(targets.text) !== shaFile(task.cas.text))) copyFileSync(task.cas.text, targets.text);
-    if (existsSync(task.cas.norm) && (!existsSync(targets.norm) || shaFile(targets.norm) !== shaFile(task.cas.norm))) copyFileSync(task.cas.norm, targets.norm);
-    const stagedSourceMatches = existsSync(targets.text) && readFileSync(targets.text, 'utf8').trim() === task.scene.narration.text.trim();
-    if (stagedSourceMatches && existsSync(targets.srt)) validateTtsTextArtifacts(task, targets.srt, targets.text);
-    if (existsSync(targets.norm) && existsSync(task.cas.norm) && shaFile(targets.norm) === shaFile(task.cas.norm)) {
-      ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(targets.norm), sha256: shaFile(targets.norm), updatedAt: new Date().toISOString()};
+    if (existsSync(task.cas.raw)) materializeView(task.cas.raw, targets.raw);
+    if (existsSync(task.cas.srt)) copyAtomically(task.cas.srt, targets.srt);
+    if (existsSync(task.cas.text)) copyAtomically(task.cas.text, targets.text);
+    if (existsSync(task.cas.norm)) materializeView(task.cas.norm, targets.norm);
+    if ([task.cas.raw, task.cas.srt, task.cas.text, task.cas.norm].every((path) => existsSync(path))) {
+      ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(task.cas.norm), sha256: shaFile(task.cas.norm), updatedAt: new Date().toISOString()};
     }
   }
   const dirty = buildPlan.tts.filter((task) => {
@@ -464,7 +595,7 @@ const buildAudio = async (ctx, buildPlan) => {
   const normalizeIds = dirty.map((task) => task.scene.narration.segmentId);
   const synthesizeIds = dirty.filter((task) => !existsSync(task.cas.raw) || !existsSync(task.cas.srt)).map((task) => task.scene.narration.segmentId);
   const mainCandidate = join(ctx.build, 'candidate', `${ctx.episode.episodeId}.mp4`);
-  const mix = join(ctx.current, 'audio/mix.m4a');
+  const mix = join(audioDir, 'mix.m4a');
   const fingerprint = audioFingerprint(ctx, buildPlan);
   if (
     dirty.length === 0 &&
@@ -475,7 +606,19 @@ const buildAudio = async (ctx, buildPlan) => {
     console.log('HIT   audio mix');
     return {mix, mainCandidate};
   }
+  for (const task of dirty) {
+    const segment = task.scene.narration.segmentId;
+    rmSync(join(segmentsDir, `${segment}_norm.mp3`), {force: true});
+    if (synthesizeIds.includes(segment)) {
+      for (const suffix of ['.mp3', '.srt', '.txt']) rmSync(join(segmentsDir, `${segment}${suffix}`), {force: true});
+    }
+  }
+  const bgm = bgmPath(ctx);
+  bgm || fail('Audio build requires the approved course BGM.');
   const env = {
+    AUDIO_DIR: audioDir,
+    TMP_DIR: join(ctx.build, 'tasks/audio'),
+    BGM_FILE: bgm,
     TTS_SEGMENTS: synthesizeIds.join(','),
     NORMALIZE_SEGMENTS: normalizeIds.join(','),
     TTS_JOBS: 'all',
@@ -487,11 +630,10 @@ const buildAudio = async (ctx, buildPlan) => {
   await run(join(REMOTION, 'scripts/git-course-build-voiceover.sh'), [ctx.episode.episodeId], {env, log: join(ctx.build, 'logs/audio.log')});
   for (const task of buildPlan.tts) {
     const segment = task.scene.narration.segmentId;
-    const norm = join(ctx.current, 'audio/segments', `${segment}_norm.mp3`);
+    const norm = join(segmentsDir, `${segment}_norm.mp3`);
     existsSync(norm) || fail(`Missing normalized segment: ${norm}`);
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
     validateNarrationDuration(task, duration);
-    ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(norm), sha256: shaFile(norm), updatedAt: new Date().toISOString()};
     const raw = join(segmentsDir, `${segment}.mp3`);
     const srt = join(segmentsDir, `${segment}.srt`);
     const textPath = join(segmentsDir, `${segment}.txt`);
@@ -499,15 +641,17 @@ const buildAudio = async (ctx, buildPlan) => {
     validateTtsTextArtifacts(task, srt, textPath);
     mkdirSync(task.cas.speechDir, {recursive: true});
     mkdirSync(task.cas.normalizedDir, {recursive: true});
-    copyFileSync(raw, task.cas.raw);
-    copyFileSync(srt, task.cas.srt);
-    if (existsSync(textPath)) copyFileSync(textPath, task.cas.text);
+    copyAtomically(raw, task.cas.raw);
+    copyAtomically(srt, task.cas.srt);
+    copyAtomically(textPath, task.cas.text);
     writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(raw), srtSha256: shaFile(srt)});
-    copyFileSync(norm, task.cas.norm);
+    copyAtomically(norm, task.cas.norm);
     writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(norm)});
+    ctx.state.tts[segment] = {fingerprint: task.fingerprint, path: rel(task.cas.norm), sha256: shaFile(task.cas.norm), updatedAt: new Date().toISOString()};
   }
   ctx.state.audioFingerprint = fingerprint;
   ctx.state.audioMixSha256 = shaFile(mix);
+  ctx.state.audioMixPath = rel(mix);
   return {mix, mainCandidate};
 };
 
@@ -515,7 +659,7 @@ const recoverValidTtsState = (ctx, buildPlan) => {
   for (const task of buildPlan.tts) {
     const scene = task.scene;
     const segment = scene.narration.segmentId;
-    const norm = join(ctx.current, 'audio/segments', `${segment}_norm.mp3`);
+    const norm = task.cas.norm;
     if (!existsSync(norm)) continue;
     const cached = ctx.state.tts[segment];
     // Never label an old take with a new text/config fingerprint after a failed build.
@@ -537,11 +681,23 @@ const assembleMain = async (ctx, buildPlan, audio) => {
     return {sceneId: task.scene.id, path, sha256: shaFile(path)};
   });
   const candidate = join(candidateDir, `${ctx.episode.episodeId}.mp4`);
+  const audioFiles = walkFiles(join(candidateDir, 'audio'), (path) => !path.endsWith('.partial')).map((path) => ({path: rel(path), sha256: shaFile(path)}));
   const inputFingerprint = sha(JSON.stringify({scenes: ordered.map((item) => item.sha256), mix: shaFile(audio.mix)}));
   const artifactPath = join(ctx.build, 'artifact-manifest.json');
   if (existsSync(candidate) && existsSync(artifactPath)) {
     const cached = json(artifactPath);
     if (cached.inputFingerprint === inputFingerprint && cached.sha256 === shaFile(candidate)) {
+      const candidateAudio = {path: rel(audio.mix), sha256: shaFile(audio.mix)};
+      if (
+        cached.audio?.path !== candidateAudio.path ||
+        cached.audio?.sha256 !== candidateAudio.sha256 ||
+        JSON.stringify(cached.audioFiles ?? []) !== JSON.stringify(audioFiles)
+      ) {
+        cached.schemaVersion = 2;
+        cached.audio = candidateAudio;
+        cached.audioFiles = audioFiles;
+        writeJson(artifactPath, cached);
+      }
       console.log(`HIT   assemble ${rel(candidate)}`);
       return {candidate, artifact: cached};
     }
@@ -550,7 +706,7 @@ const assembleMain = async (ctx, buildPlan, audio) => {
   await run('ffmpeg', ['-nostdin', '-y', '-f', 'concat', '-safe', '0', '-i', manifest, '-i', audio.mix, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-f', 'mp4', `${candidate}.partial`], {log: join(ctx.build, 'logs/assemble-main.log')});
   renameSync(`${candidate}.partial`, candidate);
   const artifact = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     episodeId: ctx.episode.episodeId,
     createdAt: new Date().toISOString(),
     path: rel(candidate),
@@ -558,6 +714,7 @@ const assembleMain = async (ctx, buildPlan, audio) => {
     inputFingerprint,
     scenes: ordered.map((item) => ({sceneId: item.sceneId, path: rel(item.path), sha256: item.sha256})),
     audio: {path: rel(audio.mix), sha256: shaFile(audio.mix)},
+    audioFiles,
   };
   writeJson(artifactPath, artifact);
   console.log(`PASS  assemble ${rel(candidate)}`);
@@ -707,9 +864,14 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
   ];
   const plan = samplingPlan(ctx, scope, duration);
   const artifactSha256 = shaFile(candidate);
+  const supportingArtifacts = scope === 'main' && existsSync(join(ctx.build, 'artifact-manifest.json'))
+    ? json(join(ctx.build, 'artifact-manifest.json')).audioFiles ?? []
+    : [];
+  const supportingArtifactsSha256 = sha(JSON.stringify(supportingArtifacts));
   const auditFingerprint = sha(JSON.stringify({
     schema: 2,
     artifactSha256,
+    supportingArtifactsSha256,
     boundaries: readFileSync(plan.boundariesPath, 'utf8'),
     keyframes: readFileSync(plan.keyframesPath, 'utf8'),
     workerSha256: shaFile(join(REMOTION, 'scripts/audit-video-stills.sh')),
@@ -725,7 +887,8 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     const expectedRelease = introDuration + mainDuration + outroDuration;
     checks.push({id: 'duration.release', status: Math.abs(duration - expectedRelease) <= 0.12 ? 'pass' : 'fail', details: `${duration}s expected ${expectedRelease}s`});
   }
-  const srtFiles = walkFiles(join(ctx.current, 'audio/segments'), (path) => path.endsWith('.srt'));
+  const srtRoot = scope === 'main' ? join(ctx.build, 'candidate/audio/segments') : join(ctx.current, 'audio/segments');
+  const srtFiles = walkFiles(srtRoot, (path) => path.endsWith('.srt'));
   const markerLeak = srtFiles.some((path) => /<#|#>/.test(readFileSync(path, 'utf8')));
   if (scope === 'main') checks.push({id: 'subtitle.pause-marker', status: markerLeak ? 'fail' : 'pass', details: markerLeak ? 'pause marker found' : 'clean'});
   const auditDir = join(ctx.build, 'audit', scope);
@@ -765,6 +928,7 @@ const auditArtifact = async (ctx, candidate, scope = 'main') => {
     scope,
     artifact: rel(candidate),
     artifactSha256,
+    supportingArtifactsSha256,
     auditFingerprint,
     inputFingerprint: scope === 'main' && existsSync(join(ctx.build, 'artifact-manifest.json')) ? json(join(ctx.build, 'artifact-manifest.json')).inputFingerprint : shaFile(candidate),
     createdAt: new Date().toISOString(),
@@ -827,9 +991,38 @@ const requirePass = (ctx, scope) => {
 
 const promote = (ctx) => {
   const {verdict, artifact} = requirePass(ctx, 'main');
-  copyFileSync(artifact, `${join(ctx.current, `${ctx.episode.episodeId}.mp4`)}.partial`);
-  renameSync(`${join(ctx.current, `${ctx.episode.episodeId}.mp4`)}.partial`, join(ctx.current, `${ctx.episode.episodeId}.mp4`));
-  const manifest = json(join(ctx.build, 'artifact-manifest.json'));
+  const artifactManifestPath = join(ctx.build, 'artifact-manifest.json');
+  existsSync(artifactManifestPath) || fail('Main artifact manifest is missing.');
+  const manifest = json(artifactManifestPath);
+  manifest.episodeId === ctx.episode.episodeId || fail('Main artifact manifest belongs to another episode.');
+  manifest.path === rel(artifact) && manifest.sha256 === shaFile(artifact) || fail('Main artifact manifest does not match the approved candidate.');
+  manifest.inputFingerprint === verdict.inputFingerprint || fail('Main artifact manifest fingerprint does not match the approved verdict.');
+  Array.isArray(manifest.scenes) || fail('Main artifact manifest has no scene list.');
+  sha(JSON.stringify({scenes: manifest.scenes.map((item) => item.sha256), mix: manifest.audio?.sha256})) === manifest.inputFingerprint || fail('Main artifact manifest inputs do not reproduce its fingerprint.');
+  manifest.scenes.length === ctx.episode.scenes.length || fail('Main artifact scene count does not match the episode.');
+  for (const [index, item] of manifest.scenes.entries()) {
+    item.sceneId === ctx.episode.scenes[index].id || fail(`Approved scene order mismatch at ${item.sceneId}.`);
+    const path = resolve(ROOT, item.path);
+    path.startsWith(`${ctx.cache}/`) || fail(`Unexpected scene artifact path: ${item.path}`);
+    existsSync(path) || fail(`Approved scene is missing: ${item.path}`);
+    shaFile(path) === item.sha256 || fail(`Approved scene changed after build: ${item.path}`);
+  }
+  const candidateAudioDir = join(ctx.build, 'candidate/audio');
+  const candidateMix = join(candidateAudioDir, 'mix.m4a');
+  existsSync(candidateMix) || fail('Approved candidate audio is missing.');
+  manifest.audio?.path === rel(candidateMix) && manifest.audio?.sha256 === shaFile(candidateMix) || fail('Approved candidate mix changed after build.');
+  Array.isArray(manifest.audioFiles) && manifest.audioFiles.length > 0 || fail('Main artifact manifest does not bind candidate audio files. Rebuild and audit the candidate.');
+  sha(JSON.stringify(manifest.audioFiles)) === verdict.supportingArtifactsSha256 || fail('Candidate audio manifest does not match the approved verdict.');
+  const actualAudioFiles = walkFiles(candidateAudioDir, (path) => !path.endsWith('.partial')).map(rel);
+  JSON.stringify(actualAudioFiles) === JSON.stringify(manifest.audioFiles.map((item) => item.path)) || fail('Candidate audio directory does not match the approved manifest.');
+  for (const item of manifest.audioFiles) {
+    const path = resolve(ROOT, item.path);
+    path.startsWith(`${candidateAudioDir}/`) || fail(`Unexpected audio artifact path: ${item.path}`);
+    existsSync(path) || fail(`Approved audio artifact is missing: ${item.path}`);
+    shaFile(path) === item.sha256 || fail(`Approved audio artifact changed after build: ${item.path}`);
+  }
+
+  copyAtomically(artifact, join(ctx.current, `${ctx.episode.episodeId}.mp4`));
   const sceneDir = join(ctx.current, 'scenes');
   const nextSceneDir = join(ctx.current, 'scenes.next');
   const previousSceneDir = join(ctx.current, 'scenes.previous');
@@ -849,6 +1042,29 @@ const promote = (ctx) => {
     throw error;
   }
   rmSync(previousSceneDir, {recursive: true, force: true});
+
+  const audioDir = join(ctx.current, 'audio');
+  const nextAudioDir = join(ctx.current, 'audio.next');
+  const previousAudioDir = join(ctx.current, 'audio.previous');
+  rmSync(nextAudioDir, {recursive: true, force: true});
+  mkdirSync(nextAudioDir, {recursive: true});
+  for (const source of walkFiles(candidateAudioDir, (path) => !path.endsWith('.partial'))) {
+    const target = join(nextAudioDir, relative(candidateAudioDir, source));
+    copyAtomically(source, target);
+  }
+  for (const name of ['bgm.mp3', 'bgm_180.mp3']) {
+    const source = join(audioDir, name);
+    if (existsSync(source)) copyAtomically(source, join(nextAudioDir, name));
+  }
+  rmSync(previousAudioDir, {recursive: true, force: true});
+  if (existsSync(audioDir)) renameSync(audioDir, previousAudioDir);
+  try {
+    renameSync(nextAudioDir, audioDir);
+  } catch (error) {
+    if (!existsSync(audioDir) && existsSync(previousAudioDir)) renameSync(previousAudioDir, audioDir);
+    throw error;
+  }
+  rmSync(previousAudioDir, {recursive: true, force: true});
   writeJson(join(ctx.current, 'audit/verdict.json'), verdict);
   console.log(`PASS  promote ${rel(join(ctx.current, `${ctx.episode.episodeId}.mp4`))}`);
 };
@@ -1027,7 +1243,7 @@ const publish = (ctx) => {
 
 const build = async (ctx) => {
   const buildStartedAt = performance.now();
-  execFileSync('node', ['scripts/git-course.mjs', 'generate'], {cwd: REMOTION, stdio: 'inherit'});
+  execFileSync('node', ['scripts/git-course.mjs', 'validate'], {cwd: REMOTION, stdio: 'inherit'});
   const buildPlan = plan(ctx);
   printPlan(ctx, buildPlan);
   const dirtyScenes = buildPlan.scenes.filter((task) => !task.hit);
@@ -1063,6 +1279,7 @@ const build = async (ctx) => {
     },
     auditVerdict: audit.verdict,
   });
+  if (audit.verdict !== 'fail') removeTargets(taskDirectories(ctx, 'main'), {apply: true, label: 'main task cleanup'});
 };
 
 const status = (ctx) => {
@@ -1072,6 +1289,123 @@ const status = (ctx) => {
     const path = verdictPath(ctx, scope);
     console.log(`${scope.padEnd(7)} verdict: ${existsSync(path) ? json(path).verdict : 'missing'}`);
   }
+};
+
+const taskDirectories = (ctx, scope) => {
+  const root = join(ctx.build, 'tasks');
+  if (!existsSync(root)) return [];
+  const names = readdirSync(root, {withFileTypes: true}).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const selected = scope === 'main'
+    ? names.filter((name) => name === 'audio' || name.startsWith('render-'))
+    : names.filter((name) => name.startsWith('release-render-') || name.startsWith('release-brand-'));
+  return selected.map((name) => join(root, name));
+};
+
+const cleanWorkspace = (ctx) => {
+  const apply = flagEnabled('apply');
+  const scope = FLAGS.get('scope') ?? 'all';
+  ['main', 'release', 'all'].includes(scope) || fail(`Unknown clean scope: ${scope}`);
+  const targets = [];
+  const auditAllowsCleanup = (auditScope) => {
+    const path = verdictPath(ctx, auditScope);
+    if (!existsSync(path) || !existsSync(join(ctx.build, `audit/${auditScope}/report.html`))) return false;
+    return ['needs_review', 'pass'].includes(json(path).verdict);
+  };
+  if ((scope === 'main' || scope === 'all') && auditAllowsCleanup('main')) targets.push(...taskDirectories(ctx, 'main'));
+  if ((scope === 'release' || scope === 'all') && auditAllowsCleanup('release')) targets.push(...taskDirectories(ctx, 'release'));
+  if (flagEnabled('preview')) targets.push(join(ctx.tmp, 'preview'));
+  if (flagEnabled('legacy')) {
+    targets.push(...['audit', 'audit-15f', 'scenes', 'chunks'].map((name) => join(ctx.tmp, name)));
+    targets.push(join(REMOTION, 'renders/git-course/tmp/render-profile.json'));
+  }
+  return removeTargets(targets, {apply, label: `clean ${ctx.episode.episodeId}`});
+};
+
+const collectReferencedPaths = (value, result) => {
+  if (typeof value === 'string') {
+    if (value.startsWith('remotion/')) result.add(resolve(ROOT, value));
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectReferencedPaths(item, result);
+    return;
+  }
+  if (value && typeof value === 'object') {
+    for (const item of Object.values(value)) collectReferencedPaths(item, result);
+  }
+};
+
+const cacheReferences = (ctx) => {
+  const result = new Set();
+  const referenceFiles = [
+    ...walkFiles(ctx.build, (path) => path.endsWith('.json')),
+    ...walkFiles(join(ctx.tmp, 'preview'), (path) => path.endsWith('.json')),
+    ...walkFiles(join(ctx.current, 'audit'), (path) => path.endsWith('.json')),
+    ...walkFiles(join(ctx.current, 'release'), (path) => path.endsWith('verdict.json')),
+  ];
+  for (const path of referenceFiles) {
+    try {
+      collectReferencedPaths(json(path), result);
+    } catch {
+      // A malformed diagnostic file must not make a dry-run GC destructive.
+      console.log(`SKIP  unreadable reference file: ${rel(path)}`);
+    }
+  }
+  const activePlan = plan(ctx);
+  for (const task of activePlan.scenes) {
+    const path = task.cached?.path ? join(ROOT, task.cached.path) : null;
+    if (path) result.add(path);
+  }
+  for (const task of activePlan.tts) {
+    for (const key of ['raw', 'srt', 'text', 'speechMetadata', 'norm', 'metadata']) result.add(task.cas[key]);
+  }
+  for (const group of [ctx.state.scenes, ctx.state.releaseScenes, ctx.state.releaseAssets, ctx.state.tts]) {
+    for (const item of Object.values(group ?? {})) if (item?.path) result.add(join(ROOT, item.path));
+  }
+  return result;
+};
+
+const garbageCollect = (ctx) => {
+  const apply = flagEnabled('apply');
+  const graceDays = Number(FLAGS.get('grace-days') ?? '7');
+  Number.isFinite(graceDays) && graceDays >= 0 || fail(`Invalid --grace-days: ${FLAGS.get('grace-days')}`);
+  const cutoff = Date.now() - graceDays * 24 * 60 * 60 * 1000;
+  const protectedPaths = cacheReferences(ctx);
+  const targets = walkFiles(ctx.cache).filter((path) => statSync(path).mtimeMs < cutoff && !protectedPaths.has(path));
+
+  if (flagEnabled('bundles')) {
+    const active = walkFiles(join(REMOTION, 'renders/git-course'), (path) => path.endsWith('/tmp/build/activity.json'))
+      .map((path) => {
+        try {
+          return {path, activity: json(path)};
+        } catch {
+          return {path, activity: null};
+        }
+      })
+      .filter(({path, activity}) => path !== activityPath(ctx) && (activity ? processIsAlive(activity.pid) : Date.now() - statSync(path).mtimeMs < 30000));
+    active.length === 0 || fail(`Bundle GC blocked by active command: ${active.map(({path, activity}) => activity ? `${activity.episodeId}:${activity.command}` : `${rel(path)}:initializing`).join(', ')}`);
+    const bundlesRoot = join(REMOTION, 'renders/git-course/tmp/bundles');
+    if (existsSync(bundlesRoot)) {
+      const keep = Number(FLAGS.get('keep-bundles') ?? '3');
+      Number.isInteger(keep) && keep >= 1 || fail(`Invalid --keep-bundles: ${FLAGS.get('keep-bundles')}`);
+      const currentFingerprint = hashFiles([
+        ...walkFiles(join(REMOTION, 'src'), (path) => /\.(?:ts|tsx|css)$/.test(path)),
+        join(REMOTION, 'package.json'),
+        join(REMOTION, 'pnpm-lock.yaml'),
+        join(REMOTION, 'remotion.config.ts'),
+        ...walkFiles(join(REMOTION, 'public/git-course')),
+      ]);
+      const bundles = readdirSync(bundlesRoot, {withFileTypes: true})
+        .filter((entry) => entry.isDirectory() && /^[a-f0-9]{64}$/.test(entry.name))
+        .map((entry) => join(bundlesRoot, entry.name))
+        .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+      const retained = new Set([join(bundlesRoot, currentFingerprint), ...bundles.slice(0, keep)]);
+      targets.push(...bundles.filter((path) => statSync(path).mtimeMs < cutoff && !retained.has(path)));
+    }
+  }
+  const result = removeTargets(targets, {apply, label: `gc ${ctx.episode.episodeId}`});
+  if (apply) pruneEmptyDirectories(ctx.cache);
+  return result;
 };
 
 const preview = async (ctx) => {
@@ -1120,13 +1454,13 @@ const preview = async (ctx) => {
     const name = `${index}_${task.scene.id.replaceAll('-', '_')}.mp4`;
     const source = join(ROOT, cached.path);
     const target = join(previewDir, name);
-    copyFileSync(source, `${target}.partial`);
-    renameSync(`${target}.partial`, target);
+    const materialization = materializeView(source, target);
     manifest.scenes[task.scene.id] = {
       fingerprint: cached.fingerprint,
       sha256: cached.sha256,
       cachePath: cached.path,
       previewPath: rel(target),
+      materialization,
       updatedAt: new Date().toISOString(),
     };
     console.log(`${task.hit ? 'HIT   ' : 'READY '} ${task.scene.id}: ${rel(target)}`);
@@ -1233,7 +1567,7 @@ const validateTtsTextArtifacts = (task, srtPath, textPath) => {
 };
 
 const previewAudio = async (ctx) => {
-  await run('node', [join(REMOTION, 'scripts/git-course.mjs'), 'generate']);
+  await run('node', [join(REMOTION, 'scripts/git-course.mjs'), 'validate']);
   const buildPlan = plan(ctx);
   const requested = (FLAGS.get('scenes') ?? '').split(',').map((value) => value.trim()).filter(Boolean);
   const known = new Set(buildPlan.tts.map((task) => task.scene.id));
@@ -1244,10 +1578,19 @@ const previewAudio = async (ctx) => {
   const previewSegmentsDir = join(previewAudioDir, 'segments');
   mkdirSync(previewSegmentsDir, {recursive: true});
   const currentSegmentsDir = join(ctx.current, 'audio/segments');
+  const selectedSegments = new Set(selected.map((task) => task.scene.narration.segmentId));
   for (const source of walkFiles(currentSegmentsDir)) {
     const target = join(previewSegmentsDir, source.slice(currentSegmentsDir.length + 1));
-    mkdirSync(dirname(target), {recursive: true});
-    copyFileSync(source, target);
+    const selectedSource = [...selectedSegments].some((segment) => target.endsWith(`/${segment}.mp3`)
+      || target.endsWith(`/${segment}.srt`)
+      || target.endsWith(`/${segment}.txt`)
+      || target.endsWith(`/${segment}_norm.mp3`));
+    if (selectedSource) {
+      rmSync(target, {force: true});
+      continue;
+    }
+    if (source.endsWith('.mp3')) materializeView(source, target);
+    else copyAtomically(source, target);
   }
   const segmentIds = selected.map((task) => task.scene.narration.segmentId);
   const bgm = bgmPath(ctx);
@@ -1284,13 +1627,17 @@ const previewAudio = async (ctx) => {
     voiceEnd <= sceneEnd || fail(`${segment}: voice ends at ${voiceEnd.toFixed(3)}s after scene end ${sceneEnd}s`);
     mkdirSync(task.cas.speechDir, {recursive: true});
     mkdirSync(task.cas.normalizedDir, {recursive: true});
-    copyFileSync(raw, task.cas.raw);
-    copyFileSync(srt, task.cas.srt);
-    copyFileSync(textPath, task.cas.text);
-    copyFileSync(norm, task.cas.norm);
+    copyAtomically(raw, task.cas.raw);
+    copyAtomically(srt, task.cas.srt);
+    copyAtomically(textPath, task.cas.text);
+    copyAtomically(norm, task.cas.norm);
     writeJson(task.cas.speechMetadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, rawSha256: shaFile(raw), srtSha256: shaFile(srt)});
     writeJson(task.cas.metadata, {schemaVersion: 1, speechFingerprint: task.cas.speech, normalizedFingerprint: task.cas.normalized, sha256: shaFile(norm)});
-    manifest.segments[segment] = {sceneId: task.scene.id, text: task.scene.narration.text, durationSeconds: duration, voiceStart: task.scene.narration.voiceStart, voiceEnd, sceneEnd, srtPath: rel(srt), audioPath: rel(norm)};
+    materializeView(task.cas.raw, raw);
+    copyAtomically(task.cas.srt, srt);
+    copyAtomically(task.cas.text, textPath);
+    materializeView(task.cas.norm, norm);
+    manifest.segments[segment] = {sceneId: task.scene.id, text: task.scene.narration.text, durationSeconds: duration, voiceStart: task.scene.narration.voiceStart, voiceEnd, sceneEnd, srtPath: rel(srt), audioPath: rel(norm), materialization: 'hardlink-or-copy'};
     console.log(`PASS  audio ${segment}: ${duration.toFixed(3)}s, ends ${voiceEnd.toFixed(3)}s <= ${sceneEnd}s`);
   }
   writeJson(join(previewAudioDir, 'manifest.json'), manifest);
@@ -1302,16 +1649,24 @@ const main = async () => {
   if (COMMAND === 'plan') printPlan(ctx, plan(ctx));
   else if (COMMAND === 'fingerprints') printFingerprints(ctx, plan(ctx));
   else if (COMMAND === 'status') status(ctx);
-  else if (COMMAND === 'preview') await preview(ctx);
-  else if (COMMAND === 'preview-audio') await previewAudio(ctx);
-  else if (COMMAND === 'build') await build(ctx);
-  else if (COMMAND === 'audit') await auditArtifact(ctx, candidatePath(ctx, 'main'), 'main');
-  else if (COMMAND === 'approve') approve(ctx, 'main');
-  else if (COMMAND === 'promote') promote(ctx);
-  else if (COMMAND === 'release-build') await releaseBuild(ctx);
-  else if (COMMAND === 'release-audit') await auditArtifact(ctx, candidatePath(ctx, 'release'), 'release');
-  else if (COMMAND === 'release-approve') approve(ctx, 'release');
-  else if (COMMAND === 'publish') publish(ctx);
+  else if (COMMAND === 'clean') await withActivity(ctx, 'clean', () => cleanWorkspace(ctx));
+  else if (COMMAND === 'gc') await withActivity(ctx, 'gc', () => garbageCollect(ctx));
+  else if (COMMAND === 'preview') await withActivity(ctx, 'preview', () => preview(ctx));
+  else if (COMMAND === 'preview-audio') await withActivity(ctx, 'preview-audio', () => previewAudio(ctx));
+  else if (COMMAND === 'build') await withActivity(ctx, 'build', () => build(ctx));
+  else if (COMMAND === 'audit') await withActivity(ctx, 'audit', async () => {
+    const result = await auditArtifact(ctx, candidatePath(ctx, 'main'), 'main');
+    if (result.verdict !== 'fail') removeTargets(taskDirectories(ctx, 'main'), {apply: true, label: 'main task cleanup'});
+  });
+  else if (COMMAND === 'approve') await withActivity(ctx, 'approve', () => approve(ctx, 'main'));
+  else if (COMMAND === 'promote') await withActivity(ctx, 'promote', () => promote(ctx));
+  else if (COMMAND === 'release-build') await withActivity(ctx, 'release-build', () => releaseBuild(ctx));
+  else if (COMMAND === 'release-audit') await withActivity(ctx, 'release-audit', async () => {
+    const result = await auditArtifact(ctx, candidatePath(ctx, 'release'), 'release');
+    if (result.verdict !== 'fail') removeTargets(taskDirectories(ctx, 'release'), {apply: true, label: 'release task cleanup'});
+  });
+  else if (COMMAND === 'release-approve') await withActivity(ctx, 'release-approve', () => approve(ctx, 'release'));
+  else if (COMMAND === 'publish') await withActivity(ctx, 'publish', () => publish(ctx));
   else fail(`Unknown command: ${COMMAND}`);
 };
 

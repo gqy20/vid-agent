@@ -28,10 +28,12 @@
 - 避免无意义的循环、脉冲、晃动或缩放效果。高亮应该进入一次，解释状态变化，然后回到语义样式。
 - 控制信息密度。一个镜头里不要让 commit 图、终端、branch refs、HEAD、工作区、暂存区和字幕同时争夺注意力。
 - 渲染后要审查：元素重叠、字幕遮挡、Git 状态歧义、语义色误用、过度运动、命令和状态变化不匹配。
-- Git Course 默认使用 `pnpm --dir remotion git-course build <episode-id>`；所有 dirty scene、TTS、规范化和分段审查在依赖允许时最大并行。build 只写 `tmp/cache` 和 `tmp/build/candidate`，不得直接覆盖 current。
+- Git Course 默认使用 `pnpm --dir remotion git-course build <episode-id>`；所有 dirty scene、TTS、规范化和分段审查在依赖允许时最大并行。build 只写 `tmp/cache`、`tmp/build` 和可重建 preview，不得直接覆盖 current。旧 `git-course:render`、`tmp/scenes`、`tmp/chunks` 和 `tmp/audit-15f` 不再作为生产入口或权威证据。
 - dirty Scene 必须复用一次 Remotion bundle；不要重新引入每个 Scene 单独 bundle 的 CLI 调度。总 render concurrency 默认使用全部逻辑 CPU，但每个 Scene 使用独立浏览器池，禁止让多个并行 `renderMedia` 共用同一个 Chrome 实例。
 - Scene 成功后必须立即写入内容寻址 cache；其他 Scene 失败不能丢弃已完成结果。并发上限由本机稳定 profile 与自动降级重试维护，不得重新写死成保守小常数。
-- 只有 main audit verdict 为 `pass` 且 SHA、scene/TTS/BGM 指纹匹配时，`git-course promote` 才能覆盖 `current/`。分段文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。
+- 产物所有权固定为：cache 是唯一可复用存储，preview 是可重建视图，tasks 是运行时工作区，audit 是与候选 SHA 绑定的门禁证据，current 只保存已批准产物。preview 优先 hardlink、失败时才复制；成功任务进入 cache 且权威 audit 生成后应清理 task 大文件。
+- `git-course clean` 和 `git-course gc` 默认只 dry-run；只有布尔值为真的 `--apply`（或 `--apply=true`）才删除，`--apply=false` 必须保持 dry-run。GC 必须保护 state、artifact/preview manifest、有效 verdict、活动 candidate 和 current 引用，禁止仅按目录年龄粗暴删除。
+- 只有 main audit verdict 为 `pass` 且主 candidate、scene、candidate audio 的 SHA 以及 scene/TTS/BGM 指纹全部匹配时，`git-course promote` 才能覆盖 `current/`。分段文件名必须带顺序号和 scene id，统一使用下划线，例如 `01_hook.mp4`、`02_bad_model.mp4`。
 - 抽帧检查可以临时放在 `tmp/`，但检查完成后要清理，避免当前审查目录被临时文件污染。
 - 编码后审查统一使用连续 `2fps`（30fps 每 15 帧一张），每张审查条最多 5 帧并按 `5×1` 合并；16 帧 `4×4` 总览只用于导航。scene 和发布拼接边界使用中心点前后各 `0.5s`、`10fps` burst，并补充计划内精确关键帧。
 - 审查 sheet 应由单次分页 montage 生成，最后一页不得补空白；原始连续帧默认在 sheet 校验后删除，只在 `AUDIT_KEEP_FRAMES=1` 调试时保留。
@@ -44,7 +46,7 @@
 - TTS 必须显式固定 `model`、`voice`、`language` 和 `speed`。当前 Git course 默认固定为 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`；同一集不要混用不同 voice 或 speed。
 - 分段人声不要只依赖 TTS 的 `--volume`。生成后用 FFmpeg 做响度规范化和轻压缩，目标约 `-20 LUFS`，峰值约 `-3 dBFS`；保留原始 `.mp3`，规范化文件使用 `_norm.mp3` 后缀。
 - BGM 在 Git 课程中保持集与集一致。优先复用已确认的课程 BGM；混音时使用固定低音量，不做 sidechain ducking，避免背景音乐随人声忽高忽低。当前 EP01/EP02 使用 BGM `volume=0.05`。
-- 生成音频位于 `current/audio/segments/`，最终混音为 `current/audio/mix.m4a`。scene 与旁白窗口直接由 episode JSON 校验。
+- build 阶段音频位于 `tmp/build/candidate/audio/`；只有 main candidate 通过 approve/promote 后，才原子同步到 `current/audio/segments/` 和 `current/audio/mix.m4a`。scene 与旁白窗口直接由 episode JSON 校验。
 - 发布版在当前正片确认后再封装到 `current/release/<episode-id>.mp4`；封面也输出到同一 `release/`。发布源数据维护在 episode JSON 的 `release` 字段。发布封装默认片头增益 `0dB`、片尾增益 `-5dB`。
 - 发布版必须使用 `release-build -> release-audit -> release-approve -> publish`。底层 `git-course-publish-episode.sh` 只允许 orchestrator 调用；release verdict 不是 `pass` 或 SHA 不匹配时禁止 publish。不要再新增 `publishing/` 或 `published/` 目录。
 

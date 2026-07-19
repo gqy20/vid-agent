@@ -42,6 +42,7 @@
 
 ```bash
 pnpm --dir remotion git-course plan <episode-id>
+pnpm --dir remotion git-course preview <episode-id> --scenes=<scene-id>
 pnpm --dir remotion git-course build <episode-id>
 pnpm --dir remotion git-course approve <episode-id> --note="人工审查结论"
 pnpm --dir remotion git-course promote <episode-id>
@@ -52,3 +53,13 @@ pnpm --dir remotion git-course publish <episode-id>
 ```
 
 `build` 会最大化并行所有 dirty scene、TTS、规范化和分段审查，并自动执行 main assemble 与机器审查。审查统一使用连续 2fps、每条最多 5 帧、边界 10fps burst、精确关键帧和 16 帧总览，证据汇总在 `tmp/build/audit/<main|release>/report.html`。机器检查通过后 verdict 仍为 `needs_review`；人工检查后才能 approve。没有与候选 SHA 绑定的 `pass` verdict，promote 和 publish 都会拒绝执行。
+
+存储约定是：`tmp/cache` 为唯一可复用存储，`tmp/preview` 为可重建视图，`tmp/build/tasks` 为运行时工作区，`tmp/build/candidate` 为待审批产物，`current` 只保存已批准版本。安全维护命令默认只预览删除计划：
+
+```bash
+pnpm --dir remotion git-course clean <episode-id>
+pnpm --dir remotion git-course gc <episode-id> --bundles
+# 确认输出后再追加 --apply
+```
+
+旧 `git-course:render` 以及 `tmp/scenes`、`tmp/chunks`、`tmp/audit-15f` 已退出生产流程。完整保留与回收规则见 `git-course/workflow.md`。

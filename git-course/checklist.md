@@ -140,12 +140,15 @@
 ### 文件与自动检查
 
 - [ ] 修复阶段的分段预览已更新到 `tmp/preview/scenes/`，命名为 `01_scene_id.mp4` 形式，并由 manifest 记录 fingerprint 与 SHA。
+- [ ] preview 是 cache 的 hardlink/兼容复制视图，没有被当作第二套长期缓存；过期 preview 已从 manifest 和目录中清理。
 - [ ] 候选验收通过并 promote 后，已批准分段才同步到 `current/scenes/`。
+- [ ] build 音频先生成在 `tmp/build/candidate/audio/`；approve/promote 前没有改写 `current/audio/`。
 - [ ] 当前正片已覆盖 `current/<episode-id>.mp4`，没有创建 `new`、`v2` 或 `final-final`。
 - [ ] `current/` 下没有 `final/` 子目录；历史成片如需保留已移入 `tmp/legacy-final/`。
 - [ ] main 视频为 1920×1080、30fps，视频与音频流均存在。
 - [ ] 正片时长与 `episode JSON` 总时长一致，音画结尾没有被 `-shortest` 意外截断。
 - [ ] 所有可生成 MP4、音频、SRT、抽帧和临时审查文件均被 `.gitignore` 正确排除。
+- [ ] 权威 audit 机器未失败后，成功 task 的重复 MP4 和工作目录已清理；失败任务证据仍可用于排查。
 
 ### 连续观看
 
@@ -188,6 +191,8 @@
 
 - [ ] `git status --short` 中没有遗漏的源码、误删文件或意外生成媒体。
 - [ ] 已复查完整 diff，文档路径与当前目录结构一致。
+- [ ] `git-course clean <episode-id>` 和需要时的 `git-course gc <episode-id> --bundles` dry-run 没有命中 current、活动 candidate、有效 verdict 或其引用的 CAS。
+- [ ] 新流程没有写入旧 `tmp/scenes/`、`tmp/chunks/`、`tmp/audit/` 或 `tmp/audit-15f/`。
 - [ ] 自动生成文件由生成命令更新，没有手工修改。
 - [ ] 分集 `audit.md` 只记录真正需要保留的人工判断，不复制机器可计算状态。
 - [ ] 必要校验全部通过，提交信息符合 Conventional Commits。
