@@ -63,3 +63,14 @@ pnpm --dir remotion git-course gc <episode-id> --bundles
 ```
 
 旧 `git-course:render` 以及 `tmp/scenes`、`tmp/chunks`、`tmp/audit-15f` 已退出生产流程。完整保留与回收规则见 `git-course/workflow.md`。
+
+## 本地生产控制台
+
+需要集中审查 Scene、candidate、版本 SHA、审查门禁并推进生产阶段时，可以启动大屏工作台：
+
+```bash
+pnpm --dir tools/git-course-dashboard install
+pnpm --dir tools/git-course-dashboard dev
+```
+
+本机浏览器打开 `http://127.0.0.1:4178`，局域网设备打开 `http://<运行机器的局域网 IP>:4178`。工作台使用固定视口，分集、Scene、版本与审查信息在原位点击切换，不依赖整页上下滚动。它不使用访问令牌；preview、build、approve、promote 和 release / publish 操作统一调用上面的 orchestrator。实现和校验说明见 `tools/git-course-dashboard/README.md`。
