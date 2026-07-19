@@ -26,9 +26,18 @@ Git Course 解释 commit、branch、HEAD、remote 和提交图；GitHub Course �
 
 第一季默认要求完成 Git Course EP01–EP16。EP17–EP24 属于推荐但非必需的进阶前置。
 
+## 画质规格
+
+- 日常开发、布局调整、浏览器标注和内容验收使用 1920×1080、30fps 的迭代 candidate，优先保证反馈速度。
+- 1080p candidate 通过教学、画面、字幕、音频和边界审查后，才进入 3840×2160、30fps 的最终母版构建。
+- 4K 阶段必须重新生成足够分辨率的浏览器录屏和 poster，不允许把 1080p 浏览器素材直接放大伪装成 4K。
+- `current/`、release 和 publish 最终只接受通过 4K 审查且 SHA 匹配的完整 candidate；1080p candidate 永不具备晋升资格。
+
 ## 当前状态
 
 - 两季 16 集大纲已建立。
 - 浏览器录制 runner 和无网络 smoke scenario 已建立。
 - Remotion 浏览器组件与状态桥接 gallery 已注册。
-- 正式 episode 尚未进入制作；开始时先创建 `episodes/<episode-id>.json`。
+- GH01 已完成 episode JSON、只读浏览器交互录制、DOM 自动标注 metadata、Remotion 第一版和 MMX 分段配音；当前产物是 1080p 带声完整 candidate。
+- orchestrator 已接入浏览器/scene/TTS 指纹、内容寻址 cache、视觉与完整 candidate、SRT/音频检查和 audit verdict。
+- 4K delivery profile、4K 浏览器重录、promote 和 publish 尚未接入；这些命令保持硬门禁。其余 15 集仍是规划。

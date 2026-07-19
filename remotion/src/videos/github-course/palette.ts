@@ -24,6 +24,7 @@ export const COLOR = {
     graphLine: '#b7c0ca',
   },
   github: {
+    logo: '#181717',
     action: '#0969da',
     open: '#1a7f37',
     approved: '#1f883d',

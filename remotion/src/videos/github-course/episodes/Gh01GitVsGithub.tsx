@@ -12,6 +12,8 @@ const SCENES = GH01.scenes.map((scene) => ({
   durationInFrames: seconds(scene.duration),
 }));
 
+const [HOOK_SCENE, LOCAL_GIT_SCENE, BROWSER_REPOSITORY_SCENE, PLATFORM_LAYER_SCENE, STATE_BRIDGE_SCENE, TAKEAWAY_SCENE] = GH01.scenes;
+
 export const GH01_DURATION_IN_FRAMES = seconds(GH01.durationSeconds);
 
 const RECORDING_DECLARATION = GH01.browserRecordings[0];
@@ -19,9 +21,14 @@ const RECORDING = {
   id: RECORDING_DECLARATION.id,
   src: RECORDING_DECLARATION.src,
   poster: RECORDING_DECLARATION.poster,
+  metadata: RECORDING_DECLARATION.metadata,
   url: 'github.com/github/docs',
   title: 'PUBLIC REPOSITORY',
 };
+
+const BROWSER_DEMO_PLAYBACK_RATE = 1.15;
+const BROWSER_DEMO_HOLD_SECONDS = 10.8;
+const BROWSER_DEMO_CAPTION_SECONDS = 11.4;
 
 const enter = (frame: number, start = 0, duration = 18) =>
   interpolate(frame, [start, start + duration], [0, 1], {
@@ -92,7 +99,7 @@ const HookScene: React.FC = () => {
         <ResponsibilityCard label="COLLABORATION" title="PR · review · checks" color={COLOR.github.action} />
       </div>
       <SceneCaption opacity={questionIn} bottom={118} width={1080} fontSize={36} auditId="gh01-hook-caption">
-        没有网络时，为什么仍然可以 commit？
+        {HOOK_SCENE.caption}
       </SceneCaption>
     </AbsoluteFill>
   );
@@ -197,7 +204,7 @@ const LocalGitScene: React.FC = () => {
         <div style={{padding: '10px 17px', color: COLOR.text.secondary, ...TYPE.ui}}>offline ✓</div>
       </div>
       <SceneCaption opacity={captionIn} bottom={72} width={1120} fontSize={34} auditId="gh01-local-caption">
-        Git 管理本地对象、refs 和提交历史
+        {LOCAL_GIT_SCENE.caption}
       </SceneCaption>
     </AbsoluteFill>
   );
@@ -205,11 +212,15 @@ const LocalGitScene: React.FC = () => {
 
 const BrowserRepositoryScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const captionIn = enter(frame, seconds(10.2), 18);
+  const captionIn = enter(frame, seconds(BROWSER_DEMO_CAPTION_SECONDS), 18);
   return (
-    <BrowserFocusScene recording={RECORDING} playbackRate={1.25} holdFromFrame={seconds(9.2)}>
+    <BrowserFocusScene
+      recording={RECORDING}
+      playbackRate={BROWSER_DEMO_PLAYBACK_RATE}
+      holdFromFrame={seconds(BROWSER_DEMO_HOLD_SECONDS)}
+    >
       <SceneCaption opacity={captionIn} bottom={40} width={1100} fontSize={32} auditId="gh01-browser-caption">
-        Code 是仓库；Pull requests 与 Actions 是平台协作入口
+        {BROWSER_REPOSITORY_SCENE.caption}
       </SceneCaption>
     </BrowserFocusScene>
   );
@@ -218,18 +229,8 @@ const BrowserRepositoryScene: React.FC = () => {
 const PlatformLayerScene: React.FC = () => (
   <BrowserEvidenceScene
     recording={RECORDING}
-    highlights={[
-      {
-        id: 'collaboration-navigation',
-        x: 0.145,
-        y: 0.128,
-        width: 0.185,
-        height: 0.065,
-        label: '协作状态',
-        tone: 'action',
-      },
-    ]}
-    conclusion="GitHub 托管 Git 仓库，并在周围增加 PR、Review 与 Checks"
+    highlightIds={['collaboration-navigation']}
+    conclusion={PLATFORM_LAYER_SCENE.caption}
   />
 );
 
@@ -247,13 +248,13 @@ const StateBridgeScene: React.FC = () => {
       <div style={{marginTop: 76, opacity: bridgeIn}}>
         <GitHubStateBridge
           browser={{eyebrow: 'BROWSER ACTION', title: '打开 Pull requests', detail: '一次只读的页面导航'}}
-          platform={{eyebrow: 'PLATFORM STATE', title: '展示 PR / Review / Checks', detail: '读取 GitHub 保存的协作信息'}}
+          platform={{eyebrow: 'PLATFORM STATE', title: '展示 Pull Request 列表', detail: '读取 GitHub 保存的协作信息'}}
           git={{eyebrow: 'GIT STATE', title: '本地 objects / refs 不变', detail: '没有创建 commit，也没有移动 branch'}}
           auditId="gh01-state-bridge"
         />
       </div>
       <SceneCaption opacity={captionIn} bottom={82} width={1180} fontSize={34} auditId="gh01-bridge-caption">
-        页面发生变化，不代表 Git 历史发生变化
+        {STATE_BRIDGE_SCENE.caption}
       </SceneCaption>
     </AbsoluteFill>
   );
@@ -289,7 +290,7 @@ const TakeawayScene: React.FC = () => {
         <div style={{width: 270, height: 2, background: COLOR.stroke.default}} />
       </div>
       <SceneCaption opacity={captionIn} bottom={80} width={1160} fontSize={36} auditId="gh01-takeaway-caption">
-        Git 管历史，GitHub 围绕历史组织协作
+        {TAKEAWAY_SCENE.caption}
       </SceneCaption>
     </AbsoluteFill>
   );

@@ -6,12 +6,19 @@ import type {BrowserFocusRegion, BrowserRecordingSource} from './types';
 
 export const BrowserEvidenceScene: React.FC<{
   recording: BrowserRecordingSource;
-  highlights: readonly BrowserFocusRegion[];
+  highlights?: readonly BrowserFocusRegion[];
+  highlightIds?: readonly string[];
   conclusion: string;
-}> = ({recording, highlights, conclusion}) => (
+}> = ({recording, highlights, highlightIds, conclusion}) => (
   <AbsoluteFill style={{padding: '126px 150px 142px', boxSizing: 'border-box', display: 'grid', placeItems: 'center'}}>
     <div style={{height: '100%', aspectRatio: '1600 / 958', maxWidth: '100%'}}>
-      <BrowserPanel recording={recording} highlights={highlights} preferPoster auditId="browser-evidence" />
+      <BrowserPanel
+        recording={recording}
+        highlights={highlights}
+        highlightIds={highlightIds}
+        preferPoster
+        auditId="browser-evidence"
+      />
     </div>
     <div
       style={{

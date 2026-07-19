@@ -10,7 +10,9 @@
     "status",
     "fps",
     "resolution",
+    "deliveryResolution",
     "durationSeconds",
+    "audio",
     "sourceOfTruth",
     "scenes"
   ],
@@ -25,6 +27,7 @@
     },
     "fps": {"const": 30},
     "resolution": {
+      "description": "Fast iteration and review resolution. This artifact is never directly promotable.",
       "type": "object",
       "additionalProperties": false,
       "required": ["width", "height"],
@@ -33,7 +36,37 @@
         "height": {"const": 1080}
       }
     },
+    "deliveryResolution": {
+      "description": "Required final master and release resolution.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": {"const": 3840},
+        "height": {"const": 2160}
+      }
+    },
     "durationSeconds": {"type": "number", "exclusiveMinimum": 0},
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "voice", "language", "speed", "bgm"],
+      "properties": {
+        "model": {"const": "speech-2.8-hd"},
+        "voice": {"const": "Chinese (Mandarin)_Gentleman"},
+        "language": {"const": "zh"},
+        "speed": {"const": 1.25},
+        "bgm": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "volume"],
+          "properties": {
+            "source": {"type": "string", "minLength": 1},
+            "volume": {"const": 0.05}
+          }
+        }
+      }
+    },
     "sourceOfTruth": {
       "type": "object",
       "required": ["references"],
@@ -51,12 +84,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "scenarioId", "src", "viewport"],
+        "required": ["id", "scenarioId", "src", "poster", "metadata", "viewport", "containsSensitiveState"],
         "properties": {
           "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
           "scenarioId": {"type": "string", "pattern": "^[a-z0-9-]+$"},
           "src": {"type": "string", "pattern": "^github-course/browser/.+\\.mp4$"},
           "poster": {"type": "string", "pattern": "^github-course/browser/.+-poster\\.png$"},
+          "metadata": {"type": "string", "pattern": "^github-course/browser/.+\\.json$"},
           "viewport": {
             "type": "object",
             "required": ["width", "height"],
@@ -74,10 +108,11 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "title", "start", "duration", "goal", "primaryTechnique"],
+        "required": ["id", "title", "caption", "start", "duration", "goal", "primaryTechnique"],
         "properties": {
           "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
           "title": {"type": "string", "minLength": 1},
+          "caption": {"type": "string", "minLength": 1},
           "start": {"type": "number", "minimum": 0},
           "duration": {"type": "number", "exclusiveMinimum": 0},
           "goal": {"type": "string", "minLength": 1},

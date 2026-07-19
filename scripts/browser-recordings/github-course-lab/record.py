@@ -54,13 +54,13 @@ def transcode(raw_webm: Path, output_mp4: Path, *, trim_start_seconds: float = 0
         "-loglevel",
         "error",
         "-y",
+        "-i",
+        str(raw_webm),
     ]
     if trim_start_seconds > 0:
         command.extend(["-ss", f"{trim_start_seconds:.3f}"])
     command.extend(
         [
-            "-i",
-            str(raw_webm),
             "-vf",
             "fps=30,format=yuv420p",
             "-an",
@@ -138,6 +138,13 @@ async def record(args: argparse.Namespace) -> tuple[Path, Path, Path]:
                 await prepare(page)
                 # Preserve a short stable lead-in before the first teaching action.
                 trim_start_seconds = max(0.0, time.monotonic() - recording_started_at - 0.45)
+            collect_focus_regions = getattr(scenario, "collect_focus_regions", None)
+            focus_regions = []
+            if collect_focus_regions is not None:
+                focus_regions = [
+                    region.to_metadata()
+                    for region in await collect_focus_regions(page)
+                ]
             await scenario.run(page)
             await page.close()
             await context.close()
@@ -160,6 +167,7 @@ async def record(args: argparse.Namespace) -> tuple[Path, Path, Path]:
             "browserChannel": args.channel,
             "containsSensitiveState": False,
             "trimStartSeconds": round(trim_start_seconds, 3),
+            "focusRegions": focus_regions,
             "src": f"github-course/browser/{output_mp4.name}",
             "poster": f"github-course/browser/{poster_path.name}",
         }

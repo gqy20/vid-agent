@@ -10,6 +10,7 @@ BOUNDARY_FPS="${BOUNDARY_FPS:-10}"
 FRAMES_PER_SHEET="${FRAMES_PER_SHEET:-5}"
 AUDIT_METRICS="${AUDIT_METRICS:-1}"
 AUDIT_KEEP_FRAMES="${AUDIT_KEEP_FRAMES:-0}"
+AUDIT_TITLE="${AUDIT_TITLE:-Git Course Audit}"
 now_ms() { date +%s%3N; }
 AUDIT_STARTED_MS="$(now_ms)"
 
@@ -41,7 +42,7 @@ STAMP="drawtext=fontfile=${FONT_FILE}:text='%{pts\\:hms}':x=14:y=14:fontsize=22:
 OVERVIEW_STARTED_MS="$(now_ms)"
 (
   ffmpeg -nostdin -y -i "$VIDEO" \
-    -vf "fps=1/${OVERVIEW_INTERVAL},scale=480:-2,${STAMP},tile=4x4" \
+    -vf "fps=fps=1/${OVERVIEW_INTERVAL}:start_time=0:eof_action=pass,scale=480:-2,${STAMP},tile=4x4" \
     -frames:v 1 "$OUT_DIR/overview/contact-16.jpg" >/dev/null 2>&1
   now_ms > "$OUT_DIR/overview.finished-ms"
 ) &
@@ -238,7 +239,7 @@ cat > "$OUT_DIR/verdict.json" <<JSON
 JSON
 
 {
-  echo '<!doctype html><html><head><meta charset="utf-8"><title>Git Course Audit</title><style>body{font-family:sans-serif;background:#f7f7f4;color:#182321;margin:32px}img{max-width:100%;display:block;margin:12px 0 28px;border:1px solid #c7cec5}details{margin:16px 0}code{font-family:monospace}</style></head><body>'
+  echo "<!doctype html><html><head><meta charset=\"utf-8\"><title>${AUDIT_TITLE}</title><style>body{font-family:sans-serif;background:#f7f7f4;color:#182321;margin:32px}img{max-width:100%;display:block;margin:12px 0 28px;border:1px solid #c7cec5}details{margin:16px 0}code{font-family:monospace}</style></head><body>"
   echo "<h1>Audit report</h1><p><code>$VIDEO</code></p>"
   echo '<h2>Overview index</h2><img src="overview/contact-16.jpg">'
   echo '<h2>Boundary bursts</h2>'

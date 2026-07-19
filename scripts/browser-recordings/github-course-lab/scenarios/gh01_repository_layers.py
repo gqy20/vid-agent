@@ -5,7 +5,9 @@ import re
 from playwright.async_api import Page
 
 from .base import (
+    BrowserFocusRegion,
     ScenarioConfig,
+    capture_focus_region,
     click_locator_with_cursor,
     install_recording_cursor,
     move_cursor_to_locator,
@@ -33,6 +35,21 @@ class Gh01RepositoryLayersScenario:
         await actions.wait_for(state="visible")
         await page.wait_for_timeout(1100)
 
+    async def collect_focus_regions(self, page: Page) -> list[BrowserFocusRegion]:
+        repository_navigation = page.get_by_role("navigation", name="Repository")
+        pulls = repository_navigation.get_by_role("link", name=re.compile(r"^Pull requests"))
+        actions = repository_navigation.get_by_role("link", name=re.compile(r"^Actions$"))
+        return [
+            await capture_focus_region(
+                page,
+                [pulls, actions],
+                region_id="collaboration-navigation",
+                label="协作状态",
+                tone="action",
+                padding_px=10,
+            )
+        ]
+
     async def run(self, page: Page) -> None:
         repository_navigation = page.get_by_role("navigation", name="Repository")
         code = repository_navigation.get_by_role("link", name=re.compile(r"^Code$"))
@@ -42,12 +59,12 @@ class Gh01RepositoryLayersScenario:
         await move_cursor_to_locator(page, code, settle_ms=650)
         await move_cursor_to_locator(page, pulls, settle_ms=750)
         await move_cursor_to_locator(page, actions, settle_ms=750)
-        await click_locator_with_cursor(page, pulls, settle_ms=1200)
+        await click_locator_with_cursor(page, pulls, settle_ms=1500)
         await page.wait_for_url(re.compile(r"github\.com/github/docs/pulls"))
 
         repository_navigation = page.get_by_role("navigation", name="Repository")
         code = repository_navigation.get_by_role("link", name=re.compile(r"^Code$"))
-        await click_locator_with_cursor(page, code, settle_ms=1200)
+        await click_locator_with_cursor(page, code, settle_ms=1500)
         await page.wait_for_url(re.compile(r"github\.com/github/docs/?$"))
         await page.evaluate("window.scrollTo(0, 0)")
         await page.wait_for_timeout(900)

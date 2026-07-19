@@ -4,6 +4,7 @@ export type BrowserRecordingSource = {
   url?: string;
   src?: string;
   poster?: string;
+  metadata?: string;
 };
 
 export type BrowserFocusRegion = {
@@ -14,4 +15,9 @@ export type BrowserFocusRegion = {
   height: number;
   label?: string;
   tone?: 'action' | 'approved' | 'merged' | 'warning' | 'failed';
+};
+
+export type BrowserRecordingMetadata = {
+  recordingId: string;
+  focusRegions?: readonly BrowserFocusRegion[];
 };

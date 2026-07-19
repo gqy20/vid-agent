@@ -7,7 +7,24 @@
     "width": 1920,
     "height": 1080
   },
+  "deliveryResolution": {
+    "width": 3840,
+    "height": 2160
+  },
   "durationSeconds": 150,
+  "audio": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25,
+    "bgm": {
+      "source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3",
+      "volume": 0.05
+    }
+  },
+  "content": {
+    "alignmentMarkdown": "# GH01 Audio Alignment\n\nTTS 固定为 `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`。分段人声规范化到约 `-20 LUFS`，复用 Git Course BGM，固定 `volume=0.05`，整集母带目标 `-16 LUFS`、`-3.0 dBTP`。\n\n| Segment | Scene window | Voice start | Voice duration | Voice end | End gap |\n|---|---:|---:|---:|---:|---:|\n| `01_hook` | 0-12s | 0.3s | 7.967s | 8.267s | 3.733s |\n| `02_local_git` | 12-38s | 12.3s | 17.633s | 29.933s | 8.067s |\n| `03_browser_repository` | 38-66s | 38.3s | 15.282s | 53.582s | 12.418s |\n| `04_platform_layer` | 66-96s | 66.3s | 17.816s | 84.116s | 11.884s |\n| `05_state_bridge` | 96-128s | 96.3s | 16.196s | 112.496s | 15.504s |\n| `06_takeaway` | 128-150s | 128.3s | 13.192s | 141.492s | 8.508s |\n\n总旁白时长约 `88.086s`，占正片 `58.72%`。SRT 时间码来自 MMX，文本由 episode JSON 的停顿段规范化，已检查无 `<#...#>` 泄漏和 UTF-8 截断。"
+  },
   "teachingIntent": {
     "question": "GitHub 是 Git 的网页版吗？",
     "coreModel": "Git 负责本地对象、refs 与提交历史；GitHub 托管 Git 仓库，并围绕这些历史增加协作状态。",
@@ -84,6 +101,7 @@
       "scenarioId": "gh01-repository-layers",
       "src": "github-course/browser/gh01-repository-layers.mp4",
       "poster": "github-course/browser/gh01-repository-layers-poster.png",
+      "metadata": "github-course/browser/gh01-repository-layers.json",
       "viewport": {
         "width": 1600,
         "height": 900
@@ -95,6 +113,7 @@
     {
       "id": "hook",
       "title": "GitHub 等于 Git？",
+      "caption": "没有网络时，为什么仍然可以 commit？",
       "start": 0,
       "duration": 12,
       "goal": "提出 Git 与 GitHub 是否是同一件事的常见误区。",
@@ -112,6 +131,7 @@
     {
       "id": "local-git",
       "title": "Git 在本地保存历史",
+      "caption": "Git 管理本地对象、refs 和提交历史",
       "start": 12,
       "duration": 26,
       "goal": "说明完整仓库历史和核心 Git 状态存在本地，常见操作不依赖 GitHub。",
@@ -129,6 +149,7 @@
     {
       "id": "browser-repository",
       "title": "GitHub 托管仓库",
+      "caption": "Code 页面展示仓库内容；Pull requests 与 Actions 提供协作入口",
       "start": 38,
       "duration": 28,
       "goal": "用真实 GitHub 仓库页面建立平台层的视觉证据。",
@@ -147,6 +168,7 @@
     {
       "id": "platform-layer",
       "title": "GitHub 增加协作状态",
+      "caption": "PR、Review 与 Checks 是 GitHub 协作状态，不是 Git 对象",
       "start": 66,
       "duration": 30,
       "goal": "区分 Git 数据与 Issues、Pull Request、Review、Checks 等平台状态。",
@@ -165,6 +187,7 @@
     {
       "id": "state-bridge",
       "title": "页面动作不等于 Git 变化",
+      "caption": "打开 PR 页面只读取平台状态；本地 Git 历史不变",
       "start": 96,
       "duration": 32,
       "goal": "建立浏览器动作、GitHub 平台状态和 Git 状态的三层因果检查。",
@@ -182,6 +205,7 @@
     {
       "id": "takeaway",
       "title": "职责边界",
+      "caption": "Git 管历史，GitHub 围绕历史组织协作",
       "start": 128,
       "duration": 22,
       "goal": "用一句职责定义结束，并为 remote、fork、push 与 Pull Request 铺垫。",
