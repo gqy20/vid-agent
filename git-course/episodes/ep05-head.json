@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 240,
+  "durationSeconds": 198,
   "sourceOfTruth": {
     "references": [
       "docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc",
@@ -66,7 +66,7 @@
       "id": "hook",
       "title": "问题",
       "start": 0,
-      "duration": 14,
+      "duration": 16,
       "primaryTechnique": "Remotion title + CenterGraph",
       "components": [
         "CourseLayout",
@@ -76,6 +76,11 @@
         "QuestionCaption"
       ],
       "goal": "提出 HEAD 表示当前位置，不是另一个 branch。",
+      "captions": [
+        {"from": 4.9, "to": 7.7, "text": "它不是最新提交，也不是隐藏分支"},
+        {"from": 8.1, "to": 11.2, "text": "HEAD 是 Git 当前操作的入口"},
+        {"from": 11.6, "to": 15.6, "text": "它决定下一次提交接到哪条历史后面"}
+      ],
       "beats": [
         {
           "time": [
@@ -92,8 +97,8 @@
         },
         {
           "time": [
-            2,
-            12
+            4.5,
+            15.6
           ],
           "visual": "HEAD → main → C2",
           "motion": "commit、main、HEAD 依次出现",
@@ -110,14 +115,14 @@
       "narration": {
         "segmentId": "01_hook",
         "voiceStart": 0.35,
-        "text": "这一集只看 HEAD。<#0.25#>\n很多人把它理解成最新提交，或者另一个隐藏分支。<#0.35#>\n这两个说法都不够准确。<#0.25#>\nHEAD 真正回答的是：Git 当前站在哪里，以及下一次提交要接到哪条历史后面。"
+        "text": "这一集只看 HEAD。<#0.25#>\n很多人把它理解成仓库里最新的提交，或者另一个隐藏分支。<#0.35#>\n这两个说法都不准确。<#0.25#>\n更好理解的说法是：HEAD 是 Git 当前操作的入口。<#0.35#>\n它告诉 Git 现在站在哪条历史上，也决定下一次提交接到哪里。"
       }
     },
     {
       "id": "symbolic-ref",
       "title": "符号引用",
-      "start": 14,
-      "duration": 32,
+      "start": 16,
+      "duration": 40,
       "primaryTechnique": "File card + GitGraph",
       "components": [
         "RefInspectorCard",
@@ -126,11 +131,20 @@
         "SceneCaption"
       ],
       "goal": "用 .git/HEAD 文件建立 symbolic reference 模型。",
+      "captions": [
+        {"from": 0.8, "to": 5.0, "text": "先分清：文件保存内容和最终解析结果"},
+        {"from": 5.4, "to": 12.8, "text": ".git/HEAD 保存的是 branch ref"},
+        {"from": 15.4, "to": 18.2, "text": "这段内容叫 symbolic ref"},
+        {"from": 19.8, "to": 24.4, "text": "branch ref 保存末端 commit ID"},
+        {"from": 24.8, "to": 29.0, "text": "文件保存的内容，不等于最终解析结果"},
+        {"from": 29.3, "to": 33.0, "text": "HEAD → main → C2"},
+        {"from": 33.3, "to": 39.6, "text": "历史再沿 commit 的 parent 展开"}
+      ],
       "beats": [
         {
           "time": [
-            14,
-            28
+            16,
+            45
           ],
           "visual": ".git/HEAD 文件卡",
           "motion": "ref 行逐字输入",
@@ -142,8 +156,8 @@
         },
         {
           "time": [
-            28,
-            44
+            45,
+            55.6
           ],
           "visual": "HEAD → main → C2 图",
           "motion": "紧凑的两列映射从 HEAD FILE / CONTENTS 变形为 BRANCH REF / OBJECT ID；映射条上移时 Git 图提前进入",
@@ -162,25 +176,31 @@
       ],
       "narration": {
         "segmentId": "02_symbolic_ref",
-        "voiceStart": 14.35,
-        "text": "正常情况下，HEAD 不是直接保存某个 commit 的 hash。<#0.35#>\n打开 Git 目录中的 HEAD 文件，常见内容是 ref: refs/heads/main。<#0.35#>\nGit 把这种以 ref 开头、指向另一个引用的内容叫 symbolic ref。<#0.35#>\n沿着这条链继续看，refs/heads/main 才保存 main 当前指向的对象 ID。<#0.35#>\n因此画面里必须保留两级关系：HEAD 指向 main，main 再指向 C2。<#0.35#>\nHEAD 表示当前位置，branch 保存历史位置，两者不是同一个对象。"
+        "voiceStart": 16.35,
+        "text": "先区分两件事：HEAD 文件保存了什么，以及把 HEAD 解析到底会得到什么。<#0.35#>\n正常情况下，Git 目录中的 HEAD 文件不是直接保存 commit ID，而是写着 ref: refs/heads/main。<#0.35#>\n这段指向另一个引用的内容叫 symbolic ref。<#0.35#>\n继续读取 refs/heads/main，才会得到 main 末端的 commit ID，也就是画面里的 C2。<#0.35#>\n所以，HEAD 文件保存的是 branch ref；解析 HEAD 得到的才是 commit。<#0.35#>\n完整关系是 HEAD 指向 main，main 再指向 C2。<#0.35#>\nbranch ref 只保存末端位置，历史则沿着 commit 的 parent 继续展开。"
       }
     },
     {
       "id": "terminal",
       "title": "命令",
-      "start": 46,
+      "start": 56,
       "duration": 30,
       "primaryTechnique": "Recorded git-course-lab terminal",
       "components": [
         "RecordedTerminalPanel"
       ],
       "goal": "展示 switch 和 commit 命令，为后续状态变化建立因果。",
+      "captions": [
+        {"from": 1.0, "to": 6.0, "text": "symbolic-ref：查看当前 branch"},
+        {"from": 6.4, "to": 12.0, "text": "cat .git/HEAD：查看保存的 ref"},
+        {"from": 12.4, "to": 18.4, "text": "rev-parse HEAD：得到最终 commit"},
+        {"from": 18.8, "to": 25.6, "text": "三条命令，停在引用链的不同层级"}
+      ],
       "beats": [
         {
           "time": [
-            46,
-            60
+            56,
+            70
           ],
           "visual": "全屏终端依次观察 branch、symbolic ref 与 commit ID",
           "motion": "按录制节奏输入三条只读命令",
@@ -192,11 +212,11 @@
         },
         {
           "time": [
-            60,
-            74
+            70,
+            84
           ],
           "visual": "终端输出停留，分支名、ref 与短 hash 同时可读",
-          "motion": "输出完成后稳定停留",
+          "motion": "第三条只读命令完成后冻结，不提前播放 switch",
           "state": "base",
           "narration": "最终解析到的 commit ID 是引用链末端。",
           "audit": [
@@ -206,44 +226,53 @@
       ],
       "narration": {
         "segmentId": "03_terminal",
-        "voiceStart": 46.35,
+        "voiceStart": 56.35,
         "text": "现在用真实仓库核对这条链。<#0.25#>\n先执行 git symbolic-ref --short HEAD，输出 main，说明当前在 main。<#0.35#>\n再查看 Git 目录中的 HEAD 文件，可以看到 refs/heads/main。<#0.35#>\n最后用 git rev-parse --short HEAD 解析最终的 commit ID。<#0.35#>\n三条命令观察的是同一个当前位置，却分别停在分支名、符号引用和最终提交这三个层级。"
       }
     },
     {
       "id": "switch",
       "title": "HEAD 切换",
-      "start": 76,
-      "duration": 44,
-      "primaryTechnique": "GitGraph headMotion",
+      "start": 86,
+      "duration": 26,
+      "primaryTechnique": "Ref file evidence",
       "components": [
         "CommandPill",
         "GitGraph",
         "RefInspectorCard",
-        "SideLabel"
+        "GitStatePanel"
       ],
-      "goal": "解释 git switch feature 只改变 HEAD 当前所在分支。",
+      "goal": "承接 EP04 的切换结果，只核对 HEAD 文件与工作区状态证据。",
+      "captions": [
+        {"from": 0.8, "to": 4.2, "text": "这里只核对 HEAD 文件的变化"},
+        {"from": 4.6, "to": 10.2, "text": "切换前：HEAD → main"},
+        {"from": 13.3, "to": 17.1, "text": "切换后：HEAD → feature"},
+        {"from": 17.4, "to": 20.5, "text": "两个 branch 都在 C2，commit 图不变"},
+        {"from": 20.8, "to": 21.7, "text": "改变的是当前入口"},
+        {"from": 22.0, "to": 25.6, "text": "Index 与 Working Tree 对齐 feature"}
+      ],
       "beats": [
         {
           "time": [
-            76,
-            96
+            86,
+            99
           ],
-          "visual": "HEAD 从 main 移到 feature",
-          "motion": "headMotion",
+          "visual": ".git/HEAD 从 main ref 更新为 feature ref",
+          "motion": "两张文件卡交叉替换，Git 图同步切换状态但不播放移动轨迹",
           "state": "switched",
-          "narration": "commit 没变，HEAD 改指向。",
+          "narration": "不重放完整切换，只看文件证据。",
           "audit": [
-            "只高亮 HEAD"
+            "不重复 EP04 的 HEAD 移动动画",
+            "main 与 feature 都停在 C2"
           ]
         },
         {
           "time": [
-            96,
-            118
+            99,
+            110
           ],
-          "visual": ".git/HEAD 更新为 feature",
-          "motion": "文件卡更新，图保持",
+          "visual": ".git/HEAD 更新为 feature，随后 Working Tree 与 Index 对齐目标快照",
+          "motion": "文件卡更新后切换为两层状态提示，图保持",
           "state": "switched",
           "narration": "你现在站在 feature 上。",
           "audit": [
@@ -254,31 +283,38 @@
       ],
       "narration": {
         "segmentId": "04_switch",
-        "voiceStart": 76.35,
-        "text": "执行 git switch feature 时，先不要盯着 commit 节点。<#0.35#>\nmain 和 feature 此刻都指向 C2，所以历史图没有新增提交，两个 branch 也都没有前进。<#0.35#>\n真正改变的是 Git 目录中的 HEAD 文件：它从 refs/heads/main 更新为 refs/heads/feature。<#0.35#>\n于是 HEAD 开始跟随 feature。<#0.25#>\n与此同时，Git 会让 Index 和 Working Tree 匹配 feature 指向的快照。<#0.35#>\n这里两个分支内容相同，所以文件看起来可能没有变化，但当前位置已经换了。<#0.35#>\n切换不是复制目录，而是改变当前引用，并把工作区调整到那个位置。"
+        "voiceStart": 86.35,
+        "text": "上一集已经看到 switch 的完整过程，这里只核对 HEAD 的证据。<#0.3#>\n切换前，HEAD 文件保存 refs/heads/main；切换后，它改为 refs/heads/feature。<#0.4#>\nmain 和 feature 此刻都停在 C2，所以 commit 图没有变化。<#0.35#>\n变化的是当前入口：HEAD 开始跟随 feature。<#0.35#>\nGit 同时让 Index 和 Working Tree 对齐 feature 指向的快照。"
       }
     },
     {
       "id": "commit-current",
       "title": "当前分支前进",
-      "start": 120,
-      "duration": 44,
-      "primaryTechnique": "GitGraph branchMotion",
+      "start": 112,
+      "duration": 34,
+      "primaryTechnique": "Branch ref evidence",
       "components": [
         "CommandPill",
         "GitGraph",
         "RefInspectorCard",
-        "SideLabel"
+        "SceneCaption"
       ],
-      "goal": "展示 commit 推进 HEAD 所在的 branch。",
+      "goal": "承接 EP04 的提交结果，说明 commit 精确更新的是当前 branch ref。",
+      "captions": [
+        {"from": 0.8, "to": 7.2, "text": "提交前：HEAD → feature → C2"},
+        {"from": 7.5, "to": 12.2, "text": "先创建以 C2 为 parent 的 C3"},
+        {"from": 12.6, "to": 19.4, "text": "feature ref：C2 → C3"},
+        {"from": 19.8, "to": 25.0, "text": "HEAD 文件不变，仍然指向 feature"},
+        {"from": 25.4, "to": 32.2, "text": "因此解析后的 HEAD 也变成 C3"}
+      ],
       "beats": [
         {
           "time": [
-            120,
-            142
+            112,
+            127
           ],
-          "visual": "C3 生成",
-          "motion": "新 commit 出现",
+          "visual": "feature 仍在 C2，随后 C3 生成",
+          "motion": "先保留旧 ref，再让新 commit 出现",
           "state": "committed",
           "narration": "新的 C3 出现。",
           "audit": [
@@ -287,11 +323,11 @@
         },
         {
           "time": [
-            142,
-            162
+            127,
+            144
           ],
-          "visual": "feature 前进，main 不动",
-          "motion": "feature branchMotion",
+          "visual": "feature 前进，main 不动，最后显示 feature ref 更新为 C3",
+          "motion": "feature branchMotion 后再揭示 ref 结果",
           "state": "committed",
           "narration": "因为 HEAD 在 feature 上，feature 前进。",
           "audit": [
@@ -304,15 +340,15 @@
       ],
       "narration": {
         "segmentId": "05_commit_current",
-        "voiceStart": 120.35,
-        "text": "接着在 feature 上创建一次提交。<#0.35#>\nGit 先用当前 Index 写出新的快照，再创建 C3，并把 C2 记录为它的 parent。<#0.35#>\n然后 Git 沿着 HEAD 找到当前分支 feature，把 feature 从 C2 更新到 C3。<#0.35#>\nmain 没有参与这次更新，所以它仍然停在 C2。<#0.35#>\nHEAD 文件本身也不需要改，它仍然写着 refs/heads/feature。<#0.35#>\n变化的是 feature 保存的对象 ID。<#0.25#>\n因此，说 HEAD 随提交前进是一种视觉简写；更精确的因果是：提交推进当前 branch，而 HEAD 继续跟着这个 branch。"
+        "voiceStart": 112.35,
+        "text": "提交前，HEAD 文件仍然保存 refs/heads/feature，feature 保存的是 C2。<#0.4#>\n执行 commit 后，Git 先创建以 C2 为 parent 的 C3。<#0.4#>\n然后沿着 HEAD 找到当前分支 feature，把 feature 保存的对象 ID 从 C2 更新为 C3。<#0.4#>\n注意，Git 目录中的 HEAD 文件没有变化，main 也仍然停在 C2。<#0.4#>\n变化的是 feature ref。正因为 HEAD 一直跟随 feature，所以解析后的 HEAD 也从 C2 变成了 C3。"
       }
     },
     {
       "id": "detached",
       "title": "分离 HEAD",
-      "start": 164,
-      "duration": 48,
+      "start": 146,
+      "duration": 32,
       "primaryTechnique": "GitGraph detached state",
       "components": [
         "CommandPill",
@@ -320,15 +356,23 @@
         "RefInspectorCard",
         "SceneCaption"
       ],
-      "goal": "展示 HEAD 直接指向 commit 的边界状态。",
+      "goal": "解释 detached HEAD 的实际用途，并区分临时查看与继续开发两种后续动作。",
+      "captions": [
+        {"from": 0.5, "to": 1.9, "text": "detached HEAD 有什么用？"},
+        {"from": 2.2, "to": 6.8, "text": "查看 C1，但不移动 main 或 feature"},
+        {"from": 7.1, "to": 13.8, "text": "HEAD 直接保存 C1 的 commit ID"},
+        {"from": 14.6, "to": 17.0, "text": "现有 branch 保持不动"},
+        {"from": 20.3, "to": 22.3, "text": "只查看，完成后切回原 branch"},
+        {"from": 22.6, "to": 29.8, "text": "继续修改，先创建一个新 branch"}
+      ],
       "beats": [
         {
           "time": [
-            164,
-            188
+            146,
+            166
           ],
           "visual": "HEAD 直接指向 C1",
-          "motion": "HEAD 离开 branch 指向 commit",
+          "motion": "HEAD 在旁白说明直接对象 ID 时完成离开 branch 并落到 commit",
           "state": "detached",
           "narration": "特殊情况下 HEAD 可以直接指向 commit。",
           "audit": [
@@ -340,73 +384,96 @@
         },
         {
           "time": [
-            188,
-            210
+            166,
+            176
           ],
-          "visual": ".git/HEAD 显示 hash 与边界说明",
-          "motion": "文件卡更新，warning panel 进入",
+          "visual": ".git/HEAD 显示直接对象 ID，随后切换为用途与后续动作面板",
+          "motion": "文件证据退出后，依次揭示临时用途和两种后续选择",
           "state": "detached",
-          "narration": "这叫 detached HEAD。",
+          "narration": "只查看就切回原分支，决定继续修改就先创建新分支。",
           "audit": [
             "不展开救援流程",
-            "直接对象 ID 使用无行号紧凑卡，路径粗斜体"
+            "直接对象 ID 使用无行号紧凑卡，路径粗斜体",
+            "用途面板不遮挡 Git 图和底部字幕",
+            "创建分支命令只在继续修改的选择中出现"
           ]
         }
       ],
       "narration": {
         "segmentId": "06_detached",
-        "voiceStart": 164.35,
-        "text": "HEAD 还有一个边界状态：detached HEAD。<#0.35#>\n执行 git switch --detach C1 后，HEAD 不再保存分支名，而是直接保存 C1 的对象 ID。<#0.35#>\nmain 和 feature 都没有移动，你只是临时站到了历史中的一个 commit 上。<#0.35#>\n这里仍然可以创建提交，但不会自动推进任何 branch。<#0.35#>\n提交对象会写入仓库，短期内通常还能从 reflog 找到；真正缺少的是一个长期跟随它的分支引用。<#0.35#>\n如果切走前没有创建分支保存位置，新提交会变得难以发现。<#0.35#>\n所以 detached HEAD 适合检查历史和临时实验；决定继续工作时，先创建一个有名字的分支。"
+        "voiceStart": 146.35,
+        "text": "再看 detached HEAD 的实际用途。<#0.3#>\n假设你想检查 C1 的代码、运行测试，但不想移动 main 或 feature。<#0.4#>\n执行 git switch --detach C1，HEAD 会直接保存 C1 的 commit ID，两个 branch 都保持不动。<#0.4#>\n这样可以在不移动现有 branch 的情况下查看旧版本，或者验证一个临时想法。<#0.4#>\n如果只是检查，完成后切回原来的 branch。<#0.35#>\n如果决定继续修改，先执行 git switch -c fix-from-C1 创建分支，让后续提交有一个名字持续跟随。"
       }
     },
     {
       "id": "takeaway",
       "title": "总结",
-      "start": 212,
-      "duration": 28,
+      "start": 178,
+      "duration": 20,
       "primaryTechnique": "Minimal graph summary",
       "components": [
         "CenterGraph",
         "GitGraph",
         "SceneCaption"
       ],
-      "goal": "收束 HEAD 的三条规则。",
+      "goal": "只比较 normal 与 detached 两种 HEAD 形态。",
+      "captions": [
+        {"from": 4.0, "to": 7.7, "text": "正常：HEAD → branch → commit"},
+        {"from": 8.4, "to": 11.8, "text": "detached：HEAD 直接保存 commit ID"},
+        {"from": 12.7, "to": 17.0, "text": "判断当前位置，先问 HEAD 跟着谁"}
+      ],
       "beats": [
         {
           "time": [
-            212,
-            238
+            186,
+            205
           ],
           "visual": "单行标题、居中放大的 Git 图与一条动态规则",
-          "motion": "参考 EP04 takeaway，Git 图依次复现 base、switch、commit 状态",
+          "motion": "只从 normal 切到 detached，不复现 switch 与 commit",
           "state": "summary",
-          "narration": "switch 改 HEAD，commit 推进当前 branch。",
+          "narration": "正常状态跟随 branch，detached 状态直指 commit。",
           "audit": [
             "标题保持单行居中",
             "Git 图与动态规则居中放大",
+            "不重复 EP04 的 switch 与 commit 总结",
+            "detached 旁白开始后 HEAD 才离开 branch，并在该句结束前落到 commit",
+            "最终问题与第四个独立音频节拍同时出现",
             "结束画面稳定"
           ]
         }
       ],
       "narration": {
         "segmentId": "07_takeaway",
-        "voiceStart": 212.25,
-        "text": "最后把模型压缩成三步。<#0.25#>\n正常状态是 HEAD 指向 branch，branch 指向 commit。<#0.35#>\nswitch 改变 HEAD 跟随哪个 branch，并更新工作区。<#0.35#>\ncommit 创建新节点，再推进当前 branch。<#0.35#>\n只有 detached HEAD 时，HEAD 才直接保存 commit ID。<#0.35#>\n看到命令结果时，先问 HEAD 当前跟着谁。"
+        "voiceStart": 178.25,
+        "text": "最后的模型是 HEAD 代表 Git 当前操作的入口。<#0.45#>\n正常状态下 HEAD 跟随 branch 再找到 commit。<#0.55#>\ndetached HEAD 绕过 branch 直接保存 commit ID。<#0.75#>\n判断当前位置时先问 HEAD 当前跟着谁？"
       }
     }
   ],
   "content": {
-    "overviewMarkdown": "# EP05：HEAD 是什么\n\n## 核心句\n\nHEAD 不是一个神秘版本号。通常情况下，HEAD 是一个符号引用，指向你当前所在的本地分支；当前分支再指向某个 commit。\n\n## 观众要带走的理解\n\n- HEAD 表示“我现在站在哪里”。\n- 大多数时候 HEAD 指向 branch，不直接指向 commit。\n- `git switch` 改变 HEAD 指向哪个 branch。\n- `git commit` 会让 HEAD 所在的 branch 前进。\n- detached HEAD 是 HEAD 直接指向 commit 的特殊状态。\n\n## 镜头结构\n\n1. 用居中问题结构抛出 `HEAD → main → C2`。\n2. 用 `.git/HEAD` 文件建立“符号引用”模型。\n3. 用 `git switch feature` 展示 HEAD 改指向。\n4. 用一次 commit 展示“当前分支前进”。\n5. 用 detached HEAD 做边界说明，不展开救援流程。\n6. 用极简总结收束：HEAD 是当前位置，不是另一个 branch。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep05-head/`](ep05-head/README.md)。\n",
-    "scriptMarkdown": "# EP05 当前脚本（240s）\n\n本集从 `.git/HEAD` 的真实内容开始，依次解释 symbolic ref、真实命令证据、切换分支、提交推进当前分支，以及 detached HEAD 的边界状态。画面严格按命令证据 → ref 状态变化 → 心智模型推进；reflog 只作为短期可发现性的补充，不展开恢复流程。逐 scene 旁白、segmentId 与进入时间以 `scenes[].narration` 为准；实测音频窗口见 `content.alignmentMarkdown`。\n",
-    "beatsMarkdown": "# EP05 Beats（240s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0-14s | hook | 提问 HEAD 到底指向谁 |\n| 14-46s | symbolic-ref | 建立 HEAD → branch → commit 两级模型 |\n| 46-76s | terminal | 用真实终端核对 branch、symbolic ref 与 commit ID |\n| 76-120s | switch | 切换分支并展示 HEAD 改写 |\n| 120-164s | commit-current | 创建 C3 并只推进 feature |\n| 164-212s | detached | HEAD 直接指向 C1，main 与 feature 保持不动 |\n| 212-240s | takeaway | 收束当前位置、分支前进与 detached 三条规则 |\n",
-    "qualityMarkdown": "# EP05 HEAD 是什么 - 审查记录\n\n## 当前状态\n\n- Remotion 240 秒主视频、真实终端素材、TTS 与自动抽帧流程均已实现。\n- 上一版 candidate 的机器审计通过，当前修改需要重新构建 dirty scene。\n- 尚待人工视觉审查、approve / promote 与 release 流程。\n\n## 重点审查项\n\n- HEAD 必须清楚指向 branch，branch 再指向 commit；不要画成 HEAD、main 两个并列 branch。\n- `git switch` 片段只突出 HEAD 改指向，不让 commit 图发生额外变化。\n- detached HEAD 画面必须同时保留 main → C2 与 feature → C3，并让 HEAD 单独移动到 C1。\n- 字幕不能重复 `.git/HEAD` 文件内容，只补充因果。\n",
-    "readmeMarkdown": "# EP05 HEAD 是什么 - 制作目录\n\n这个目录保存 EP05 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nHEAD 表示当前位置。\n通常它指向当前 branch，而 branch 再指向 commit。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:77`\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:79`\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:111`\n- `docs/references/progit2-zh/book/10-git-internals/sections/refs.asc:73`\n- `docs/references/progit2-zh/book/10-git-internals/sections/refs.asc:78`\n- `docs/references/progit2-zh/book/10-git-internals/sections/refs.asc:101`\n\n原则：EP05 只解释 HEAD 的位置模型。不要提前展开 reflog、reset 细节或远程跟踪分支；detached HEAD 只作为边界出现。\n",
+    "overviewMarkdown": "# EP05：HEAD 是什么\n\n## 核心句\n\nHEAD 不是一个神秘版本号。通常情况下，HEAD 是一个符号引用，指向你当前所在的本地分支；当前分支再指向某个 commit。\n\n## 观众要带走的理解\n\n- HEAD 表示“我现在站在哪里”。\n- 大多数时候 HEAD 指向 branch，不直接指向 commit。\n- branch ref 保存 commit ID，HEAD 文件通常保存 branch ref。\n- detached HEAD 可以临时检查旧提交而不移动现有 branch；继续修改前应创建新分支。\n\n## 镜头结构\n\n1. 用居中问题结构抛出 `HEAD → main → C2`。\n2. 用 `.git/HEAD` 文件建立“符号引用”模型。\n3. 用真实命令核对 branch、symbolic ref 与 commit ID。\n4. 快速承接 EP04 的 switch 与 commit，只展示 HEAD 文件和 branch ref 的精确证据。\n5. 用 detached HEAD 说明查看旧版本的用途，以及只查看与继续修改的不同后续动作。\n6. 用 normal 与 detached 的对比收束。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep05-head/`](ep05-head/README.md)。\n",
+    "scriptMarkdown": "# EP05 当前脚本（198s）\n\n本集把 HEAD 解释为 Git 的当前入口，并严格区分 `.git/HEAD` 保存的内容与解析 HEAD 得到的 commit。EP04 已完整演示 switch 和 commit 的状态变化，本集只用 HEAD 文件与 branch ref 核对精确因果；detached HEAD 补充查看旧版本、运行测试和临时验证的用途，并区分切回原分支与创建新分支，不展开 reflog 或恢复流程。逐 scene 旁白、语义字幕、segmentId 与进入时间以 episode JSON 为准；实测音频窗口见 `content.alignmentMarkdown`。\n",
+    "beatsMarkdown": "# EP05 Beats（198s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0-16s | hook | 把 HEAD 建立为 Git 的当前入口 |\n| 16-56s | symbolic-ref | 区分文件保存内容与最终解析结果 |\n| 56-86s | terminal | 用真实终端核对 branch、symbolic ref 与 commit ID |\n| 86-112s | switch | 核对 `.git/HEAD` 从 main ref 改为 feature ref |\n| 112-146s | commit-current | 分步解释 C3 创建、feature ref 前进与 HEAD 解析结果变化 |\n| 146-178s | detached | 进入 C1 查看旧版本，并区分切回与创建分支 |\n| 178-198s | takeaway | 比较 normal 与 detached 两种 HEAD 入口 |\n",
+    "qualityMarkdown": "# EP05 HEAD 是什么 - 审查记录\n\n## 当前状态\n\n- 主视频调整为 198 秒，统一使用 1.25 倍旁白。\n- detached 旁白实测 29.858 秒，场景由 40 秒收紧为 32 秒，末尾只保留约 1.8 秒收束。\n- switch 与 commit 只保留 HEAD 文件、branch ref 和状态对齐的精确证据。\n- detached 增加用途与动作面板，解释查看旧版本、运行测试、临时验证，以及切回原分支或创建新分支。\n- takeaway 旁白已拆成四个独立 SRT 节拍，normal、detached、最终问题分别驱动画面与字幕。\n- 新版主片与 4K release 均完成连续采样、边界、关键帧和人工审查，verdict 为 pass。\n\n## 重点审查项\n\n- HEAD 必须清楚指向 branch，branch 再指向 commit；不要画成 HEAD、main 两个并列 branch。\n- 字幕只补充当前因果，不逐字复刻旁白，也不与文件卡内容同时争夺注意力。\n- `git switch` 先显示 HEAD → main，再更新为 HEAD → feature；两个 branch 同在 C2 时 commit 图保持不变。\n- `git commit` 依次展示 C3 创建、feature ref 从 C2 更新到 C3、HEAD 文件保持不变和解析结果变为 C3。\n- detached HEAD 画面同时保留 main → C2 与 feature → C3，HEAD 落到 C1 后才揭示用途和后续动作。\n- takeaway 只比较 normal 与 detached，不重复 EP04 的 switch / commit 总结。\n",
+    "readmeMarkdown": "# EP05 HEAD 是什么 - 制作目录\n\n这个目录保存 EP05 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nHEAD 表示当前位置。\n通常它指向当前 branch，而 branch 再指向 commit。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:77`\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:79`\n- `docs/references/progit2-zh/book/03-git-branching/sections/nutshell.asc:111`\n- `docs/references/progit2-zh/book/10-git-internals/sections/refs.asc:73`\n- `docs/references/progit2-zh/book/10-git-internals/sections/refs.asc:78`\n- `docs/references/progit2-zh/book/10-git-internals/sections/refs.asc:101`\n\n原则：EP05 只解释 HEAD 的位置模型。不要提前展开 reflog、reset 细节或远程跟踪分支；detached HEAD 只补充临时用途与创建分支的下一步。\n",
     "voiceoverDesignMarkdown": null,
-    "alignmentMarkdown": "# EP05 Audio Alignment\n\nEpisode: `ep05-head`\n\nTTS: `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`; normalized near `-20 LUFS`, peak near `-3 dBFS`; BGM `0.05`, no sidechain.\n\n| Segment | Start | Duration | End | Scene end |\n|---|---:|---:|---:|---:|\n| `01_hook` | 0.35s | 10.867s | 11.217s | 14.00s |\n| `02_symbolic_ref` | 14.35s | 29.727s | 44.077s | 46.00s |\n| `03_terminal` | 46.35s | 24.189s | 70.539s | 76.00s |\n| `04_switch` | 76.35s | 35.448s | 111.798s | 120.00s |\n| `05_commit_current` | 120.35s | 34.220s | 154.570s | 164.00s |\n| `06_detached` | 164.35s | 36.206s | 200.556s | 212.00s |\n| `07_takeaway` | 212.25s | 21.629s | 233.879s | 240.00s |\n\nTotal normalized narration is 192.287 seconds in a 240-second main episode: 80.12%. Every narration window fits its scene. SRT text is canonicalized from episode JSON while TTS cue timestamps are preserved; UTF-8, pause markers, punctuation, cue distribution and suspiciously short audio are validated.\n"
+    "alignmentMarkdown": "# EP05 Audio Alignment\n\nEpisode: `ep05-head`\n\nTTS: `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`; normalized near `-20 LUFS`, peak near `-3 dBFS`; BGM `0.05`, no sidechain.\n\n| Segment | Start | Duration | End | Scene end |\n|---|---:|---:|---:|---:|\n| `01_hook` | 0.35s | 15.099s | 15.449s | 16.00s |\n| `02_symbolic_ref` | 16.35s | 38.426s | 54.776s | 56.00s |\n| `03_terminal` | 56.35s | 25.287s | 81.637s | 86.00s |\n| `04_switch` | 86.35s | 25.078s | 111.428s | 112.00s |\n| `05_commit_current` | 112.35s | 31.843s | 144.193s | 146.00s |\n| `06_detached` | 146.35s | 29.858s | 176.208s | 178.00s |\n| `07_takeaway` | 178.25s | 15.073s | 193.323s | 198.00s |\n\nTotal normalized narration is 180.663 seconds in a 198-second main episode: 91.24%. Every narration window fits its scene. Visual subtitles use semantic cues from episode JSON rather than raw SRT; SRT preserves TTS timings and is canonicalized separately.\n"
   },
   "release": {
-    "bilibiliMarkdown": "# EP05 B 站发布物料\n\n## 标题\n\nGit HEAD 到底指向谁？一张图看懂 symbolic ref\n\n## 简介\n\nHEAD 不是当前提交的另一个名字。通常它保存当前分支的 ref，分支再指向 commit；进入 detached HEAD 后，它才会直接指向某个 commit。\n\n这一集用真实终端命令和 refs 变化讲清 symbolic ref、切换分支、当前分支如何随 commit 前进，以及 detached HEAD 的边界。\n\n## 你会学到\n\n- HEAD、branch ref 与 commit 的两级关系\n- `git switch` 实际改变了什么\n- `git commit` 为什么推进当前 branch\n- detached HEAD 为什么不是仓库损坏\n\n## 时间轴\n\n00:00 看得见的 Git\n00:07 HEAD 到底指向谁\n00:21 symbolic ref 的两级指向\n00:53 用真实命令核对引用链\n01:23 切换分支改变 HEAD\n02:07 提交推进当前分支\n02:51 detached HEAD 的边界\n03:39 收束：HEAD 表示当前位置\n04:07 片尾\n\n## 官方参考\n\n- [git-symbolic-ref 官方手册](https://git-scm.com/docs/git-symbolic-ref)\n- [git-switch 官方手册](https://git-scm.com/docs/git-switch)\n- [git-reflog 官方手册](https://git-scm.com/docs/git-reflog)\n\n## 标签\n\n```text\nGit\nGit教程\nHEAD\n版本控制\n程序员\n开发工具\n```\n\n## 置顶评论\n\n下一集会从 HEAD 与 branch 的关系继续进入 merge：什么时候只是快进，什么时候必须产生 merge commit。\n",
+    "bilibiliMarkdown": "# EP05 B 站发布物料\n\n## 标题\n\nGit HEAD 到底指向谁？别再把它当成当前提交\n\n## 封面文字\n\n主标题：\n\n```text\nHEAD 到底指向谁\n```\n\n副标题：\n\n```text\n当前入口，不是 commit 别名\n```\n\n1. 简介\n\n很多人把 HEAD 理解成仓库里最新的提交，或者另一个隐藏分支。但 HEAD 真正记录的是 Git 当前从哪里开始操作。\n\n这一集从 `.git/HEAD` 的真实内容出发，区分 HEAD 文件保存的 branch ref 与最终解析得到的 commit。然后用真实命令核对 symbolic ref，说明 switch 改写 HEAD、commit 推进当前 branch 的精确因果。\n\n最后会进入 detached HEAD：它可以让你临时查看旧提交、运行测试或验证想法，同时不移动现有 branch。如果决定继续修改，应先创建一个新分支，让后续提交有名字持续跟随。\n\n2. 你会学到\n\n- `.git/HEAD` 文件通常保存什么\n- HEAD、branch ref 与 commit 的两级关系\n- `git symbolic-ref`、`cat .git/HEAD` 与 `git rev-parse HEAD` 分别观察哪一层\n- `git switch` 为什么会改变 HEAD\n- `git commit` 为什么推进当前 branch，而 HEAD 文件保持不变\n- detached HEAD 适合做什么，以及何时应创建新分支\n\n3. 时间轴\n\n00:00 看得见的 Git\n00:07 HEAD 到底指向谁\n00:23 HEAD 文件保存什么\n01:03 三条命令核对引用链\n01:33 switch 改写 HEAD\n01:59 commit 推进当前 branch\n02:33 detached HEAD 有什么用\n03:05 normal 与 detached\n03:25 片尾\n\n4. 适合谁\n\n- 会用 Git，但说不清 HEAD、branch 与 commit 关系的人\n- 看到 detached HEAD 提示就紧张，不知道它有什么用途的人\n- 想继续学习 merge、rebase，却缺少引用模型的人\n\n## 官方参考\n\n- [git-symbolic-ref 官方手册](https://git-scm.com/docs/git-symbolic-ref)\n- [git-switch 官方手册](https://git-scm.com/docs/git-switch)\n- [Pro Git：Git References](https://git-scm.com/book/en/v2/Git-Internals-Git-References)\n\n## 标签\n\n```text\nGit\nGit教程\nHEAD\n版本控制\n编程基础\n计算机基础\n程序员\n开发工具\n源码管理\n```\n\n## 动态文案\n\n上一集把 branch 还原成一个可移动的 ref，这一集继续回答：Git 怎样知道当前站在哪条历史上？\n\n把 HEAD、branch ref 和 commit 的关系理清，switch、commit 与 detached HEAD 就不再是零散命令。\n\n## 置顶评论\n\n这一集讲 HEAD 的位置模型：正常情况下 HEAD 跟随 branch，detached HEAD 才直接保存 commit ID。临时查看旧版本可以 detach；决定继续修改时，先创建一个新分支。下一集会在这套引用模型上继续进入 merge。\n\n",
     "coverBriefMarkdown": "# EP05 封面 Brief\n\n## 核心判断\n\n```text\nHEAD 不是 commit 的别名\n它记录你当前站在哪里\n```\n\n## 主视觉\n\n居中展示 `HEAD → refs/heads/main → C2` 两级指向；右侧用一个克制的小对照展示 detached HEAD 直接指向 C2。移动端只保留 HEAD、两根箭头和一个 commit，不堆终端小字。\n\n## 推荐标题\n\n```text\nHEAD 到底指向谁\n```\n",
-    "checklistMarkdown": "# EP05 发布检查清单\n\n- [ ] candidate 人工视觉审查通过并完成 approve / promote\n- [ ] release-build 与 release-audit verdict 均为 pass\n- [ ] 最终 4K 30fps 文件、时长与 SHA 由 release 流程自动回写\n- [ ] symbolic ref 与 detached HEAD 的箭头语义无歧义\n- [ ] 真实终端录制清晰，命令与画面状态同步\n- [ ] B 站时间轴按最终 release 实测边界复核\n"
+    "checklistMarkdown": "# EP05 发布检查清单\n\n## 已完成验证\n\n- [x] 上传源为 `current/release/ep05-head.mp4`\n- [x] 视频为 3840×2160、30fps、H.264\n- [x] 音频为 AAC、48kHz\n- [x] 总时长为 211.021 秒\n- [x] 包含 7 秒片头和 6 秒片尾\n- [x] 主片 audit verdict 为 `pass`\n- [x] release audit verdict 为 `pass`\n- [x] 连续 2fps、场景边界和关键帧审查完成\n- [x] takeaway 音频、动画与字幕按四个独立节拍对齐\n- [x] TTS 音色与速度全片一致\n- [x] BGM 使用课程固定音量，不做 sidechain ducking\n- [x] B 站时间轴已按最终 release 的真实时间更新\n\n## 上传前确认\n\n- [ ] 确认采用标题：`Git HEAD 到底指向谁？别再把它当成当前提交`\n- [ ] 确认封面使用 `current/release/cover.png`\n- [ ] 在移动端预览封面标题与裁切\n- [ ] 复制 `bilibili.md` 中的简介、标签和时间轴\n- [ ] 确认上传文件 SHA-256 为 `03727471c20bcc8dcea75c1a7b8a58578e0299ff80b1c5355a7e91223dabe313`\n- [ ] 加入“看得见的 Git”合集并放在 EP04 之后\n\n## 发布后检查\n\n- [ ] 网页端检查 00:00、00:07、03:25 三个包装边界\n- [ ] 移动端检查字幕大小和封面裁切\n- [ ] 检查时间轴能否正确跳转\n- [ ] 检查人声响度与背景音乐比例\n- [ ] 发布置顶评论\n",
+    "artifact": {
+      "path": "remotion/renders/git-course/ep05-head/current/release/ep05-head.mp4",
+      "sha256": "03727471c20bcc8dcea75c1a7b8a58578e0299ff80b1c5355a7e91223dabe313",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "durationSeconds": 211.021029,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "audioSampleRate": 48000,
+      "releaseVerdict": "pass",
+      "releaseAuditCreatedAt": "2026-07-19T07:30:17.600Z"
+    }
   }
 }

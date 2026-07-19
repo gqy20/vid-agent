@@ -1164,7 +1164,10 @@ const canonicalNarrationCues = (value) => value
 
 const distributeCanonicalText = (sourceCues, targetCount) => {
   targetCount > 0 || fail('SRT has no timed text cues');
-  let units = sourceCues.flatMap((cue) => cue.match(/[^，、：？！!?.,]+[，、：？！!?.,]?/gu) ?? [cue]).filter(Boolean);
+  let units = sourceCues.flatMap((cue, index) => {
+    const withBoundary = index < sourceCues.length - 1 && !/[，、：？！!?.,]$/u.test(cue) ? `${cue}，` : cue;
+    return withBoundary.match(/[^，、：？！!?.,]+[，、：？！!?.,]?/gu) ?? [withBoundary];
+  }).filter(Boolean);
   while (units.length < targetCount) {
     const index = units.reduce((best, unit, current) => unit.length > units[best].length ? current : best, 0);
     const unit = units[index];

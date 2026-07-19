@@ -1,6 +1,5 @@
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
 import {EP05} from '../data/episodes';
-import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds} from '../timeline';
 import {
   CenterGraph,
@@ -8,8 +7,9 @@ import {
   CourseLayout,
   EpisodeTitleCard,
   GitGraph,
+  GitStatePanel,
+  NarrationSubtitle,
   RefInspectorCard,
-  SceneCaption,
   SceneSequence,
   RecordedTerminalPanel,
   type GitGraphState,
@@ -34,6 +34,12 @@ const getEp05SceneDuration = (id: Ep05SceneId) => {
   const scene = EP05_SCENES.find((item) => item.id === id);
   if (!scene) throw new Error(`Unknown EP05 scene: ${id}`);
   return scene.duration;
+};
+
+const getEp05Captions = (id: Ep05SceneId) => {
+  const scene = EP05_SCENES.find((item) => item.id === id);
+  if (!scene) throw new Error(`Unknown EP05 scene: ${id}`);
+  return scene.captions;
 };
 
 type Ep05GitState = {
@@ -122,9 +128,8 @@ const TimedSideLabel: React.FC<{
 const HookScene: React.FC = () => {
   const frame = useSceneFrame();
   const titleIn = interpolate(frame, [0, seconds(0.55)], [0, 1], {extrapolateRight: 'clamp'});
-  const titleOut = interpolate(frame, [seconds(1.7), seconds(2.15)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const graphIn = interpolate(frame, [seconds(2.15), seconds(2.75)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(8.4), seconds(9.05)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const titleOut = interpolate(frame, [seconds(4.1), seconds(4.75)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(4.45), seconds(5.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill style={{padding: '118px 154px 112px', boxSizing: 'border-box'}}>
@@ -142,9 +147,7 @@ const HookScene: React.FC = () => {
       <div style={{opacity: graphIn, transform: `translateY(${(1 - graphIn) * 22}px)`}}>
         <CenterGraph state={SYMBOLIC_REF_GRAPH} top={250} width={1160} headMarkerOffsetX={118} branchOffset={84} />
       </div>
-      <SceneCaption opacity={captionIn} width={930} fontSize={35} bottom={126} auditId="ep05-hook-caption">
-        HEAD 回答的是：我现在站在哪里？
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('hook')} auditId="ep05-hook-caption" />
     </AbsoluteFill>
   );
 };
@@ -152,11 +155,10 @@ const HookScene: React.FC = () => {
 const SymbolicRefScene: React.FC = () => {
   const frame = useSceneFrame();
   const cardIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
-  const headStateOut = interpolate(frame, [seconds(3.8), seconds(4.35)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const refStateIn = interpolate(frame, [seconds(4.45), seconds(5.05)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const traceLift = interpolate(frame, [seconds(6.2), seconds(7.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const graphIn = interpolate(frame, [seconds(7), seconds(8.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(18.2), seconds(19)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const headStateOut = interpolate(frame, [seconds(19), seconds(19.35)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const refStateIn = interpolate(frame, [seconds(19.45), seconds(19.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const traceLift = interpolate(frame, [seconds(21.5), seconds(23.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(23), seconds(25.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const cardTop = interpolate(traceLift, [0, 1], [376, 116]);
 
   return (
@@ -190,52 +192,61 @@ const SymbolicRefScene: React.FC = () => {
       <div style={{opacity: graphIn, transform: `translateY(${(1 - graphIn) * 24}px)`}}>
         <CenterGraph state={SYMBOLIC_REF_GRAPH} top={390} width={1080} headMarkerOffsetX={118} branchOffset={84} />
       </div>
-      <SceneCaption opacity={captionIn} width={1020} bottom={120} auditId="ep05-symbolic-caption">
-        通常是 HEAD 指向 branch，branch 再指向 commit
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('symbolic-ref')} auditId="ep05-symbolic-caption" />
     </AbsoluteFill>
   );
 };
 
 const TerminalScene: React.FC = () => {
-  const recording = TERMINAL_RECORDINGS['ep05-head-flow'];
+  const frame = useSceneFrame();
   return (
     <AbsoluteFill>
       <div data-audit-id="ep05-head-terminal-recording" style={{position: 'absolute', left: 290, top: 176, width: 1340, height: 660}}>
         <RecordedTerminalPanel
           src="git-course-lab/terminal/ep05-head-flow.mp4"
           holdFrameSrc="git-course-lab/terminal/ep05-head-flow-hold.png"
-          holdFromFrame={recording.holdFromFrame}
+          holdFromFrame={170}
           playbackRate={0.55}
           mediaFit="cover"
         />
       </div>
-      <SceneCaption opacity={1} width={980} fontSize={32} bottom={104} auditId="ep05-terminal-caption">
-        分支名、符号引用、commit ID：同一个位置的三个层级
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('terminal')} width={1180} auditId="ep05-terminal-caption" />
     </AbsoluteFill>
   );
 };
 
 const SwitchScene: React.FC = () => {
   const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(7), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const fileProgress = interpolate(frame, [seconds(20), seconds(29)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const state = frame < seconds(13.15) ? STATES.base : STATES.switched;
+  const mainRefOut = interpolate(frame, [seconds(12.7), seconds(13.05)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const featureRefIn = interpolate(frame, [seconds(13.15), seconds(13.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const fileOut = interpolate(frame, [seconds(21.2), seconds(22)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const workspaceIn = interpolate(frame, [seconds(21.6), seconds(22.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const workspaceOut = interpolate(frame, [seconds(24.8), seconds(25.4)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
       <CommandPill command="git switch feature" branch="main" />
       <CenterGraph
-        state={graphState(STATES.switched)}
+        state={graphState(state)}
         top={338}
         width={1110}
-        headMotion={{from: 'main', to: 'feature', progress}}
         headMarkerOffsetX={118}
       />
-      <TimedSideLabel x={1320} y={382} tone="head" frame={frame} start={7}>
-        HEAD 从 main 到 feature
-      </TimedSideLabel>
-      <div style={{position: 'absolute', left: 560, top: 730, width: 800, opacity: fileProgress}}>
+      <div style={{position: 'absolute', left: 560, top: 730, width: 800, opacity: mainRefOut * fileOut}}>
+        <RefInspectorCard
+          pathLabel="HEAD FILE"
+          path=".git/HEAD"
+          pathAccent="HEAD"
+          valueLabel="CONTENTS"
+          valuePrefix="ref: refs/heads/"
+          value="main"
+          tone={COLOR.git.main}
+          pathColumnWidth={230}
+          auditId="ep05-switch-head-file-before"
+        />
+      </div>
+      <div style={{position: 'absolute', left: 560, top: 730, width: 800, opacity: featureRefIn * fileOut}}>
         <RefInspectorCard
           pathLabel="HEAD FILE"
           path=".git/HEAD"
@@ -248,30 +259,56 @@ const SwitchScene: React.FC = () => {
           auditId="ep05-switch-head-file"
         />
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(34), seconds(35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={118}>
-        commit 没变，当前所在分支变了
-      </SceneCaption>
+      <div style={{position: 'absolute', left: 610, top: 718, width: 700, opacity: workspaceIn * workspaceOut}}>
+        <GitStatePanel
+          compact
+          areas={[
+            {id: 'working-tree', title: 'Working Tree', files: ['匹配 feature @ C2'], active: true},
+            {id: 'index', title: 'Index', files: ['匹配 feature @ C2'], active: true},
+          ]}
+        />
+      </div>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('switch')} auditId="ep05-switch-caption" />
     </AbsoluteFill>
   );
 };
 
 const CommitCurrentScene: React.FC = () => {
   const frame = useSceneFrame();
-  const commitIn = interpolate(frame, [seconds(8), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const pointer = interpolate(frame, [seconds(19), seconds(31)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const state = commitIn < 0.55 ? STATES.switched : STATES.committed;
+  const commitIn = interpolate(frame, [seconds(7.2), seconds(10.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const pointer = interpolate(frame, [seconds(12.6), seconds(17)], [0, 1], {
+    easing: Easing.bezier(0.45, 0, 0.55, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const initialRefOut = interpolate(frame, [seconds(15.5), seconds(17.1)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const resultRefIn = interpolate(frame, [seconds(15.8), seconds(17.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
       <CommandPill command={'git commit -m "work"'} branch="feature" />
       <CenterGraph
-        state={graphState(state)}
+        state={graphState(STATES.committed)}
         top={338}
         width={1160}
-        branchMotion={state.feature === 'C3' ? {name: 'feature', from: 'C2', to: 'C3', progress: pointer} : undefined}
+        commitRevealProgress={commitIn}
+        branchMotion={{name: 'feature', from: 'C2', to: 'C3', progress: pointer}}
         headMarkerOffsetX={118}
       />
-      <div style={{position: 'absolute', left: 560, top: 730, width: 800}}>
+      <div style={{position: 'absolute', left: 560, top: 730, width: 800, opacity: initialRefOut}}>
+        <RefInspectorCard
+          pathLabel="BRANCH REF"
+          path=".git/refs/heads/feature"
+          pathAccent="feature"
+          valueLabel="OBJECT ID"
+          value="C2"
+          tone={COLOR.git.feature}
+          pathColumnWidth={590}
+          valueFontSize={46}
+          auditId="ep05-commit-feature-ref-before"
+        />
+      </div>
+      <div style={{position: 'absolute', left: 560, top: 730, width: 800, opacity: resultRefIn}}>
         <RefInspectorCard
           pathLabel="BRANCH REF"
           path=".git/refs/heads/feature"
@@ -284,25 +321,35 @@ const CommitCurrentScene: React.FC = () => {
           auditId="ep05-commit-feature-ref"
         />
       </div>
-      <TimedSideLabel x={1335} y={288} tone="feature" frame={frame} start={19}>
-        HEAD 在 feature 上，feature 前进
-      </TimedSideLabel>
-      <SceneCaption opacity={interpolate(frame, [seconds(35), seconds(36)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={116}>
-        HEAD 没有变成 commit；它仍然指向当前分支
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('commit-current')} auditId="ep05-commit-caption" />
     </AbsoluteFill>
   );
 };
 
 const DetachedScene: React.FC = () => {
   const frame = useSceneFrame();
-  const progress = interpolate(frame, [seconds(8), seconds(20)], [0, 1], {
+  const progress = interpolate(frame, [seconds(6), seconds(12.5)], [0, 1], {
     easing: Easing.bezier(0.45, 0, 0.55, 1),
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const fileIn = interpolate(frame, [seconds(21), seconds(31)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const warningIn = interpolate(frame, [seconds(37), seconds(38.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const fileIn = interpolate(frame, [seconds(12.2), seconds(14.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const fileOut = interpolate(frame, [seconds(15.8), seconds(16.2)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const purposeIn = interpolate(frame, [seconds(16.4), seconds(17.1)], [0, 1], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const returnIn = interpolate(frame, [seconds(20.4), seconds(21.2)], [0, 1], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const branchIn = interpolate(frame, [seconds(22.4), seconds(23.2)], [0, 1], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
 
   return (
     <AbsoluteFill>
@@ -314,7 +361,7 @@ const DetachedScene: React.FC = () => {
         detachedHeadMotion={{fromBranch: 'feature', progress}}
         headMarkerOffsetX={118}
       />
-      <div style={{position: 'absolute', left: 630, top: 720, width: 660, opacity: fileIn}}>
+      <div style={{position: 'absolute', left: 630, top: 720, width: 660, opacity: fileIn * fileOut}}>
         <RefInspectorCard
           pathLabel="HEAD FILE"
           path=".git/HEAD"
@@ -328,28 +375,74 @@ const DetachedScene: React.FC = () => {
         />
       </div>
       <div
+        data-audit-id="ep05-detached-use-panel"
         style={{
           position: 'absolute',
-          left: '50%',
-          bottom: 112,
-          width: 980,
-          transform: `translate(-50%, ${(1 - warningIn) * 18}px)`,
-          opacity: warningIn,
-          textAlign: 'center',
-          ...TYPE.subtitle,
-          color: COLOR.text.primary,
+          left: 380,
+          top: 682,
+          width: 1160,
+          height: 204,
+          boxSizing: 'border-box',
+          padding: '24px 30px',
+          borderRadius: 12,
+          background: 'rgba(255,255,255,0.72)',
+          border: `1px solid ${COLOR.stroke.soft}`,
+          boxShadow: `0 10px 30px ${COLOR.effects.shadowSoft}`,
+          opacity: purposeIn,
+          transform: `translateY(${interpolate(purposeIn, [0, 1], [12, 0])}px)`,
         }}
       >
-        detached HEAD：适合查看历史，不适合作为长期工作位置
+        <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
+          <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, letterSpacing: '0.08em'}}>适合临时</div>
+          {['查看旧版本', '运行测试', '验证想法'].map((label) => (
+            <div
+              key={label}
+              style={{
+                padding: '9px 18px',
+                borderRadius: 999,
+                border: `1px solid ${COLOR.stroke.default}`,
+                color: COLOR.text.primary,
+                ...TYPE.ui,
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1.18fr',
+            gap: 28,
+            marginTop: 22,
+            paddingTop: 20,
+            borderTop: `1px solid ${COLOR.stroke.soft}`,
+          }}
+        >
+          <div style={{display: 'flex', alignItems: 'baseline', gap: 16, opacity: returnIn, transform: `translateY(${interpolate(returnIn, [0, 1], [8, 0])}px)`}}>
+            <span style={{...TYPE.ui, color: COLOR.text.secondary}}>只查看</span>
+            <span style={{...TYPE.body, color: COLOR.text.primary, fontWeight: WEIGHT.bold}}>完成后切回原 branch</span>
+          </div>
+          <div style={{display: 'flex', alignItems: 'baseline', gap: 16, opacity: branchIn, transform: `translateY(${interpolate(branchIn, [0, 1], [8, 0])}px)`}}>
+            <span style={{...TYPE.ui, color: COLOR.text.secondary}}>继续修改</span>
+            <span style={{...TYPE.code, color: COLOR.git.feature, fontWeight: WEIGHT.bold}}>git switch -c fix-from-C1</span>
+          </div>
+        </div>
       </div>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('detached')} auditId="ep05-detached-caption" />
     </AbsoluteFill>
   );
 };
 
 const TakeawayScene: React.FC = () => {
   const frame = useSceneFrame();
-  const state = frame < seconds(8.4) ? STATES.base : frame < seconds(16) ? STATES.switched : STATES.committed;
-  const step = frame < seconds(8.4) ? 'HEAD → branch → commit' : frame < seconds(16) ? 'switch：改 HEAD' : 'commit：推进当前 branch';
+  const detachedProgress = interpolate(frame, [seconds(8.35), seconds(11.55)], [0, 1], {
+    easing: Easing.bezier(0.45, 0, 0.55, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const phase = frame < seconds(8.35) ? 'normal' : 'detached';
+  const state = phase === 'normal' ? graphState(STATES.committed) : DETACHED_GRAPH;
   const titleIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
   const graphIn = interpolate(frame, [seconds(0.9), seconds(2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
@@ -359,18 +452,21 @@ const TakeawayScene: React.FC = () => {
         data-audit-id="ep05-takeaway-title"
         style={{position: 'absolute', top: 150, left: 120, right: 120, ...TYPE.hero, fontSize: 76, fontWeight: WEIGHT.bold, textAlign: 'center', whiteSpace: 'nowrap', opacity: titleIn, transform: `translateY(${interpolate(titleIn, [0, 1], [16, 0])}px)`}}
       >
-        HEAD 是当前位置，不是另一个分支
+        HEAD 是当前入口，不是另一个分支
       </div>
       <div
         data-audit-id="ep05-takeaway-main-graph"
         style={{position: 'absolute', left: '50%', top: 304, width: 1420, transform: `translateX(-50%) scale(${interpolate(graphIn, [0, 1], [0.96, 1])})`, transformOrigin: 'center top', opacity: graphIn}}
       >
-        <GitGraph state={graphState(state)} width={1420} height={520} auditId="ep05-takeaway-graph" />
+        <GitGraph
+          state={state}
+          width={1420}
+          height={520}
+          detachedHeadMotion={phase === 'detached' ? {fromBranch: 'feature', progress: detachedProgress} : undefined}
+          auditId="ep05-takeaway-graph"
+        />
       </div>
-      <div style={{position: 'absolute', left: '50%', bottom: 126, transform: 'translateX(-50%)', ...TYPE.subtitle, fontSize: 34, color: COLOR.text.primary, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>
-        <span style={{display: 'inline-block', width: 18, height: 18, marginRight: 16, borderRadius: 999, background: COLOR.git.head}} />
-        {step}
-      </div>
+      <NarrationSubtitle frame={frame} cues={getEp05Captions('takeaway')} auditId="ep05-takeaway-caption" />
     </AbsoluteFill>
   );
 };

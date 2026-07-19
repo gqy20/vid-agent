@@ -7,6 +7,8 @@ export type {DiffLine} from './kit/code/CodeDiff';
 export {FileTree} from './kit/code/FileTree';
 export type {FileTreeNode} from './kit/code/FileTree';
 export {QuestionCaption} from './kit/explain/QuestionCaption';
+export {NarrationSubtitle} from './kit/explain/NarrationSubtitle';
+export type {NarrationCaptionCue} from './kit/explain/NarrationSubtitle';
 export {SceneCaption} from './kit/explain/SceneCaption';
 export {SideLabel} from './kit/explain/SideLabel';
 export {CenterGraph} from './kit/git/CenterGraph';

@@ -17,19 +17,20 @@ const AREA_ACCENT: Record<GitArea['id'], string> = {
 export const GitStatePanel: React.FC<{
   areas: readonly GitArea[];
   prominent?: boolean;
-}> = ({areas, prominent = false}) => {
+  compact?: boolean;
+}> = ({areas, prominent = false, compact = false}) => {
   return (
     <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap: 14, width: '100%'}}>
       {areas.map((area) => (
         <div
           key={area.id}
           style={{
-            minHeight: prominent ? 304 : 260,
+            minHeight: prominent ? 304 : compact ? 154 : 260,
             borderRadius: 8,
             border: `1px solid ${area.active ? AREA_ACCENT[area.id] : COLOR.stroke.soft}`,
             background: area.active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.52)',
             boxShadow: area.active ? `0 18px 54px ${COLOR.effects.shadowSoft}` : undefined,
-            padding: prominent ? '24px 24px 22px' : '20px 20px 18px',
+            padding: prominent ? '24px 24px 22px' : compact ? '16px 18px 14px' : '20px 20px 18px',
             position: 'relative',
             overflow: 'hidden',
           }}
@@ -51,13 +52,13 @@ export const GitStatePanel: React.FC<{
               alignItems: 'baseline',
               justifyContent: 'space-between',
               gap: 18,
-              marginBottom: prominent ? 22 : 18,
+              marginBottom: prominent ? 22 : compact ? 12 : 18,
             }}
           >
             <div
               style={{
                 ...TYPE.ui,
-                fontSize: prominent ? 30 : TYPE.ui.fontSize,
+                fontSize: prominent ? 30 : compact ? 24 : TYPE.ui.fontSize,
                 lineHeight: prominent ? 1.3 : TYPE.ui.lineHeight,
                 color: prominent ? AREA_ACCENT[area.id] : COLOR.text.primary,
                 fontWeight: prominent ? 780 : 760,
@@ -71,7 +72,7 @@ export const GitStatePanel: React.FC<{
               style={{
                 ...TYPE.label,
                 fontFamily: FONT.mono,
-                fontSize: prominent ? 20 : TYPE.label.fontSize,
+                fontSize: prominent ? 20 : compact ? 16 : TYPE.label.fontSize,
                 lineHeight: 1,
                 color: area.active ? AREA_ACCENT[area.id] : COLOR.text.tertiary,
                 fontWeight: WEIGHT.bold,

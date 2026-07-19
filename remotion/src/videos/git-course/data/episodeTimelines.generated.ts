@@ -52,13 +52,13 @@ export const EP04_SCENES = [
 export const EP04_DURATION_IN_FRAMES = EP04_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP05_SCENES = [
-  {id: "hook", title: "问题", duration: seconds(14)},
-  {id: "symbolic-ref", title: "符号引用", duration: seconds(32)},
-  {id: "terminal", title: "命令", duration: seconds(30)},
-  {id: "switch", title: "HEAD 切换", duration: seconds(44)},
-  {id: "commit-current", title: "当前分支前进", duration: seconds(44)},
-  {id: "detached", title: "分离 HEAD", duration: seconds(48)},
-  {id: "takeaway", title: "总结", duration: seconds(28)},
+  {id: "hook", title: "问题", duration: seconds(16), captions: [{"from":4.9,"to":7.7,"text":"它不是最新提交，也不是隐藏分支"},{"from":8.1,"to":11.2,"text":"HEAD 是 Git 当前操作的入口"},{"from":11.6,"to":15.6,"text":"它决定下一次提交接到哪条历史后面"}]},
+  {id: "symbolic-ref", title: "符号引用", duration: seconds(40), captions: [{"from":0.8,"to":5,"text":"先分清：文件保存内容和最终解析结果"},{"from":5.4,"to":12.8,"text":".git/HEAD 保存的是 branch ref"},{"from":15.4,"to":18.2,"text":"这段内容叫 symbolic ref"},{"from":19.8,"to":24.4,"text":"branch ref 保存末端 commit ID"},{"from":24.8,"to":29,"text":"文件保存的内容，不等于最终解析结果"},{"from":29.3,"to":33,"text":"HEAD → main → C2"},{"from":33.3,"to":39.6,"text":"历史再沿 commit 的 parent 展开"}]},
+  {id: "terminal", title: "命令", duration: seconds(30), captions: [{"from":1,"to":6,"text":"symbolic-ref：查看当前 branch"},{"from":6.4,"to":12,"text":"cat .git/HEAD：查看保存的 ref"},{"from":12.4,"to":18.4,"text":"rev-parse HEAD：得到最终 commit"},{"from":18.8,"to":25.6,"text":"三条命令，停在引用链的不同层级"}]},
+  {id: "switch", title: "HEAD 切换", duration: seconds(26), captions: [{"from":0.8,"to":4.2,"text":"这里只核对 HEAD 文件的变化"},{"from":4.6,"to":10.2,"text":"切换前：HEAD → main"},{"from":13.3,"to":17.1,"text":"切换后：HEAD → feature"},{"from":17.4,"to":20.5,"text":"两个 branch 都在 C2，commit 图不变"},{"from":20.8,"to":21.7,"text":"改变的是当前入口"},{"from":22,"to":25.6,"text":"Index 与 Working Tree 对齐 feature"}]},
+  {id: "commit-current", title: "当前分支前进", duration: seconds(34), captions: [{"from":0.8,"to":7.2,"text":"提交前：HEAD → feature → C2"},{"from":7.5,"to":12.2,"text":"先创建以 C2 为 parent 的 C3"},{"from":12.6,"to":19.4,"text":"feature ref：C2 → C3"},{"from":19.8,"to":25,"text":"HEAD 文件不变，仍然指向 feature"},{"from":25.4,"to":32.2,"text":"因此解析后的 HEAD 也变成 C3"}]},
+  {id: "detached", title: "分离 HEAD", duration: seconds(32), captions: [{"from":0.5,"to":1.9,"text":"detached HEAD 有什么用？"},{"from":2.2,"to":6.8,"text":"查看 C1，但不移动 main 或 feature"},{"from":7.1,"to":13.8,"text":"HEAD 直接保存 C1 的 commit ID"},{"from":14.6,"to":17,"text":"现有 branch 保持不动"},{"from":20.3,"to":22.3,"text":"只查看，完成后切回原 branch"},{"from":22.6,"to":29.8,"text":"继续修改，先创建一个新 branch"}]},
+  {id: "takeaway", title: "总结", duration: seconds(20), captions: [{"from":4,"to":7.7,"text":"正常：HEAD → branch → commit"},{"from":8.4,"to":11.8,"text":"detached：HEAD 直接保存 commit ID"},{"from":12.7,"to":17,"text":"判断当前位置，先问 HEAD 跟着谁"}]},
 ] as const;
 export const EP05_DURATION_IN_FRAMES = EP05_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 

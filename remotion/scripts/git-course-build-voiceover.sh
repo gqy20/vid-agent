@@ -48,7 +48,7 @@ usage() {
 
 EPISODE_ID="$1"
 MAIN_VIDEO="${2:-}"
-MANIFEST="$(node scripts/git-course.mjs narration "$EPISODE_ID" | tail -n 1)"
+MANIFEST="${NARRATION_MANIFEST:-$(node scripts/git-course.mjs narration "$EPISODE_ID" | tail -n 1)}"
 
 AUDIO_DIR="${AUDIO_DIR:-renders/git-course/${EPISODE_ID}/current/audio}"
 SOURCE_SEGMENTS_DIR="$(dirname "$MANIFEST")"
@@ -150,7 +150,7 @@ EPISODE_DURATION="${EPISODE_DURATION:-${ENDS[$last_segment_index]}}"
 
 clean_srt_punctuation() {
   local srt_file="$1"
-  perl -0pi -e '
+  perl -CSD -0pi -e '
     s/\r\n/\n/g;
     my @lines = split /\n/, $_, -1;
     for my $line (@lines) {
@@ -163,6 +163,29 @@ clean_srt_punctuation() {
     }
     $_ = join "\n", @lines;
   ' "$srt_file"
+}
+
+canonicalize_srt_from_source() {
+  local source_file="$1"
+  local srt_file="$2"
+  node - "$source_file" "$srt_file" <<'NODE'
+const fs = require('node:fs');
+const [sourcePath, srtPath] = process.argv.slice(2);
+const phrases = fs.readFileSync(sourcePath, 'utf8')
+  .split(/<#[0-9.]+#>/)
+  .map((value) => value.trim())
+  .filter(Boolean);
+const blocks = fs.readFileSync(srtPath, 'utf8').replace(/\r\n/g, '\n').trim().split(/\n{2,}/);
+if (phrases.length !== blocks.length) {
+  throw new Error(`Cannot canonicalize ${srtPath}: ${phrases.length} source phrases for ${blocks.length} SRT cues`);
+}
+const canonical = blocks.map((block, index) => {
+  const lines = block.split('\n');
+  if (lines.length < 2 || !lines[1].includes('-->')) throw new Error(`Invalid SRT cue ${index + 1} in ${srtPath}`);
+  return `${lines[0]}\n${lines[1]}\n${phrases[index]}`;
+});
+fs.writeFileSync(srtPath, `${canonical.join('\n\n')}\n`, 'utf8');
+NODE
 }
 
 if [ "${SKIP_TTS:-0}" != "1" ]; then
@@ -187,6 +210,7 @@ if [ "${SKIP_TTS:-0}" != "1" ]; then
         --subtitles \
         --out "$audio_file" \
         --non-interactive \
+        --output json \
         --quiet
     ) &
   done
@@ -201,6 +225,9 @@ if [ "${CLEAN_SRT_PUNCTUATION:-1}" != "0" ]; then
       echo "SRT file not found: $srt_file" >&2
       exit 1
     }
+    if [ "${CANONICALIZE_SRT_FROM_SOURCE:-0}" = "1" ]; then
+      canonicalize_srt_from_source "${SOURCE_SEGMENTS_DIR}/${segment}.txt" "$srt_file"
+    fi
     clean_srt_punctuation "$srt_file"
   done
 fi
