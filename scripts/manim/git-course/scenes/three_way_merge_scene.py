@@ -8,89 +8,30 @@ from manim import (
     LEFT,
     RIGHT,
     UP,
-    Arrow,
-    Circle,
     Create,
     FadeIn,
     FadeOut,
-    Line,
-    ManimColor,
-    RoundedRectangle,
     Scene,
-    Text,
     Transform,
     TransformFromCopy,
     VGroup,
-    WHITE,
     config,
 )
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from shared.palette import CANVAS, FEATURE, LINE, MAIN, MUTED, TEXT
+from shared.git_kit import (
+    SnapshotField,
+    commit_node,
+    git_text,
+    ref_pointer,
+    semantic_line,
+    snapshot_card,
+    snapshot_flow_arrow,
+    snapshot_rows,
+)
+from shared.palette import CANVAS
 from shared.primitives import assert_inside_frame, assert_no_overlap
-
-
-def label(text: str, size: int = 34, color: ManimColor = TEXT, weight: str = "MEDIUM") -> Text:
-    return Text(text, font_size=size, color=color, weight=weight, font="Noto Sans CJK SC")
-
-
-def commit(label_text: str, color: ManimColor = TEXT) -> VGroup:
-    circle = Circle(radius=0.38, color=color, stroke_width=6).set_fill(CANVAS, opacity=1)
-    text = label(label_text, size=34, color=TEXT, weight="BOLD").move_to(circle.get_center())
-    return VGroup(circle, text)
-
-
-def branch_tag(text: str, color: ManimColor, width: float = 1.72) -> VGroup:
-    box = RoundedRectangle(
-        width=width,
-        height=0.58,
-        corner_radius=0.1,
-        color=color,
-        fill_color=color,
-        fill_opacity=1,
-        stroke_width=0,
-    )
-    txt = label(text, size=31, color=WHITE, weight="BOLD").move_to(box.get_center())
-    return VGroup(box, txt)
-
-
-def field_row(field: str, value: str, value_color: ManimColor = MUTED) -> VGroup:
-    key = label(f"{field}:", size=35, color=MUTED)
-    val = label(value, size=35, color=value_color, weight="BOLD" if value_color != MUTED else "MEDIUM")
-    return VGroup(key, val).arrange(RIGHT, buff=0.13)
-
-
-def snapshot_card(
-    name: str,
-    commit_id: str,
-    title_value: str,
-    body_value: str,
-    tone: ManimColor,
-    title_color: ManimColor = MUTED,
-    body_color: ManimColor = MUTED,
-) -> VGroup:
-    box = RoundedRectangle(
-        width=3.5,
-        height=2.38,
-        corner_radius=0.14,
-        color=tone,
-        fill_color=CANVAS,
-        fill_opacity=1,
-        stroke_width=4.5,
-    )
-    title = label(name, size=42, color=tone, weight="BOLD")
-    subtitle = label(commit_id, size=30, color=MUTED)
-    rows = VGroup(
-        field_row("title", title_value, title_color),
-        field_row("body", body_value, body_color),
-    ).arrange(DOWN, aligned_edge=LEFT, buff=0.14)
-    stack = VGroup(title, subtitle, rows).arrange(DOWN, aligned_edge=LEFT, buff=0.13).move_to(box.get_center())
-    return VGroup(box, stack)
-
-
-def changed_rows(card: VGroup) -> VGroup:
-    return card[1][2]
 
 
 class ThreeWayMergeScene(Scene):
@@ -99,86 +40,87 @@ class ThreeWayMergeScene(Scene):
         self.camera.background_color = CANVAS
 
         # DAG: the persistent source of truth at the top of the frame.
-        c0 = commit("C0").move_to([-5.45, 2.55, 0])
-        c1 = commit("C1").move_to([-4.05, 2.55, 0])
-        c2 = commit("C2").move_to([-2.65, 2.55, 0])
-        c3 = commit("C3", MAIN).move_to([-0.85, 2.68, 0])
-        c4 = commit("C4", FEATURE).move_to([-0.85, 2.05, 0])
+        c0 = commit_node("C0").move_to([-5.45, 2.55, 0])
+        c1 = commit_node("C1").move_to([-4.05, 2.55, 0])
+        c2 = commit_node("C2", role="merge_base").move_to([-2.65, 2.55, 0])
+        c3 = commit_node("C3", role="main").move_to([-0.85, 2.68, 0])
+        c4 = commit_node("C4", role="feature").move_to([-0.85, 2.05, 0])
         edges = VGroup(
-            Line(c0.get_right(), c1.get_left(), color=LINE, stroke_width=8),
-            Line(c1.get_right(), c2.get_left(), color=LINE, stroke_width=8),
-            Line(c2.get_right(), c3.get_left(), color=LINE, stroke_width=8),
-            Line(c2.get_right(), c4.get_left(), color=LINE, stroke_width=8),
+            semantic_line(c0, c1),
+            semantic_line(c1, c2),
+            semantic_line(c2, c3),
+            semantic_line(c2, c4),
         )
-        main_tag = branch_tag("main", MAIN).next_to(c3, UP, buff=0.22)
-        main_stem = Line(main_tag.get_bottom(), c3.get_top(), color=MAIN, stroke_width=5)
-        feature_tag = branch_tag("feature", FEATURE, width=2.05).next_to(c4, DOWN, buff=0.22)
-        feature_stem = Line(feature_tag.get_top(), c4.get_bottom(), color=FEATURE, stroke_width=5)
-        dag = VGroup(edges, c0, c1, c2, c3, c4, main_stem, main_tag, feature_stem, feature_tag)
+        main_pointer = ref_pointer("main", c3, role="main", placement=UP)
+        feature_pointer = ref_pointer("feature", c4, role="feature", placement=DOWN, width=2.05)
+        main_stem, main_tag = main_pointer
+        feature_stem, feature_tag = feature_pointer
+        dag = VGroup(edges, c0, c1, c2, c3, c4, main_pointer, feature_pointer)
 
-        base_card = snapshot_card("base", "C2 / 共同祖先", "A", "old", TEXT).move_to([0, -0.72, 0])
-        base_label = label("用于分离共同内容与双方变化", size=32, color=MUTED).next_to(base_card, DOWN, buff=0.2)
-        base_marker = label("base  C2", size=32, color=TEXT, weight="BOLD").next_to(c2, DOWN, buff=0.38)
+        base_card = snapshot_card(
+            "base",
+            "C2 / 共同祖先",
+            [SnapshotField("title", "A"), SnapshotField("body", "old")],
+            role="merge_base",
+        ).move_to([0, -0.72, 0])
+        base_label = git_text("用于分离共同内容与双方变化", size=32, role="muted").next_to(
+            base_card, DOWN, buff=0.2
+        )
+        base_marker = git_text("base  C2", size=32, weight="BOLD").next_to(c2, DOWN, buff=0.38)
 
         ours_card = snapshot_card(
             "ours",
             "C3 / main",
-            "main",
-            "old",
-            MAIN,
-            title_color=MAIN,
+            [SnapshotField("title", "main", "main"), SnapshotField("body", "old")],
+            role="main",
         ).move_to([-4.55, -0.72, 0])
         theirs_card = snapshot_card(
             "theirs",
             "C4 / feature",
-            "A",
-            "feature",
-            FEATURE,
-            body_color=FEATURE,
+            [SnapshotField("title", "A"), SnapshotField("body", "feature", "feature")],
+            role="feature",
         ).move_to([4.55, -0.72, 0])
-        ours_role = label("当前分支的变化", size=32, color=MAIN).next_to(ours_card, DOWN, buff=0.2)
-        theirs_role = label("待合入分支的变化", size=32, color=FEATURE).next_to(theirs_card, DOWN, buff=0.2)
+        ours_role = git_text("当前分支的变化", size=32, role="main").next_to(ours_card, DOWN, buff=0.2)
+        theirs_role = git_text("待合入分支的变化", size=32, role="feature").next_to(
+            theirs_card, DOWN, buff=0.2
+        )
 
         result_card = snapshot_card(
             "result",
             "result tree",
-            "main",
-            "feature",
-            TEXT,
-            title_color=MAIN,
-            body_color=FEATURE,
-        ).move_to([0, -0.72, 0])
+            [SnapshotField("title", "main", "main"), SnapshotField("body", "feature", "feature")],
+            role="result",
+        ).move_to([0, -0.97, 0])
         result_shell = VGroup(result_card[0], result_card[1][0], result_card[1][1])
-        result_rows = changed_rows(result_card)
-        result_label = label("独立修改自动组合", size=32, color=TEXT, weight="BOLD").next_to(result_card, DOWN, buff=0.2)
-
-        ours_to_result = Arrow(
-            changed_rows(ours_card)[0].get_right(),
-            result_rows[0].get_left(),
-            color=MAIN,
-            stroke_width=6,
-            buff=0.16,
-            max_tip_length_to_length_ratio=0.12,
-        )
-        theirs_to_result = Arrow(
-            changed_rows(theirs_card)[1].get_left(),
-            result_rows[1].get_right(),
-            color=FEATURE,
-            stroke_width=6,
-            buff=0.16,
-            max_tip_length_to_length_ratio=0.12,
+        result_rows = snapshot_rows(result_card)
+        result_label = git_text("独立修改自动组合", size=32, weight="BOLD").next_to(
+            result_card, DOWN, buff=0.2
         )
 
-        m1 = commit("M1").move_to([1.28, 2.55, 0])
+        ours_to_result = snapshot_flow_arrow(
+            ours_card,
+            0,
+            result_card,
+            0,
+            role="main",
+        )
+        theirs_to_result = snapshot_flow_arrow(
+            theirs_card,
+            1,
+            result_card,
+            1,
+            role="feature",
+            direction=LEFT,
+        )
+
+        m1 = commit_node("M1").move_to([1.28, 2.55, 0])
         merge_edges = VGroup(
-            Line(c3.get_right(), m1.get_left(), color=MAIN, stroke_width=8),
-            Line(c4.get_right(), m1.get_left(), color=FEATURE, stroke_width=8),
+            semantic_line(c3, m1, role="main"),
+            semantic_line(c4, m1, role="feature"),
         )
-        result_link = Line(m1.get_bottom(), result_card.get_top(), color=TEXT, stroke_width=4)
-        result_link_label = label("tree", size=28, color=MUTED).next_to(result_link, RIGHT, buff=0.08)
-        main_at_m1 = branch_tag("main", MAIN).next_to(m1, UP, buff=0.22)
-        main_stem_at_m1 = Line(main_at_m1.get_bottom(), m1.get_top(), color=MAIN, stroke_width=5)
-        parent_label = label("两个 parent", size=30, color=TEXT, weight="BOLD").move_to([3.35, 2.55, 0])
+        main_pointer_at_m1 = ref_pointer("main", m1, role="main", placement=UP)
+        main_stem_at_m1, main_at_m1 = main_pointer_at_m1
+        parent_label = git_text("两个 parent", size=30, weight="BOLD").move_to([3.35, 2.55, 0])
 
         final_objects = VGroup(
             dag,
@@ -192,8 +134,6 @@ class ThreeWayMergeScene(Scene):
             theirs_to_result,
             m1,
             merge_edges,
-            result_link,
-            result_link_label,
             main_at_m1,
             main_stem_at_m1,
             parent_label,
@@ -214,7 +154,7 @@ class ThreeWayMergeScene(Scene):
         self.wait(2.0)
 
         # 5-14s: C2 becomes the neutral merge base snapshot.
-        self.play(TransformFromCopy(c2, base_card), run_time=1.8)
+        self.play(FadeIn(base_card, shift=0.12 * UP), run_time=1.8)
         self.play(FadeIn(base_label, shift=0.08 * UP), FadeIn(base_marker, shift=0.08 * UP), run_time=0.5)
         self.wait(6.7)
 
@@ -237,8 +177,8 @@ class ThreeWayMergeScene(Scene):
         self.play(FadeIn(result_shell, shift=0.08 * UP), run_time=1.0)
         self.play(Create(ours_to_result), Create(theirs_to_result), run_time=1.0)
         self.play(
-            TransformFromCopy(changed_rows(ours_card)[0], result_rows[0]),
-            TransformFromCopy(changed_rows(theirs_card)[1], result_rows[1]),
+            TransformFromCopy(snapshot_rows(ours_card)[0], result_rows[0]),
+            TransformFromCopy(snapshot_rows(theirs_card)[1], result_rows[1]),
             run_time=1.6,
         )
         self.play(FadeIn(result_label, shift=0.08 * UP), run_time=0.4)
@@ -246,18 +186,22 @@ class ThreeWayMergeScene(Scene):
 
         # 33-40s: the result remains visible while a two-parent commit is created above it.
         self.play(
-            FadeOut(VGroup(ours_to_result, theirs_to_result, ours_role, theirs_role)),
-            ours_card.animate.set_opacity(0.18),
-            theirs_card.animate.set_opacity(0.18),
+            FadeOut(
+                VGroup(
+                    ours_to_result,
+                    theirs_to_result,
+                    ours_role,
+                    theirs_role,
+                    ours_card,
+                    theirs_card,
+                )
+            ),
             run_time=0.5,
         )
-        self.play(
-            Create(merge_edges),
-            FadeIn(m1, shift=0.08 * LEFT),
-            Create(result_link),
-            FadeIn(result_link_label),
-            run_time=1.3,
-        )
+        # Establish the opaque node mask before drawing its parent edges.  A
+        # simultaneous FadeIn would briefly reveal the lines through M1.
+        self.play(FadeIn(m1, shift=0.08 * LEFT), run_time=0.35)
+        self.play(Create(merge_edges), run_time=0.95)
         self.play(
             Transform(main_tag, main_at_m1),
             Transform(main_stem, main_stem_at_m1),

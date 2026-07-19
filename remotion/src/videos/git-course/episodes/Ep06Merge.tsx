@@ -39,21 +39,45 @@ const useSceneFrame = () => useCurrentFrame();
 
 const commitX = (idx: number) => 140 + idx * 154;
 
-const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number}> = ({
+// Final 1080p screen-pixel weights. SVG geometry scales with each viewBox,
+// while non-scaling strokes keep the course line hierarchy visually stable.
+const GRAPH_STROKE = {
+  edge: 14,
+  edgeCompact: 10,
+  node: 9,
+  nodeStrong: 10.5,
+  nodeCompact: 7,
+  nodeStrongCompact: 8,
+  mergeBaseRing: 4,
+  ref: 7,
+  refCompact: 5.5,
+  head: 4,
+  parent: 7,
+} as const;
+
+const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number; compact?: boolean}> = ({
   id,
   x,
   y,
   tone,
   opacity = 1,
+  compact = false,
 }) => {
   const isBase = tone === 'base';
   const stroke =
     tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : COLOR.git.commit;
+  const nodeStroke = tone
+    ? compact
+      ? GRAPH_STROKE.nodeStrongCompact
+      : GRAPH_STROKE.nodeStrong
+    : compact
+      ? GRAPH_STROKE.nodeCompact
+      : GRAPH_STROKE.node;
   return (
     <g opacity={opacity}>
       <circle cx={x} cy={y + 10} r="36" fill={COLOR.effects.shadowSoft} opacity="0.52" />
-      {isBase ? <circle cx={x} cy={y} r="42" fill="none" stroke={COLOR.text.secondary} strokeWidth="3" strokeDasharray="7 6" /> : null}
-      <circle cx={x} cy={y} r="32" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={tone ? 7.4 : 6} />
+      {isBase ? <circle cx={x} cy={y} r="42" fill="none" stroke={COLOR.text.secondary} strokeWidth={GRAPH_STROKE.mergeBaseRing} strokeDasharray="7 6" vectorEffect="non-scaling-stroke" /> : null}
+      <circle cx={x} cy={y} r="32" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={nodeStroke} vectorEffect="non-scaling-stroke" />
       <text x={x} y={y + 9} textAnchor="middle" fontFamily={FONT.mono} fontSize="28" fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
         {id}
       </text>
@@ -69,7 +93,8 @@ const BranchLabel: React.FC<{
   targetY: number;
   color: string;
   opacity?: number;
-}> = ({name, x, y, targetX, targetY, color, opacity = 1}) => {
+  compact?: boolean;
+}> = ({name, x, y, targetX, targetY, color, opacity = 1, compact = false}) => {
   const isAboveTarget = y < targetY;
   const connectorStartY = y + (isAboveTarget ? 27 : -27);
   const connectorEndY = targetY + (isAboveTarget ? -39 : 39);
@@ -81,8 +106,9 @@ const BranchLabel: React.FC<{
         d={`M${x} ${connectorStartY} C${x} ${connectorMidY} ${targetX} ${connectorMidY} ${targetX} ${connectorEndY}`}
         fill="none"
         stroke={color}
-        strokeWidth="4.3"
+        strokeWidth={compact ? GRAPH_STROKE.refCompact : GRAPH_STROKE.ref}
         strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
       />
       <rect x={x - 67} y={y - 27} width="134" height="54" rx="9" fill={color} />
       <text x={x} y={y + 9} textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
@@ -94,7 +120,7 @@ const BranchLabel: React.FC<{
 
 const HeadLabel: React.FC<{x: number; y: number; opacity?: number}> = ({x, y, opacity = 1}) => (
   <g opacity={opacity}>
-    <rect x={x - 55} y={y - 24} width="110" height="48" rx="24" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.8" />
+    <rect x={x - 55} y={y - 24} width="110" height="48" rx="24" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth={GRAPH_STROKE.head} vectorEffect="non-scaling-stroke" />
     <circle cx={x - 31} cy={y} r="6" fill={COLOR.git.head} />
     <text x={x + 11} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize="22" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
       HEAD
@@ -135,6 +161,7 @@ const MergeGraph: React.FC<{
         ? {x: 80, y: 0, width: showHead ? 880 : 720, height: 350}
         : {x: 80, y: 0, width: 880, height: 350};
   const height = Math.round((width * viewBox.height) / viewBox.width);
+  const edgeStroke = small ? GRAPH_STROKE.edgeCompact : GRAPH_STROKE.edge;
 
   return (
     <svg
@@ -143,42 +170,42 @@ const MergeGraph: React.FC<{
       viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
       style={{display: 'block', overflow: 'visible'}}
     >
-      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
+      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       {mode === 'ff-before' || mode === 'ff-after' ? (
-        <line x1={c2} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" opacity={mode === 'ff-before' ? 0.9 : progress} />
+        <line x1={c2} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity={mode === 'ff-before' ? 0.9 : progress} />
       ) : (
         <>
-          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
-          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         </>
       )}
       {showM1 ? (
         <>
-          <line x1={c3} y1="98" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
-          <line x1={c4} y1="254" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
+          <line x1={c3} y1="98" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <line x1={c4} y1="254" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         </>
       ) : null}
       {showParentArrows ? (
         <>
-          <path d={`M${m1 - 36} ${y - 18} C${m1 - 92} ${132} ${c3 + 38} ${105} ${c3 + 30} ${101}`} fill="none" stroke={COLOR.git.main} strokeWidth="4.5" strokeLinecap="round" opacity="0.85" />
-          <path d={`M${m1 - 36} ${y + 18} C${m1 - 92} ${222} ${c4 + 38} ${247} ${c4 + 30} ${252}`} fill="none" stroke={COLOR.git.feature} strokeWidth="4.5" strokeLinecap="round" opacity="0.85" />
+          <path d={`M${m1 - 36} ${y - 18} C${m1 - 92} ${132} ${c3 + 38} ${105} ${c3 + 30} ${101}`} fill="none" stroke={COLOR.git.main} strokeWidth={GRAPH_STROKE.parent} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity="0.85" />
+          <path d={`M${m1 - 36} ${y + 18} C${m1 - 92} ${222} ${c4 + 38} ${247} ${c4 + 30} ${252}`} fill="none" stroke={COLOR.git.feature} strokeWidth={GRAPH_STROKE.parent} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity="0.85" />
         </>
       ) : null}
-      <CommitNode id="C0" x={c0} y={y} />
-      <CommitNode id="C1" x={c1} y={y} />
-      <CommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : undefined} />
-      {mode === 'ff-before' || mode === 'ff-after' ? <CommitNode id="C3" x={c3} y={y} tone="feature" /> : <CommitNode id="C3" x={c3} y={98} tone="main" />}
-      {showC4 ? <CommitNode id="C4" x={c4} y={254} tone="feature" /> : null}
-      {showM1 ? <CommitNode id="M1" x={m1} y={y} /> : null}
+      <CommitNode id="C0" x={c0} y={y} compact={small} />
+      <CommitNode id="C1" x={c1} y={y} compact={small} />
+      <CommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : undefined} compact={small} />
+      {mode === 'ff-before' || mode === 'ff-after' ? <CommitNode id="C3" x={c3} y={y} tone="feature" compact={small} /> : <CommitNode id="C3" x={c3} y={98} tone="main" compact={small} />}
+      {showC4 ? <CommitNode id="C4" x={c4} y={254} tone="feature" compact={small} /> : null}
+      {showM1 ? <CommitNode id="M1" x={m1} y={y} compact={small} /> : null}
       {mode === 'ff-before' || mode === 'ff-after' ? (
         <>
-          <BranchLabel name="hotfix" x={c3} y={92} targetX={c3} targetY={y} color={COLOR.git.feature} />
-          <BranchLabel name="main" x={mainTargetX} y={254} targetX={mainTargetX} targetY={y} color={COLOR.git.main} />
+          <BranchLabel name="hotfix" x={c3} y={92} targetX={c3} targetY={y} color={COLOR.git.feature} compact={small} />
+          <BranchLabel name="main" x={mainTargetX} y={254} targetX={mainTargetX} targetY={y} color={COLOR.git.main} compact={small} />
         </>
       ) : (
         <>
-          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - 72} targetX={mainTargetX} targetY={mainTargetY} color={COLOR.git.main} />
-          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + 72} targetX={featureTargetX} targetY={featureTargetY} color={COLOR.git.feature} />
+          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - 72} targetX={mainTargetX} targetY={mainTargetY} color={COLOR.git.main} compact={small} />
+          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + 72} targetX={featureTargetX} targetY={featureTargetY} color={COLOR.git.feature} compact={small} />
         </>
       )}
       {showHead ? <HeadLabel x={headX} y={headY} opacity={small ? 0 : 1} /> : null}
