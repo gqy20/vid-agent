@@ -84,7 +84,7 @@
         "CenterGraph",
         "QuestionCaption"
       ],
-      "goal": "提出 merge 先看历史形状。",
+      "goal": "先说明 merge 用来把目标分支的工作接入当前分支，再提出历史形状决定合并结果。",
       "beats": [
         {
           "time": [
@@ -94,7 +94,7 @@
           "visual": "两种历史轮廓",
           "motion": "标题、快进图、分叉图依次出现",
           "state": "compare",
-          "narration": "merge 先看历史有没有分歧。",
+          "narration": "merge 接入另一条分支的工作，并先看历史有没有分歧。",
           "audit": [
             "左右图不拥挤"
           ]
@@ -103,7 +103,7 @@
       "narration": {
         "segmentId": "01_hook",
         "voiceStart": 0.35,
-        "text": "merge 不是把两个文件夹粗暴地揉在一起。<#0.35#>\nGit 会先读取提交图，判断两条历史是什么关系。<#0.35#>\n如果一条是另一条的祖先，只需要快进；如果已经分叉，才需要真正合成快照。"
+        "text": "merge 用来把另一分支的工作接入当前分支。<#0.3#>\nGit 不会揉两个文件夹，而会先看提交图。<#0.3#>\n当前分支能沿历史追上目标，默认只需快进；已经分叉，才合成新快照。"
       }
     },
     {
@@ -117,7 +117,7 @@
         "GitGraph",
         "SideLabel"
       ],
-      "goal": "说明没有分歧时只是移动指针。",
+      "goal": "说明默认 fast-forward 只移动当前分支，并解释 merge 后没有新 commit 也是正常结果。",
       "beats": [
         {
           "time": [
@@ -140,7 +140,7 @@
           "visual": "main 前进到 C3",
           "motion": "main 指针滑动",
           "state": "ffAfter",
-          "narration": "fast-forward 只是移动指针。",
+          "narration": "fast-forward 接入已有工作，但不额外制造汇合节点。",
           "audit": [
             "main 指针移动明确"
           ]
@@ -149,7 +149,7 @@
       "narration": {
         "segmentId": "02_fast_forward",
         "voiceStart": 14.35,
-        "text": "先看没有分叉的情况。<#0.25#>\nmain 停在 C2，hotfix 从 C2 继续提交到了 C3，因此 C2 是 C3 的祖先。<#0.35#>\n当 HEAD 在 main 上执行 git merge hotfix，Git 不需要计算一个新快照，也不需要创建 merge commit。<#0.35#>\n它只把 main 从 C2 向前移动到 C3。<#0.35#>\nhotfix 本身没有变化，HEAD 仍然跟着 main。<#0.35#>\n这种结果叫 fast-forward，因为当前分支可以沿着已有的 parent 链直接追上目标分支。"
+        "text": "先看没有分叉的情况。<#0.25#>\nmain 停在 C2，hotfix 从 C2 继续提交到了 C3，因此 C2 是 C3 的祖先。<#0.35#>\n在 main 上执行 git merge hotfix，默认不用计算新快照，也不用创建 merge commit。<#0.35#>\nGit 只把 main 从 C2 移到 C3；hotfix 不变，HEAD 仍跟着 main。<#0.35#>\n这叫 fast-forward：当前分支沿已有的 parent 链追上目标。<#0.35#>\n它接入了 hotfix 的工作，却不额外制造汇合节点；所以没有新 commit 也是正常结果。"
       }
     },
     {
@@ -164,7 +164,7 @@
         "GitGraph",
         "SideLabel"
       ],
-      "goal": "建立分叉后的合并场景。",
+      "goal": "说明分叉后直接移动指针会绕开当前分支的工作，因此必须用 merge base 区分双方变化。",
       "beats": [
         {
           "time": [
@@ -187,7 +187,7 @@
           "visual": "base/ours/theirs 标签",
           "motion": "三个标签进入",
           "state": "diverged",
-          "narration": "Git 要找三个快照。",
+          "narration": "merge base 把共同内容与双方后来引入的修改分开。",
           "audit": [
             "标签可读"
           ]
@@ -196,7 +196,7 @@
       "narration": {
         "segmentId": "03_diverged",
         "voiceStart": 48.35,
-        "text": "现在让 main 和 feature 都从 C2 继续提交。<#0.35#>\nmain 到了 C3，feature 到了 C4，任何一边都不是另一边的祖先。<#0.35#>\n如果直接把 main 移到 C4，main 上的 C3 就会被绕开，所以 fast-forward 不成立。<#0.35#>\nGit 必须先找到双方的 merge base，也就是共同祖先 C2，再比较当前分支和待合入分支各自做了什么。"
+        "text": "现在让 main 和 feature 都从 C2 继续提交。<#0.35#>\nmain 到了 C3，feature 到了 C4，任何一边都不是另一边的祖先。<#0.35#>\n如果直接把 main 移到 C4，main 上的 C3 就会被绕开，所以 fast-forward 不成立。<#0.35#>\nGit 必须先找到双方的 merge base，也就是共同祖先 C2。<#0.35#>\n它的作用，是把双方原本共有的内容与后来各自引入的修改分开。"
       }
     },
     {
@@ -210,7 +210,7 @@
         "ManimBridge",
         "SceneCaption"
       ],
-      "goal": "展示 base、ours、theirs 合成 result。",
+      "goal": "用 base、ours、theirs 解释 Git 如何自动组合独立修改，以及为什么无法组合时必须交还决定权。",
       "beats": [
         {
           "time": [
@@ -244,7 +244,7 @@
       "narration": {
         "segmentId": "04_three_way",
         "voiceStart": 78.35,
-        "text": "三方合并比较的不是两个目录，而是三个快照。<#0.35#>\nbase 是共同祖先 C2，ours 是 HEAD 当前所在的 main，也就是 C3，theirs 是要合进来的 feature，也就是 C4。<#0.35#>\nGit 先计算 base 到 ours 的变化，再计算 base 到 theirs 的变化。<#0.35#>\n如果两边修改了不同文件，或者同一文件中能够独立合并的区域，Git 可以把这些变化组合成一个结果快照。<#0.35#>\n注意 ours 和 theirs 取决于你站在哪条分支上执行 merge，并不是永远等于 main 和 feature。<#0.35#>\n三方比较的价值在于，Git 能区分原来就存在的内容和两边后来各自引入的修改。<#0.35#>\n只有当同一语义位置出现无法同时满足的变化时，它才把决定权交还给你。"
+        "text": "三方合并比较的不是两个目录，而是三个快照。<#0.35#>\nbase 是共同祖先 C2，ours 是 HEAD 当前所在的 main，也就是 C3，theirs 是要合进来的 feature，也就是 C4。<#0.35#>\nGit 先计算 base 到 ours 的变化，再计算 base 到 theirs 的变化。<#0.35#>\n如果两边修改了不同文件，或者同一文件中能够独立合并的区域，Git 可以把这些变化组合成一个结果快照。<#0.35#>\n注意 ours 和 theirs 取决于你站在哪条分支上执行 merge，并不是永远等于 main 和 feature。<#0.35#>\n三方比较的价值在于，Git 能区分原来就存在的内容和两边后来各自引入的修改。<#0.35#>\n当内容或路径结构的变化无法自动组合时，它才把决定权交还给你。"
       }
     },
     {
@@ -258,7 +258,7 @@
         "SideLabel",
         "MiniRefLine"
       ],
-      "goal": "展示 merge commit 有两个 parent。",
+      "goal": "说明典型 merge commit 的两个 parent 如何保留两条开发线的来源和汇合位置。",
       "beats": [
         {
           "time": [
@@ -268,7 +268,7 @@
           "visual": "M1 与两个 parent 箭头",
           "motion": "M1 出现，parent 箭头依次绘制",
           "state": "merged",
-          "narration": "merge commit 有两个 parent。",
+          "narration": "两个 parent 保留两条开发线的来源。",
           "audit": [
             "两条 parent 箭头都可见"
           ]
@@ -290,7 +290,7 @@
       "narration": {
         "segmentId": "05_merge_commit",
         "voiceStart": 130.35,
-        "text": "自动合成成功后，Git 把结果写成新的 tree，再创建 merge commit M1。<#0.35#>\n普通提交通常记录一个 parent，而 M1 同时记录两个 parent。<#0.35#>\n第一个 parent 是执行 merge 前 HEAD 所在的 main，也就是 C3；另一个 parent 是合入的 feature，也就是 C4。<#0.35#>\n随后 main 移动到 M1，feature 仍然停在 C4，HEAD 继续跟着 main。<#0.35#>\n这两个 parent 不是装饰，它们让历史明确保留两条开发线在哪里汇合。<#0.35#>\n以后沿任意一条 parent 边向后遍历，都能回到各自的来源。"
+        "text": "自动合成成功后，Git 把结果写成新的 tree，再创建 merge commit M1。<#0.35#>\n前面讲过，普通提交通常记录一个 parent；M1 则同时记录两个。<#0.35#>\n第一个 parent 是执行 merge 前 HEAD 所在的 main，也就是 C3；另一个是合入的 feature，也就是 C4。<#0.35#>\n随后 main 移动到 M1，feature 仍然停在 C4，HEAD 继续跟着 main。<#0.35#>\nC3 和 C4 都没有被改写，两个 parent 明确保留了它们的来源和汇合位置。<#0.35#>\n以后沿任意一条 parent 边向后遍历，都能回到各自的开发线。"
       }
     },
     {
@@ -305,7 +305,7 @@
         "GitStatePanel",
         "SceneCaption"
       ],
-      "goal": "说明冲突表示 Git 无法自动决定。",
+      "goal": "说明冲突是 Git 无法自动组合变化时的暂停状态，并给出完成或安全退出的最小路径。",
       "beats": [
         {
           "time": [
@@ -315,7 +315,7 @@
           "visual": "同一行两种修改和 conflict marker",
           "motion": "diff 到 marker",
           "state": "conflict",
-          "narration": "两边改了同一处，Git 停下来。",
+          "narration": "内容或路径变化无法自动组合时，Git 停下来。",
           "audit": [
             "conflict 色只用于冲突"
           ]
@@ -337,7 +337,7 @@
       "narration": {
         "segmentId": "06_conflict",
         "voiceStart": 172.35,
-        "text": "如果两边改动无法自动组合，merge 会暂停，而不是随便替你选一边。<#0.35#>\n工作区文件中会出现冲突标记，Index 则为冲突路径保存未合并条目。<#0.35#>\n此时 merge commit 还没有创建，分支也没有完成最后的前进。<#0.35#>\n你需要阅读 ours 和 theirs，编辑出真正想要的文件内容，然后执行 git add，把解决后的版本写入 Index。<#0.35#>\n确认没有未合并路径后，再执行 git commit 完成这次 merge。<#0.35#>\n所以冲突不是 Git 损坏，而是它无法从历史中推断你的业务意图。<#0.35#>\n如果发现合并方向不对，也可以在完成前使用 git merge --abort 返回开始合并之前的状态。"
+        "text": "如果内容或路径变化无法自动组合，merge 会暂停，不会替你选边。<#0.35#>\n冲突文件会出现标记，Index 保存未合并状态；merge commit 此时还不存在。<#0.35#>\n读完 ours 和 theirs 后，编辑出正确内容，再用 git add 把解决结果写入 Index。<#0.35#>\n没有未合并路径后，执行 git commit 完成 merge。<#0.35#>\n所以冲突不是 Git 损坏，而是它无法推断业务意图。<#0.35#>\n如果方向不对，可以在完成前运行 git merge --abort，尝试回到开始前。<#0.35#>\n为了让恢复可靠，合并前应先保持工作区干净。"
       }
     },
     {
@@ -350,7 +350,7 @@
         "GitGraph",
         "SceneCaption"
       ],
-      "goal": "总结 fast-forward 和三方合并。",
+      "goal": "让观众用提交图预测 merge 结果，并记住 merge 会整合历史而不改写已有提交。",
       "beats": [
         {
           "time": [
@@ -360,7 +360,7 @@
           "visual": "快进小图与 merge commit 小图",
           "motion": "两种模型依次高亮",
           "state": "summary",
-          "narration": "能快进就移动指针，已分叉就三方合并。",
+          "narration": "先看提交图，就能预测是快进、汇合还是暂停。",
           "audit": [
             "结束稳定"
           ]
@@ -369,21 +369,21 @@
       "narration": {
         "segmentId": "07_takeaway",
         "voiceStart": 214.25,
-        "text": "最后用历史形状做判断。<#0.25#>\n目标是当前分支的后代，就 fast-forward，只移动 branch。<#0.35#>\n历史分叉，就找到 merge base，比较 base、ours 和 theirs。<#0.35#>\n能组合就创建双 parent 的 merge commit；不能判断就暂停处理冲突。<#0.35#>\nmerge 的核心是提交图和快照变化。"
+        "text": "最后用历史形状预测结果。<#0.25#>\n当前分支是目标分支的祖先时，默认 fast-forward：接入工作，只移动 branch。<#0.35#>\n历史分叉，就找 merge base，比较 base、ours 和 theirs。<#0.35#>\n能组合便创建保留两条来源的 merge commit；不能判断就暂停处理冲突。<#0.35#>\nmerge 的价值，是整合另一条历史，又不改写已有提交。"
       }
     }
   ],
   "content": {
-    "overviewMarkdown": "# EP06：Merge 做了什么\n\n## 核心句\n\nmerge 不是把两个文件夹粗暴拼在一起。Git 会看分叉点、当前分支和目标分支；能快进就移动指针，不能快进就做三方合并并生成 merge commit。\n\n## 观众要带走的理解\n\n- fast-forward merge 只是把当前分支指针向前移动。\n- 真正分叉后，Git 会找共同祖先、当前分支末端和目标分支末端。\n- merge commit 有两个 parent。\n- 冲突表示 Git 无法自动决定同一位置的不同修改。\n\n## 镜头结构\n\n1. 用问题结构区分“合并内容”和“合并历史”。\n2. 先讲 fast-forward：没有分歧，只移动指针。\n3. 再讲三方合并：base / ours / theirs。\n4. 用 Manim 展示三个快照如何形成新快照。\n5. 用 merge commit 展示两个 parent。\n6. 用冲突标记做最小边界，不展开高级冲突工具。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep06-merge/`](ep06-merge/README.md)。\n",
-    "scriptMarkdown": "# EP06 当前脚本（240s）\n\n本集先区分 fast-forward 与已分叉历史，再用 Manim 精确展示 merge base、三方合并和双 parent 结果，最后说明冲突为何需要人工判断。逐 scene 旁白、segmentId 与进入时间以 `scenes[].narration` 为准；实测音频窗口见 `content.alignmentMarkdown`。\n",
-    "beatsMarkdown": "# EP06 Beats（240s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0-14s | hook | 提问 merge 是否总会创建新提交 |\n| 14-48s | fast-forward | 目标在前方时只移动当前分支 |\n| 48-78s | diverged | 显示两边都前进后的分叉拓扑 |\n| 78-130s | three-way | 用共同祖先解释三方合并 |\n| 130-172s | merge-commit | 生成具有两个 parent 的 merge commit |\n| 172-214s | conflict | 解释冲突来自同一区域的不同修改 |\n| 214-240s | takeaway | 用提交图收束两种 merge 路径 |\n",
-    "qualityMarkdown": "# EP06 Merge 做了什么 - 审查记录\n\n## 当前状态\n\n- Remotion 240 秒主视频、三方合并 Manim、TTS 与自动抽帧流程均已实现。\n- 上一版 candidate 的机器审计通过，当前修改需要重新渲染 Manim 并构建 dirty scene。\n- 尚待人工视觉审查、approve / promote 与 release 流程。\n\n## 重点审查项\n\n- fast-forward 必须只表现为当前 branch 指针移动，不能生成新 commit。\n- 三方合并示例中 ours 只改 title、theirs 只改 body，result 应清楚组合两处独立修改。\n- 正常 result 与 merge commit 使用中性 commit 语义，conflict 红色只用于无法自动合并的状态。\n- merge commit 必须有两个 parent 箭头。\n",
-    "readmeMarkdown": "# EP06 Merge 做了什么 - 制作目录\n\n这个目录保存 EP06 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nmerge 有两种基础形态。\n没有分歧时只是 fast-forward；有分歧时使用共同祖先、ours、theirs 做三方合并。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:111`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:115`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:172`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:177`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:178`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:196`\n\n原则：EP06 的主角是“分叉历史如何合到一起”。冲突只讲到为什么出现和 Git 停在哪里，不讲高级冲突排查。\n",
+    "overviewMarkdown": "# EP06：Merge 做了什么\n\n## 核心句\n\nmerge 的作用，是把目标分支的工作接入当前分支，同时保留已有提交的身份和历史关系。Git 会先看提交图：默认可以快进时只移动当前分支；历史已经分叉时，则以共同祖先为基准做三方合并，并在成功后创建 merge commit。\n\n## 观众要带走的理解\n\n- merge 用来整合另一条分支的工作，不是覆盖两个文件夹。\n- 默认 fast-forward 只移动当前分支，所以 merge 后没有新 commit 也可能完全正常。\n- 真正分叉后，merge base 帮 Git 区分共同内容与双方后来各自引入的修改。\n- 典型的双分支 merge commit 用两个 parent 保留两条开发线的来源与汇合位置。\n- 冲突表示内容或路径变化无法自动组合，需要用户决定结果。\n\n## 镜头结构\n\n1. 先说明 merge 解决的任务：把目标分支的工作接入当前分支。\n2. 再判断历史拓扑：可以快进时只移动当前分支。\n3. 历史分叉后，用 merge base 保护双方已经存在的工作。\n4. 用 Manim 展示 base / ours / theirs 如何形成结果快照。\n5. 用 merge commit 的两个 parent 说明如何保留两条来源。\n6. 用冲突状态说明 Git 的自动化边界，以及完成或退出的最小路径。\n7. 收束为一套可用于预测 merge 结果的提交图判断。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep06-merge/`](ep06-merge/README.md)。\n",
+    "scriptMarkdown": "# EP06 当前脚本（240s）\n\n本集先明确 merge 用来把目标分支的工作接入当前分支，再让提交图决定后续路径：默认可快进时只移动 branch，历史分叉时则寻找 merge base，以 base、ours、theirs 合成结果，并用双 parent 的 merge commit 保留两条开发线的来源。最后把冲突解释为 Git 无法自动组合变化时的暂停状态，而不是随机报错。逐 scene 旁白、segmentId 与进入时间以 `scenes[].narration` 为准；文案变化后需要重新生成 TTS，并重新核对 `content.alignmentMarkdown`。\n",
+    "beatsMarkdown": "# EP06 Beats（240s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0-14s | hook | 先说明 merge 的任务价值，再提出历史形状决定结果 |\n| 14-48s | fast-forward | 解释为什么接入工作后可以没有新 commit |\n| 48-78s | diverged | 说明直接移动会绕开当前分支的工作，并引出 merge base |\n| 78-130s | three-way | 用共同祖先区分共同内容与双方后来引入的修改 |\n| 130-172s | merge-commit | 用两个 parent 保留两条开发线的来源与汇合位置 |\n| 172-214s | conflict | 说明自动化边界，以及完成或安全退出的最小路径 |\n| 214-240s | takeaway | 用提交图预测快进、汇合或暂停三种结果 |\n",
+    "qualityMarkdown": "# EP06 Merge 做了什么 - 审查记录\n\n## 当前状态\n\n- Remotion 240 秒主视频、三方合并 Manim、TTS 与自动抽帧流程均已实现。\n- 本轮已把叙事改为“任务价值 → 拓扑判断 → 内容合成 → 历史保留 → 人工边界”，并修正 fast-forward、冲突与 `merge --abort` 的边界表述。\n- Git 图按 EP05 的最终像素比例重排：单主图场景提高到 1320–1420px 宽，commit、branch、HEAD 与作用说明同步放大；hook 和 takeaway 因并列比较保留小图。\n- 已修复 branch connector 穿入 C2/C3/C4，以及放大后 merge-commit 中 feature、作用说明、代码卡和字幕之间的重叠。\n- Remotion 与 Manim 现使用同一组 Git 语义色；main、feature、HEAD、conflict 只表示对应身份。merge base 改为中性双圈和文字标签，不再借用 HEAD 黄色。\n- 三方合并 Manim 已重写为连续状态流：C2 提取 base，base 派生 ours / theirs，双方改变的字段进入 result，最后 C3 / C4 汇入 M1；取消卡片轮播和 result 缩成圆点的动画。Manim 定稿为 1920×1080、60fps、40.000 秒。\n- 7 个 scene 已生成 1920×1080、30fps 局部预览；连续 2fps 共核对 480 张帧和 98 张审查条。当前重点帧未发现新的元素重叠、字幕遮挡或语义色误用。\n- 7 个 narration segment 的内容指纹均已变化；旧 TTS 对齐表、candidate 与 main audit 不再代表当前内容。\n- 下一步应从 orchestrator 重新生成 dirty TTS、核对 scene 窗口，再构建并人工审查 candidate；尚未 approve / promote，也未进入 release。\n\n## 重点审查项\n\n- hook 必须先让观众理解 merge 用来把目标分支的工作接入当前分支，再进入提交图判断。\n- fast-forward 必须只表现为当前 branch 指针移动，不能生成新 commit；旁白和字幕需保留“默认”边界。\n- 三方合并示例中 ours 只改 title、theirs 只改 body，result 应清楚组合两处独立修改。\n- 正常 result 与 merge commit 使用中性 commit 语义，conflict 红色只用于无法自动合并的状态。\n- merge commit 必须有两个 parent 箭头，并表现 C3、C4 没有被改写。\n- conflict 只讲最小完成与退出路径，不提前展开后续冲突状态机课程；`merge --abort` 必须表达为“尝试恢复”。\n",
+    "readmeMarkdown": "# EP06 Merge 做了什么 - 制作目录\n\n这个目录保存 EP06 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nmerge 把目标分支的工作接入当前分支，同时保留已有提交的身份。\n默认能快进时只移动当前分支；历史分叉时以共同祖先为基准做三方合并。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:111`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:115`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:172`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:177`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:178`\n- `docs/references/progit2-zh/book/03-git-branching/sections/basic-branching-and-merging.asc:196`\n- `docs/references/progit2-zh/book/07-git-tools/sections/advanced-merging.asc:131`\n\n原则：EP06 的主角是“为什么要整合两条历史，以及提交图如何决定结果”。冲突只讲到为什么暂停、怎样完成或退出，不展开高级冲突排查。\n",
     "voiceoverDesignMarkdown": null,
-    "alignmentMarkdown": "# EP06 Audio Alignment\n\nEpisode: `ep06-merge`\n\nTTS: `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`; normalized near `-20 LUFS`, peak near `-3 dBFS`; BGM `0.05`, no sidechain.\n\n| Segment | Start | Duration | End | Scene end |\n|---|---:|---:|---:|---:|\n| `01_hook` | 0.35s | 12.513s | 12.863s | 14.00s |\n| `02_fast_forward` | 14.35s | 27.820s | 42.170s | 48.00s |\n| `03_diverged` | 48.35s | 20.323s | 68.673s | 78.00s |\n| `04_three_way` | 78.35s | 42.214s | 120.564s | 130.00s |\n| `05_merge_commit` | 130.35s | 32.601s | 162.951s | 172.00s |\n| `06_conflict` | 172.35s | 39.288s | 211.638s | 214.00s |\n| `07_takeaway` | 214.25s | 18.233s | 232.483s | 240.00s |\n\nTotal normalized narration is 192.993 seconds in a 240-second main episode: 80.41%. Every narration window fits its scene. SRT text is canonicalized from episode JSON while TTS cue timestamps are preserved; UTF-8, pause markers, punctuation, cue distribution and suspiciously short audio are validated.\n"
+    "alignmentMarkdown": "# EP06 Audio Alignment\n\nEpisode: `ep06-merge`\n\nThe narration was revised to make every scene explain its practical purpose and to tighten the fast-forward, conflict, and abort boundaries. The previous timing table is stale. Regenerate all changed TTS segments with the fixed course voice configuration, then record measured durations and verify that every narration window still fits its scene before candidate assembly.\n"
   },
   "release": {
-    "bilibiliMarkdown": "# EP06 B 站发布物料\n\n## 标题\n\nGit merge 到底做了什么？快进、三方合并和冲突\n\n## 简介\n\nmerge 不是把两个文件夹粗暴覆盖。Git 先看提交图：目标就在当前提交前方时可以 fast-forward；两边都前进后，则以共同祖先为基准做三方合并。\n\n这一集把快进、merge base、merge commit 和冲突放进同一张提交图里，重点解释不同拓扑为什么产生不同结果。\n\n## 你会学到\n\n- fast-forward 为什么不需要新 commit\n- 三方合并为什么需要共同祖先\n- merge commit 的两个 parent 表示什么\n- 冲突为何需要人来决定语义\n\n## 时间轴\n\n00:00 看得见的 Git\n00:07 merge 先看提交图\n00:21 fast-forward\n00:55 分支发生分叉\n01:25 共同祖先与三方合并\n02:17 merge commit\n02:59 冲突不是随机报错\n03:41 收束：拓扑决定合并方式\n04:07 片尾\n\n## 官方参考\n\n- [git-merge 官方手册](https://git-scm.com/docs/git-merge)\n- [Pro Git：Basic Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Merge\n版本控制\n程序员\n开发工具\n```\n\n## 置顶评论\n\nmerge 保留分叉历史；下一集看 rebase 如何重放提交，以及为什么它会改变 commit 身份。\n",
+    "bilibiliMarkdown": "# EP06 B 站发布物料\n\n## 标题\n\nGit merge 到底做了什么？快进、三方合并和冲突\n\n## 简介\n\nmerge 用来把目标分支的工作接入当前分支，同时保留已有提交的身份和历史关系。Git 会先看提交图：默认可以 fast-forward 时只移动当前分支；两边都前进后，则以共同祖先为基准做三方合并。\n\n这一集把快进、merge base、merge commit 和冲突放进同一张提交图里，重点解释不同拓扑为什么产生不同结果，以及这些结果对实际使用意味着什么。\n\n## 你会学到\n\n- 为什么 merge 后没有新 commit 也可能完全正常\n- merge base 如何区分共同内容与双方新增修改\n- merge commit 的两个 parent 为什么要保留两条来源\n- 冲突为何需要人来决定，以及如何完成或退出\n\n## 时间轴\n\n00:00 看得见的 Git\n00:07 merge 先看提交图\n00:21 fast-forward\n00:55 分支发生分叉\n01:25 共同祖先与三方合并\n02:17 merge commit\n02:59 冲突不是随机报错\n03:41 收束：拓扑决定合并方式\n04:07 片尾\n\n## 官方参考\n\n- [git-merge 官方手册](https://git-scm.com/docs/git-merge)\n- [Pro Git：Basic Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Merge\n版本控制\n程序员\n开发工具\n```\n\n## 置顶评论\n\nmerge 整合两条历史，但不改写已有提交；下一集看 rebase 如何重放提交，以及为什么它会改变 commit 身份。\n",
     "coverBriefMarkdown": "# EP06 封面 Brief\n\n## 核心判断\n\n```text\nMerge 先看提交图\n快进或三方合并\n```\n\n## 主视觉\n\n用一个明确分叉的 commit DAG 居中构图，左侧标 fast-forward，右侧标 three-way；merge base 使用中性色，结果节点使用语义高亮。不要用文件夹相撞或装饰性爆炸效果。\n\n## 推荐标题\n\n```text\nMerge 到底合并了什么\n```\n",
     "checklistMarkdown": "# EP06 发布检查清单\n\n- [ ] candidate 人工视觉审查通过并完成 approve / promote\n- [ ] release-build 与 release-audit verdict 均为 pass\n- [ ] 最终文件参数与 SHA 由 release 流程自动回写\n- [ ] fast-forward、merge base、双 parent 拓扑均准确\n- [ ] Manim 片段与 Remotion 课程壳衔接自然\n- [ ] 冲突画面没有暗示 Git 能自动判断业务语义\n- [ ] B 站时间轴按最终 release 复核\n"
   }

@@ -46,34 +46,57 @@ const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'm
   tone,
   opacity = 1,
 }) => {
+  const isBase = tone === 'base';
   const stroke =
-    tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : tone === 'base' ? COLOR.git.head : COLOR.git.commit;
+    tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : COLOR.git.commit;
   return (
     <g opacity={opacity}>
-      <circle cx={x} cy={y + 9} r="31" fill={COLOR.effects.shadowSoft} opacity="0.52" />
-      <circle cx={x} cy={y} r="28" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={tone ? 6.8 : 5.4} />
-      <text x={x} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphNode.fontSize} fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
+      <circle cx={x} cy={y + 10} r="36" fill={COLOR.effects.shadowSoft} opacity="0.52" />
+      {isBase ? <circle cx={x} cy={y} r="42" fill="none" stroke={COLOR.text.secondary} strokeWidth="3" strokeDasharray="7 6" /> : null}
+      <circle cx={x} cy={y} r="32" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={tone ? 7.4 : 6} />
+      <text x={x} y={y + 9} textAnchor="middle" fontFamily={FONT.mono} fontSize="28" fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
         {id}
       </text>
     </g>
   );
 };
 
-const BranchLabel: React.FC<{name: string; x: number; y: number; color: string; opacity?: number}> = ({name, x, y, color, opacity = 1}) => (
-  <g opacity={opacity}>
-    <path d={`M${x} ${y < 150 ? y + 24 : y - 24} C${x} ${y < 150 ? y + 50 : y - 50} ${x} ${y < 150 ? 168 : 182} ${x} ${y < 150 ? 168 : 182}`} fill="none" stroke={color} strokeWidth="4.3" strokeLinecap="round" />
-    <rect x={x - 58} y={y - 24} width="116" height="48" rx="8" fill={color} />
-    <text x={x} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
-      {name}
-    </text>
-  </g>
-);
+const BranchLabel: React.FC<{
+  name: string;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  color: string;
+  opacity?: number;
+}> = ({name, x, y, targetX, targetY, color, opacity = 1}) => {
+  const isAboveTarget = y < targetY;
+  const connectorStartY = y + (isAboveTarget ? 27 : -27);
+  const connectorEndY = targetY + (isAboveTarget ? -39 : 39);
+  const connectorMidY = (connectorStartY + connectorEndY) / 2;
+
+  return (
+    <g opacity={opacity}>
+      <path
+        d={`M${x} ${connectorStartY} C${x} ${connectorMidY} ${targetX} ${connectorMidY} ${targetX} ${connectorEndY}`}
+        fill="none"
+        stroke={color}
+        strokeWidth="4.3"
+        strokeLinecap="round"
+      />
+      <rect x={x - 67} y={y - 27} width="134" height="54" rx="9" fill={color} />
+      <text x={x} y={y + 9} textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
+        {name}
+      </text>
+    </g>
+  );
+};
 
 const HeadLabel: React.FC<{x: number; y: number; opacity?: number}> = ({x, y, opacity = 1}) => (
   <g opacity={opacity}>
-    <rect x={x - 49} y={y - 22} width="98" height="44" rx="22" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
-    <circle cx={x - 28} cy={y} r="5" fill={COLOR.git.head} />
-    <text x={x + 10} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
+    <rect x={x - 55} y={y - 24} width="110" height="48" rx="24" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.8" />
+    <circle cx={x - 31} cy={y} r="6" fill={COLOR.git.head} />
+    <text x={x + 11} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize="22" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
       HEAD
     </text>
   </g>
@@ -102,24 +125,37 @@ const MergeGraph: React.FC<{
   const mainTargetY = mode === 'diverged' || mode === 'merged' ? 98 : y;
   const featureTargetX = showC4 ? c4 : c3;
   const featureTargetY = showC4 ? 254 : y;
-  const headX = mainTargetX + 112;
+  const headX = mainTargetX + 136;
   const headY = mode === 'diverged' || mode === 'merged' ? 72 : 254;
+  const viewBox = small
+    ? {x: 60, y: 0, width: 840, height: 380}
+    : mode === 'ff-before' || mode === 'ff-after'
+      ? {x: 70, y: 30, width: 760, height: 300}
+      : mode === 'diverged'
+        ? {x: 80, y: 0, width: showHead ? 880 : 720, height: 350}
+        : {x: 80, y: 0, width: 880, height: 350};
+  const height = Math.round((width * viewBox.height) / viewBox.width);
 
   return (
-    <svg width={width} height={small ? 280 : 380} viewBox="0 0 900 380" style={{display: 'block', overflow: 'visible'}}>
-      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+    <svg
+      width={width}
+      height={height}
+      viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+      style={{display: 'block', overflow: 'visible'}}
+    >
+      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
       {mode === 'ff-before' || mode === 'ff-after' ? (
-        <line x1={c2} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" opacity={mode === 'ff-before' ? 0.9 : progress} />
+        <line x1={c2} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" opacity={mode === 'ff-before' ? 0.9 : progress} />
       ) : (
         <>
-          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
         </>
       )}
       {showM1 ? (
         <>
-          <line x1={c3} y1="98" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c4} y1="254" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+          <line x1={c3} y1="98" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
+          <line x1={c4} y1="254" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="9" strokeLinecap="round" />
         </>
       ) : null}
       {showParentArrows ? (
@@ -136,25 +172,25 @@ const MergeGraph: React.FC<{
       {showM1 ? <CommitNode id="M1" x={m1} y={y} /> : null}
       {mode === 'ff-before' || mode === 'ff-after' ? (
         <>
-          <BranchLabel name="hotfix" x={c3} y={92} color={COLOR.git.feature} />
-          <BranchLabel name="main" x={mainTargetX} y={254} color={COLOR.git.main} />
+          <BranchLabel name="hotfix" x={c3} y={92} targetX={c3} targetY={y} color={COLOR.git.feature} />
+          <BranchLabel name="main" x={mainTargetX} y={254} targetX={mainTargetX} targetY={y} color={COLOR.git.main} />
         </>
       ) : (
         <>
-          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - 72} color={COLOR.git.main} />
-          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + 72} color={COLOR.git.feature} />
+          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - 72} targetX={mainTargetX} targetY={mainTargetY} color={COLOR.git.main} />
+          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + 72} targetX={featureTargetX} targetY={featureTargetY} color={COLOR.git.feature} />
         </>
       )}
       {showHead ? <HeadLabel x={headX} y={headY} opacity={small ? 0 : 1} /> : null}
       {showBaseLabels ? (
         <>
-          <text x={c2} y={y + 72} textAnchor="middle" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
+          <text x={c2} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="28" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
             base
           </text>
-          <text x={c3 + 78} y="108" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
+          <text x={c3 + 84} y="109" fontFamily={FONT.sans} fontSize="28" fontWeight={WEIGHT.bold} fill={COLOR.git.main}>
             ours
           </text>
-          <text x={c4 + 78} y="262" fontFamily={FONT.sans} fontSize="24" fontWeight={WEIGHT.bold} fill={COLOR.git.feature}>
+          <text x={c4 + 84} y="263" fontFamily={FONT.sans} fontSize="28" fontWeight={WEIGHT.bold} fill={COLOR.git.feature}>
             theirs
           </text>
         </>
@@ -220,11 +256,11 @@ const FastForwardScene: React.FC = () => {
   return (
     <AbsoluteFill>
       <CommandPill command="git merge hotfix" branch="main" />
-      <div style={{position: 'absolute', left: '50%', top: 304, width: 1120, transform: 'translateX(-50%)'}}>
-        <MergeGraph mode={motion > 0 ? 'ff-after' : 'ff-before'} width={1120} progress={motion} />
+      <div style={{position: 'absolute', left: '50%', top: 260, width: 1400, transform: 'translateX(-50%)'}}>
+        <MergeGraph mode={motion > 0 ? 'ff-after' : 'ff-before'} width={1400} progress={motion} />
       </div>
-      <SideNote x={1315} y={360} color={COLOR.git.main} opacity={noteIn}>
-        main 可以沿历史走到 hotfix
+      <SideNote x={1020} y={738} color={COLOR.git.main} opacity={noteIn}>
+        作用：接入 hotfix，不额外制造汇合节点
       </SideNote>
       <SceneCaption opacity={captionIn} bottom={118} auditId="ep06-ff-caption">
         fast-forward：不新建 commit，只移动 main 指针
@@ -245,11 +281,11 @@ const DivergedScene: React.FC = () => {
       <div style={{opacity: commandIn}}>
         <CommandPill command="git merge feature" branch="main" />
       </div>
-      <div style={{position: 'absolute', left: '50%', top: 286, width: 1120, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
-        <MergeGraph mode="diverged" width={1120} showBaseLabels={labelsIn > 0} showHead={false} />
+      <div style={{position: 'absolute', left: '50%', top: 238, width: 1320, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
+        <MergeGraph mode="diverged" width={1320} showBaseLabels={labelsIn > 0} showHead={false} />
       </div>
-      <SideNote x={226} y={702} color={COLOR.git.head} opacity={labelsIn}>
-        base / ours / theirs 准备进入三方合并
+      <SideNote x={238} y={748} color={COLOR.git.commit} opacity={labelsIn}>
+        作用：merge base 分开共同内容与双方变化
       </SideNote>
       <SceneCaption opacity={captionIn} bottom={118} auditId="ep06-diverged-caption">
         两边都变了，Git 不能只移动一个指针
@@ -286,14 +322,14 @@ const MergeCommitScene: React.FC = () => {
   return (
     <AbsoluteFill>
       <CommandPill command="git merge feature" branch="main" />
-      <div style={{position: 'absolute', left: '50%', top: 282, width: 1160, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
-        <MergeGraph mode="merged" width={1160} showParentArrows={arrowsIn > 0} />
+      <div style={{position: 'absolute', left: '50%', top: 232, width: 1420, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
+        <MergeGraph mode="merged" width={1420} showParentArrows={arrowsIn > 0} />
       </div>
-      <div style={{position: 'absolute', left: 667, top: 732, width: 586, opacity: refIn}}>
+      <div style={{position: 'absolute', left: 160, top: 690, width: 690, opacity: refIn}}>
         <CodeBlock title="commit M1" lines={['parent C3', 'parent C4', 'tree result']} highlight={[0, 1]} highlightBorderColor={COLOR.stroke.strong} />
       </div>
-      <SideNote x={1294} y={382} color={COLOR.git.commit} opacity={arrowsIn}>
-        M1 有两个 parent
+      <SideNote x={1260} y={718} color={COLOR.git.commit} opacity={arrowsIn}>
+        作用：保留两条开发线的来源
       </SideNote>
       <SceneCaption opacity={captionIn} bottom={116} auditId="ep06-merge-commit-caption">
         历史从 M1 重新汇合，main 指向这个新提交
