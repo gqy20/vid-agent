@@ -17,7 +17,9 @@ Git Course 解释 commit、branch、HEAD、remote 和提交图；GitHub Course �
 - `episodes/*.json`：每集唯一内容源。
 - `episode.schema.json`：episode 内容和浏览器录制声明的基础 schema。
 - `workflow.md`：浏览器录制、Remotion 合成和审查流程。
+- `checklist.md`：从 1080p 内容验收到 4K 发布的阶段门禁。
 - `visual-language.md`：Git 与 GitHub 平台状态的视觉语义边界。
+- `../docs/course-production.md`：三门课程共享的生产生命周期与状态语义。
 - `scripts/browser-recordings/github-course-lab/`：可重复的浏览器录制场景。
 - `remotion/src/videos/github-course/`：课程壳、浏览器组件和 GitHub 状态模型。
 - `remotion/public/github-course/browser/`：派生浏览器录制资产，不提交。

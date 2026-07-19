@@ -1,5 +1,9 @@
 # GitHub Course 生产流程
 
+本课程遵守仓库级 [`课程视频统一生产规范`](../docs/course-production.md)。GitHub adapter 负责真实浏览器录制、平台状态、Git 状态桥接和 1080p→4K 双规格交付；共享规范负责 Candidate、SHA-bound audit、approve/promote、Current 和 Release/Publish 的统一语义。
+
+当前实现只到 1080p candidate/audit。以下 4K、Current 和发布规则是接入门槛，不代表对应命令已经可用；实际能力以本文“当前框架边界”和 orchestrator 为准。
+
 ## 唯一内容源
 
 每集只维护：
@@ -114,3 +118,7 @@ SRT 保留 MMX 时间码、使用 episode JSON 停顿段规范文本，再清理
 release-approve / publish` 仍主动拒绝执行，不能覆盖 `current/`。下一阶段是接入 4K browser /
 render profile、发布包装和平台物料，并让发布门禁验证 `deliveryResolution`，禁止 1080p
 candidate 晋升。
+
+`approve-visual` 是迭代期的临时视觉确认，不等同于共享规范中的 main approval。它不能把机器
+`fail` 当作问题已经修复，也不能被 4K 或 release 阶段继承；接入正式门禁时必须先让机器检查
+重新产生 `needs_review`，再由人工批准当前精确 SHA。

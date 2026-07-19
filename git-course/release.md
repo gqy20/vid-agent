@@ -1,5 +1,7 @@
 # Git Course 发布规范
 
+本文件是仓库级 [`课程视频统一生产规范`](../docs/course-production.md) 的 Git Course 发布适配。共享的 Current/Release SHA 关系、release audit/approve 和 publish 门禁优先适用；本文只补充 Git 课程的包装与平台物料。
+
 每集发布源数据直接维护在 `episodes/<episode-id>.json` 的 `release` 字段：
 
 - `bilibiliMarkdown`：标题、简介、章节、标签、动态和置顶评论；

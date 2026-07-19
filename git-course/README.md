@@ -26,6 +26,7 @@
 
 ## 文件分工
 
+- `docs/course-production.md`: Git、GitHub、Claude Code 课程共享的生产生命周期与门禁
 - `git-course/episodes/*.json`: 每集唯一内容源，包含教学、scene、旁白、审查记录和发布数据
 - `git-course/components.md`: Remotion 组件库与 Manim 场景库边界
 - `git-course/workflow.md`: 每集从脚本到成片的生产流程，包含分段配音、BGM 复用、响度规范化和固定输出约定

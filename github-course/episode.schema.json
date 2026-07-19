@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/schemas/github-course-episode.schema.json",
   "title": "GitHub Course Episode",
+  "$comment": "Shared lifecycle rules live in docs/course-production.md. Release remains optional until the 4K release adapter is implemented.",
   "type": "object",
   "additionalProperties": true,
   "required": [
@@ -102,6 +103,11 @@
           "containsSensitiveState": {"const": false}
         }
       }
+    },
+    "release": {
+      "description": "Episode-owned release copy, cover brief, checks and published artifact metadata. Required when the release adapter is enabled.",
+      "type": "object",
+      "additionalProperties": true
     },
     "scenes": {
       "type": "array",

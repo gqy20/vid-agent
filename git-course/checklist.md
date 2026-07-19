@@ -1,5 +1,7 @@
 # Git Course 通用检查清单
 
+本清单补充仓库级 [`课程视频统一生产规范`](../docs/course-production.md)，只增加 Git 教学、Git 状态、语义色、终端和课程包装的检查项。共享 Candidate、SHA、Current 和 Release 门禁不得在本清单中放宽。
+
 本清单用于每一集从脚本定稿到发布封装的统一验收。它只回答“当前内容能否进入下一阶段”，不替代以下文档：
 
 - `workflow.md`：说明如何生产。
@@ -141,7 +143,7 @@
 
 - [ ] 修复阶段的分段预览已更新到 `tmp/preview/scenes/`，命名为 `01_scene_id.mp4` 形式，并由 manifest 记录 fingerprint 与 SHA。
 - [ ] preview 是 cache 的 hardlink/兼容复制视图，没有被当作第二套长期缓存；过期 preview 已从 manifest 和目录中清理。
-- [ ] 候选验收通过并 promote 后，已批准分段才同步到 `current/scenes/`。
+- [ ] `current/` 不保存 scene preview；分段只保留在 cache 与可重建的 `tmp/preview/scenes/`。
 - [ ] build 音频先生成在 `tmp/build/candidate/audio/`；approve/promote 前没有改写 `current/audio/`。
 - [ ] 当前正片已覆盖 `current/<episode-id>.mp4`，没有创建 `new`、`v2` 或 `final-final`。
 - [ ] `current/` 下没有 `final/` 子目录；历史成片如需保留已移入 `tmp/legacy-final/`。

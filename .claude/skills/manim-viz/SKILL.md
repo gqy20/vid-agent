@@ -30,7 +30,7 @@ dependencies:
 ```
 1. 项目骨架（如首次）
    scripts/init_project.sh my-slug 2026-07-01   ← 一次性建完整目录
-   
+
 2. 改 src/<slug>.py 写 Scene（参考 references/examples.md）
    ├─ 显式 import（绝不用 `from manim import *`）
    ├─ 不调 MathTex / Axes.get_axis_labels / DecimalNumber
@@ -160,6 +160,13 @@ helper 脚本（8 个，缺哪个调哪个）：
 ## 课程类视频中的 Manim 边界
 
 技术课程中，先判断镜头表达是否需要 Manim，而不是先看本地有没有现成场景。
+
+课程项目存在 episode JSON 和 orchestrator 时，Manim 只生产带指纹的输入资产：
+
+- scene、渲染 profile、源码和依赖必须进入课程 adapter 的输入指纹；
+- Manim 产物由 Remotion 合成后再进入课程 Candidate 和统一审查；
+- 本 skill 的独立项目 `renders/<date-topic>/`、thumbnail 和发布步骤只适用于没有课程 adapter 的独立动画；
+- 不得把 Manim 的独立 `current`、promote 或 publish 当作课程 Current/Release，也不得绕过课程 orchestrator 直接替换正式成片。
 
 优先用 Manim：
 

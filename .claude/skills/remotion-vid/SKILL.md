@@ -21,6 +21,8 @@ bug。
   审查证据、verdict、批准与晋升这些通用阶段。
 - **项目适配器负责**：内容 schema、目录、命令、scene 划分、品牌/教学规则、采样参数、响度目标、
   发布平台和准入阈值。
+- 系列课程存在仓库级共享生产规范时，先读共享生命周期，再读课程 `workflow.md` 与 `checklist.md`；
+  共享规范定义状态语义，课程 adapter 定义证据和具体命令。
 - 已有项目 orchestrator 时必须从它进入，不绕过它直接调用底层 TTS、Remotion 或 FFmpeg。
 - 没有项目适配器时，才使用本 skill 的 `scripts/` 作为轻量 fallback；通用脚本不是项目事实源。
 

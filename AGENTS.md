@@ -1,6 +1,6 @@
 # AGENTS.md
 
-这个仓库用于视频生产。当前主线是 Git 课程，相关内容主要位于 `git-course/`、`remotion/src/videos/git-course/` 和 `scripts/manim/git-course/`。
+这个仓库用于视频生产，当前包含 Git Course、GitHub Course、Claude Code Course 和独立视频项目。Git Course 仍是实现最完整的主线，但它不是其他课程可以直接照搬的唯一规范。
 
 ## Skill 使用边界
 
@@ -8,6 +8,29 @@
 - 禁止使用任何 HyperFrames 相关 skill，包括但不限于 `hyperframes-read-first`、`hyperframes-creative`、`hyperframes-media`、`hyperframes-registry`、`general-video` 和 `website-to-video`。
 - Remotion 视频使用项目内 `remotion-vid`，Manim 原理动画使用项目内 `manim-viz`；浏览器、终端、TTS、审查和发布必须从本仓库既有流程进入。
 - 如果项目内 skill 暂时没有覆盖某个步骤，优先补充或复用仓库脚本，不得切换到 HyperFrames 工作流。
+
+## 跨课程生产规范
+
+- 所有课程共同遵守 `docs/course-production.md`。课程自己的 `workflow.md`、`checklist.md` 和视觉规范只增加 adapter 规则，不得削弱共享的 SHA、audit、approve、promote 和 publish 门禁。
+- 每集的 `episodes/<episode-id>.json` 是教学、scene、旁白、来源和发布数据的唯一内容源。录屏 sidecar、TTS 文本、SRT、manifest、timeline 和发布文案文件均为派生产物。
+- 共享生命周期固定为 `episode JSON -> inputs -> cache/tasks -> candidate -> audit -> approve -> current -> release candidate -> release audit/approve -> published`。
+- build 只能写 `tmp/`。只有与候选 SHA 和全部输入指纹匹配的 `pass` verdict 才能晋升；只有 orchestrator 能写 `current/` 和 `current/release/`。
+- 尚未实现的阶段必须保持 `blocked`。不得用手工复制、改名或前端兼容分支伪造 Current、Release 或 Published。
+- 课程可以有不同证据：Git 使用终端和 Git 模型，GitHub 使用真实浏览器和平台状态，Claude Code 使用真实终端、工具调用与文件/测试/diff 结果。不同证据最终都必须进入同一套可追溯审查状态。
+- episode id、composition id 映射、产物目录和命令参数必须唯一且可追踪。`segmentId` 与分段文件统一使用带顺序号的下划线形式，例如 `01_hook`。
+- Dashboard 只能调用课程 adapter 已实现的 orchestrator 动作，不得直接操作底层脚本或根据目录猜测状态。
+
+### 当前课程适配状态
+
+- **Git Course**：完整实现 build、main audit/approve、promote、release-build/audit/approve 和 publish，可作为共享机制的参考实现。
+- **GitHub Course**：目前只完成 1080p 浏览器/Scene/TTS、candidate 和 visual/full audit；4K、Current、Release 和 Publish 继续硬阻断，直到 adapter 真正实现。
+- **Claude Code Course**：目前是课程内容与旧 composition 的迁移阶段；没有统一 orchestrator、candidate/audit 或 release gate，不得把旧 `current` 当成新流程已经完成。
+
+## 课程适配边界
+
+- Git Course 的详细规则见 `git-course/workflow.md`、`git-course/checklist.md`、`git-course/release.md` 和下文 Git 课程品味。
+- GitHub Course 的浏览器录制、双规格交付和平台审查见 `github-course/workflow.md` 与 `github-course/checklist.md`。
+- Claude Code Course 的真实终端、版本核验和迁移规则见 `claude-code-course/workflow.md` 与 `claude-code-course/checklist.md`。
 
 ## Git 课程品味
 

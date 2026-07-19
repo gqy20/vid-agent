@@ -1,5 +1,7 @@
 # Git Course 生产流程
 
+本课程遵守仓库级 [`课程视频统一生产规范`](../docs/course-production.md)，并完整实现其中的 main candidate、audit/approve、Current、Release 和 Publish 生命周期。本文件只补充 Git Course 的 episode schema、Git 证据、音频、审查参数和具体 CLI；不得把这里的 Git 语义色或状态模型当作其他课程的共享视觉规范。
+
 ## 与通用 Remotion skill 的边界
 
 `.claude/skills/remotion-vid/` 只定义可复用机制：指纹、CAS、共享 bundle、最大稳定并行、
@@ -36,11 +38,11 @@ episode JSON
   ├── Remotion typed timeline
   ├── tmp/narration-source/*.txt + manifest.tsv
   ├── tmp/cache/{scenes,tts}/
+  ├── tmp/preview/scenes/*.mp4       # 可重建视图
   ├── tmp/build/candidate/audio/
   ├── tmp/build/candidate/<episode-id>.mp4
   ├── tmp/build/audit/<main|release>/
   ├── current/audio/                 # promote 后才写入
-  ├── current/scenes/*.mp4
   ├── current/<episode-id>.mp4
   └── current/release/{cover.png,<episode-id>.mp4}
 ```

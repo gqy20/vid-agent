@@ -2,6 +2,8 @@
 
 一套以真实开发任务为主线的 Claude Code 视频课程。课程不照着官方文档目录逐项念功能，而是沿着学习者能力增长组织内容：**先会用，再稳定交付，然后扩展 Claude Code，最后用 Agent SDK 构建自己的智能体产品。**
 
+本课程遵守仓库级 [`课程视频统一生产规范`](../docs/course-production.md)。课程专属的真实终端、版本核验、证据审查和旧 EP01 迁移规则见 [`workflow.md`](workflow.md)，阶段验收见 [`checklist.md`](checklist.md)。当前尚未实现统一 orchestrator，因此 Candidate、Current 和 Release 阶段保持阻断，不能通过手工复制旧成片宣称完成。
+
 ## 课程定位
 
 - 面向已经会使用终端和 Git、希望把 Claude Code 用进真实项目的开发者。
@@ -204,4 +206,6 @@ Claude Code 是非确定性 LLM，课程需要兼顾真实性与可复现性：
 
 - 课程大纲已升级为三季结构，第一季 11 集、第二季 9 集、第三季 10 集。
 - EP01 现有录屏与后处理流程保留，等待按新定位迁移内容。
-- 下一步先建立命令图鉴数据文件，并把第一季 11 集逐集落成 episode JSON；正式制作仍从 EP01 开始验证完整生产链。
+- `episodes/ep01-agentic-loop.json`、`Ep01Install` composition 与 `ep01-install/current` 是迁移前的三套身份，不再继续扩散；新流程先统一为一个 episode id。
+- episode schema、workflow 和 checklist 已建立；orchestrator、Candidate/Audit、Current 晋升与 Release/Publish 仍待实现。
+- 下一步先迁移 EP01 并验证完整生产链，再把第一季其余集数逐集落成 episode JSON。

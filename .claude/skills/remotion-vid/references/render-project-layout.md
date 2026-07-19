@@ -1,5 +1,10 @@
 # 渲染项目布局
 
+> **适用范围：独立 Remotion 视频的 fallback。** 如果仓库已经存在 `AGENTS.md`、课程级
+> `workflow.md` 或 orchestrator，必须使用项目定义的 episode、cache、candidate、audit、Current
+> 和 Release 生命周期。本文件中的日期目录、`tmp/chunks`、`tmp/scenes` 和
+> `promote --publish` 不得覆盖课程 adapter，也不能作为课程已通过门禁的证据。
+
 > 一个 Remotion 工程**共享一套依赖**（package.json / node_modules / remotion.config.ts），
 > 每条视频的**源码**隔离在 `src/videos/<slug>/`，**产物**归档到 `renders/<YYYY-MM-DD>-<slug>/`。
 > 让视频可重现、可分享、易跨版本对比，且根目录不被 mp4 堆乱。
