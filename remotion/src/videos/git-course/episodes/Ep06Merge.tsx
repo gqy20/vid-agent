@@ -1,16 +1,22 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP06} from '../data/episodes';
+import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds} from '../timeline';
 import {
   CodeBlock,
   CodeDiff,
   CommandPill,
+  COURSE_GRAPH_GEOMETRY,
   CourseLayout,
+  CourseBranchLabel,
+  CourseCommitNode,
+  CourseHeadMarker,
   EpisodeTitleCard,
   GitStatePanel,
-  ManimClip,
-  SceneCaption,
+  NarrationSubtitle,
+  RecordedTerminalPanel,
   SceneSequence,
+  SnapshotCard,
   type DiffLine,
 } from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
@@ -35,52 +41,39 @@ const getEp06SceneDuration = (id: Ep06SceneId) => {
   return scene.duration;
 };
 
+const getEp06Captions = (id: Ep06SceneId) => {
+  const scene = EP06_SCENES.find((item) => item.id === id);
+  if (!scene) throw new Error(`Unknown EP06 scene: ${id}`);
+  return scene.captions;
+};
+
 const useSceneFrame = () => useCurrentFrame();
 
-const commitX = (idx: number) => 140 + idx * 154;
+const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
 
-// Final 1080p screen-pixel weights. SVG geometry scales with each viewBox,
-// while non-scaling strokes keep the course line hierarchy visually stable.
-const GRAPH_STROKE = {
-  edge: 14,
-  edgeCompact: 10,
-  node: 9,
-  nodeStrong: 10.5,
-  nodeCompact: 7,
-  nodeStrongCompact: 8,
-  mergeBaseRing: 4,
-  ref: 7,
-  refCompact: 5.5,
-  head: 4,
-  parent: 7,
-} as const;
+const insetLine = (x1: number, y1: number, x2: number, y2: number, inset: number) => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.hypot(dx, dy);
+  const ux = dx / length;
+  const uy = dy / length;
+  return {x1: x1 + ux * inset, y1: y1 + uy * inset, x2: x2 - ux * inset, y2: y2 - uy * inset};
+};
 
-const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number; compact?: boolean}> = ({
+const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number; scale?: number}> = ({
   id,
   x,
   y,
   tone,
   opacity = 1,
-  compact = false,
+  scale = 1,
 }) => {
   const isBase = tone === 'base';
   const stroke =
     tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : COLOR.git.commit;
-  const nodeStroke = tone
-    ? compact
-      ? GRAPH_STROKE.nodeStrongCompact
-      : GRAPH_STROKE.nodeStrong
-    : compact
-      ? GRAPH_STROKE.nodeCompact
-      : GRAPH_STROKE.node;
   return (
-    <g opacity={opacity}>
-      <circle cx={x} cy={y + 10} r="36" fill={COLOR.effects.shadowSoft} opacity="0.52" />
-      {isBase ? <circle cx={x} cy={y} r="42" fill="none" stroke={COLOR.text.secondary} strokeWidth={GRAPH_STROKE.mergeBaseRing} strokeDasharray="7 6" vectorEffect="non-scaling-stroke" /> : null}
-      <circle cx={x} cy={y} r="32" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={nodeStroke} vectorEffect="non-scaling-stroke" />
-      <text x={x} y={y + 9} textAnchor="middle" fontFamily={FONT.mono} fontSize="28" fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
-        {id}
-      </text>
+    <g transform={scale === 1 ? undefined : `translate(${x} ${y}) scale(${scale}) translate(${-x} ${-y})`}>
+      <CourseCommitNode id={id} x={x} y={y} stroke={stroke} strong={Boolean(tone)} opacity={opacity} ring={isBase ? {color: COLOR.text.secondary, dashed: true} : undefined} />
     </g>
   );
 };
@@ -91,42 +84,13 @@ const BranchLabel: React.FC<{
   y: number;
   targetX: number;
   targetY: number;
+  targetRadius?: number;
   color: string;
   opacity?: number;
   compact?: boolean;
-}> = ({name, x, y, targetX, targetY, color, opacity = 1, compact = false}) => {
-  const isAboveTarget = y < targetY;
-  const connectorStartY = y + (isAboveTarget ? 27 : -27);
-  const connectorEndY = targetY + (isAboveTarget ? -39 : 39);
-  const connectorMidY = (connectorStartY + connectorEndY) / 2;
+}> = ({name, x, y, targetX, targetY, targetRadius, color, opacity = 1}) => <CourseBranchLabel name={name} x={x} y={y} targetX={targetX} targetY={targetY} targetRadius={targetRadius} color={color} opacity={opacity} />;
 
-  return (
-    <g opacity={opacity}>
-      <path
-        d={`M${x} ${connectorStartY} C${x} ${connectorMidY} ${targetX} ${connectorMidY} ${targetX} ${connectorEndY}`}
-        fill="none"
-        stroke={color}
-        strokeWidth={compact ? GRAPH_STROKE.refCompact : GRAPH_STROKE.ref}
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-      />
-      <rect x={x - 67} y={y - 27} width="134" height="54" rx="9" fill={color} />
-      <text x={x} y={y + 9} textAnchor="middle" fontFamily={FONT.mono} fontSize="27" fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
-        {name}
-      </text>
-    </g>
-  );
-};
-
-const HeadLabel: React.FC<{x: number; y: number; opacity?: number}> = ({x, y, opacity = 1}) => (
-  <g opacity={opacity}>
-    <rect x={x - 55} y={y - 24} width="110" height="48" rx="24" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth={GRAPH_STROKE.head} vectorEffect="non-scaling-stroke" />
-    <circle cx={x - 31} cy={y} r="6" fill={COLOR.git.head} />
-    <text x={x + 11} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize="22" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
-      HEAD
-    </text>
-  </g>
-);
+const HeadLabel: React.FC<{x: number; y: number; opacity?: number}> = (props) => <CourseHeadMarker {...props} />;
 
 const MergeGraph: React.FC<{
   mode: 'ff-before' | 'ff-after' | 'diverged' | 'merged';
@@ -136,7 +100,9 @@ const MergeGraph: React.FC<{
   showParentArrows?: boolean;
   showHead?: boolean;
   small?: boolean;
-}> = ({mode, width = 1120, progress = 1, showBaseLabels = false, showParentArrows = false, showHead = true, small = false}) => {
+  nodeScale?: number;
+  mergedRefProgress?: number;
+}> = ({mode, width = 1120, progress = 1, showBaseLabels = false, showParentArrows = false, showHead = true, small = false, nodeScale = 1, mergedRefProgress = 1}) => {
   const y = 176;
   const c0 = commitX(0);
   const c1 = commitX(1);
@@ -147,21 +113,33 @@ const MergeGraph: React.FC<{
   const ffMainX = interpolate(progress, [0, 1], [c2, c3], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const showC4 = mode === 'diverged' || mode === 'merged';
   const showM1 = mode === 'merged';
-  const mainTargetX = mode === 'ff-before' ? c2 : mode === 'ff-after' ? ffMainX : showM1 ? m1 : c3;
-  const mainTargetY = mode === 'diverged' || mode === 'merged' ? 98 : y;
+  const mergedMainX = interpolate(mergedRefProgress, [0, 1], [c3, m1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const mergedMainY = interpolate(mergedRefProgress, [0, 1], [98, y], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const mainTargetX = mode === 'ff-before' ? c2 : mode === 'ff-after' ? ffMainX : showM1 ? mergedMainX : c3;
+  const mainTargetY = mode === 'diverged' ? 98 : mode === 'merged' ? mergedMainY : y;
   const featureTargetX = showC4 ? c4 : c3;
   const featureTargetY = showC4 ? 254 : y;
-  const headX = mainTargetX + 136;
-  const headY = mode === 'diverged' || mode === 'merged' ? 72 : 254;
+  const headX = mainTargetX + 124;
+  const headY = mode === 'diverged' || mode === 'merged' ? mainTargetY - 72 : 247;
   const viewBox = small
     ? {x: 60, y: 0, width: 840, height: 380}
     : mode === 'ff-before' || mode === 'ff-after'
-      ? {x: 70, y: 30, width: 760, height: 300}
+      ? {x: 40, y: 15, width: 820, height: 320}
       : mode === 'diverged'
-        ? {x: 80, y: 0, width: showHead ? 880 : 720, height: 350}
-        : {x: 80, y: 0, width: 880, height: 350};
+        ? {x: 40, y: 0, width: showHead ? 880 : 700, height: 350}
+        : {x: 40, y: 0, width: 880, height: 350};
   const height = Math.round((width * viewBox.height) / viewBox.width);
-  const edgeStroke = small ? GRAPH_STROKE.edgeCompact : GRAPH_STROKE.edge;
+  const edgeStroke = COURSE_GRAPH_GEOMETRY.edgeStroke;
+  const nodeOuterRadius = (COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2) * nodeScale;
+  const edgeInset = nodeOuterRadius + edgeStroke / 2;
+  const defaultNodeOuterRadius = COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2;
+  const refOffset = 72 + Math.max(0, nodeOuterRadius - defaultNodeOuterRadius);
+  const trunkEdge = insetLine(c0, y, c2, y, edgeInset);
+  const forwardEdge = insetLine(c2, y, c3, y, edgeInset);
+  const upperBranchEdge = insetLine(c2, y, c3, 98, edgeInset);
+  const lowerBranchEdge = insetLine(c2, y, c4, 254, edgeInset);
+  const upperParentEdge = insetLine(c3, 98, m1, y, edgeInset);
+  const lowerParentEdge = insetLine(c4, 254, m1, y, edgeInset);
 
   return (
     <svg
@@ -170,44 +148,38 @@ const MergeGraph: React.FC<{
       viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
       style={{display: 'block', overflow: 'visible'}}
     >
-      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <line {...trunkEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
       {mode === 'ff-before' || mode === 'ff-after' ? (
-        <line x1={c2} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity={mode === 'ff-before' ? 0.9 : progress} />
+        <line {...forwardEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={mode === 'ff-before' ? 0.9 : progress} />
       ) : (
         <>
-          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <line {...upperBranchEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+          <line {...lowerBranchEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
         </>
       )}
       {showM1 ? (
         <>
-          <line x1={c3} y1="98" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-          <line x1={c4} y1="254" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <line {...upperParentEdge} stroke={showParentArrows ? COLOR.git.main : COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+          <line {...lowerParentEdge} stroke={showParentArrows ? COLOR.git.feature : COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
         </>
       ) : null}
-      {showParentArrows ? (
-        <>
-          <path d={`M${m1 - 36} ${y - 18} C${m1 - 92} ${132} ${c3 + 38} ${105} ${c3 + 30} ${101}`} fill="none" stroke={COLOR.git.main} strokeWidth={GRAPH_STROKE.parent} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity="0.85" />
-          <path d={`M${m1 - 36} ${y + 18} C${m1 - 92} ${222} ${c4 + 38} ${247} ${c4 + 30} ${252}`} fill="none" stroke={COLOR.git.feature} strokeWidth={GRAPH_STROKE.parent} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity="0.85" />
-        </>
-      ) : null}
-      <CommitNode id="C0" x={c0} y={y} compact={small} />
-      <CommitNode id="C1" x={c1} y={y} compact={small} />
-      <CommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : undefined} compact={small} />
-      {mode === 'ff-before' || mode === 'ff-after' ? <CommitNode id="C3" x={c3} y={y} tone="feature" compact={small} /> : <CommitNode id="C3" x={c3} y={98} tone="main" compact={small} />}
-      {showC4 ? <CommitNode id="C4" x={c4} y={254} tone="feature" compact={small} /> : null}
-      {showM1 ? <CommitNode id="M1" x={m1} y={y} compact={small} /> : null}
       {mode === 'ff-before' || mode === 'ff-after' ? (
         <>
-          <BranchLabel name="hotfix" x={c3} y={92} targetX={c3} targetY={y} color={COLOR.git.feature} compact={small} />
-          <BranchLabel name="main" x={mainTargetX} y={254} targetX={mainTargetX} targetY={y} color={COLOR.git.main} compact={small} />
+          <BranchLabel name="hotfix" x={c3} y={y - refOffset} targetX={c3} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.feature} compact={small} />
+          <BranchLabel name="main" x={mainTargetX} y={y + refOffset} targetX={mainTargetX} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.main} compact={small} />
         </>
       ) : (
         <>
-          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - 72} targetX={mainTargetX} targetY={mainTargetY} color={COLOR.git.main} compact={small} />
-          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + 72} targetX={featureTargetX} targetY={featureTargetY} color={COLOR.git.feature} compact={small} />
+          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - refOffset} targetX={mainTargetX} targetY={mainTargetY} targetRadius={nodeOuterRadius} color={COLOR.git.main} compact={small} />
+          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + refOffset} targetX={featureTargetX} targetY={featureTargetY} targetRadius={nodeOuterRadius} color={COLOR.git.feature} compact={small} />
         </>
       )}
+      <CommitNode id="C0" x={c0} y={y} scale={nodeScale} />
+      <CommitNode id="C1" x={c1} y={y} scale={nodeScale} />
+      <CommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : undefined} scale={nodeScale} />
+      {mode === 'ff-before' || mode === 'ff-after' ? <CommitNode id="C3" x={c3} y={y} tone="feature" scale={nodeScale} /> : <CommitNode id="C3" x={c3} y={98} tone="main" scale={nodeScale} />}
+      {showC4 ? <CommitNode id="C4" x={c4} y={254} tone="feature" scale={nodeScale} /> : null}
+      {showM1 ? <CommitNode id="M1" x={m1} y={y} scale={nodeScale} /> : null}
       {showHead ? <HeadLabel x={headX} y={headY} opacity={small ? 0 : 1} /> : null}
       {showBaseLabels ? (
         <>
@@ -233,7 +205,7 @@ const SideNote: React.FC<{children: React.ReactNode; x: number; y: number; color
   color = COLOR.git.head,
   opacity,
 }) => (
-  <div style={{position: 'absolute', left: x, top: y, opacity, ...TYPE.subtitle, fontWeight: WEIGHT.bold, color: COLOR.text.primary, maxWidth: 520}}>
+  <div style={{position: 'absolute', left: x, top: y, width: 650, opacity, ...TYPE.subtitle, fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>
     <span style={{display: 'inline-block', width: 14, height: 14, borderRadius: 999, background: color, marginRight: 14}} />
     {children}
   </div>
@@ -245,7 +217,6 @@ const HookScene: React.FC = () => {
   const titleOut = interpolate(frame, [seconds(1.7), seconds(2.15)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const ffIn = interpolate(frame, [seconds(2.25), seconds(3.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const divergedIn = interpolate(frame, [seconds(5.8), seconds(6.7)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(8.6), seconds(9.35)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill style={{padding: '118px 154px 112px', boxSizing: 'border-box'}}>
@@ -267,18 +238,15 @@ const HookScene: React.FC = () => {
         <div style={{...TYPE.title, marginBottom: 20}}>已经分叉</div>
         <MergeGraph mode="diverged" width={900} small />
       </div>
-      <SceneCaption opacity={captionIn} width={960} bottom={126} auditId="ep06-hook-caption">
-        merge 先看历史形状，再决定怎么合并
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('hook')} width={1320} bottom={64} auditId="ep06-hook-caption" />
     </AbsoluteFill>
   );
 };
 
 const FastForwardScene: React.FC = () => {
   const frame = useSceneFrame();
-  const motion = interpolate(frame, [seconds(12), seconds(21)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const noteIn = interpolate(frame, [seconds(7), seconds(7.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(23), seconds(24)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const motion = interpolate(frame, [seconds(14.4), seconds(19.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const noteIn = interpolate(frame, [seconds(24.4), seconds(25.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
@@ -289,9 +257,7 @@ const FastForwardScene: React.FC = () => {
       <SideNote x={1020} y={738} color={COLOR.git.main} opacity={noteIn}>
         作用：接入 hotfix，不额外制造汇合节点
       </SideNote>
-      <SceneCaption opacity={captionIn} bottom={118} auditId="ep06-ff-caption">
-        fast-forward：不新建 commit，只移动 main 指针
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('fast-forward')} width={1320} bottom={64} auditId="ep06-ff-caption" />
     </AbsoluteFill>
   );
 };
@@ -300,8 +266,7 @@ const DivergedScene: React.FC = () => {
   const frame = useSceneFrame();
   const graphIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
   const commandIn = interpolate(frame, [seconds(8.2), seconds(9)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const labelsIn = interpolate(frame, [seconds(17.8), seconds(18.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(21.5), seconds(22.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const labelsIn = interpolate(frame, [seconds(15), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
@@ -314,27 +279,83 @@ const DivergedScene: React.FC = () => {
       <SideNote x={238} y={748} color={COLOR.git.commit} opacity={labelsIn}>
         作用：merge base 分开共同内容与双方变化
       </SideNote>
-      <SceneCaption opacity={captionIn} bottom={118} auditId="ep06-diverged-caption">
-        两边都变了，Git 不能只移动一个指针
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('diverged')} width={1320} bottom={64} auditId="ep06-diverged-caption" />
     </AbsoluteFill>
   );
 };
 
 const ThreeWayScene: React.FC = () => {
   const frame = useSceneFrame();
-  const caption1 = interpolate(frame, [seconds(5), seconds(6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption2 = interpolate(frame, [seconds(22), seconds(23)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const caption3 = interpolate(frame, [seconds(33), seconds(34)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionText = frame < seconds(22) ? 'base 是共同祖先，ours 是当前分支，theirs 是要合进来的分支' : frame < seconds(33) ? 'Git 只自动合成它能判断的修改' : '合成结果会被写成新的 merge commit';
-  const opacity = frame < seconds(22) ? caption1 : frame < seconds(33) ? caption2 : caption3;
+  const baseIn = interpolate(frame, [0, seconds(1)], [0, 1], {extrapolateRight: 'clamp'});
+  const branchesIn = interpolate(frame, [seconds(4.4), seconds(6.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const resultIn = interpolate(frame, [seconds(20.2), seconds(25.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
-    <AbsoluteFill style={{padding: '86px 132px 118px', boxSizing: 'border-box'}}>
-      <ManimClip src="git-course/manim/ep06/three-way-merge.mp4" fit="contain" playbackRate={0.77} auditId="ep06-three-way-manim" />
-      <SceneCaption opacity={opacity} width={1120} bottom={64} auditId="ep06-three-way-caption">
-        {captionText}
-      </SceneCaption>
+    <AbsoluteFill data-audit-id="ep06-three-way-remotion" style={{padding: '72px 132px 118px', boxSizing: 'border-box'}}>
+      <div style={{position: 'absolute', left: 132, top: 76, ...TYPE.title, color: COLOR.text.primary}}>三方合并：比较三份快照</div>
+      <div style={{position: 'absolute', left: 132, top: 142, ...TYPE.ui, color: COLOR.text.secondary}}>
+        base 提供共同起点；ours 与 theirs 只贡献各自后来的变化
+      </div>
+
+      <div style={{position: 'absolute', left: '50%', top: 170, width: 840, transform: 'translateX(-50%)'}}>
+        <MergeGraph mode="diverged" width={840} showBaseLabels showHead={false} />
+      </div>
+
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0, pointerEvents: 'none'}}>
+        <path d="M780 776 H628" fill="none" stroke={COLOR.git.main} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" opacity={branchesIn * (1 - resultIn)} />
+        <path d="M1140 776 H1292" fill="none" stroke={COLOR.git.feature} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" opacity={branchesIn * (1 - resultIn)} />
+        <path d="M640 768 l-12 8 12 8" fill="none" stroke={COLOR.git.main} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" strokeLinejoin="round" opacity={branchesIn * (1 - resultIn)} />
+        <path d="M1280 768 l12 8 -12 8" fill="none" stroke={COLOR.git.feature} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" strokeLinejoin="round" opacity={branchesIn * (1 - resultIn)} />
+        <path d="M612 776 H764" fill="none" stroke={COLOR.git.main} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" opacity={resultIn} />
+        <path d="M1308 776 H1156" fill="none" stroke={COLOR.git.feature} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" opacity={resultIn} />
+        <path d="M752 768 l12 8 -12 8" fill="none" stroke={COLOR.git.main} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" strokeLinejoin="round" opacity={resultIn} />
+        <path d="M1168 768 l-12 8 12 8" fill="none" stroke={COLOR.git.feature} strokeWidth={COURSE_GRAPH_GEOMETRY.refStroke} strokeLinecap="round" strokeLinejoin="round" opacity={resultIn} />
+      </svg>
+
+      <SnapshotCard
+        title="base · C2"
+        subtitle="共同祖先"
+        lines={['title: Git notes', 'body:  intro']}
+        tone="base"
+        x={780}
+        y={670}
+        opacity={baseIn * (1 - resultIn)}
+        scale={1 - branchesIn * 0.12}
+        auditId="ep06-three-way-base"
+      />
+      <SnapshotCard
+        title="ours · C3"
+        subtitle="当前 main 的变化"
+        lines={['title: Git course', 'body:  intro']}
+        tone="main"
+        x={252}
+        y={670}
+        opacity={branchesIn}
+        auditId="ep06-three-way-ours"
+      />
+      <SnapshotCard
+        title="result"
+        subtitle="可自动组合的结果"
+        lines={['title: Git course', 'body:  merge guide']}
+        tone="result"
+        x={780}
+        y={670}
+        opacity={resultIn}
+        scale={0.94 + resultIn * 0.06}
+        auditId="ep06-three-way-result"
+      />
+      <SnapshotCard
+        title="theirs · C4"
+        subtitle="feature 的变化"
+        lines={['title: Git notes', 'body:  merge guide']}
+        tone="feature"
+        x={1308}
+        y={670}
+        opacity={branchesIn}
+        auditId="ep06-three-way-theirs"
+      />
+
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('three-way')} width={1320} bottom={64} auditId="ep06-three-way-caption" />
     </AbsoluteFill>
   );
 };
@@ -342,25 +363,27 @@ const ThreeWayScene: React.FC = () => {
 const MergeCommitScene: React.FC = () => {
   const frame = useSceneFrame();
   const graphIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
-  const arrowsIn = interpolate(frame, [seconds(7), seconds(13)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const refIn = interpolate(frame, [seconds(15), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(23), seconds(24)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const commitReady = frame >= seconds(4.8);
+  const arrowsIn = interpolate(frame, [seconds(5.6), seconds(9)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const refIn = interpolate(frame, [seconds(10.8), seconds(11.6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const refMove = interpolate(frame, [seconds(18.7), seconds(20.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
     <AbsoluteFill>
       <CommandPill command="git merge feature" branch="main" />
-      <div style={{position: 'absolute', left: '50%', top: 232, width: 1420, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
-        <MergeGraph mode="merged" width={1420} showParentArrows={arrowsIn > 0} />
+      <div style={{position: 'absolute', left: '50%', top: 250, width: 1260, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
+        <MergeGraph mode={commitReady ? 'merged' : 'diverged'} width={1260} showParentArrows={commitReady && arrowsIn > 0} showHead={commitReady} mergedRefProgress={refMove} />
       </div>
-      <div style={{position: 'absolute', left: 160, top: 690, width: 690, opacity: refIn}}>
+      <div style={{position: 'absolute', left: 180, top: 680, width: 620, opacity: commitReady ? 0 : graphIn}}>
+        <CodeBlock title="三方合并结果" lines={['tree result', 'merge commit not written yet']} highlight={[0]} highlightBorderColor={COLOR.git.index} />
+      </div>
+      <div style={{position: 'absolute', left: 180, top: 680, width: 620, opacity: refIn}}>
         <CodeBlock title="commit M1" lines={['parent C3', 'parent C4', 'tree result']} highlight={[0, 1]} highlightBorderColor={COLOR.stroke.strong} />
       </div>
-      <SideNote x={1260} y={718} color={COLOR.git.commit} opacity={arrowsIn}>
+      <SideNote x={1240} y={700} color={COLOR.git.commit} opacity={arrowsIn}>
         作用：保留两条开发线的来源
       </SideNote>
-      <SceneCaption opacity={captionIn} bottom={116} auditId="ep06-merge-commit-caption">
-        历史从 M1 重新汇合，main 指向这个新提交
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('merge-commit')} width={1320} bottom={64} auditId="ep06-merge-commit-caption" />
     </AbsoluteFill>
   );
 };
@@ -376,32 +399,75 @@ const markerLines = ['<<<<<<< HEAD', 'return "main title";', '=======', 'return 
 
 const ConflictScene: React.FC = () => {
   const frame = useSceneFrame();
-  const diffIn = interpolate(frame, [0, seconds(0.8)], [0, 1], {extrapolateRight: 'clamp'});
-  const markerIn = interpolate(frame, [seconds(8), seconds(9.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const diffFocus = interpolate(frame, [seconds(18.4), seconds(19.2)], [1, 0.62], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const panelIn = interpolate(frame, [seconds(19.2), seconds(20.2)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const captionIn = interpolate(frame, [seconds(23), seconds(24)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const recording = TERMINAL_RECORDINGS['ep06-merge-conflict'];
+  const terminalVisible = frame < seconds(5.35);
+  const codeVisible = frame >= seconds(5.35);
+  const codeOut = interpolate(frame, [seconds(10.65), seconds(11.1)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const panelIn = interpolate(frame, [seconds(11.1), seconds(11.65)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const phase = frame < seconds(16.7) ? 'unresolved' : frame < seconds(20.7) ? 'resolved' : frame < seconds(24.7) ? 'committed' : 'aborted';
+  const phaseLabel = phase === 'unresolved'
+    ? 'UNMERGED · merge paused'
+    : phase === 'resolved'
+      ? '完成路径 · git add app.js'
+      : phase === 'committed'
+        ? '完成路径 · git commit'
+        : '退出路径（commit 前）· git merge --abort';
+  const stateAreas = phase === 'unresolved'
+    ? [
+        {id: 'working-tree' as const, title: 'Working Tree', files: ['app.js · conflict markers'], active: true},
+        {id: 'index' as const, title: 'Index', files: ['unmerged paths'], active: true},
+        {id: 'repository' as const, title: 'Repository', files: ['M1 not created']},
+      ]
+    : phase === 'resolved'
+      ? [
+          {id: 'working-tree' as const, title: 'Working Tree', files: ['app.js · resolved']},
+          {id: 'index' as const, title: 'Index', files: ['app.js · resolved + staged'], active: true},
+          {id: 'repository' as const, title: 'Repository', files: ['M1 not created']},
+        ]
+      : phase === 'committed'
+        ? [
+            {id: 'working-tree' as const, title: 'Working Tree', files: ['clean']},
+            {id: 'index' as const, title: 'Index', files: ['clean']},
+            {id: 'repository' as const, title: 'Repository', files: ['M1 · merge commit'], active: true},
+          ]
+        : [
+            {id: 'working-tree' as const, title: 'Working Tree', files: ['restored pre-merge']},
+            {id: 'index' as const, title: 'Index', files: ['clean']},
+            {id: 'repository' as const, title: 'Repository', files: ['HEAD at C3 · no M1'], active: true},
+          ];
 
   return (
     <AbsoluteFill style={{padding: '126px 156px 122px', boxSizing: 'border-box'}}>
-      <div style={{position: 'absolute', left: 168, top: 210, width: 650, opacity: diffIn * diffFocus, transform: `translateY(${(1 - diffIn) * 18}px)`}}>
+      {terminalVisible ? (
+        <div data-audit-id="ep06-conflict-terminal-recording" style={{position: 'absolute', left: 290, top: 176, width: 1340, height: 660}}>
+          <RecordedTerminalPanel
+            src="git-course-lab/terminal/ep06-merge-conflict.mp4"
+            holdFrameSrc="git-course-lab/terminal/ep06-merge-conflict-hold.png"
+            holdFromFrame={recording.holdFromFrame}
+            playbackRate={1.25}
+            mediaFit="cover"
+          />
+        </div>
+      ) : null}
+      <div style={{position: 'absolute', left: 168, top: 210, width: 650, opacity: (codeVisible ? 1 : 0) * codeOut}}>
         <CodeDiff title="同一位置，两边都改了" lines={conflictLines} />
       </div>
-      <div style={{position: 'absolute', right: 168, top: 210, width: 650, opacity: markerIn * diffFocus, transform: `translateY(${(1 - markerIn) * 18}px)`}}>
-        <CodeBlock title="app.js" lines={markerLines} highlight={[0, 2, 4]} highlightBorderColor={COLOR.git.conflict} highlightBackground="rgba(182,78,69,0.11)" />
-      </div>
-      <div style={{position: 'absolute', left: 332, right: 332, bottom: 206, opacity: panelIn, transform: `translateY(${(1 - panelIn) * 14}px)`}}>
-        <GitStatePanel
-          areas={[
-            {id: 'working-tree', title: 'Working Tree', files: ['app.js contains conflict markers'], active: true},
-            {id: 'index', title: 'Index', files: ['unmerged paths'], active: true},
-            {id: 'repository', title: 'Repository', files: ['merge commit not written']},
-          ]}
+      <div style={{position: 'absolute', right: 168, top: 210, width: 650, opacity: (codeVisible ? 1 : 0) * codeOut}}>
+        <CodeBlock
+          title="app.js · unresolved"
+          lines={markerLines}
+          highlight={[0, 2, 4]}
+          highlightBorderColor={COLOR.git.conflict}
+          highlightBackground="rgba(182,78,69,0.11)"
         />
       </div>
-      <SceneCaption opacity={captionIn} bottom={104} auditId="ep06-conflict-caption">
-        冲突表示 Git 无法自动决定，同一处需要你手动选择
-      </SceneCaption>
+      <div style={{position: 'absolute', left: 332, right: 332, top: 372, opacity: panelIn, ...TYPE.ui, fontWeight: WEIGHT.bold, color: phase === 'unresolved' ? COLOR.git.conflict : COLOR.text.primary}}>
+        {phaseLabel}
+      </div>
+      <div style={{position: 'absolute', left: 332, right: 332, top: 426, opacity: panelIn, transform: `translateY(${(1 - panelIn) * 16}px)`}}>
+        <GitStatePanel compact areas={stateAreas} />
+      </div>
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('conflict')} width={1320} bottom={64} auditId="ep06-conflict-caption" />
     </AbsoluteFill>
   );
 };
@@ -417,18 +483,16 @@ const TakeawayScene: React.FC = () => {
       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52}}>
         <div style={{opacity: left}}>
           <div style={{...TYPE.title, color: COLOR.git.main, marginBottom: 16}}>能快进</div>
-          <MergeGraph mode="ff-after" width={710} small />
-          <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 12}}>移动 branch 指针</div>
+          <MergeGraph mode="ff-after" width={710} small nodeScale={1.42} />
+          <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 32}}>移动 branch 指针</div>
         </div>
         <div style={{opacity: right}}>
           <div style={{...TYPE.title, color: COLOR.text.primary, marginBottom: 16}}>已经分叉</div>
-          <MergeGraph mode="merged" width={760} small showParentArrows />
-          <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 12}}>三方合并，生成 M1</div>
+          <MergeGraph mode="merged" width={760} small showParentArrows nodeScale={1.42} />
+          <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 32}}>三方合并，生成 M1</div>
         </div>
       </div>
-      <SceneCaption opacity={interpolate(frame, [seconds(10.5), seconds(11.3)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} bottom={74}>
-        关键不是文件夹拼接，而是历史形状和快照合成
-      </SceneCaption>
+      <NarrationSubtitle frame={frame} cues={getEp06Captions('takeaway')} width={1320} bottom={64} auditId="ep06-takeaway-caption" />
     </AbsoluteFill>
   );
 };

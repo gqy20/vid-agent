@@ -2,7 +2,22 @@ import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP08} from '../data/episodes';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds} from '../timeline';
-import {CodeDiff, CommandPill, CourseLayout, EpisodeTitleCard, GitStatePanel, QuestionCaption, RecordedTerminalPanel, SceneCaption, SceneSequence, type GitArea} from '../kit';
+import {
+  CodeDiff,
+  CommandPill,
+  COURSE_GRAPH_GEOMETRY,
+  CourseBranchLabel,
+  CourseCommitNode,
+  CourseHeadMarker,
+  CourseLayout,
+  EpisodeTitleCard,
+  GitStatePanel,
+  QuestionCaption,
+  RecordedTerminalPanel,
+  SceneCaption,
+  SceneSequence,
+  type GitArea,
+} from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
@@ -29,39 +44,16 @@ const getEp08SceneDuration = (id: Ep08SceneId) => {
 
 const useSceneFrame = () => useCurrentFrame();
 
-const commitX = (idx: number) => 132 + idx * 154;
+const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
 
 const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'main' | 'bad' | 'revert'; opacity?: number}> = ({id, x, y, tone, opacity = 1}) => {
   const stroke = tone === 'bad' ? COLOR.git.conflict : tone === 'revert' ? COLOR.git.feature : tone === 'main' ? COLOR.git.main : COLOR.git.commit;
-  return (
-    <g opacity={opacity}>
-      <circle cx={x} cy={y + 8} r="30" fill={COLOR.effects.shadowSoft} opacity="0.52" />
-      <circle cx={x} cy={y} r="27" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={tone ? 6.5 : 5.2} />
-      <text x={x} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphNode.fontSize} fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
-        {id}
-      </text>
-    </g>
-  );
+  return <CourseCommitNode id={id} x={x} y={y} stroke={stroke} strong={Boolean(tone)} opacity={opacity} />;
 };
 
-const BranchLabel: React.FC<{name: string; x: number; y: number; color: string; opacity?: number}> = ({name, x, y, color, opacity = 1}) => (
-  <g opacity={opacity}>
-    <line x1={x} y1={y < 150 ? y + 23 : y - 23} x2={x} y2={y < 150 ? y + 56 : y - 56} stroke={color} strokeWidth="4" strokeLinecap="round" />
-    <rect x={x - 58} y={y - 23} width="116" height="46" rx="8" fill={color} />
-    <text x={x} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
-      {name}
-    </text>
-  </g>
-);
+const BranchLabel: React.FC<{name: string; x: number; y: number; targetX: number; targetY: number; color: string; opacity?: number}> = (props) => <CourseBranchLabel {...props} />;
 
-const HeadBadge: React.FC<{x: number; y: number; opacity?: number}> = ({x, y, opacity = 1}) => (
-  <g opacity={opacity}>
-    <rect x={x - 48} y={y - 21} width="96" height="42" rx="21" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
-    <text x={x} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
-      HEAD
-    </text>
-  </g>
-);
+const HeadBadge: React.FC<{x: number; y: number; opacity?: number}> = (props) => <CourseHeadMarker {...props} />;
 
 const HistoryGraph: React.FC<{
   mode: 'bad' | 'reset' | 'revert' | 'stable';
@@ -69,7 +61,7 @@ const HistoryGraph: React.FC<{
   progress?: number;
   showHead?: boolean;
   small?: boolean;
-}> = ({mode, width = 900, progress = 1, showHead = true, small = false}) => {
+}> = ({mode, width = 900, progress = 1, showHead = true}) => {
   const y = 158;
   const c1 = commitX(0);
   const c2 = commitX(1);
@@ -78,17 +70,19 @@ const HistoryGraph: React.FC<{
   const resetX = interpolate(progress, [0, 1], [c3, c2], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const revertIn = mode === 'revert' ? progress : 0;
   const mainX = mode === 'reset' ? resetX : mode === 'revert' ? interpolate(progress, [0, 1], [c3, r1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) : c3;
+  const viewBox = {x: 0, y: 20, width: 730, height: 270};
+  const height = Math.round((width * viewBox.height) / viewBox.width);
 
   return (
-    <svg width={width} height={small ? 250 : 330} viewBox="0 0 720 330" style={{display: 'block', overflow: 'visible'}}>
-      <line x1={c1} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-      {mode === 'revert' ? <line x1={c3} y1={y} x2={r1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" opacity={revertIn} /> : null}
+    <svg width={width} height={height} viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`} style={{display: 'block', overflow: 'visible'}}>
+      <line x1={c1} y1={y} x2={c3} y2={y} stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+      {mode === 'revert' ? <line x1={c3} y1={y} x2={r1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" opacity={revertIn} /> : null}
       <CommitNode id="C1" x={c1} y={y} />
       <CommitNode id="C2" x={c2} y={y} tone={mode === 'reset' ? 'main' : undefined} />
       <CommitNode id="C3" x={c3} y={y} tone={mode === 'bad' || mode === 'revert' ? 'bad' : undefined} opacity={mode === 'reset' ? 0.32 : 1} />
       {mode === 'revert' ? <CommitNode id="R1" x={r1} y={y} tone="revert" opacity={revertIn} /> : null}
-      <BranchLabel name="main" x={mainX} y={78} color={COLOR.git.main} />
-      {showHead ? <HeadBadge x={mainX + 114} y={78} /> : null}
+      <BranchLabel name="main" x={mainX} y={87} targetX={mainX} targetY={y} color={COLOR.git.main} />
+      {showHead ? <HeadBadge x={mainX + 124} y={87} /> : null}
       {mode === 'bad' || mode === 'revert' ? (
         <text x={c3 - 18} y={y + 76} textAnchor="end" fontFamily={FONT.sans} fontSize="21" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
           wrong change
@@ -167,8 +161,8 @@ const HookScene: React.FC = () => {
         underlineOpacity={titleOut}
         auditId="ep08-hook-title"
       />
-      <div style={{position: 'absolute', left: '50%', top: 282, width: 1040, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
-        <HistoryGraph mode="bad" width={1040} />
+      <div style={{position: 'absolute', left: '50%', top: 258, width: 1160, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
+        <HistoryGraph mode="bad" width={1160} />
       </div>
       <QuestionCaption opacity={questionIn} auditId="ep08-hook-question">
         你要改哪一层？
@@ -231,8 +225,8 @@ const ResetModesScene: React.FC = () => {
     <AbsoluteFill style={{padding: '104px 132px 112px', boxSizing: 'border-box'}}>
       <div style={{opacity: modelOpacity}} data-audit-id="ep08-reset-model-continuity">
         <CommandPill command={command} branch="main" />
-        <div style={{position: 'absolute', left: 150, top: 168, width: 670}}>
-          <HistoryGraph mode="reset" width={670} progress={move} small />
+        <div style={{position: 'absolute', left: 138, top: 158, width: 760}}>
+          <HistoryGraph mode="reset" width={760} progress={move} small />
         </div>
         <div style={{position: 'absolute', right: 138, top: 184, display: 'flex', gap: 18, opacity: hardPause ? 0.55 : 1}}>
           {[
@@ -283,13 +277,13 @@ const RevertScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '118px 150px 112px', boxSizing: 'border-box'}}>
-      <div style={{position: 'absolute', left: '50%', top: 268, width: 1110, transform: 'translateX(-50%)', opacity: modelIn}}>
-        <HistoryGraph mode="revert" width={1110} progress={create} />
+      <div style={{position: 'absolute', left: '50%', top: 246, width: 1200, transform: 'translateX(-50%)', opacity: modelIn}}>
+        <HistoryGraph mode="revert" width={1200} progress={create} />
       </div>
       <div style={{opacity: modelIn}}>
         <CommandPill command="git revert C3" branch="main" />
       </div>
-      <div style={{position: 'absolute', left: 138, top: 662, width: 540, opacity: create * modelIn}}>
+      <div style={{position: 'absolute', left: 138, top: 704, width: 540, opacity: create * modelIn}}>
         <CodeDiff
           title="R1 applies inverse patch"
           lines={[

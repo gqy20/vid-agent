@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {createHash} from 'node:crypto';
-import {execFile, execFileSync} from 'node:child_process';
+import {execFile, execFileSync, spawnSync} from 'node:child_process';
 import {isUtf8} from 'node:buffer';
 import {cpus} from 'node:os';
 import {
@@ -316,12 +316,12 @@ const visualBaseHash = (ctx) => {
   const sharedSources = walkFiles(courseRoot, (path) => {
     if (!/\.(?:ts|tsx)$/.test(path)) return false;
     if (path.includes('/episodes/')) return false;
+    if (path.includes('/kit/manim/')) return false;
     // This file contains every episode and would invalidate unrelated caches.
     if (path.endsWith('/data/episodeTimelines.generated.ts')) return false;
     return true;
   });
   const episodeSource = episodeSourceParts(ctx);
-  const episodeAssets = walkFiles(join(REMOTION, 'public/git-course'), (path) => path.includes(`/manim/${episodeNumber}/`));
   const terminalAssets = walkFiles(join(REMOTION, 'public/git-course-lab/terminal'), (path) => path.includes(`/${episodeNumber}-`));
   const terminalSources = [
     ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/demos'), (path) => path.includes(`/${episodeNumber}-`) || path.endsWith('/_lib.sh')),
@@ -329,8 +329,8 @@ const visualBaseHash = (ctx) => {
     join(ROOT, 'scripts/terminal-recordings/record-asciinema.sh'),
     join(ROOT, 'scripts/terminal-recordings/build-metadata.mjs'),
   ].filter((path) => existsSync(path));
-  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...episodeAssets, ...terminalAssets, ...terminalSources, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
-  return sha(JSON.stringify({schema: 2, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
+  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...terminalAssets, ...terminalSources, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
+  return sha(JSON.stringify({schema: 3, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
 };
 
 const sceneFingerprint = (ctx, scene, baseHash) => {
@@ -357,9 +357,10 @@ const speechFingerprint = (scene) => sha(JSON.stringify({
   engine: process.env.TTS_ENGINE_VERSION ?? 'mmx-cli-v1',
 }));
 const normalizedFingerprint = (scene) => sha(JSON.stringify({
-  schema: 2,
+  schema: 3,
   speechFingerprint: speechFingerprint(scene),
   normalization: ttsConfig().normalization,
+  subtitleAlignment: 'narration-pauses-v1',
 }));
 const ttsCachePaths = (ctx, scene) => {
   const speech = speechFingerprint(scene);
@@ -572,7 +573,7 @@ const buildAudio = async (ctx, buildPlan) => {
       && previous.sha256 === shaFile(legacy.norm);
     if (trustedLegacy && ![task.cas.raw, task.cas.srt, task.cas.text, task.cas.norm].every((path) => existsSync(path))) {
       for (const key of ['raw', 'srt', 'text', 'norm']) copyAtomically(legacy[key], targets[key]);
-      validateTtsTextArtifacts(task, targets.srt, targets.text);
+      validateTtsTextArtifacts(task, targets.srt, targets.text, targets.norm);
       mkdirSync(task.cas.speechDir, {recursive: true});
       mkdirSync(task.cas.normalizedDir, {recursive: true});
       for (const key of ['raw', 'srt', 'text', 'norm']) copyAtomically(targets[key], task.cas[key]);
@@ -638,7 +639,7 @@ const buildAudio = async (ctx, buildPlan) => {
     const srt = join(segmentsDir, `${segment}.srt`);
     const textPath = join(segmentsDir, `${segment}.txt`);
     for (const path of [raw, srt, textPath]) existsSync(path) || fail(`Missing TTS cache input: ${path}`);
-    validateTtsTextArtifacts(task, srt, textPath);
+    validateTtsTextArtifacts(task, srt, textPath, norm);
     mkdirSync(task.cas.speechDir, {recursive: true});
     mkdirSync(task.cas.normalizedDir, {recursive: true});
     copyAtomically(raw, task.cas.raw);
@@ -1496,67 +1497,56 @@ const canonicalNarrationCues = (value) => value
     .replace(/[。；;]+\s*$/u, '')
     .replace(/([\p{Script=Han}A-Za-z0-9])\.\s*$/u, '$1'));
 
-const distributeCanonicalText = (sourceCues, targetCount) => {
-  targetCount > 0 || fail('SRT has no timed text cues');
-  let units = sourceCues.flatMap((cue, index) => {
-    const withBoundary = index < sourceCues.length - 1 && !/[，、：？！!?.,]$/u.test(cue) ? `${cue}，` : cue;
-    return withBoundary.match(/[^，、：？！!?.,]+[，、：？！!?.,]?/gu) ?? [withBoundary];
-  }).filter(Boolean);
-  while (units.length < targetCount) {
-    const index = units.reduce((best, unit, current) => unit.length > units[best].length ? current : best, 0);
-    const unit = units[index];
-    unit.length > 1 || fail(`Cannot distribute narration text across ${targetCount} SRT cues`);
-    const midpoint = Math.ceil(unit.length / 2);
-    units.splice(index, 1, unit.slice(0, midpoint), unit.slice(midpoint));
-  }
-  const totalLength = units.reduce((sum, unit) => sum + unit.length, 0);
-  const groups = [];
-  let unitIndex = 0;
-  let consumed = 0;
-  for (let groupIndex = 0; groupIndex < targetCount; groupIndex += 1) {
-    const remainingGroups = targetCount - groupIndex;
-    const targetEnd = totalLength * (groupIndex + 1) / targetCount;
-    const group = [];
-    while (unitIndex < units.length) {
-      const remainingUnits = units.length - unitIndex;
-      if (group.length > 0 && remainingUnits === remainingGroups - 1) break;
-      const next = units[unitIndex];
-      if (group.length > 0 && consumed + next.length > targetEnd) break;
-      group.push(next);
-      consumed += next.length;
-      unitIndex += 1;
-    }
-    if (group.length === 0) {
-      group.push(units[unitIndex]);
-      consumed += units[unitIndex].length;
-      unitIndex += 1;
-    }
-    groups.push(group.join(''));
-  }
-  unitIndex === units.length || fail('Failed to distribute all narration text into SRT cues');
-  return groups;
+const parseSrtTimestamp = (value) => {
+  const match = /^(\d{2}):(\d{2}):(\d{2}),(\d{3})$/.exec(value);
+  match || fail(`Invalid SRT timestamp: ${value}`);
+  return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]) + Number(match[4]) / 1000;
 };
 
-const canonicalizeSrtText = (task, srtPath) => {
+const formatSrtTimestamp = (secondsValue) => {
+  const milliseconds = Math.max(0, Math.round(secondsValue * 1000));
+  const hours = Math.floor(milliseconds / 3600000);
+  const minutes = Math.floor((milliseconds % 3600000) / 60000);
+  const seconds = Math.floor((milliseconds % 60000) / 1000);
+  const millis = milliseconds % 1000;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(millis).padStart(3, '0')}`;
+};
+
+const canonicalizeSrtText = (task, srtPath, normPath) => {
   const sourceCues = canonicalNarrationCues(task.scene.narration.text);
   const raw = readFileSync(srtPath).toString('utf8').replace(/\r\n/g, '\n').trim();
-  const blocks = raw.split(/\n{2,}/).map((block) => block.split('\n'));
-  const timedBlocks = blocks.filter((lines) => lines.some((line) => line.includes('-->')));
-  const distributed = distributeCanonicalText(sourceCues, timedBlocks.length);
-  let cueIndex = 0;
-  const canonicalBlocks = blocks.map((lines) => {
-    const timingIndex = lines.findIndex((line) => line.includes('-->'));
-    if (timingIndex === -1) return lines.join('\n');
-    const canonical = [...lines.slice(0, timingIndex + 1), distributed[cueIndex]];
-    cueIndex += 1;
-    return canonical.join('\n');
+  const timings = [...raw.matchAll(/(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/g)];
+  timings.length > 0 || fail(`${task.scene.narration.segmentId}: SRT has no timed cues`);
+  existsSync(normPath) || fail(`${task.scene.narration.segmentId}: normalized audio is required for subtitle alignment`);
+  const firstStart = parseSrtTimestamp(timings[0][1]);
+  const lastEnd = parseSrtTimestamp(timings[timings.length - 1][2]);
+  const detection = spawnSync('ffmpeg', [
+    '-nostdin', '-hide_banner', '-i', normPath,
+    '-af', 'silencedetect=noise=-38dB:d=0.32',
+    '-f', 'null', '-',
+  ], {encoding: 'utf8'});
+  detection.status === 0 || fail(`${task.scene.narration.segmentId}: ffmpeg silence detection failed: ${detection.stderr?.trim() ?? 'unknown error'}`);
+  const silenceStarts = [...detection.stderr.matchAll(/silence_start:\s*([0-9.]+)/g)].map((match) => Number(match[1]));
+  const silenceEnds = [...detection.stderr.matchAll(/silence_end:\s*([0-9.]+)/g)].map((match) => Number(match[1]));
+  silenceStarts.length === silenceEnds.length || fail(`${task.scene.narration.segmentId}: incomplete silence detection output`);
+  const internalSilences = silenceStarts
+    .map((start, index) => ({start, end: silenceEnds[index]}))
+    .filter(({start, end}) => start > firstStart && end < lastEnd && end - start >= 0.32);
+  internalSilences.length === sourceCues.length - 1 || fail(
+    `${task.scene.narration.segmentId}: expected ${sourceCues.length - 1} narration pauses, found ${internalSilences.length}`,
+  );
+  const canonicalBlocks = sourceCues.map((text, index) => {
+    const start = index === 0 ? firstStart : internalSilences[index - 1].end;
+    const end = index === sourceCues.length - 1 ? lastEnd : internalSilences[index].start;
+    end > start || fail(`${task.scene.narration.segmentId}: invalid aligned subtitle cue ${index + 1}`);
+    return `${index + 1}\n${formatSrtTimestamp(start)} --> ${formatSrtTimestamp(end)}\n${text}`;
   });
   writeFileSync(srtPath, `${canonicalBlocks.join('\n\n')}\n`);
 };
 
-const validateTtsTextArtifacts = (task, srtPath, textPath) => {
+const validateTtsTextArtifacts = (task, srtPath, textPath, normPath) => {
   const segment = task.scene.narration.segmentId;
-  canonicalizeSrtText(task, srtPath);
+  canonicalizeSrtText(task, srtPath, normPath);
   const srtBytes = readFileSync(srtPath);
   isUtf8(srtBytes) || fail(`${segment}: SRT is not valid UTF-8`);
   const srtText = srtBytes.toString('utf8');
@@ -1619,7 +1609,7 @@ const previewAudio = async (ctx) => {
     const textPath = join(previewSegmentsDir, `${segment}.txt`);
     const norm = join(previewSegmentsDir, `${segment}_norm.mp3`);
     for (const path of [raw, srt, textPath, norm]) existsSync(path) || fail(`Audio preview output missing: ${path}`);
-    validateTtsTextArtifacts(task, srt, textPath);
+    validateTtsTextArtifacts(task, srt, textPath, norm);
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {encoding: 'utf8'}).trim());
     validateNarrationDuration(task, duration);
     const voiceEnd = task.scene.narration.voiceStart + duration;

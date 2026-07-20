@@ -63,13 +63,13 @@ export const EP05_SCENES = [
 export const EP05_DURATION_IN_FRAMES = EP05_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP06_SCENES = [
-  {id: "hook", title: "问题", duration: seconds(14)},
-  {id: "fast-forward", title: "快进", duration: seconds(34)},
-  {id: "diverged", title: "分叉", duration: seconds(30)},
-  {id: "three-way", title: "三方合并", duration: seconds(52)},
-  {id: "merge-commit", title: "合并提交", duration: seconds(42)},
-  {id: "conflict", title: "冲突", duration: seconds(42)},
-  {id: "takeaway", title: "结论", duration: seconds(26)},
+  {id: "hook", title: "问题", duration: seconds(11), captions: [{"from":0.35,"to":3.26,"text":"merge 把另一分支的工作接入当前分支"},{"from":3.887,"to":5.953,"text":"Git 不揉文件夹，而是先看提交图"},{"from":6.467,"to":9.944,"text":"能沿历史追上目标就快进；已经分叉，才合成新快照"}]},
+  {id: "fast-forward", title: "快进", duration: seconds(32), captions: [{"from":0.35,"to":1.655,"text":"先看没有分叉的情况"},{"from":2.071,"to":7.711,"text":"main 停在 C2，hotfix 从 C2 继续提交到了 C3，因此 C2 是 C3 的祖先"},{"from":8.218,"to":13.998,"text":"在 main 上执行 git merge hotfix，默认不用计算新快照，也不用创建 merge commit"},{"from":14.556,"to":19.962,"text":"Git 只把 main 从 C2 移到 C3；hotfix 不变，HEAD 仍跟着 main"},{"from":20.63,"to":24.468,"text":"这叫 fast-forward：当前分支沿已有的 parent 链追上目标"},{"from":25.001,"to":31.142,"text":"它接入了 hotfix 的工作，却不额外制造汇合节点；所以没有新 commit 也是正常结果"}]},
+  {id: "diverged", title: "分叉", duration: seconds(25), captions: [{"from":0.35,"to":4.226,"text":"一旦 main 和 feature 都从 C2 继续提交，历史就分叉了"},{"from":4.808,"to":9.353,"text":"main 到了 C3，feature 到了 C4，任何一边都不是另一边的祖先"},{"from":9.898,"to":14.813,"text":"如果直接把 main 移到 C4，main 上的 C3 就会被绕开，所以 fast-forward 不成立"},{"from":15.458,"to":19.102,"text":"Git 必须先找到双方的 merge base，也就是共同祖先 C2"},{"from":19.737,"to":23.91,"text":"它的作用，是把双方原本共有的内容与后来各自引入的修改分开"}]},
+  {id: "three-way", title: "三方合并", duration: seconds(45), captions: [{"from":0.35,"to":3.026,"text":"找到 merge base 后，Git 才开始三方合并"},{"from":3.586,"to":5.996,"text":"它比较的不是两个目录，而是三个快照"},{"from":6.743,"to":15.487,"text":"base 是共同祖先 C2，ours 是 HEAD 当前所在的 main，也就是 C3，theirs 是要合进来的 feature，也就是 C4"},{"from":16.079,"to":19.641,"text":"Git 先计算 base 到 ours 的变化，再计算 base 到 theirs 的变化"},{"from":20.297,"to":26.505,"text":"如果两边修改了不同文件，或者同一文件中能够独立合并的区域，Git 可以把这些变化组合成一个结果快照"},{"from":27.084,"to":33.067,"text":"注意 ours 和 theirs 取决于你站在哪条分支上执行 merge，并不是永远等于 main 和 feature"},{"from":33.748,"to":37.303,"text":"三方比较让 Git 区分原有内容和双方后来引入的修改"},{"from":37.868,"to":43.251,"text":"能自动组合的变化先形成 result；接下来，Git 还要把它写进历史"}]},
+  {id: "merge-commit", title: "合并提交", duration: seconds(34), captions: [{"from":0.35,"to":4.979,"text":"有了 result，Git 先把它写成新的 tree，再创建 merge commit M1"},{"from":5.605,"to":9.467,"text":"前面讲过，普通提交通常记录一个 parent；M1 则同时记录两个"},{"from":10.001,"to":18.125,"text":"第一个 parent 是执行 merge 前 HEAD 所在的 main，也就是 C3；另一个是合入的 feature，也就是 C4"},{"from":18.663,"to":22.89,"text":"随后 main 移动到 M1，feature 仍然停在 C4，HEAD 继续跟着 main"},{"from":23.45,"to":28.171,"text":"C3 和 C4 都没有被改写，两个 parent 明确保留了它们的来源和汇合位置"},{"from":28.789,"to":32.192,"text":"以后沿任意一条 parent 边向后遍历，都能回到各自的开发线"}]},
+  {id: "conflict", title: "冲突", duration: seconds(34), captions: [{"from":0.35,"to":4.777,"text":"如果内容或路径变化无法自动组合，merge 会暂停，不会替你选边"},{"from":5.449,"to":10.682,"text":"冲突文件会出现标记，Index 保存未合并状态；merge commit 此时还不存在"},{"from":11.228,"to":16.559,"text":"读完 ours 和 theirs 后，编辑出正确内容，再用 git add 把解决结果写入 Index"},{"from":17.072,"to":20.535,"text":"没有未合并路径后，执行 git commit 完成 merge"},{"from":21.089,"to":24.025,"text":"所以冲突不是 Git 损坏，而是它无法推断业务意图"},{"from":24.676,"to":29.19,"text":"如果方向不对，可以在完成前运行 git merge --abort，尝试回到开始前"},{"from":29.806,"to":32.619,"text":"为了让恢复可靠，合并前应先保持工作区干净"}]},
+  {id: "takeaway", title: "结论", duration: seconds(27), captions: [{"from":0.25,"to":3.143,"text":"现在把成功合并和冲突暂停两条路径收在一起"},{"from":3.631,"to":9.157,"text":"当前分支是目标分支的祖先时，默认 fast-forward：接入工作，只移动 branch"},{"from":9.71,"to":13.959,"text":"历史分叉，就找 merge base，比较 base、ours 和 theirs"},{"from":14.563,"to":20.769,"text":"能组合便创建保留两条来源的 merge commit；不能判断就暂停处理冲突"},{"from":21.458,"to":24.995,"text":"merge 的价值，是整合另一条历史，又不改写已有提交"}]},
 ] as const;
 export const EP06_DURATION_IN_FRAMES = EP06_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 

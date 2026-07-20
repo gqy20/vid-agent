@@ -25,7 +25,7 @@ export const GitStatePanel: React.FC<{
         <div
           key={area.id}
           style={{
-            minHeight: prominent ? 304 : compact ? 154 : 260,
+            minHeight: prominent ? 304 : compact ? 174 : 260,
             borderRadius: 8,
             border: `1px solid ${area.active ? AREA_ACCENT[area.id] : COLOR.stroke.soft}`,
             background: area.active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.52)',
@@ -58,7 +58,7 @@ export const GitStatePanel: React.FC<{
             <div
               style={{
                 ...TYPE.ui,
-                fontSize: prominent ? 30 : compact ? 24 : TYPE.ui.fontSize,
+                fontSize: prominent ? 30 : compact ? 26 : TYPE.ui.fontSize,
                 lineHeight: prominent ? 1.3 : TYPE.ui.lineHeight,
                 color: prominent ? AREA_ACCENT[area.id] : COLOR.text.primary,
                 fontWeight: prominent ? 780 : 760,
@@ -72,7 +72,7 @@ export const GitStatePanel: React.FC<{
               style={{
                 ...TYPE.label,
                 fontFamily: FONT.mono,
-                fontSize: prominent ? 20 : compact ? 16 : TYPE.label.fontSize,
+                fontSize: prominent ? 20 : compact ? 19 : TYPE.label.fontSize,
                 lineHeight: 1,
                 color: area.active ? AREA_ACCENT[area.id] : COLOR.text.tertiary,
                 fontWeight: WEIGHT.bold,
@@ -89,7 +89,7 @@ export const GitStatePanel: React.FC<{
                 style={{
                   ...TYPE.codeSmall,
                   fontFamily: FONT.mono,
-                  fontSize: prominent ? 26 : 19,
+                  fontSize: prominent ? 26 : compact ? 22 : 19,
                   color: COLOR.text.secondary,
                   padding: '7px 4px',
                   display: 'flex',

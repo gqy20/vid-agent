@@ -1,7 +1,17 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP07} from '../data/episodes';
 import {seconds} from '../timeline';
-import {CodeBlock, CommandPill, CourseLayout, EpisodeTitleCard, ManimClip, SceneCaption, SceneSequence} from '../kit';
+import {
+  CodeBlock,
+  CommandPill,
+  COURSE_GRAPH_GEOMETRY,
+  CourseBranchLabel,
+  CourseCommitNode,
+  CourseLayout,
+  EpisodeTitleCard,
+  SceneCaption,
+  SceneSequence,
+} from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
@@ -26,7 +36,7 @@ const getEp07SceneDuration = (id: Ep07SceneId) => {
 
 const useSceneFrame = () => useCurrentFrame();
 
-const commitX = (idx: number) => 118 + idx * 132;
+const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
 
 const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number}> = ({
   id,
@@ -36,26 +46,10 @@ const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'm
   opacity = 1,
 }) => {
   const stroke = tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : tone === 'base' ? COLOR.git.head : COLOR.git.commit;
-  return (
-    <g opacity={opacity}>
-      <circle cx={x} cy={y + 8} r="29" fill={COLOR.effects.shadowSoft} opacity="0.5" />
-      <circle cx={x} cy={y} r="27" fill={COLOR.canvas.base} stroke={stroke} strokeWidth={tone ? 6.5 : 5.2} />
-      <text x={x} y={y + 8} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphNode.fontSize} fontWeight={TYPE.graphNode.fontWeight} fill={COLOR.text.primary}>
-        {id}
-      </text>
-    </g>
-  );
+  return <CourseCommitNode id={id} x={x} y={y} stroke={stroke} strong={Boolean(tone)} opacity={opacity} ring={tone === 'base' ? {color: COLOR.git.head, dashed: true} : undefined} />;
 };
 
-const BranchLabel: React.FC<{name: string; x: number; y: number; color: string; opacity?: number}> = ({name, x, y, color, opacity = 1}) => (
-  <g opacity={opacity}>
-    <line x1={x} y1={y < 160 ? y + 23 : y - 23} x2={x} y2={y < 160 ? y + 62 : y - 62} stroke={color} strokeWidth="4" strokeLinecap="round" />
-    <rect x={x - 59} y={y - 23} width="118" height="46" rx="8" fill={color} />
-    <text x={x} y={y + 7} textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.graphPointer.fontSize} fontWeight={TYPE.graphPointer.fontWeight} fill={COLOR.text.inverse}>
-      {name}
-    </text>
-  </g>
-);
+const BranchLabel: React.FC<{name: string; x: number; y: number; targetX: number; targetY: number; color: string; opacity?: number}> = (props) => <CourseBranchLabel {...props} />;
 
 const RebaseGraph: React.FC<{
   mode: 'diverged' | 'merged' | 'rebased' | 'fast-forward';
@@ -64,8 +58,8 @@ const RebaseGraph: React.FC<{
   small?: boolean;
   showBase?: boolean;
   showOld?: boolean;
-}> = ({mode, width = 940, progress = 1, small = false, showBase = false, showOld = true}) => {
-  const y = 184;
+}> = ({mode, width = 940, progress = 1, showBase = false, showOld = true}) => {
+  const y = 176;
   const c0 = commitX(0);
   const c1 = commitX(1);
   const c2 = commitX(2);
@@ -79,67 +73,69 @@ const RebaseGraph: React.FC<{
   const isRebased = mode === 'rebased' || mode === 'fast-forward';
   const mainX = mode === 'fast-forward' ? ffMainX : c3;
   const featureX = isRebased ? c5p : c5;
-  const featureY = isRebased ? 104 : 264;
+  const featureY = isRebased ? 98 : 254;
+  const viewBox = {x: 40, y: 0, width: 920, height: 350};
+  const height = Math.round((width * viewBox.height) / viewBox.width);
 
   return (
-    <svg width={width} height={small ? 270 : 390} viewBox="0 0 900 390" style={{display: 'block', overflow: 'visible'}}>
-      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+    <svg width={width} height={height} viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`} style={{display: 'block', overflow: 'visible'}}>
+      <line x1={c0} y1={y} x2={c2} y2={y} stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
       {mode === 'merged' ? (
         <>
-          <line x1={c2} y1={y} x2={c3} y2="104" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c2} y1={y} x2={c4} y2="264" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c4} y1="264" x2={c5} y2="264" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c3} y1="104" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c5} y1="264" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c4} y1="254" x2={c5} y2="254" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c3} y1="98" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c5} y1="254" x2={m1} y2={y} stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
         </>
       ) : isRebased ? (
         <>
-          <line x1={c2} y1={y} x2={c3} y2="104" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c3} y1="104" x2={c4p} y2="104" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c4p} y1="104" x2={c5p} y2="104" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c3} y1="98" x2={c4p} y2="98" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c4p} y1="98" x2={c5p} y2="98" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
           {showOld ? (
             <>
-              <line x1={c2} y1={y} x2={c4} y2="264" stroke={COLOR.git.graphLine} strokeWidth="6" strokeLinecap="round" opacity="0.22" />
-              <line x1={c4} y1="264" x2={c5} y2="264" stroke={COLOR.git.graphLine} strokeWidth="6" strokeLinecap="round" opacity="0.22" />
+              <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.nodeStroke} strokeLinecap="round" opacity="0.22" />
+              <line x1={c4} y1="254" x2={c5} y2="254" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.nodeStroke} strokeLinecap="round" opacity="0.22" />
             </>
           ) : null}
         </>
       ) : (
         <>
-          <line x1={c2} y1={y} x2={c3} y2="104" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c2} y1={y} x2={c4} y2="264" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
-          <line x1={c4} y1="264" x2={c5} y2="264" stroke={COLOR.git.graphLine} strokeWidth="8" strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c3} y2="98" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c2} y1={y} x2={c4} y2="254" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
+          <line x1={c4} y1="254" x2={c5} y2="254" stroke={COLOR.git.graphLine} strokeWidth={COURSE_GRAPH_GEOMETRY.edgeStroke} strokeLinecap="round" />
         </>
       )}
       <CommitNode id="C0" x={c0} y={y} />
       <CommitNode id="C1" x={c1} y={y} />
       <CommitNode id="C2" x={c2} y={y} tone={showBase ? 'base' : undefined} />
-      <CommitNode id="C3" x={c3} y={104} tone="main" />
+      <CommitNode id="C3" x={c3} y={98} tone="main" />
       {mode === 'merged' ? (
         <>
-          <CommitNode id="C4" x={c4} y={264} tone="feature" />
-          <CommitNode id="C5" x={c5} y={264} tone="feature" />
+          <CommitNode id="C4" x={c4} y={254} tone="feature" />
+          <CommitNode id="C5" x={c5} y={254} tone="feature" />
           <CommitNode id="M1" x={m1} y={y} tone="base" />
         </>
       ) : isRebased ? (
         <>
           {showOld ? (
             <>
-              <CommitNode id="C4" x={c4} y={264} tone="feature" opacity={0.28} />
-              <CommitNode id="C5" x={c5} y={264} tone="feature" opacity={0.28} />
+              <CommitNode id="C4" x={c4} y={254} tone="feature" opacity={0.28} />
+              <CommitNode id="C5" x={c5} y={254} tone="feature" opacity={0.28} />
             </>
           ) : null}
-          <CommitNode id="C4'" x={c4p} y={104} tone="feature" />
-          <CommitNode id="C5'" x={c5p} y={104} tone="feature" />
+          <CommitNode id="C4'" x={c4p} y={98} tone="feature" />
+          <CommitNode id="C5'" x={c5p} y={98} tone="feature" />
         </>
       ) : (
         <>
-          <CommitNode id="C4" x={c4} y={264} tone="feature" />
-          <CommitNode id="C5" x={c5} y={264} tone="feature" />
+          <CommitNode id="C4" x={c4} y={254} tone="feature" />
+          <CommitNode id="C5" x={c5} y={254} tone="feature" />
         </>
       )}
-      <BranchLabel name="main" x={mainX} y={mode === 'fast-forward' ? 166 : 42} color={COLOR.git.main} />
-      <BranchLabel name="feature" x={featureX} y={featureY - 62} color={COLOR.git.feature} />
+      <BranchLabel name="main" x={mainX} y={mode === 'fast-forward' ? 169 : 27} targetX={mainX} targetY={98} color={COLOR.git.main} />
+      <BranchLabel name="feature" x={featureX} y={featureY - 71} targetX={featureX} targetY={featureY} color={COLOR.git.feature} />
       {showBase ? (
         <text x={c2 - 22} y={y + 80} fontFamily={FONT.sans} fontSize="25" fontWeight={WEIGHT.bold} fill={COLOR.git.head}>
           base
@@ -156,7 +152,7 @@ const SideNote: React.FC<{children: React.ReactNode; x: number; y: number; color
   color = COLOR.git.head,
   opacity,
 }) => (
-  <div style={{position: 'absolute', left: x, top: y, opacity, ...TYPE.subtitle, fontWeight: WEIGHT.bold, color: COLOR.text.primary, maxWidth: 520}}>
+  <div style={{position: 'absolute', left: x, top: y, width: 650, opacity, ...TYPE.subtitle, fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>
     <span style={{display: 'inline-block', width: 14, height: 14, borderRadius: 999, background: color, marginRight: 14}} />
     {children}
   </div>
@@ -182,8 +178,8 @@ const HookScene: React.FC = () => {
         underlineOpacity={titleOut}
         auditId="ep07-hook-title"
       />
-      <div style={{position: 'absolute', left: '50%', top: 258, width: 1080, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
-        <RebaseGraph mode="diverged" width={1080} showBase />
+      <div style={{position: 'absolute', left: '50%', top: 238, width: 1320, transform: `translate(-50%, ${(1 - graphIn) * 18}px)`, opacity: graphIn}}>
+        <RebaseGraph mode="diverged" width={1320} showBase />
       </div>
       <div style={{position: 'absolute', left: 650, top: 700, opacity: ruleIn, transform: `translateY(${(1 - ruleIn) * 12}px)`, ...TYPE.hero, fontWeight: WEIGHT.bold}}>
         rebase = replay
@@ -224,6 +220,10 @@ const CompareMergeScene: React.FC = () => {
 
 const ReplayModelScene: React.FC = () => {
   const frame = useSceneFrame();
+  const extractIn = interpolate(frame, [seconds(8), seconds(13)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const replayFirst = interpolate(frame, [seconds(22), seconds(28)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const replaySecond = interpolate(frame, [seconds(29), seconds(36)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const rebasedIn = interpolate(frame, [seconds(30), seconds(36)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption1 = interpolate(frame, [seconds(5), seconds(6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption2 = interpolate(frame, [seconds(17), seconds(18)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption3 = interpolate(frame, [seconds(30), seconds(31)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -231,8 +231,29 @@ const ReplayModelScene: React.FC = () => {
   const opacity = frame < seconds(17) ? caption1 : frame < seconds(30) ? caption2 : caption3;
 
   return (
-    <AbsoluteFill style={{padding: '78px 132px 126px', boxSizing: 'border-box'}}>
-      <ManimClip src="git-course/manim/ep07/rebase-replay.mp4" fit="contain" playbackRate={0.76} auditId="ep07-replay-manim" />
+    <AbsoluteFill data-audit-id="ep07-replay-remotion" style={{padding: '78px 132px 126px', boxSizing: 'border-box'}}>
+      <CommandPill command="git rebase main" branch="feature" top={62} fontSize={30} />
+      <div style={{position: 'absolute', left: '50%', top: 168, width: 1180, transform: 'translateX(-50%)'}}>
+        <RebaseGraph mode={frame < seconds(30) ? 'diverged' : 'rebased'} width={1180} showBase showOld />
+      </div>
+
+      <div style={{position: 'absolute', left: 232, top: 604, width: 438, opacity: extractIn, transform: `translateY(${(1 - extractIn) * 18}px)`}}>
+        <CodeBlock title="patch 1 · 从 C4 提取" lines={['change: + search filter', `replay: C4 → C4'`]} highlight={replayFirst > 0 ? [1] : [0]} highlightBorderColor={COLOR.git.feature} />
+      </div>
+      <div style={{position: 'absolute', right: 232, top: 604, width: 438, opacity: extractIn, transform: `translateY(${(1 - extractIn) * 18}px)`}}>
+        <CodeBlock title="patch 2 · 从 C5 提取" lines={['change: + empty state', `replay: C5 → C5'`]} highlight={replaySecond > 0 ? [1] : [0]} highlightBorderColor={COLOR.git.feature} />
+      </div>
+
+      <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position: 'absolute', inset: 0, pointerEvents: 'none'}}>
+        <path d="M670 704 C842 646 1042 404 1204 326" fill="none" stroke={COLOR.git.feature} strokeWidth="5" strokeLinecap="round" opacity={replayFirst * rebasedIn} />
+        <path d="M1250 704 C1340 626 1390 430 1420 334" fill="none" stroke={COLOR.git.feature} strokeWidth="5" strokeLinecap="round" opacity={replaySecond * rebasedIn} />
+        <path d="M1192 329 l15 -8 2 17" fill="none" stroke={COLOR.git.feature} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity={replayFirst * rebasedIn} />
+        <path d="M1412 345 l10 -14 8 15" fill="none" stroke={COLOR.git.feature} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity={replaySecond * rebasedIn} />
+      </svg>
+
+      <div style={{position: 'absolute', left: '50%', top: 844, transform: 'translateX(-50%)', opacity: rebasedIn, ...TYPE.ui, color: COLOR.text.secondary}}>
+        顺序不变：先 C4 的修改，再 C5 的修改
+      </div>
       <SceneCaption opacity={opacity} width={920} bottom={54} auditId="ep07-replay-caption">
         {captionText}
       </SceneCaption>
@@ -242,6 +263,10 @@ const ReplayModelScene: React.FC = () => {
 
 const NewIdentityScene: React.FC = () => {
   const frame = useSceneFrame();
+  const oldIn = interpolate(frame, [0, seconds(1)], [0, 1], {extrapolateRight: 'clamp'});
+  const replayIn = interpolate(frame, [seconds(8), seconds(12)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const newIn = interpolate(frame, [seconds(11), seconds(16)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const graphIn = interpolate(frame, [seconds(24), seconds(28)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption1 = interpolate(frame, [seconds(5), seconds(6)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption2 = interpolate(frame, [seconds(16), seconds(17)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const caption3 = interpolate(frame, [seconds(25), seconds(26)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -249,8 +274,27 @@ const NewIdentityScene: React.FC = () => {
   const opacity = frame < seconds(16) ? caption1 : frame < seconds(25) ? caption2 : caption3;
 
   return (
-    <AbsoluteFill style={{padding: '84px 132px 118px', boxSizing: 'border-box'}}>
-      <ManimClip src="git-course/manim/ep07/rebase-identity.mp4" fit="contain" playbackRate={0.75} auditId="ep07-identity-manim" />
+    <AbsoluteFill data-audit-id="ep07-identity-remotion" style={{padding: '84px 132px 118px', boxSizing: 'border-box'}}>
+      <div style={{position: 'absolute', left: 150, top: 92, ...TYPE.title, color: COLOR.text.primary}}>同一份修改，新的 commit 身份</div>
+      <div style={{position: 'absolute', left: 150, top: 158, ...TYPE.ui, color: COLOR.text.secondary}}>
+        commit 身份包含 parent；换了基底，就必须重新写对象
+      </div>
+
+      <div style={{position: 'absolute', left: 190, top: 306, width: 560, opacity: oldIn, transform: `translateX(${(1 - oldIn) * -18}px)`}}>
+        <CodeBlock title="原提交 · C4" lines={['change  + search filter', 'parent  C2', 'id      7ab12']} highlight={[1, 2]} highlightBorderColor={COLOR.git.feature} />
+      </div>
+      <div style={{position: 'absolute', right: 190, top: 306, width: 560, opacity: newIn, transform: `translateX(${(1 - newIn) * 18}px)`}}>
+        <CodeBlock title="重放后 · C4'" lines={['change  + search filter', 'parent  C3', 'id      b31ef']} highlight={[1, 2]} highlightBorderColor={COLOR.git.head} />
+      </div>
+
+      <div style={{position: 'absolute', left: '50%', top: 402, transform: `translateX(-50%) scale(${0.94 + replayIn * 0.06})`, opacity: replayIn, textAlign: 'center'}}>
+        <div style={{...TYPE.title, color: COLOR.git.feature}}>→</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.secondary, marginTop: 10}}>replay</div>
+      </div>
+
+      <div style={{position: 'absolute', left: '50%', top: 650, width: 880, transform: 'translateX(-50%)', opacity: graphIn}}>
+        <RebaseGraph mode="rebased" width={880} small showOld />
+      </div>
       <SceneCaption opacity={opacity} width={980} bottom={62} auditId="ep07-identity-caption">
         {captionText}
       </SceneCaption>
@@ -268,8 +312,8 @@ const FastForwardAfterScene: React.FC = () => {
   return (
     <AbsoluteFill>
       <CommandPill command="git merge feature" branch="main" />
-      <div style={{position: 'absolute', left: '50%', top: 282, width: 1120, transform: 'translateX(-50%)'}}>
-        <RebaseGraph mode="fast-forward" width={1120} progress={motion} showOld={false} />
+      <div style={{position: 'absolute', left: '50%', top: 248, width: 1280, transform: 'translateX(-50%)'}}>
+        <RebaseGraph mode="fast-forward" width={1280} progress={motion} showOld={false} />
       </div>
       <SideNote x={1268} y={424} color={COLOR.git.main} opacity={noteIn * noteOut}>
         feature 已经在 main 后面

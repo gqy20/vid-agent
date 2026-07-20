@@ -96,6 +96,7 @@ const composition = await selectComposition({
   chromiumOptions,
 });
 
+const browserSetupFailed = (error) => /Timed out .*setting up the headless browser/i.test(error?.message ?? String(error));
 const retryable = (error) => /Target closed|Session closed|got no response|browser crashed|Protocol error/i.test(error?.message ?? String(error));
 
 const renderTask = async (task) => {
@@ -103,7 +104,13 @@ const renderTask = async (task) => {
     const output = resolve(task.output);
     const partial = `${output}.partial.mp4`;
     mkdirSync(dirname(output), {recursive: true});
-    const attempts = [...new Set([task.concurrency, Math.max(1, Math.floor(task.concurrency / 2)), task.fallbackConcurrency ?? 16])];
+    const attempts = [...new Set([
+      task.concurrency,
+      Math.max(1, Math.floor(task.concurrency / 2)),
+      Math.max(1, Math.floor(task.concurrency / 4)),
+      1,
+      task.fallbackConcurrency ?? 16,
+    ])];
     let usedConcurrency = task.concurrency;
     let lastError;
     for (const attempt of attempts) {
@@ -132,6 +139,9 @@ const renderTask = async (task) => {
         break;
       } catch (error) {
         lastError = error;
+        // Tab concurrency cannot fix too many browser pools starting together.
+        // Let the outer scheduler retry the failed tasks with fewer pools.
+        if (browserSetupFailed(error)) break;
         if (!retryable(error)) break;
       }
     }
@@ -157,9 +167,44 @@ const renderTask = async (task) => {
     return result;
 };
 
-const settled = await Promise.allSettled(plan.tasks.map(renderTask));
-const results = settled.filter((result) => result.status === 'fulfilled').map((result) => result.value);
-const failures = settled.map((result, index) => ({result, index})).filter(({result}) => result.status === 'rejected').map(({result, index}) => ({sceneId: plan.tasks[index].sceneId, message: result.reason?.message ?? String(result.reason)}));
+const runTaskBatch = async (entries, workerCount) => {
+  let cursor = 0;
+  const settled = new Array(entries.length);
+  const workers = Array.from({length: Math.min(workerCount, entries.length)}, async () => {
+    while (cursor < entries.length) {
+      const position = cursor++;
+      const entry = entries[position];
+      try {
+        settled[position] = {status: 'fulfilled', value: await renderTask(entry.task)};
+      } catch (reason) {
+        settled[position] = {status: 'rejected', reason};
+      }
+    }
+  });
+  await Promise.all(workers);
+  return entries.map((entry, index) => ({...entry, result: settled[index]}));
+};
+
+let activeBrowserPools = Math.max(1, Math.min(plan.maxParallelTasks ?? plan.tasks.length, plan.tasks.length));
+let pending = plan.tasks.map((task, index) => ({task, index}));
+const completed = [];
+while (pending.length > 0) {
+  const batch = await runTaskBatch(pending, activeBrowserPools);
+  completed.push(...batch.filter(({result}) => result.status === 'fulfilled'));
+  const failed = batch.filter(({result}) => result.status === 'rejected');
+  const setupFailuresOnly = failed.length > 0 && failed.every(({result}) => browserSetupFailed(result.reason));
+  if (!setupFailuresOnly || activeBrowserPools === 1) {
+    completed.push(...failed);
+    break;
+  }
+  activeBrowserPools = Math.max(1, Math.floor(activeBrowserPools / 2));
+  pending = failed.map(({task, index}) => ({task, index}));
+}
+completed.sort((a, b) => a.index - b.index);
+const results = completed.filter(({result}) => result.status === 'fulfilled').map(({result}) => result.value);
+const failures = completed
+  .filter(({result}) => result.status === 'rejected')
+  .map(({task, result}) => ({sceneId: task.sceneId, message: result.reason?.message ?? String(result.reason)}));
 
 if (results.length > 0 && plan.profilePath) {
   const profilePath = resolve(plan.profilePath);
@@ -170,7 +215,7 @@ if (results.length > 0 && plan.profilePath) {
     : Math.max(existing.maxStableConcurrencyPerBrowser ?? 1, ...results.map((result) => result.usedConcurrency));
   mkdirSync(dirname(profilePath), {recursive: true});
   const partialProfile = `${profilePath}.partial-${process.pid}`;
-  writeFileSync(partialProfile, `${JSON.stringify({...existing, schemaVersion: 1, maxStableConcurrencyPerBrowser: stable, updatedAt: new Date().toISOString()}, null, 2)}\n`);
+  writeFileSync(partialProfile, `${JSON.stringify({...existing, schemaVersion: 1, maxStableConcurrencyPerBrowser: stable, maxStableBrowserPools: activeBrowserPools, updatedAt: new Date().toISOString()}, null, 2)}\n`);
   renameSync(partialProfile, profilePath);
 }
 
@@ -181,6 +226,7 @@ const telemetry = {
     bundleCacheHit,
     totalSeconds: Number(((performance.now() - startedAt) / 1000).toFixed(3)),
     logicalCpus: plan.logicalCpus,
+    maxParallelBrowserPools: activeBrowserPools,
     tasks: results,
     failures,
 };

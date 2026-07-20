@@ -7,7 +7,6 @@ import {
   GitGraph,
   GitRefWritePanel,
   GitStatePanel,
-  ManimClip,
   RefWriteBar,
   type GitGraphState,
 } from './kit';
@@ -87,7 +86,7 @@ export const ComponentGallery: React.FC = () => {
       />
       <header style={{position: 'absolute', left: 72, top: 42, right: 72, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
         <div style={{...TYPE.title, fontSize: 34}}>Git course component gallery</div>
-        <div style={{...TYPE.uiSmall, color: COLOR.text.secondary}}>Remotion + Manim primitives</div>
+        <div style={{...TYPE.uiSmall, color: COLOR.text.secondary}}>Remotion course primitives</div>
       </header>
 
       <GallerySection title="terminal / command causality" x={72} y={128} width={720} height={370}>
@@ -134,7 +133,7 @@ export const ComponentGallery: React.FC = () => {
         </div>
       </GallerySection>
 
-      <GallerySection title="ref write panel / manim clip wrapper" x={930} y={542} width={840} height={420}>
+      <GallerySection title="ref write panel / repository files" x={930} y={542} width={840} height={420}>
         <div style={{display: 'grid', gridTemplateColumns: '520px 300px', gap: 20, alignItems: 'start'}}>
           <div style={{position: 'relative', width: 520, height: 306, overflow: 'visible'}}>
             <div style={{transform: 'scale(0.65)', transformOrigin: 'top left', width: 800, height: 470}}>
@@ -149,12 +148,6 @@ export const ComponentGallery: React.FC = () => {
             </div>
           </div>
           <div style={{display: 'grid', gap: 14}}>
-            <ManimClip
-              src="git-course/manim/ep04/branch-pointer.mp4"
-              title="manim asset"
-              height={260}
-              fit="contain"
-            />
             <FileTree
               title=".git"
               nodes={[
@@ -163,6 +156,7 @@ export const ComponentGallery: React.FC = () => {
               ]}
               highlight={['feature']}
             />
+            <CodeBlock title="refs/heads/feature" lines={['C2']} highlight={[0]} highlightBorderColor={COLOR.git.feature} />
           </div>
         </div>
       </GallerySection>

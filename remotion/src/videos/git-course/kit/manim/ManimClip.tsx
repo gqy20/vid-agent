@@ -2,6 +2,10 @@ import {Video, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
+/**
+ * Legacy compatibility component for archived Git Course renders.
+ * The current Git Course production path is Remotion-only; do not add new uses.
+ */
 export const ManimClip: React.FC<{
   src: string;
   title?: string;

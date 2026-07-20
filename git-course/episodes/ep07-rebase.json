@@ -154,10 +154,10 @@
       "title": "重放模型",
       "start": 46,
       "duration": 58,
-      "primaryTechnique": "Manim replay model",
+      "primaryTechnique": "Remotion replay state model",
       "components": [
-        "ManimClip",
-        "ManimBridge",
+        "RebaseGraph",
+        "CodeBlock",
         "SceneCaption"
       ],
       "goal": "展示 find base、extract patch、replay 的过程。",
@@ -173,7 +173,7 @@
           "narration": "先找共同祖先，再提取独有修改。",
           "audit": [
             "patch 不是 commit",
-            "Manim 步骤关系使用真正的 → 字形"
+            "步骤关系使用真正的 → 字形"
           ]
         },
         {
@@ -203,7 +203,8 @@
       "duration": 40,
       "primaryTechnique": "Commit card + hash motion",
       "components": [
-        "ManimClip",
+        "RebaseGraph",
+        "CodeBlock",
         "SceneCaption"
       ],
       "goal": "强调重放后是新的 commit 身份。",
@@ -367,10 +368,10 @@
     }
   ],
   "content": {
-    "overviewMarkdown": "# EP07：Rebase 做了什么\n\n## 核心句\n\nrebase 不是把分支“挪过去”。它会找出当前分支独有的提交，把这些修改按顺序在新的 base 上重新播放，生成新的 commit 身份。\n\n## 观众要带走的理解\n\n- rebase 的主动作是 replay，不是 merge。\n- 变基后快照结果可以和 merge 一样，但历史形状不同。\n- 被 replay 的 commit 会变成新 commit，hash 会变。\n- 已经共享给别人的提交不要随便 rebase。\n\n## 镜头结构\n\n1. 用分叉历史提出：为什么有人想要一条直线历史。\n2. 对比 merge 和 rebase 的结果形状。\n3. 用 Manim 展示 find base、提取 patch、逐个 replay。\n4. 展示 `C4` 变成 `C4'`，强调身份改变。\n5. 展示 rebase 后 main 可以 fast-forward。\n6. 用公开历史风险做安全边界。\n\n## 制作目录\n\n可执行制作脚本位于 [`episodes/ep07-rebase/`](ep07-rebase/README.md)。\n",
-    "scriptMarkdown": "# EP07 当前脚本（240s）\n\n本集用 Manim 把 rebase 拆成寻找独有提交、保存改动、在新基底逐个重放三步，并明确新 parent 会产生新 commit 身份。随后说明线性历史收益与公共历史风险。逐 scene 旁白、segmentId 与进入时间以 `scenes[].narration` 为准；实测音频窗口见 `content.alignmentMarkdown`。\n",
+    "overviewMarkdown": "# EP07：Rebase 做了什么\n\n## 核心句\n\nrebase 不是把分支整体挪过去。它会找出当前分支独有的提交，把修改按顺序在新的 base 上重新播放，生成新的 commit 身份。\n\n## 镜头结构\n\n1. 用分叉历史提出线性历史需求。\n2. 对比 merge 与 rebase 的历史形状。\n3. 用 Remotion replay 状态模型展示 find base、提取 patch、逐个 replay。\n4. 对比 C4 与 C4' 的 parent 和 id，强调身份改变。\n5. 展示 rebase 后 main 可以 fast-forward。\n6. 用公开历史风险说明安全边界。\n",
+    "scriptMarkdown": "# EP07 当前脚本（240s）\n\n本集用 Remotion 状态模型把 rebase 拆成寻找共同祖先、提取独有修改、在新基底逐个重放三步，并用字段对比明确新 parent 会产生新 commit 身份。随后说明线性历史收益与公共历史风险。逐 scene 旁白、segmentId 与进入时间以 scenes[].narration 为准；实测音频窗口见 content.alignmentMarkdown。\n",
     "beatsMarkdown": "# EP07 Beats（240s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0-14s | hook | 否定“把旧 commit 搬过去”的错误模型 |\n| 14-46s | compare-merge | 对比 merge 保留分叉与 rebase 重放成直线 |\n| 46-104s | replay-model | 找出 C4、C5 的 patch 并在 C3 后依次重放 |\n| 104-144s | new-identity | 对比 C4/C5 与 C4'/C5' 的 parent、hash |\n| 144-178s | fast-forward-after | rebase 后 main 可沿直线 fast-forward |\n| 178-216s | public-risk | 解释共享分支重写的协作风险 |\n| 216-240s | takeaway | 收束 replay、新身份与安全边界 |\n",
-    "qualityMarkdown": "# EP07 Rebase 做了什么 - 审查记录\n\n## 当前状态\n\n- Remotion 240 秒主视频、replay / identity 两段 Manim、TTS 与自动抽帧流程均已实现。\n- 上一版 candidate 的机器审计通过，当前内容源同步后需要重新校验 dirty scene 指纹。\n- 尚待人工视觉审查、approve / promote 与 release 流程。\n\n## 重点审查项\n\n- rebase 必须表现为依次 replay C4、C5 的独有修改，不是把节点整体平移。\n- `C4/C5` 与 `C4'/C5'` 必须显示为不同 commit 身份。\n- merge/rebase 对比时只能对比历史形状，不暗示内容结果一定不同。\n- 公共历史风险要明确，但不能变成恐吓式大段文字。\n",
+    "qualityMarkdown": "# EP07 Rebase 做了什么 - 审查记录\n\n## 当前状态\n\n- replay 与 identity 已替换为 Remotion 状态模型；历史 Manim 脚本和导出资产保留但不再参与构建。\n- 实现变化使旧 candidate、旧 scene 指纹和旧 main audit 失效。\n- 尚需通过 orchestrator 重建 dirty scene、candidate，并重新完成人工视觉审查。\n\n## 重点审查项\n\n- rebase 必须依次 replay C4、C5 的独有修改，不是把节点整体平移。\n- C4/C5 与 C4'/C5' 必须显示为不同 commit 身份。\n- parent 与 id 的变化应在同一比较模型中清晰可读。\n- merge/rebase 对比只比较历史形状，不暗示内容结果一定不同。\n- 公共历史风险要明确，但不能变成恐吓式大段文字。\n",
     "readmeMarkdown": "# EP07 Rebase 做了什么 - 制作目录\n\n这个目录保存 EP07 的可执行制作脚本。\n\n文件职责：\n\n- `content.scriptMarkdown`：教学目标、官方依据、旁白、字幕短句。\n- `content.beatsMarkdown`：逐时间段的画面、动作、技术、状态和审查点。\n- `episode JSON`：scene 顺序与时间的唯一事实源，直接生成 Remotion timeline 和渲染 ranges。\n- `content.qualityMarkdown`：渲染后抽帧、重叠、视觉问题和待优化记录。\n\n当前主题：\n\n```text\nrebase 是把当前分支独有的修改在新的 base 上按顺序重放。\n它改变历史形状，也会生成新的 commit 身份。\n```\n\n官方依据：\n\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:23`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:24`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:36`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:55`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:64`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:150`\n- `docs/references/progit2-zh/book/03-git-branching/sections/rebasing.asc:155`\n\n原则：EP07 只讲基本 rebase 和公共历史风险。`--onto`、interactive rebase 和冲突解决留到后续进阶。\n",
     "voiceoverDesignMarkdown": null,
     "alignmentMarkdown": "# EP07 Audio Alignment\n\nEpisode: `ep07-rebase`\n\nTTS: `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`; normalized near `-20 LUFS`, peak near `-3 dBFS`; BGM `0.05`, no sidechain.\n\n| Segment | Start | Duration | End | Scene end |\n|---|---:|---:|---:|---:|\n| `01_hook` | 0.35s | 12.382s | 12.732s | 14.00s |\n| `02_compare_merge` | 14.35s | 25.287s | 39.637s | 46.00s |\n| `03_replay_model` | 46.35s | 44.487s | 90.837s | 104.00s |\n| `04_new_identity` | 104.35s | 33.515s | 137.865s | 144.00s |\n| `05_fast_forward_after` | 144.35s | 26.227s | 170.577s | 178.00s |\n| `06_public_risk` | 178.35s | 32.000s | 210.350s | 216.00s |\n| `07_takeaway` | 216.25s | 17.580s | 233.830s | 240.00s |\n\nTotal normalized narration is 191.478 seconds in a 240-second main episode: 79.78%. Every narration window fits its scene. SRT text is canonicalized from episode JSON while TTS cue timestamps are preserved; UTF-8, pause markers, punctuation, cue distribution and suspiciously short audio are validated.\n"
