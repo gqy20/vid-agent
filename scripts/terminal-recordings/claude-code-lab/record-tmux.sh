@@ -3,13 +3,14 @@
 #   install：干净容器 + 代理，run.sh 现场跑 install.sh（ep01 安装入门）
 #   run：挂 claude /opt/claude 直接跑（ep02+）
 #   REBUILD=1 强制重建镜像
+#   CC_INSTALL_PROXY=http://127.0.0.1:7890 为 install 模式显式配置宿主代理
 set -euo pipefail
 
 EP=${1:?usage: record-tmux.sh <episode-id> [install|run]}
 MODE=${2:-run}
 LAB="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$LAB/../../.." && pwd)"
-IMG=cc-base:latest
+IMG=
 
 CLAUDE_HOME="$HOME/.local/share/claude"
 
@@ -42,12 +43,17 @@ if [[ "$MODE" != "install" ]]; then
   [[ -d "$CLAUDE_HOME" ]] || { echo "claude install dir not found at $CLAUDE_HOME" >&2; exit 1; }
 fi
 
-if ! docker image inspect "$IMG" >/dev/null 2>&1 || [[ "${REBUILD:-0}" == "1" ]]; then
-  echo "==> building $IMG"
-  docker build --progress=plain -t "$IMG" "$LAB/envs/base"
+if [[ "${REBUILD:-0}" == 1 ]]; then
+  IMG=$("$LAB/build-image.sh" --rebuild)
 else
-  echo "==> $IMG exists, skip build"
+  IMG=$("$LAB/build-image.sh")
 fi
+IMAGE_ID=$(docker image inspect "$IMG" --format '{{.Id}}')
+IMAGE_FINGERPRINT=$(docker image inspect "$IMG" --format '{{index .Config.Labels "org.vid-agent.build-fingerprint"}}')
+[[ -n "$IMAGE_ID" && -n "$IMAGE_FINGERPRINT" ]] || {
+  echo "image identity is incomplete: $IMG" >&2
+  exit 1
+}
 
 rm -rf "$TMP_ROOT"; mkdir -p "$TMP_ROOT" "$OUT_DIR"
 # cast / GIF / 中间 MP4 含真实 token；成功、失败或中断都必须清理。
@@ -56,31 +62,32 @@ trap cleanup_sensitive EXIT
 trap 'exit 130' INT TERM
 touch "$TMP_ROOT/run.log" "$EVENTS"   # docker -v 文件挂载：宿主必须先有文件，否则建成目录
 
+docker_args=(
+  docker run --rm -it
+  -v "$LAB:/workspace/lab:ro"
+  -v "$TMP_ROOT/run.log:/tmp/run.log"
+  -v "$EVENTS:/tmp/recording-events.jsonl"
+  -e HOME=/home/cc -e TERM=xterm-256color -e LANG=C.UTF-8
+  -e CC_RECORDING_EVENTS=/tmp/recording-events.jsonl -e CC_RECORDING_ORIGIN_NS
+  -e ANTHROPIC_AUTH_TOKEN -e ANTHROPIC_BASE_URL -e ANTHROPIC_MODEL
+)
+
 if [[ "$MODE" == "install" ]]; then
-  DOCKER_RUN="docker run --rm -it --network host \
-    -e HTTP_PROXY=http://127.0.0.1:7890 -e HTTPS_PROXY=http://127.0.0.1:7890 \
-    -v '$LAB':/workspace/lab:ro \
-    -v '$TMP_ROOT/run.log':/tmp/run.log \
-    -v '$EVENTS':/tmp/recording-events.jsonl \
-    -e HOME=/home/cc -e TERM=xterm-256color -e LANG=C.UTF-8 \
-    -e CC_MODE=install \
-    -e CC_RECORDING_EVENTS=/tmp/recording-events.jsonl -e CC_RECORDING_ORIGIN_NS \
-    -e ANTHROPIC_AUTH_TOKEN -e ANTHROPIC_BASE_URL -e ANTHROPIC_MODEL \
-    $IMG bash /workspace/lab/entrypoint.sh '$EP'"
+  docker_args+=( -e CC_MODE=install )
+  if [[ -n "${CC_INSTALL_PROXY:-}" ]]; then
+    export HTTP_PROXY=$CC_INSTALL_PROXY
+    export HTTPS_PROXY=$CC_INSTALL_PROXY
+    docker_args+=( --network host -e HTTP_PROXY -e HTTPS_PROXY )
+  fi
 else
-  DOCKER_RUN="docker run --rm -it \
-    -v '$LAB':/workspace/lab:ro \
-    -v '$CLAUDE_HOME':/opt/claude:ro \
-    -v '$TMP_ROOT/run.log':/tmp/run.log \
-    -v '$EVENTS':/tmp/recording-events.jsonl \
-    -e HOME=/home/cc -e TERM=xterm-256color -e LANG=C.UTF-8 \
-    -e CC_RECORDING_EVENTS=/tmp/recording-events.jsonl -e CC_RECORDING_ORIGIN_NS \
-    -e ANTHROPIC_AUTH_TOKEN -e ANTHROPIC_BASE_URL -e ANTHROPIC_MODEL \
-    $IMG bash /workspace/lab/entrypoint.sh '$EP'"
+  docker_args+=( -v "$CLAUDE_HOME:/opt/claude:ro" )
 fi
 
+docker_args+=( "$IMG" bash /workspace/lab/entrypoint.sh "$EP" )
+printf -v DOCKER_RUN '%q ' "${docker_args[@]}"
+
 echo "==> env: AUTH_TOKEN=${#ANTHROPIC_AUTH_TOKEN} BASE_URL=${ANTHROPIC_BASE_URL:-empty} MODEL=${ANTHROPIC_MODEL:-empty}" >&2
-echo "==> recording $EP [$MODE mode] 120x28"
+echo "==> recording $EP [$MODE mode] with $IMG at 120x28"
 CC_RECORDING_ORIGIN_NS="$(python3 -c 'import time; print(time.monotonic_ns())')"
 export CC_RECORDING_ORIGIN_NS
 asciinema rec --quiet --headless --overwrite --return --window-size 120x28 \
@@ -134,8 +141,9 @@ FRAMES="$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -o
 W="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$MASKED_VIDEO")"
 H="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 "$MASKED_VIDEO")"
 HOLD_FROM=$((FRAMES - 60)); [[ $HOLD_FROM -lt 0 ]] && HOLD_FROM=0
-printf '{\n  "schemaVersion": 1,\n  "id": "%s",\n  "durationInFrames": %s,\n  "holdFromFrame": %s,\n  "width": %s,\n  "height": %s,\n  "fps": 30,\n  "font": "JetBrainsMono Nerd Font Mono",\n  "fontSize": 24,\n  "mode": "%s",\n  "theme": "claude-code-termius-dark",\n  "timeline": "%s.timeline.json",\n  "idleTimeLimitSeconds": %s\n}\n' \
-  "$EP" "$FRAMES" "$HOLD_FROM" "$W" "$H" "$MODE" "$EP" "$IDLE_TIME_LIMIT" > "$CANDIDATE_METADATA"
+printf '{\n  "schemaVersion": 1,\n  "id": "%s",\n  "durationInFrames": %s,\n  "holdFromFrame": %s,\n  "width": %s,\n  "height": %s,\n  "fps": 30,\n  "font": "JetBrainsMono Nerd Font Mono",\n  "fontSize": 24,\n  "mode": "%s",\n  "containerImage": {\n    "tag": "%s",\n    "id": "%s",\n    "buildFingerprint": "%s"\n  },\n  "theme": "claude-code-termius-dark",\n  "timeline": "%s.timeline.json",\n  "idleTimeLimitSeconds": %s\n}\n' \
+  "$EP" "$FRAMES" "$HOLD_FROM" "$W" "$H" "$MODE" \
+  "$IMG" "$IMAGE_ID" "$IMAGE_FINGERPRINT" "$EP" "$IDLE_TIME_LIMIT" > "$CANDIDATE_METADATA"
 
 # 所有派生产物校验成功后再一起替换公开素材，避免失败录制留下新 MP4 + 旧 timeline。
 mv "$MASKED_VIDEO" "$OUT"

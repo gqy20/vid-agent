@@ -8,6 +8,34 @@
 
 三者输出到 `remotion/public/claude-code-course/terminal/`。`.cast`、导演日志和原始事件只存在于临时目录，完成后删除；timeline 不保存命令正文、终端输出或认证令牌。
 
+## 基础镜像
+
+基础镜像按 `envs/base/` 的有效输入生成内容指纹标签，避免复用过期的 `cc-base:latest`：
+
+```bash
+scripts/terminal-recordings/claude-code-lab/build-image.sh
+scripts/terminal-recordings/claude-code-lab/verify-image.sh
+```
+
+`build-image.sh` 会在镜像不存在时构建，存在时复用。使用 `--rebuild` 或 `REBUILD=1` 可强制重建；`--print` 只输出当前输入对应的镜像标签。
+
+如果 Docker 默认构建网络无法解析外部下载地址，可仅为构建显式使用宿主网络：
+
+```bash
+CC_BUILD_NETWORK=host scripts/terminal-recordings/claude-code-lab/build-image.sh
+```
+
+构建入口只会转发当前环境中标准的大小写代理变量，不会把 `.env` 中的认证变量传给 Docker build。
+
+EP01 的安装录制如果需要访问宿主代理，应显式传入代理地址：
+
+```bash
+CC_INSTALL_PROXY=http://127.0.0.1:7890 \
+  scripts/terminal-recordings/claude-code-lab/record-tmux.sh ep01-agentic-loop install
+```
+
+代理与认证信息只在运行容器时传入，不进入镜像层。录制脚本会从仓库根目录的本地 `.env` 加载认证变量；该文件不得提交。
+
 ## 在导演脚本中标记内容
 
 导演脚本先加载 `_lib.sh`，再用成对的分段事件包住一段完整内容：

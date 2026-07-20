@@ -1,19 +1,49 @@
-FROM ubuntu:22.04
+FROM ubuntu:22.04@sha256:0e0a0fc6d18feda9db1590da249ac93e8d5abfea8f4c3c0c849ce512b5ef8982
+
+ARG TARGETARCH
+ARG NODE_VERSION=22.18.0
+ARG PNPM_VERSION=10.33.3
+ARG UV_VERSION=0.11.29
+ARG CC_UID=1000
+ARG CC_GID=1000
+
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
-# tmux 录制 + vim 配置演示 + curl/ca-certificates + python3(uv via pip)
+
+# 录屏工具、真实 Git 状态和课程示例项目所需的最小通用工具链。
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      tmux vim curl ca-certificates python3 python3-pip \
+      ca-certificates curl git jq less openssh-client procps ripgrep tmux vim \
+      python3 python3-pip xz-utils \
     && rm -rf /var/lib/apt/lists/*
-# node 22 + pnpm (npm 全局装，npmmirror；不依赖 corepack 的 per-user 缓存)
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && npm install -g pnpm --registry=https://registry.npmmirror.com
-# uv (pip，清华镜像加速)
-RUN pip3 install uv -i https://pypi.tuna.tsinghua.edu.cn/simple
-# cc 用户
-RUN useradd -m -u 1000 -s /bin/bash cc \
+
+# 固定 Node 与 pnpm，校验官方 Node 发布包后再安装。
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) node_arch=x64 ;; \
+      arm64) node_arch=arm64 ;; \
+      *) echo "unsupported TARGETARCH: ${TARGETARCH:-unset}" >&2; exit 1 ;; \
+    esac; \
+    node_archive="node-v${NODE_VERSION}-linux-${node_arch}.tar.xz"; \
+    curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${node_archive}"; \
+    curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt"; \
+    grep " ${node_archive}$" SHASUMS256.txt | sha256sum -c -; \
+    tar -xJf "${node_archive}" -C /usr/local --strip-components=1; \
+    rm -f "${node_archive}" SHASUMS256.txt; \
+    npm install --global "pnpm@${PNPM_VERSION}"; \
+    npm cache clean --force
+
+# uv 只用于初始化与运行示例项目，不携带宿主虚拟环境。
+RUN pip3 install --no-cache-dir "uv==${UV_VERSION}"
+
+RUN groupadd --gid "$CC_GID" cc \
+    && useradd --create-home --uid "$CC_UID" --gid "$CC_GID" --shell /bin/bash cc \
     && mkdir -p /workspace && chown -R cc:cc /workspace
+
+LABEL org.vid-agent.component="claude-code-lab" \
+      org.vid-agent.node-version="$NODE_VERSION" \
+      org.vid-agent.pnpm-version="$PNPM_VERSION" \
+      org.vid-agent.uv-version="$UV_VERSION"
+
 USER cc
 WORKDIR /workspace
 CMD ["bash"]

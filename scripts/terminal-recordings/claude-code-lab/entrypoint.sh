@@ -14,6 +14,11 @@ cat > /home/cc/.bashrc <<'EOF'
 export PS1='\[\033[01;36m\]cc\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]\n\[\033[01;32m\]❯\[\033[00m\] '
 EOF
 
+# tmux 默认 status-right 包含 hostname；录屏必须使用确定性课程标识。
+cat > /home/cc/.tmux.conf <<'EOF'
+set -g status-right 'Claude Code Lab'
+EOF
+
 if [[ "${CC_MODE:-run}" == "install" ]]; then
   # install 模式：claude 由 run.sh 的 install.sh 现场装。
   tmux new-session -d -s cc -x 120 -y 28 -c /home/cc/project
