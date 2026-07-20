@@ -5,7 +5,7 @@ type QueueFilter = 'attention' | 'all' | 'dirty';
 type InspectorTab = 'scenes' | 'audit' | 'runs';
 type AuditScope = 'main' | 'release';
 type MediaSelection = {
-  kind: 'candidate' | 'current' | 'releaseCandidate' | 'release' | 'scene';
+  kind: 'candidate' | 'current' | 'releaseCandidate' | 'release' | 'candidateScene' | 'scene';
   title: string;
   artifact: Artifact | {url: string; path: string};
   sha: string | null;
@@ -15,7 +15,7 @@ type MediaSelection = {
 
 const stageLabels: Record<string, string> = {
   source: '内容源',
-  tasks: 'Scene / TTS',
+  tasks: 'Scene/TTS',
   candidate: 'Candidate',
   audit: 'Main Audit',
   current: 'Current',
@@ -28,17 +28,18 @@ const attentionLabels = {
   review: 'REVIEW',
   dirty: 'DIRTY',
   ready: 'NEXT',
+  published: 'PUBLISHED',
   complete: 'DONE',
 };
 
-const attentionPriority = {running: 0, failed: 1, review: 2, dirty: 3, ready: 4, complete: 5};
+const attentionPriority = {running: 0, failed: 1, review: 2, dirty: 3, ready: 4, published: 5, complete: 6};
 const matchesFilter = (episode: Episode, filter: QueueFilter) => filter === 'all'
-  || filter === 'attention' && ['running', 'failed', 'review'].includes(episode.attention)
+  || filter === 'attention' && !['published', 'complete'].includes(episode.attention)
   || filter === 'dirty' && episode.dirty > 0;
 
 const tone = (status: string) => {
-  if (['ready', 'hit', 'pass', 'complete', 'succeeded'].includes(status)) return 'pass';
-  if (['dirty', 'build', 'needs_review', 'review', 'running'].includes(status)) return 'wait';
+  if (['ready', 'hit', 'pass', 'published', 'complete', 'succeeded'].includes(status)) return 'pass';
+  if (['dirty', 'changed', 'build', 'needs_review', 'review', 'running'].includes(status)) return 'wait';
   if (['fail', 'failed'].includes(status)) return 'fail';
   return 'muted';
 };
@@ -48,6 +49,7 @@ const label = (status: string) => ({
   hit: 'HIT',
   build: 'BUILD',
   dirty: 'DIRTY',
+  changed: 'CHANGED',
   needs_review: 'REVIEW',
   pass: 'PASS',
   fail: 'FAIL',
@@ -97,8 +99,8 @@ function SceneSignals({scene}: {scene: Scene}) {
 
 function SummaryBar({dashboard, filter, onFilter}: {dashboard: Dashboard; filter: QueueFilter; onFilter: (filter: QueueFilter) => void}) {
   const items: Array<{id: QueueFilter; title: string; value: number}> = [
-    {id: 'attention', title: '优先队列', value: dashboard.summary.needsReview + dashboard.summary.failed + dashboard.summary.busy},
-    {id: 'dirty', title: '待重建', value: dashboard.summary.dirty},
+    {id: 'attention', title: '优先队列', value: dashboard.summary.attention},
+    {id: 'dirty', title: '待构建片段', value: dashboard.summary.dirty},
     {id: 'all', title: '全部分集', value: dashboard.summary.episodes},
   ];
   return <nav className="summary-bar" aria-label="队列筛选">
@@ -119,7 +121,9 @@ function EpisodeQueue({episodes, selected, filter, onSelect}: {episodes: Episode
         <span className="queue-number">{episode.id.slice(0, 4).toUpperCase()}</span>
         <span className="queue-copy">
           <strong>{episode.title}</strong>
-          <small>{episode.dirty ? `${episode.dirty} dirty` : `${episode.sceneCount} 镜头`} · {formatTime(episode.durationSeconds)}</small>
+          <small>{episode.publication.published
+            ? `已发布${episode.dirty ? ` · ${episode.dirty} 处源码变化` : ''}`
+            : episode.dirty ? `${episode.dirty} 待构建` : `${episode.sceneCount} 镜头`} · {formatTime(episode.durationSeconds)}</small>
         </span>
         <span className={`queue-state queue-state--${tone(episode.attention)}`}><i />{attentionLabels[episode.attention]}</span>
       </button>)}
@@ -137,14 +141,12 @@ function StageFlow({episode}: {episode: Episode}) {
   </section>;
 }
 
-function Player({episode, selection, onSelectVersion, previous, next}: {
+function Player({episode, selection, onSelectVersion}: {
   episode: Episode;
   selection: MediaSelection | null;
   onSelectVersion: (selection: MediaSelection) => void;
-  previous: (() => void) | null;
-  next: (() => void) | null;
 }) {
-  const playerRef = useRef<HTMLElement>(null);
+  const videoShellRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -156,7 +158,8 @@ function Player({episode, selection, onSelectVersion, previous, next}: {
     episode.artifacts.releaseCandidate && {kind: 'releaseCandidate', title: 'Release Candidate', artifact: episode.artifacts.releaseCandidate, sha: episode.manifests.releaseCandidateSha},
     episode.artifacts.release && {kind: 'release', title: 'Published', artifact: episode.artifacts.release, sha: episode.manifests.publishedReleaseSha},
   ];
-  const isScene = selection?.kind === 'scene';
+  const isScene = selection?.kind === 'scene' || selection?.kind === 'candidateScene';
+  const activeVersion = selection?.kind === 'candidateScene' ? 'candidate' : selection?.kind;
 
   useEffect(() => {
     setPlaying(false);
@@ -187,17 +190,17 @@ function Player({episode, selection, onSelectVersion, previous, next}: {
   };
 
   const toggleFullscreen = () => {
-    const player = playerRef.current;
-    if (!player) return;
+    const videoShell = videoShellRef.current;
+    if (!videoShell) return;
     if (document.fullscreenElement) void document.exitFullscreen();
-    else void player.requestFullscreen();
+    else void videoShell.requestFullscreen();
   };
 
-  return <section className="player-panel" ref={playerRef}>
+  return <section className="player-panel">
     <header className="player-heading">
       <h2>{isScene ? selection.title : '成片'}</h2>
       <div className="version-switcher">
-        {choices.map((choice) => choice && <button key={choice.kind} aria-pressed={selection?.kind === choice.kind} className={selection?.kind === choice.kind ? 'is-active' : ''} onClick={() => onSelectVersion(choice)}>{choice.title}</button>)}
+        {choices.map((choice) => choice && <button key={choice.kind} aria-pressed={activeVersion === choice.kind} className={activeVersion === choice.kind ? 'is-active' : ''} onClick={() => onSelectVersion(choice)}>{choice.title}</button>)}
       </div>
     </header>
     {selection && <div className="video-controls" aria-label="视频控制">
@@ -219,7 +222,7 @@ function Player({episode, selection, onSelectVersion, previous, next}: {
       <button onClick={toggleMute}>{muted ? '取消静音' : '静音'}</button>
       <button onClick={toggleFullscreen}>全屏</button>
     </div>}
-    <div className="video-shell">
+    <div className="video-shell" ref={videoShellRef}>
       {selection ? <video
         key={`${selection.artifact.url}:${selection.sceneId ?? 'full'}:${selection.startAt ?? 0}`}
         ref={videoRef}
@@ -235,30 +238,26 @@ function Player({episode, selection, onSelectVersion, previous, next}: {
         onEnded={() => setPlaying(false)}
       /> : <div className="empty-state">构建 Candidate 或生成 Scene Preview 后即可检查</div>}
     </div>
-    <footer className="player-footer">
-      <div className="scene-nav">
-        <button disabled={!previous} onClick={() => previous?.()}>← 上一段</button>
-        <button disabled={!next} onClick={() => next?.()}>下一段 →</button>
-        <small>J / K 切换 Scene</small>
-      </div>
-      <div className="media-identity"><code>{selection?.artifact.path ?? '—'}</code><span>{shortSha(selection?.sha ?? null)}</span></div>
-    </footer>
   </section>;
 }
 
-function SceneList({scenes, selectedId, onSelect, onPreview}: {
+function SceneList({scenes, selectedId, candidateMode, onSelect, onPreview}: {
   scenes: Scene[];
   selectedId: string;
+  candidateMode: boolean;
   onSelect: (scene: Scene) => void;
   onPreview: (scene: Scene) => void;
 }) {
   return <div className="scene-list">
-    {scenes.map((scene) => <button key={scene.id} className={`scene-item ${selectedId === scene.id ? 'is-active' : ''}`} onClick={() => onSelect(scene)}>
+    {scenes.map((scene) => {
+      const unavailable = candidateMode && !scene.candidateSegment;
+      return <button key={scene.id} disabled={unavailable} title={unavailable ? '当前 Candidate 未登记这个片段' : undefined} className={`scene-item ${selectedId === scene.id ? 'is-active' : ''}`} onClick={() => onSelect(scene)}>
       <span className="scene-number">{String(scene.index).padStart(2, '0')}</span>
       <span className="scene-copy"><strong>{scene.title}</strong><small>{scene.id} · {formatTime(scene.start)}–{formatTime(scene.start + scene.duration)}</small></span>
       <SceneSignals scene={scene} />
-      {!scene.preview && <span className="scene-preview-action" onClick={(event) => {event.stopPropagation(); onPreview(scene);}}>生成预览</span>}
-    </button>)}
+      {!candidateMode && !scene.preview && <span className="scene-preview-action" onClick={(event) => {event.stopPropagation(); onPreview(scene);}}>生成预览</span>}
+      </button>;
+    })}
   </div>;
 }
 
@@ -321,11 +320,12 @@ function ActionDock({episode, action, note, busy, error, onNote, onRun}: {
   </div>;
 }
 
-function Inspector({episode, tab, onTab, selectedSceneId, onScene, onPreview, auditScope, onAuditScope, onReport, runs, note, actionBusy, actionError, onNote, onRun}: {
+function Inspector({episode, tab, onTab, selectedSceneId, candidateMode, onScene, onPreview, auditScope, onAuditScope, onReport, runs, note, actionBusy, actionError, onNote, onRun}: {
   episode: Episode;
   tab: InspectorTab;
   onTab: (tab: InspectorTab) => void;
   selectedSceneId: string;
+  candidateMode: boolean;
   onScene: (scene: Scene) => void;
   onPreview: (scene: Scene) => void;
   auditScope: AuditScope;
@@ -345,7 +345,7 @@ function Inspector({episode, tab, onTab, selectedSceneId, onScene, onPreview, au
       <button className={tab === 'runs' ? 'is-active' : ''} onClick={() => onTab('runs')}>Runs <span>{runs.length}</span></button>
     </div>
     <div className="inspector-content">
-      {tab === 'scenes' && <SceneList scenes={episode.scenes} selectedId={selectedSceneId} onSelect={onScene} onPreview={onPreview} />}
+      {tab === 'scenes' && <SceneList scenes={episode.scenes} selectedId={selectedSceneId} candidateMode={candidateMode} onSelect={onScene} onPreview={onPreview} />}
       {tab === 'audit' && <AuditView episode={episode} scope={auditScope} onScope={onAuditScope} onReport={onReport} />}
       {tab === 'runs' && <RunsView episode={episode} runs={runs} />}
     </div>
@@ -441,13 +441,27 @@ export function App() {
           ? {kind: 'release' as const, title: 'Published', artifact: episode.artifacts.release, sha: episode.manifests.publishedReleaseSha}
           : null;
     setSelection(preferred);
-    setSelectedSceneId(episode.scenes[0]?.id ?? '');
+    setSelectedSceneId('');
     setNote('');
     setActionError(null);
   }, [episode?.id, episode?.manifests.candidateSha]);
 
   const selectScene = useCallback((scene: Scene) => {
     setSelectedSceneId(scene.id);
+    const candidateMode = selection?.kind === 'candidate' || selection?.kind === 'candidateScene';
+    if (candidateMode) {
+      if (scene.candidateSegment) {
+        setSelection({
+          kind: 'candidateScene',
+          title: `Candidate · ${String(scene.index).padStart(2, '0')} · ${scene.title}`,
+          artifact: scene.candidateSegment,
+          sha: scene.candidateSegment.sha256,
+          sceneId: scene.id,
+          startAt: 0,
+        });
+      }
+      return;
+    }
     const fallback = episode?.artifacts.candidate
       ? {artifact: episode.artifacts.candidate, sha: episode.manifests.candidateSha}
       : episode?.artifacts.current
@@ -464,7 +478,7 @@ export function App() {
     } else {
       setSelection(null);
     }
-  }, [episode]);
+  }, [episode, selection?.kind]);
 
   const selectedSceneIndex = episode?.scenes.findIndex((scene) => scene.id === selectedSceneId) ?? -1;
   const previous = episode && selectedSceneIndex > 0 ? () => selectScene(episode.scenes[selectedSceneIndex - 1]) : null;
@@ -517,18 +531,19 @@ export function App() {
       {episode && <main className="review-main">
         <div className="episode-overview">
           <header className="episode-header">
-            <div><span className="episode-kicker">{episode.id}</span><h1>{episode.title}</h1><p>{episode.sceneCount} 个镜头 · {formatTime(episode.durationSeconds)} · {episode.resolution.width}×{episode.resolution.height} · {episode.fps}fps</p></div>
+            <div><span className="episode-kicker">{episode.id}</span><h1>{episode.title}</h1><div className="episode-meta"><p>{episode.sceneCount} 个镜头 · {formatTime(episode.durationSeconds)} · {episode.resolution.width}×{episode.resolution.height} · {episode.fps}fps</p>{episode.publication.published && episode.publication.sourceChanged && <span>已发布版本不受影响 · {episode.dirty} 处源码变化</span>}</div></div>
             <StageFlow episode={episode} />
           </header>
           {episode.statusError && <div className="notice notice--error">orchestrator 状态读取失败：{episode.statusError}</div>}
         </div>
-        <Player episode={episode} selection={selection} onSelectVersion={(value) => {setSelection(value); setSelectedSceneId('');}} previous={previous} next={next} />
+        <Player episode={episode} selection={selection} onSelectVersion={(value) => {setSelection(value); setSelectedSceneId('');}} />
       </main>}
       {episode && <Inspector
         episode={episode}
         tab={inspectorTab}
         onTab={setInspectorTab}
         selectedSceneId={selectedSceneId}
+        candidateMode={selection?.kind === 'candidate' || selection?.kind === 'candidateScene'}
         onScene={selectScene}
         onPreview={(scene) => void runAction('preview', scene.id)}
         auditScope={auditScope}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {actionArgs, isEpisodeId, nextAction, parseStatus, repoFile} from '../src/lib.mjs';
+import {actionArgs, episodeAttention, isEpisodeId, nextAction, parseStatus, repoFile} from '../src/lib.mjs';
 
 test('episode ids are constrained to course slugs', () => {
   assert.equal(isEpisodeId('ep05-head'), true);
@@ -38,4 +38,24 @@ test('next action follows the candidate approval and promotion gates', () => {
   assert.equal(nextAction(base).action, 'approve');
   assert.equal(nextAction({...base, verdicts: {...base.verdicts, main: {verdict: 'pass'}}}).action, 'promote');
   assert.equal(nextAction({...base, verdicts: {...base.verdicts, main: {verdict: 'pass'}}, manifests: {...base.manifests, currentSha: 'main-next'}}).action, 'publish');
+});
+
+test('published episodes describe dirty work as a new revision', () => {
+  const action = nextAction({
+    activity: null,
+    dirty: 3,
+    artifacts: {candidate: {}, current: {}, releaseCandidate: {}, release: {}},
+    verdicts: {main: {verdict: 'pass'}, release: {verdict: 'pass', artifactSha256: 'release-current'}},
+    manifests: {candidateSha: 'main-current', currentSha: 'main-current', releaseCandidateSha: 'release-current', publishedReleaseSha: 'release-current'},
+  });
+  assert.equal(action.action, 'build');
+  assert.equal(action.label, '当前源码有新改动');
+  assert.match(action.description, /已发布版本/);
+});
+
+test('attention separates published revisions from unpublished dirty candidates', () => {
+  const verdicts = {main: {verdict: 'needs_review'}, release: {verdict: 'pass'}};
+  assert.equal(episodeAttention({activity: null, dirty: 4, published: true, verdicts, nextAction: {}}), 'published');
+  assert.equal(episodeAttention({activity: null, dirty: 4, published: false, verdicts, nextAction: {}}), 'dirty');
+  assert.equal(episodeAttention({activity: null, dirty: 0, published: false, verdicts, nextAction: {}}), 'review');
 });

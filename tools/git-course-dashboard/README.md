@@ -28,7 +28,7 @@ pnpm --dir tools/git-course-dashboard start
 - 页面可以执行 `preview`、`build`、`approve`、`promote`、`release-build`、`release-audit`、`release-approve` 和 `publish`。
 - 所有操作都通过 `pnpm --dir remotion git-course ...` 进入既有 orchestrator；运行日志在右侧 Runs 面板显示。
 
-界面按 1480px 以上的大屏固定工作台设计。浏览器页面和中央审查区不做纵向滚动，分集、Scene、版本、Audit 与 Runs 通过点击原位切换；只有内容超长的队列、检查项和日志允许在各自面板内局部滚动。Scene 列表支持 `J` / `K` 快捷切换；Scene Preview 缺失时会回退到现有成片并跳至该 Scene 的进入时间。播放器控制条固定在画面上方，不覆盖字幕和课程自身的底部进度线。完整 HTML 审查报告在当前工作台覆盖层中打开。
+界面按 1480px 以上的大屏固定工作台设计。浏览器页面和中央审查区不做纵向滚动，分集、Scene、版本、Audit 与 Runs 通过点击原位切换；只有内容超长的队列、检查项和日志允许在各自面板内局部滚动。Scene 列表支持 `J` / `K` 快捷切换。在 Candidate 版本下点击 Scene，会播放 `candidate/scenes-manifest.json` 登记的候选片段及其 SHA；其他版本仍使用 Scene Preview，缺失时才回退到现有成片的对应进入时间。播放器控制条固定在画面上方，不覆盖字幕和课程自身的底部进度线。完整 HTML 审查报告在当前工作台覆盖层中打开。已发布状态与当前源码变化分开显示，未构建改动不会把既有 Published 降级为 Dirty。
 
 ## 校验
 

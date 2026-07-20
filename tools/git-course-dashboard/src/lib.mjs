@@ -29,7 +29,10 @@ export const actionArgs = ({action, episodeId, sceneId, note}) => {
 export const nextAction = ({activity, dirty, artifacts, verdicts, manifests}) => {
   if (activity) return null;
   if (dirty > 0 || !artifacts.candidate || ['missing', 'fail'].includes(verdicts.main.verdict)) {
-    return {action: 'build', label: 'Candidate 需要更新', cta: '开始构建', description: `${dirty || '缺失'} 个任务等待重新计算`, requiresNote: false, risk: 'normal'};
+    const published = Boolean(artifacts.release && manifests.publishedReleaseSha);
+    return published && dirty > 0
+      ? {action: 'build', label: '当前源码有新改动', cta: '构建新 Candidate', description: `${dirty} 个片段尚未进入已发布版本`, requiresNote: false, risk: 'normal'}
+      : {action: 'build', label: 'Candidate 需要更新', cta: '开始构建', description: `${dirty || '缺失'} 个任务等待重新计算`, requiresNote: false, risk: 'normal'};
   }
   if (verdicts.main.verdict === 'needs_review') {
     return {action: 'approve', label: 'Main 等待确认', cta: '确认通过', description: '填写本轮结论后批准 Candidate', requiresNote: true, risk: 'review'};
@@ -50,6 +53,15 @@ export const nextAction = ({activity, dirty, artifacts, verdicts, manifests}) =>
     return {action: 'publish', label: 'Release 已批准', cta: '发布', description: '将批准版本设为正式发布版', requiresNote: false, risk: 'high'};
   }
   return null;
+};
+
+export const episodeAttention = ({activity, dirty, published, verdicts, nextAction: action}) => {
+  if (activity) return 'running';
+  if (verdicts.main.verdict === 'fail' || verdicts.release.verdict === 'fail') return 'failed';
+  if (dirty > 0) return published ? 'published' : 'dirty';
+  if (verdicts.main.verdict === 'needs_review' || verdicts.release.verdict === 'needs_review') return 'review';
+  if (published) return 'published';
+  return action ? 'ready' : 'complete';
 };
 
 export const parseStatus = (stdout) => {
@@ -158,6 +170,7 @@ export const loadEpisode = async (repoRoot, episodePath) => {
     status,
     state,
     artifactManifest,
+    candidateScenesManifest,
     previewManifest,
     mainVerdictRaw,
     releaseVerdictRaw,
@@ -175,6 +188,7 @@ export const loadEpisode = async (repoRoot, episodePath) => {
     readStatus(repoRoot, id),
     optionalJson(join(build, 'state.json')),
     optionalJson(join(build, 'artifact-manifest.json')),
+    optionalJson(join(build, 'candidate/scenes-manifest.json')),
     optionalJson(join(base, 'tmp/preview/manifest.json')),
     optionalJson(join(build, 'audit/main/verdict.json')),
     optionalJson(join(build, 'audit/release/verdict.json')),
@@ -196,10 +210,29 @@ export const loadEpisode = async (repoRoot, episodePath) => {
   const releaseManifest = await optionalJson(join(build, 'release-artifact-manifest.json'));
   const releaseCandidateSha = releaseManifest?.sha256 ?? null;
   const publishedReleaseSha = publishedReleaseVerdictRaw?.artifactSha256 ?? null;
-  const scenes = episode.scenes.map((scene, index) => {
+  const candidateScenesValid = Boolean(
+    candidate
+    && candidateSha
+    && candidateScenesManifest?.candidateSha256 === candidateSha
+    && Array.isArray(candidateScenesManifest?.scenes),
+  );
+  const candidateSceneById = new Map(
+    candidateScenesValid ? candidateScenesManifest.scenes.map((scene) => [scene.sceneId, scene]) : [],
+  );
+  const scenes = await Promise.all(episode.scenes.map(async (scene, index) => {
     const segmentId = scene.narration?.segmentId ?? null;
     const preview = previewManifest?.scenes?.[scene.id];
     const previewPath = preview?.previewPath ?? null;
+    const candidateScene = candidateSceneById.get(scene.id);
+    let candidateSegment = null;
+    if (candidateScene?.path && candidateScene?.sha256) {
+      try {
+        const candidateArtifact = await artifact(repoRoot, repoFile(repoRoot, candidateScene.path));
+        if (candidateArtifact) candidateSegment = {...candidateArtifact, sha256: candidateScene.sha256};
+      } catch {
+        // A stale or invalid manifest entry must not become a playable Candidate segment.
+      }
+    }
     return {
       index: index + 1,
       id: scene.id,
@@ -212,9 +245,15 @@ export const loadEpisode = async (repoRoot, episodePath) => {
       ttsState: segmentId ? status.tts[segmentId] ?? 'unknown' : 'unknown',
       cachePath: state?.scenes?.[scene.id]?.path ?? null,
       preview: previewPath ? {path: previewPath, url: fileUrl(previewPath)} : null,
+      candidateSegment,
     };
-  });
+  }));
   const dirty = scenes.filter((scene) => scene.renderState === 'build' || scene.ttsState === 'build').length;
+  const published = Boolean(
+    releaseMain
+    && publishedReleaseSha
+    && publishedReleaseVerdictRaw?.verdict === 'pass',
+  );
   const result = {
     id,
     title: episode.title ?? id,
@@ -227,7 +266,7 @@ export const loadEpisode = async (repoRoot, episodePath) => {
     activity,
     stages: {
       source: 'ready',
-      tasks: status.error ? 'unknown' : dirty > 0 ? 'dirty' : 'ready',
+      tasks: status.error ? 'unknown' : dirty > 0 ? 'changed' : 'ready',
       candidate: candidate ? 'ready' : 'missing',
       audit: mainVerdict.verdict,
       current: currentMain ? 'ready' : 'missing',
@@ -245,15 +284,11 @@ export const loadEpisode = async (repoRoot, episodePath) => {
       previewUpdatedAt: previewManifest?.updatedAt ?? null,
     },
     verdicts: {main: mainVerdict, release: releaseVerdict},
+    publication: {published, sha256: publishedReleaseSha, sourceChanged: dirty > 0},
     storage: {cache: storage[0], build: storage[1], preview: storage[2], current: storage[3]},
   };
   result.nextAction = nextAction(result);
-  result.attention = activity ? 'running'
-    : mainVerdict.verdict === 'fail' || releaseVerdict.verdict === 'fail' ? 'failed'
-    : dirty > 0 ? 'dirty'
-    : mainVerdict.verdict === 'needs_review' || releaseVerdict.verdict === 'needs_review' ? 'review'
-    : result.nextAction ? 'ready'
-    : 'complete';
+  result.attention = episodeAttention({...result, published});
   return result;
 };
 
@@ -274,10 +309,12 @@ export const loadDashboard = async (repoRoot) => {
     errors,
     summary: {
       episodes: episodes.length,
+      attention: episodes.filter((episode) => !['published', 'complete'].includes(episode.attention)).length,
       dirty: episodes.reduce((sum, episode) => sum + episode.dirty, 0),
       needsReview: episodes.filter((episode) => episode.attention === 'review').length,
       failed: episodes.filter((episode) => episode.attention === 'failed').length,
       busy: episodes.filter((episode) => episode.activity).length,
+      published: episodes.filter((episode) => episode.publication.published).length,
     },
   };
 };

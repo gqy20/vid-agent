@@ -5,6 +5,10 @@ export type Artifact = {
   updatedAt: string;
 };
 
+export type CandidateSegment = Artifact & {
+  sha256: string;
+};
+
 export type ActionName = 'preview' | 'build' | 'approve' | 'promote' | 'release-build' | 'release-audit' | 'release-approve' | 'publish';
 
 export type NextAction = {
@@ -52,6 +56,7 @@ export type Scene = {
   ttsState: string;
   cachePath: string | null;
   preview: {path: string; url: string} | null;
+  candidateSegment: CandidateSegment | null;
 };
 
 export type Episode = {
@@ -64,7 +69,7 @@ export type Episode = {
   dirty: number;
   statusError: string | null;
   activity: {command?: string; pid?: number; startedAt?: string} | null;
-  attention: 'running' | 'failed' | 'review' | 'dirty' | 'ready' | 'complete';
+  attention: 'running' | 'failed' | 'review' | 'dirty' | 'ready' | 'published' | 'complete';
   nextAction: NextAction | null;
   stages: Record<string, string>;
   scenes: Scene[];
@@ -86,6 +91,11 @@ export type Episode = {
     previewUpdatedAt: string | null;
   };
   verdicts: {main: Verdict; release: Verdict};
+  publication: {
+    published: boolean;
+    sha256: string | null;
+    sourceChanged: boolean;
+  };
   storage: {cache: number; build: number; preview: number; current: number};
 };
 
@@ -94,5 +104,5 @@ export type Dashboard = {
   generatedAt: string;
   episodes: Episode[];
   errors: Array<{file: string; message: string}>;
-  summary: {episodes: number; dirty: number; needsReview: number; failed: number; busy: number};
+  summary: {episodes: number; attention: number; dirty: number; needsReview: number; failed: number; busy: number; published: number};
 };
