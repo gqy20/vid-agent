@@ -9,9 +9,9 @@ import {TERMINAL_HEADER_HEIGHT} from '../../git-course/kit/terminal/TerminalPane
 import {COLOR, WEIGHT} from '../../git-course/palette';
 import {FONT, TYPE} from '../typography';
 import {seconds} from '../timeline';
-import episode from '../../../../../claude-code-course/episodes/ep01-agentic-loop.json';
-export {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
-import {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
+import episode from '../../../../../claude-code-course/legacy/ep01-agentic-loop.json';
+export {LEGACY_EP01_DURATION_IN_FRAMES, LEGACY_EP01_SCENES} from '../data/episodeTimelines.generated';
+import {LEGACY_EP01_DURATION_IN_FRAMES, LEGACY_EP01_SCENES} from '../data/episodeTimelines.generated';
 
 // ponytail: 录屏元数据直接内联（单集单文件，无生成器）；holdFromFrame 与 timeline FPS 一致(均 30)，可直接作本地帧阈值。
 const RECORDING_HOLD_FROM_FRAME = 2818;
@@ -22,11 +22,11 @@ const RECORDING_FRAME_COUNT = 2878;
 // 绕过 <OffthreadVideo>/compositor：预抽 PNG 帧序列，按帧 <Img>。视觉效果等价 RecordedTerminalPanel。
 const pad5 = (n: number) => String(n).padStart(5, '0');
 
-type Ep01SceneId = (typeof EP01_SCENES)[number]['id'];
+type Ep01SceneId = (typeof LEGACY_EP01_SCENES)[number]['id'];
 
 const getEp01SceneStart = (id: Ep01SceneId) => {
   let cursor = 0;
-  for (const scene of EP01_SCENES) {
+  for (const scene of LEGACY_EP01_SCENES) {
     if (scene.id === id) return cursor;
     cursor += scene.duration;
   }
@@ -34,7 +34,7 @@ const getEp01SceneStart = (id: Ep01SceneId) => {
 };
 
 const getEp01SceneDuration = (id: Ep01SceneId) => {
-  const scene = EP01_SCENES.find((item) => item.id === id);
+  const scene = LEGACY_EP01_SCENES.find((item) => item.id === id);
   if (!scene) throw new Error(`Unknown EP01 scene: ${id}`);
   return scene.duration;
 };
@@ -274,13 +274,13 @@ const TakeawayScene: React.FC = () => {
   );
 };
 
-export const Ep01Install: React.FC = () => {
+export const LegacyEp01Install: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <CourseLayout
       seriesTitle="Claude Code 实操"
       episodeTitle="从零装 Claude Code"
-      scenes={EP01_SCENES}
+      scenes={LEGACY_EP01_SCENES}
       currentFrame={frame}
       showHeader={(current) => current >= getEp01SceneStart('takeaway')}
       showEpisodeTitle={(current) => current >= getEp01SceneStart('takeaway')}

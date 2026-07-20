@@ -26,7 +26,7 @@
 
 | 集 | 标题 | 核心问题 | 主要演示与命令 | 可验证产出 |
 |---|---|---|---|---|
-| ep01 | 从安装到第一次启动 | Claude Code 如何进入一个真实项目？ | 官方安装、登录、启动；`/help`、`/status`、`/doctor` | 环境可用，能正确识别项目与账户状态 |
+| ep01 | 从安装到第一次启动 | 安装成功为什么还不算可用？ | 官方安装、Token / 模型配置、用户级 settings、首次真实请求 | 命令可执行，认证与模型配置能返回真实回答 |
 | ep02 | 交互界面生存指南 | 除了输入自然语言，还能怎样高效操作？ | `/`、`@`、`!`、Esc、Shift+Tab、Ctrl+O、多行输入 | 能引用文件、执行命令、切换模式和中断操作 |
 | ep03 | Claude Code 不是聊天框 | 它为什么能读代码、改文件并运行测试？ | `gather context → take action → verify`；工具调用与结果回传 | 能读懂一次完整 agentic loop |
 | ep04 | 先让它理解项目 | 怎样减少“没看代码就开始改”的错误？ | 代码库探索、文件引用、搜索、依赖与调用链 | 形成一份基于证据的项目理解 |
@@ -186,10 +186,10 @@ Agent SDK 面向要把 Claude 的 agentic loop 嵌入产品、服务或自动化
 
 ## 现有 EP01 迁移说明
 
-当前 `episodes/ep01-agentic-loop.json` 与已有录屏资产包含第三方兼容网关、环境变量和 `settings.json` 配置。它们不删除，但不再作为官方入门主线：
+旧 `legacy/ep01-agentic-loop.json` 与已有录屏资产的生产身份不统一。它们不删除，但不再作为新的内容入口：
 
-- 新 ep01 以官方安装、官方登录和环境诊断为主。
-- 第三方网关内容迁移为明确标注的附录：**自定义网关与模型服务配置**。
+- 新 `episodes/ep01-install-first-start.json` 保留已验证的原流程：官方安装、当前 Shell 配置、用户级 settings 与首次真实请求。
+- 新 JSON 只重写教学结构和摘要字幕，不改写认证、代理、onboarding 或首次请求的导演流程。
 - 已完成的录屏和后处理资产继续保留，后续迁移时通过 episode JSON 重新编排，不直接覆盖。
 
 ## 终端录制约定
@@ -200,12 +200,37 @@ Claude Code 是非确定性 LLM，课程需要兼顾真实性与可复现性：
 - **真实状态变化**：文件编辑、测试、diff、Git 状态和权限结果必须真实发生，画面必须能验证结果。
 - **录制 sidecar**：每段录屏同步记录段落 ID、教学意图、输入、输出、等待区间、关键帧、可加速区间和剪辑边界，供后续拆分与重剪。
 - **Docker 隔离**：录制环境与宿主项目隔离，每集由初始化脚本建立确定的初始状态。
+- **本地凭据**：EP01 从仓库根目录中被 Git 忽略的 `.env` 读取 `ANTHROPIC_AUTH_TOKEN`；文件权限必须为 `600`。原始 cast 可含真实 Token，但只能存在临时目录；公开 MP4、sidecar 和已跟踪文件不得暴露 Token。
 - **终端按叙事降权**：输入命令时终端是主角；展示文件、diff、测试或模型时，终端退为证据。
+
+## 官方文档截图
+
+EP01 的模型与 1M 上下文证据由仓库脚本从公开官方页面派生：
+
+```bash
+python3 scripts/browser-recordings/claude-code-course-lab/capture_official_docs.py
+```
+
+截图固定为 1600×900，只包含公开文档，不访问账户、控制台、密钥、价格或用量额度页面；上下文资格条件只用于说明能力边界。脚本同时写入无敏感状态的 manifest；episode JSON 保存来源、核验日期、截图资产和关注区域。
+
+## 旁白预览
+
+EP01 的分段旁白、SRT、规范化音频和全局字幕 manifest 统一从受限课程入口生成：
+
+```bash
+pnpm --dir remotion claude-code-course audio-preview ep01-install-first-start
+pnpm --dir remotion claude-code-course audio-audit ep01-install-first-start
+```
+
+该命令只写 `tmp/cache`、`tmp/preview` 和可重建的 Remotion public 预览视图，不生成或晋升 Candidate。画面字幕直接使用 MMX SRT 时间戳，并用 episode JSON 的旁白正文 canonicalize 文本；字幕和音频从同一个 manifest 读取，缺失时渲染会明确失败。
 
 ## 当前状态
 
 - 课程大纲已升级为三季结构，第一季 11 集、第二季 9 集、第三季 10 集。
-- EP01 现有录屏与后处理流程保留，等待按新定位迁移内容。
-- `episodes/ep01-agentic-loop.json`、`Ep01Install` composition 与 `ep01-install/current` 是迁移前的三套身份，不再继续扩散；新流程先统一为一个 episode id。
-- episode schema、workflow 和 checklist 已建立；orchestrator、Candidate/Audit、Current 晋升与 Release/Publish 仍待实现。
+- EP01 已在新 id 下复用原导演与后处理流程，终端素材、metadata 和 timeline 已重新生成。
+- 正式 EP01 内容身份已确定为 `ep01-install-first-start`；旧 `ep01-agentic-loop` JSON 和 Composition 已移入或标记为 legacy，`ep01-install/current` 仍是不可晋升的旧产物。
+- 新 EP01 已扩展为 300 秒：客户端 / 渠道 / 模型关系、国内模型选择、变量与请求流、`[1m]` 通用上下文动画和官方文档截图已接入新的 `ClaudeCodeCourseEp01InstallFirstStart` Composition。
+- 安装与配置使用新 id 录屏；该录屏最后一次请求遇到 429，首次成功回答因此复用同版本、同导演流程的旧录屏片段，并在 episode JSON 记录来源。
+- 11 段 TTS、26 条 SRT cue、响度规范化、全局字幕 manifest 和受限课程 adapter 已接入并通过 preview audio audit；内容仍是 `draft`，该审计不是可晋升 verdict。
+- episode schema、workflow 和 checklist 已建立；完整 Candidate/Audit、Current 晋升与 Release/Publish adapter 仍待实现。
 - 下一步先迁移 EP01 并验证完整生产链，再把第一季其余集数逐集落成 episode JSON。

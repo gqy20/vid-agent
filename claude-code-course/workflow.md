@@ -30,13 +30,13 @@ pnpm --dir remotion claude-code-course publish <episode-id>
 claude-code-course/episodes/<episode-id>.json
 ```
 
-现有 EP01 有三套身份：
+迁移前 EP01 有三套身份：
 
 - 内容：`ep01-agentic-loop`；
 - Composition：`Ep01Install`；
 - 旧产物：`ep01-install/current/ep01-install.mp4`。
 
-迁移时先根据新版课程大纲确定最终 episode id，再一次性同步 episode JSON、Composition registration、源码目录和产物根。旧 MP4 进入 `tmp/legacy-final/`，只能作为对照和素材输入，不能作为新流程 Current。
+正式内容身份现已确定为 `ep01-install-first-start`。旧 JSON 已移到 `legacy/`，旧 Composition 明确注册为 legacy；新 id 的终端录屏、metadata 和 timeline 已生成，新 Composition、TTS 和产物根仍待 adapter 统一接入。旧 MP4 进入 `tmp/legacy-final/`，只能作为对照和素材输入，不能作为新流程 Current。
 
 旧 JSON 的 `scenes[].narration` 是数组，`segmentId` 使用连字符。迁移目标遵守共享契约：一个 scene 一个 narration 对象，ID 使用 `01_hook` 形式。需要多段旁白时优先拆 scene，而不是让 orchestrator 猜测数组中多段旁白的时间关系。
 
@@ -65,6 +65,8 @@ claude-code-course/episodes/<episode-id>.json
 - 账号、token、主目录、私有仓库、环境变量和历史命令中的敏感内容不进入公开素材；
 - 录制脚本、fixture、终端尺寸、字体、主题和 Claude Code 版本进入输入指纹。
 
+官方文档截图属于来源证据，不属于产品实操录屏。当前 EP01 使用 `scripts/browser-recordings/claude-code-course-lab/capture_official_docs.py` 固定视口派生公开页面截图与 manifest；不得访问或截取账户、控制台、套餐详情和密钥页面。截图资产、关注区域、来源 URL 与核验日期必须回写 episode JSON。
+
 ## 版本与来源核验
 
 Claude Code 的命令、模式和功能会变化。每集制作前必须记录：
@@ -77,12 +79,28 @@ Claude Code 的命令、模式和功能会变化。每集制作前必须记录�
 
 主课程优先讲跨版本稳定的决策模型。低频命令和易变化入口进入命令图鉴；产品更新时先更新图鉴，只有核心工作流变化才重录主课程。
 
+### 模型与 1M 上下文
+
+- `模型 ID[1m]` 是 Claude Code 的通用扩展上下文语法，不属于某个国内服务商的私有模型命名。
+- Claude Code 用该后缀选择 1M 上下文模式，并在向服务商发送请求前移除 `[1m]`；服务商收到的仍是原始模型 ID。
+- 只有底层模型以及当前渠道、账户或套餐实际支持 1M 时才能添加该后缀，不能只凭模型名称推断可用权限。
+- 国内模型示例必须同时记录服务商原始模型 ID、Claude Code 配置值、认证变量、官方来源和核验日期。当前 EP01 以 GLM 5.2 为真实终端证据，并用官方文档说明 MiniMax M3、Kimi K3 与 Qwen 3.7 Max 等可选模型。
+- `ANTHROPIC_MODEL` 定义主模型；需要统一子任务和角色模型时，再显式说明 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` 与 `CLAUDE_CODE_SUBAGENT_MODEL`，不得把它们误写成新的服务地址或认证方式。
+
 ## 音频与派生产物
 
 - TTS 配置统一从 episode JSON 的 `audio` 读取，不再新增顶层 `tts` 变体。
 - narration `.txt`、manifest、MP3、SRT 和规范化音频全部由 orchestrator 派生。
 - 分段人声默认沿用课程共享基线：`speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`，约 `-20 LUFS / -3 dBFS`。
 - BGM、完整节目响度和发布包装参数必须在 adapter 实现时显式固定，不能依赖旧成片的未知设置。
+
+## 字幕策略
+
+- episode JSON 中 `scenes[].narration.text` 是旁白正文，`subtitle` 保留为内容审查摘要；成片字幕以 TTS 生成的 SRT 为准，不再用摘要替代实际旁白。
+- TTS adapter 必须用 episode JSON 正文 canonicalize SRT 文本，同时保留 MMX 返回的语音时间戳。全局字幕 cue 等于 `voiceStart + SRT 相对时间`，画面字幕与对应规范化音频使用同一 manifest。
+- Remotion 必须同时从该 manifest 读取音频路径和字幕 cue；manifest 缺失或 schema 不匹配时渲染失败，不允许静默回退到估算窗口或摘要字幕。
+- SRT 必须移除停顿标记以及句尾 `。`、`;`、`；` 等不利于观看节奏的标点，并保持与 narration 正文语义一致。
+- 账户标识、token、服务端点和宿主路径不得进入摘要字幕或 SRT。
 
 ## 审查扩展
 

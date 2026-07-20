@@ -1,0 +1,335 @@
+{
+  "episodeId": "ep01-install-first-start",
+  "title": "从安装到第一次启动",
+  "subtitle": "官方安装、国内模型配置与首次请求",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 300,
+  "goal": "在干净容器中完成 Claude Code 官方安装，理解服务地址、认证凭据、模型与 1M 上下文配置的分工，并通过国内 Anthropic 兼容渠道完成第一次真实请求",
+  "content": {
+    "coreModel": "Claude Code 是客户端：BASE_URL 选择服务渠道，AUTH_TOKEN 或 API_KEY 提供认证，MODEL 选择模型；模型名后的 [1m] 是 Claude Code 通用的 1M 上下文标记，Claude Code 会在请求发往服务商前移除该后缀。",
+    "alignmentMarkdown": "沿用已验证的原 EP01 录屏流程。安装、配置与 settings 使用新 id 下的录屏；新录屏末次请求遇到 429 使用上限，不能作为成功证据，因此首次真实回答复用同一 Claude Code 版本、同一导演流程且已成功返回中文的旧录屏片段。两份录制源都真实输入 ANTHROPIC_AUTH_TOKEN，公开 MP4 已对 Shell 和 settings.json 中的 Token 做像素马赛克。新增官方文档截图只作来源证据；变量关系、模型映射和请求返回过程由 Remotion 动画解释。摘要字幕不复述命令全文。",
+    "modelContextRule": {
+      "syntax": "<provider-model-id>[1m]",
+      "meaning": "告诉 Claude Code 为该模型启用 1M 上下文模式",
+      "transport": "Claude Code 在向兼容服务商发送请求前移除 [1m]，请求中的 model 保持服务商原始模型 ID",
+      "constraint": "只有底层模型与当前渠道或套餐实际支持 1M 时才能添加",
+      "evidenceAsset": "claude-code-course/browser/ep01-install-first-start/anthropic-1m-model-config.png",
+      "evidenceFocusRegion": {
+        "x": 0.277617,
+        "y": 0.735087,
+        "width": 0.195869,
+        "height": 0.017778
+      },
+      "examples": [
+        "glm-5.2[1m]",
+        "MiniMax-M3[1m]",
+        "k3[1m]",
+        "qwen3.7-max[1m]"
+      ]
+    },
+    "providerExamples": [
+      {
+        "provider": "智谱 GLM Coding Plan",
+        "modelId": "glm-5.2",
+        "claudeCodeModel": "glm-5.2[1m]",
+        "context": "1M",
+        "authentication": "ANTHROPIC_AUTH_TOKEN",
+        "role": "本集真实终端演示",
+        "officialReference": "https://docs.bigmodel.cn/cn/guide/develop/claude",
+        "screenshotAsset": "claude-code-course/browser/ep01-install-first-start/glm-5-2-claude-code.png",
+        "focusRegion": {
+          "x": 0.297617,
+          "y": 0.721354,
+          "width": 0.406758,
+          "height": 0.045278
+        },
+        "verifiedDate": "2026-07-20"
+      },
+      {
+        "provider": "MiniMax",
+        "modelId": "MiniMax-M3",
+        "claudeCodeModel": "MiniMax-M3[1m]",
+        "context": "最高 1M",
+        "authentication": "以渠道官方 Claude Code 配置为准",
+        "role": "国内可选渠道示例",
+        "officialReference": "https://www.minimaxi.com/models/text/m3",
+        "screenshotAsset": "claude-code-course/browser/ep01-install-first-start/minimax-m3-context.png",
+        "focusRegion": {
+          "x": 0.1075,
+          "y": 0.700399,
+          "width": 0.2675,
+          "height": 0.074635
+        },
+        "verifiedDate": "2026-07-20"
+      },
+      {
+        "provider": "Kimi Code",
+        "modelId": "k3",
+        "claudeCodeModel": "k3[1m]",
+        "context": "最高 1M，受会员等级限制",
+        "authentication": "ANTHROPIC_API_KEY",
+        "role": "国内可选渠道示例",
+        "officialReference": "https://www.kimi.com/code/docs/en/third-party-tools/other-coding-agents",
+        "screenshotAsset": "claude-code-course/browser/ep01-install-first-start/kimi-k3-claude-code.png",
+        "focusRegion": {
+          "x": 0.319141,
+          "y": 0.733229,
+          "width": 0.035068,
+          "height": 0.022222
+        },
+        "verifiedDate": "2026-07-20"
+      },
+      {
+        "provider": "阿里云百炼",
+        "modelId": "qwen3.7-max",
+        "claudeCodeModel": "qwen3.7-max[1m]",
+        "context": "1M",
+        "authentication": "ANTHROPIC_AUTH_TOKEN",
+        "role": "国内可选渠道示例",
+        "officialReference": "https://help.aliyun.com/zh/model-studio/claude-code",
+        "screenshotAsset": "claude-code-course/browser/ep01-install-first-start/qwen3-7-max-claude-code.png",
+        "focusRegion": {
+          "x": 0.2025,
+          "y": 0.749774,
+          "width": 0.620625,
+          "height": 0.053333
+        },
+        "verifiedDate": "2026-07-20"
+      }
+    ]
+  },
+  "sourceOfTruth": {
+    "references": [
+      "https://code.claude.com/docs/en/setup",
+      "https://code.claude.com/docs/en/authentication",
+      "https://code.claude.com/docs/en/settings",
+      "https://code.claude.com/docs/en/quickstart",
+      "https://code.claude.com/docs/en/model-config",
+      "https://code.claude.com/docs/en/env-vars",
+      "https://docs.bigmodel.cn/cn/guide/develop/claude",
+      "https://www.minimaxi.com/models/text/m3",
+      "https://www.kimi.com/code/docs/en/third-party-tools/other-coding-agents",
+      "https://help.aliyun.com/zh/model-studio/claude-code",
+      "https://help.aliyun.com/zh/model-studio/model-pricing"
+    ],
+    "browserEvidence": [
+      {
+        "id": "anthropic-model-config",
+        "purpose": "证明 [1m] 是 Claude Code 通用模型后缀，且发送请求前会被移除",
+        "source": "https://code.claude.com/docs/en/model-config",
+        "capture": "只截 1M context window 与 suffix 行为，不包含账户界面",
+        "screenshotAsset": "claude-code-course/browser/ep01-install-first-start/anthropic-1m-model-config.png",
+        "status": "captured"
+      },
+      {
+        "id": "domestic-model-options",
+        "purpose": "用官方页面证明 GLM 5.2、MiniMax M3、Kimi K3、Qwen 3.7 Max 的 Claude Code 接入或 1M 能力",
+        "sources": [
+          "https://docs.bigmodel.cn/cn/guide/develop/claude",
+          "https://www.minimaxi.com/models/text/m3",
+          "https://www.kimi.com/code/docs/en/third-party-tools/other-coding-agents",
+          "https://help.aliyun.com/zh/model-studio/claude-code"
+        ],
+        "capture": "每家只保留模型名、Claude Code 配置或上下文说明；统一标注核验日期",
+        "manifest": "claude-code-course/browser/ep01-install-first-start/manifest.json",
+        "status": "captured"
+      }
+    ]
+  },
+  "verifiedWith": {
+    "date": "2026-07-20",
+    "claudeCodeVersion": "2.1.215"
+  },
+  "productionPolicy": {
+    "remotionOwns": [
+      "course shell",
+      "recorded terminal",
+      "official documentation evidence",
+      "model routing animation",
+      "narration",
+      "subtitles"
+    ],
+    "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep01-install-first-start/run.sh",
+    "terminalAssets": {
+      "installAndConfiguration": "claude-code-course/terminal/ep01-install-first-start.mp4",
+      "firstSuccessfulResponse": "claude-code-course/terminal/ep01-agentic-loop.mp4",
+      "firstSuccessfulResponseRangeSeconds": [
+        45.58,
+        71.8
+      ],
+      "reason": "新 id 录屏的末次请求返回 429；成功证据复用同版本、同流程的已验证旧片段"
+    },
+    "authentication": "从仓库根目录中被 Git 忽略的 .env 读取 ANTHROPIC_AUTH_TOKEN、ANTHROPIC_BASE_URL 和 ANTHROPIC_MODEL，按原流程注入当前 Shell 并写入用户级 settings.json",
+    "sensitiveValues": "原始 cast 包含真实 Token，只存在临时目录；只有完成两处马赛克后的 MP4 可以进入公开素材目录",
+    "browserEvidence": "官方文档截图只作证据，不展示控制台、账号、密钥、价格或用量额度；上下文资格条件只用于说明能力边界",
+    "animation": "用 Remotion 展示 prompt、Claude Code、环境变量、Anthropic 兼容 /v1/messages、国内服务商路由和流式返回；不伪造真实 HTTP Header"
+  },
+  "audio": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "安装完还不算可用",
+      "start": 0,
+      "duration": 15,
+      "goal": "建立安装、配置和真实请求三段验证顺序",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.8,
+        "durationSeconds": 8.911,
+        "text": "装完 Claude Code，只是有了命令入口。<#0.25#>真正可用，还要选对服务渠道、认证方式和模型，最后让一次真实请求成功返回。",
+        "subtitle": "安装 → 配置 → 真实请求"
+      }
+    },
+    {
+      "id": "client-provider-model",
+      "title": "先分清三层关系",
+      "start": 15,
+      "duration": 30,
+      "goal": "区分 Claude Code 客户端、兼容服务渠道和实际模型",
+      "narration": {
+        "segmentId": "02_client_provider_model",
+        "voiceStart": 16,
+        "durationSeconds": 17.479,
+        "text": "先分清三个角色。<#0.25#>Claude Code 是运行在本地的客户端；智谱、MiniMax、Kimi 或百炼提供 Anthropic 兼容服务；GLM、MiniMax M3、Kimi K3、Qwen 3.7 Max 才是实际处理请求的模型。<#0.3#>换渠道，不等于换客户端。",
+        "subtitle": "客户端 ≠ 服务渠道 ≠ 模型"
+      }
+    },
+    {
+      "id": "domestic-options",
+      "title": "国内可选渠道",
+      "start": 45,
+      "duration": 35,
+      "goal": "用官方文档快照建立可核验的国内模型选择范围",
+      "narration": {
+        "segmentId": "03_domestic_options",
+        "voiceStart": 46,
+        "durationSeconds": 20.071,
+        "text": "国内常见选择不只一家。<#0.2#>GLM Coding Plan、MiniMax M3、Kimi K3 和百炼的 Qwen 3.7 Max，都可以作为当前的模型渠道候选。<#0.3#>这里不比较价格和额度，只看三件事：是否兼容 Claude Code、模型 ID 怎么写、当前渠道是否真正开放一百万上下文。",
+        "subtitle": "看兼容方式、模型 ID 与上下文能力"
+      }
+    },
+    {
+      "id": "configuration-variables",
+      "title": "三个变量各管什么",
+      "start": 80,
+      "duration": 30,
+      "goal": "解释 BASE_URL、认证变量和 MODEL 的职责边界",
+      "narration": {
+        "segmentId": "04_configuration_variables",
+        "voiceStart": 81,
+        "durationSeconds": 16.003,
+        "text": "配置时不要把三个变量混成一团。<#0.2#>BASE URL 决定请求发到哪家服务；AUTH TOKEN 或 API KEY 负责证明身份；MODEL 决定调用哪个模型。<#0.3#>本集真实演示继续使用 ANTHROPIC_AUTH_TOKEN，不改成 OAuth，也不替换原来已经验证过的登录流程。",
+        "subtitle": "地址选渠道，凭据验身份，模型定能力"
+      }
+    },
+    {
+      "id": "request-flow",
+      "title": "一次请求怎样往返",
+      "start": 110,
+      "duration": 40,
+      "goal": "用动画串起配置读取、兼容请求、模型路由与流式返回",
+      "narration": {
+        "segmentId": "05_request_flow",
+        "voiceStart": 111,
+        "durationSeconds": 20.215,
+        "text": "当你输入提示词，Claude Code 先读取环境变量或 settings.json。<#0.25#>它用 BASE URL 拼出 Anthropic 兼容的 messages 请求，用凭据完成认证，再把 MODEL 写进请求。<#0.3#>服务商把请求路由到对应模型，模型生成结果后再以流式响应回到 Claude Code，终端才显示答案和工具调用。",
+        "subtitle": "配置 → /v1/messages → 模型 → 流式返回"
+      }
+    },
+    {
+      "id": "one-million-context",
+      "title": "[1m] 是 Claude Code 的通用标记",
+      "start": 150,
+      "duration": 35,
+      "goal": "准确解释 [1m] 后缀的通用语义和使用前提",
+      "narration": {
+        "segmentId": "06_one_million_context",
+        "voiceStart": 151,
+        "durationSeconds": 24.247,
+        "text": "模型名后面的中括号一 m，不是某家服务商的私有命名。<#0.25#>它是 Claude Code 的通用配置，表示这个模型按一百万 token 上下文工作。Claude Code 发请求前会移除后缀，所以服务商收到的仍是原始模型 ID。<#0.3#>GLM 5.2、MiniMax M3、Kimi K3、Qwen 3.7 Max 都支持一百万上下文，但仍要确认你使用的渠道和套餐已经开放。",
+        "subtitle": "[1m] 配置 Claude Code，服务商接收原始模型 ID"
+      }
+    },
+    {
+      "id": "install",
+      "title": "官方安装",
+      "start": 185,
+      "duration": 30,
+      "goal": "用官方安装器建立命令入口并确认版本",
+      "narration": {
+        "segmentId": "07_install",
+        "voiceStart": 186,
+        "durationSeconds": 12.007,
+        "text": "理解配置之后再进入实操。<#0.25#>先运行官方安装脚本。安装完成后，把本地 bin 目录加入 PATH，再用 claude --version 验证命令入口。版本号能显示，只证明客户端装好了。",
+        "subtitle": "官方安装器 → PATH → 版本"
+      }
+    },
+    {
+      "id": "shell-auth",
+      "title": "当前 Shell 配置",
+      "start": 215,
+      "duration": 30,
+      "goal": "用环境变量建立当前 Shell 的认证、渠道与 1M 模型配置",
+      "narration": {
+        "segmentId": "08_shell_auth",
+        "voiceStart": 216,
+        "durationSeconds": 17.119,
+        "text": "第一种方式，在当前 Shell 导出服务地址、模型和 ANTHROPIC_AUTH_TOKEN。<#0.3#>演示模型写成 glm-5.2[1m]，这里的后缀告诉 Claude Code 启用一百万上下文。录制使用真实 Token，公开画面只保留前三位，其余全部打码。",
+        "subtitle": "BASE_URL + AUTH_TOKEN + MODEL[1m]"
+      }
+    },
+    {
+      "id": "settings",
+      "title": "用户级持久化",
+      "start": 245,
+      "duration": 25,
+      "goal": "将相同配置写入用户级 settings 并收紧权限",
+      "narration": {
+        "segmentId": "09_settings",
+        "voiceStart": 246,
+        "durationSeconds": 12.763,
+        "text": "当前 Shell 的 export 只管这次会话。<#0.25#>需要持久化时，把相同的环境变量和模型写入用户级 settings.json，并把文件权限收紧到 600。仓库只管理示例和说明，真实 Token 留在本地且不提交。",
+        "subtitle": "settings.json 持久化，真实 Token 不入库"
+      }
+    },
+    {
+      "id": "first-start",
+      "title": "首次启动",
+      "start": 270,
+      "duration": 20,
+      "goal": "用首次真实请求验证安装、认证、渠道和模型配置",
+      "narration": {
+        "segmentId": "10_first_start",
+        "voiceStart": 271,
+        "durationSeconds": 10.459,
+        "text": "现在第一次启动 claude，完成初始引导，再发送一个极小的中文提示。<#0.3#>看到模型真正返回回答，才能说明 Token、地址、模型和兼容协议同时生效。",
+        "subtitle": "第一次真实回答才是可用证据"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "固定检查顺序",
+      "start": 290,
+      "duration": 10,
+      "goal": "收束首次启动的心智模型",
+      "narration": {
+        "segmentId": "11_takeaway",
+        "voiceStart": 290,
+        "durationSeconds": 9.66,
+        "text": "记住这个顺序：安装看版本，分清渠道、凭据和模型，用中括号一 m 声明长上下文，最后用真实请求验证。",
+        "subtitle": "安装 → 渠道与模型 → [1m] → 真实请求"
+      }
+    }
+  ],
+  "release": {}
+}

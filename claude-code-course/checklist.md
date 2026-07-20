@@ -11,6 +11,9 @@
 - [ ] 官方来源、核验日期和 Claude Code 版本完整。
 - [ ] 启动参数、内置命令、skill、plugin 和第三方能力没有混淆。
 - [ ] preview、套餐或平台限制已明确标注。
+- [ ] `[1m]` 被表述为 Claude Code 通用上下文后缀，并明确说明发送给服务商前会移除。
+- [ ] 只有官方资料确认模型与当前渠道支持 1M 时才展示 `[1m]`，套餐或账户限制没有被省略。
+- [ ] 国内模型示例包含原始模型 ID、Claude Code 配置值、认证变量、官方来源与核验日期。
 
 ## 终端与验证证据
 
@@ -45,6 +48,6 @@
 - [ ] `ep01-agentic-loop` 与 `ep01-install` 已收敛为一个最终 episode id。
 - [ ] narration 数组已拆为标准 scene narration 对象。
 - [ ] `tts` 已迁移为标准 `audio` 配置。
-- [ ] 第三方网关内容已迁移到明确标注的附录，不再作为官方入门主线。
+- [ ] 国内 Anthropic 兼容渠道只作为可核验的模型选择与真实请求路径讲解，没有被误写成 Claude Code 官方服务。
 - [ ] 旧成片已归档到 `tmp/legacy-final/`，不参与新 Current 判断。
 - [ ] 通过新 orchestrator 从 JSON 完整重建 Candidate、Audit、Current 和 Release。

@@ -104,6 +104,8 @@ remotion/public/claude-code-course/audio/
 remotion/public/claude-code-course/terminal/*.mp4
 remotion/public/claude-code-course/terminal/*-hold.png
 remotion/public/claude-code-course/terminal/*.json
+remotion/public/claude-code-course/browser/**/*.png
+remotion/public/claude-code-course/browser/**/*.json
 # 录屏 PNG 帧序列（OffthreadVideo 环境崩溃 workaround，ffmpeg 预抽帧，可重新生成）
 remotion/public/claude-code-course/terminal/*-frames/
 # GitHub Course 浏览器录制产物与本地认证状态（均可重建，认证状态严禁提交）

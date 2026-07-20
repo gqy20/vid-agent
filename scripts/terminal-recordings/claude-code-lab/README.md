@@ -31,10 +31,10 @@ EP01 的安装录制如果需要访问宿主代理，应显式传入代理地址
 
 ```bash
 CC_INSTALL_PROXY=http://127.0.0.1:7890 \
-  scripts/terminal-recordings/claude-code-lab/record-tmux.sh ep01-agentic-loop install
+  scripts/terminal-recordings/claude-code-lab/record-tmux.sh ep01-install-first-start install
 ```
 
-代理与认证信息只在运行容器时传入，不进入镜像层。录制脚本会从仓库根目录的本地 `.env` 加载认证变量；该文件不得提交。
+代理与认证信息只在运行容器时传入，不进入镜像层。录制脚本会从仓库根目录的本地 `.env` 加载 `ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_BASE_URL` 和 `ANTHROPIC_MODEL`；该文件必须保持 `600` 权限且不得提交。EP01 沿用原流程，在受控的原始 cast 中输入真实 Token，然后对 Shell 和 `settings.json` 中的两处出现执行像素马赛克。原始 cast、GIF 和中间 MP4 无论成功、失败或中断都会删除。
 
 ## 在导演脚本中标记内容
 
@@ -43,9 +43,9 @@ CC_INSTALL_PROXY=http://127.0.0.1:7890 \
 ```bash
 source "$SCRIPT_DIR/../_lib.sh"
 
-segment_start install-wait wait "下载安装 Claude Code" speed 3 5
+segment_start 03_install_wait wait "下载安装 Claude Code" speed 3 5
 # 等待安装完成
-segment_end install-wait
+segment_end 03_install_wait
 ```
 
 `segment_start` 参数依次为：
