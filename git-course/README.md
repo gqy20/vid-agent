@@ -1,6 +1,6 @@
 # 看得见的 Git
 
-一套用 Remotion + Manim 制作的 Git 心智模型课程。
+一套用 Remotion 制作的 Git 心智模型课程。
 
 目标不是背命令，而是让观众看懂 Git 在移动哪些对象：
 
@@ -28,13 +28,13 @@
 
 - `docs/course-production.md`: Git、GitHub、Claude Code 课程共享的生产生命周期与门禁
 - `git-course/episodes/*.json`: 每集唯一内容源，包含教学、scene、旁白、审查记录和发布数据
-- `git-course/components.md`: Remotion 组件库与 Manim 场景库边界
+- `git-course/components.md`: Remotion 组件系统与历史资产边界
 - `git-course/workflow.md`: 每集从脚本到成片的生产流程，包含分段配音、BGM 复用、响度规范化和固定输出约定
 - `git-course/checklist.md`: 从脚本、scene、音频到成片发布的通用验收门禁
 - `git-course/release.md`: 系列级发布规范
-- `scripts/manim/git-course/`: Manim 抽象动画资产
+- `scripts/manim/git-course/`: 历史 Manim 动画资产，仅用于旧版本追溯
 - `remotion/src/videos/git-course/`: Remotion 最终课程编排
-- `remotion/public/git-course/`: Manim 导出、音频、图片等公开资产
+- `remotion/public/git-course/`: 课程音频、图片及保留的历史导出资产
 - `remotion/renders/git-course/<episode-id>/`: 每集渲染产物
 
 ## 当前生产入口

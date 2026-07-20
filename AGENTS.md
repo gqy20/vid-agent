@@ -6,7 +6,7 @@
 
 - 本仓库的视频任务只使用项目内 `.claude/skills/` 提供的 skills，以及仓库已有的生产脚本和 orchestrator。
 - 禁止使用任何 HyperFrames 相关 skill，包括但不限于 `hyperframes-read-first`、`hyperframes-creative`、`hyperframes-media`、`hyperframes-registry`、`general-video` 和 `website-to-video`。
-- Remotion 视频使用项目内 `remotion-vid`，Manim 原理动画使用项目内 `manim-viz`；浏览器、终端、TTS、审查和发布必须从本仓库既有流程进入。
+- Remotion 视频使用项目内 `remotion-vid`。`manim-viz`、既有 Manim 脚本和资产仅作为历史兼容内容保留，不再进入 Git Course 的设计、构建、指纹或合成路径；浏览器、终端、TTS、审查和发布必须从本仓库既有流程进入。
 - 如果项目内 skill 暂时没有覆盖某个步骤，优先补充或复用仓库脚本，不得切换到 HyperFrames 工作流。
 
 ## 跨课程生产规范
@@ -40,11 +40,10 @@
 - 只使用语义色。`main`、`feature`、`HEAD`、`workingTree`、`index`、`conflict` 这些颜色必须保持 Git 含义，不能当作装饰色复用。
 - 视觉气质保持安静、清晰、有工程感。优先使用浅色中性画布、克制对比和少量语义高亮。避免整片黑底终端、高饱和科技渐变和装饰性噪声。
 - 状态变化必须可见。命令应该引出 refs、HEAD、commit、工作区或暂存区的可读变化。理解需要动作时，不要直接跳到最终状态。
-- 遵守课程生产流程：`episodes/<episode-id>.json` -> Remotion 主视频 -> Manim 原理片段 -> Remotion 合成 -> 抽帧 / 渲染审查。episode JSON 是教学、scene、旁白和发布数据的唯一内容源。
+- 遵守课程生产流程：`episodes/<episode-id>.json` -> Remotion scene / 主视频 -> 抽帧 / 渲染审查。episode JSON 是教学、scene、旁白和发布数据的唯一内容源。
 - 先写清楚教学意图，再写动画代码。不要把课程逻辑只埋在 React 时间线代码里。
-- Remotion 负责课程结构、终端演示、字幕、代码、轻量 Git 图、状态面板和最终合成。
-- Manim 负责精密原理动画：DAG、Git 对象、hash 传播、Merkle-like 结构、三路合并、rebase，以及几何关系复杂的图解释。
-- 不要因为还没有现成 Manim 场景，就把几何复杂的概念降级成 episode 内随手写的 Remotion SVG。概念需要时，应新增或规划 Manim 资产。
+- Remotion 统一负责课程结构、终端演示、字幕、代码、Git 图、对象关系、hash 传播、三方合并、rebase、状态面板和最终合成。
+- 几何复杂的概念应先沉淀为 `remotion/src/videos/git-course/kit/` 中可复用、可审查的 React/SVG/CSS 状态模型；不得在 episode 内堆一次性 SVG，也不得新增 Manim 集成作为捷径。
 - 创建 episode 局部 UI 前，优先复用 `remotion/src/videos/git-course/kit/` 组件。新增抽象要匹配现有组件系统。
 - 字幕保持克制。使用既有字幕组件（`NarrationSubtitle`、`ActionCaption`、`QuestionCaption` 及相关 kit 组件），不要在 episode 文件里散写自定义字幕样式。
 - 字幕应该补充结论或因果提示，不要重复画面已经表达的信息。
@@ -81,7 +80,7 @@
 - 打命令：使用终端聚焦结构。命令输入阶段终端独占或近似独占，其他解释层不要提前抢画面。
 - 所有终端画面都应使用专门为 Git 课程制作的 `git-course-lab` 终端录制流程和素材，不要在 episode 中临时手写仿终端画面。
 - 看状态变化：使用因果结构。命令完成后，让 Git 图、三层状态板、refs 或文件卡接管主视觉，终端降权为证据。
-- 讲抽象原理：使用居中模型或 Manim 片段。DAG、对象模型、hash、快照流、merge / rebase 这类概念优先让主视觉居中。
+- 讲抽象原理：使用 Remotion 居中模型。DAG、对象模型、hash、快照流、merge / rebase 这类概念优先让主视觉居中，并把状态、关系和过渡显式建模。
 - 做总结：使用极简居中结构。只保留核心图和一到三条短结论，不做重型下集预告板。
 
 ### Ep01 结构判断
@@ -112,10 +111,10 @@
 - `QuestionScene`：标题 / 问题 / 极简主视觉。
 - `TerminalFocusScene`：终端独占，负责输入命令。
 - `StateTransitionScene`：命令导致状态变化，适合 Ep02 和后续涉及工作区、暂存区、仓库的内容。
-- `CenterModelScene`：居中模型解释，适合 Ep01、commit graph、branch pointer、hash 和 Manim 合成段。
-- `ManimBridge`：`ManimClip` 加 Remotion 课程壳、章节进度和字幕。
+- `CenterModelScene`：居中模型解释，适合 Ep01、commit graph、branch pointer、hash、merge 和 rebase。
+- `ModelTransitionScene`：用 React 状态、SVG 关系线和时间进度表达抽象模型的因果变化。
 
-当前已有基础组件包括 `CourseLayout`、`SceneSequence`、`GitStatePanel`、`GitGraph`、`CenterGraph`、`TerminalPanel`、`TypedCommandTerminal`、`QuestionCaption`、`SceneCaption` 和 `ManimClip`。新增结构时应优先组合这些组件。
+当前已有基础组件包括 `CourseLayout`、`SceneSequence`、`GitStatePanel`、`GitGraph`、`CenterGraph`、`CodeBlock`、`CodeDiff`、`TerminalPanel`、`TypedCommandTerminal`、`QuestionCaption` 和 `SceneCaption`。新增结构时应优先组合这些组件。
 
 ## 本地改动卫生
 

@@ -79,7 +79,7 @@ validate（timeline 必须已显式 generate）
 
 dirty Scene 共用一次 Remotion bundle，但各自使用独立浏览器池并行渲染，避免重复 Webpack 初始化，也避免多个 `renderMedia` 共享同一个 Chrome 实例导致崩溃。bundle 按源码、配置、依赖锁和 public 资产生成指纹，复用到 `renders/git-course/tmp/bundles/`。默认总渲染 concurrency 不超过逻辑 CPU 数；本机稳定上限按 profile 分别保存在 `renders/git-course/tmp/render-profile-hd30.json` 与 `render-profile-uhd30.json`，浏览器崩溃或本地 server 无响应时自动降低 concurrency 重试。`tmp/build/telemetry/render-scenes.json` 记录 bundle 命中、总耗时、各 Scene 耗时、实际 concurrency 和失败项。需要强制验证单个缓存时可用 `--force-scenes=<scene-id[,scene-id]>`。
 
-Scene 指纹只覆盖课程共享组件、当前 episode 源码、当前 scene 数据、字体和该集 Manim 资产；其他 episode 的源码、旁白或发布文案变化不得使本集 Scene 缓存失效。音频、candidate 和 audit 也分别按内容指纹缓存。完全没有输入变化时，`build` 应显示 `HIT audio mix`、`HIT assemble` 和 `HIT audit main`，不得重新编码或抽帧。
+Scene 指纹只覆盖课程共享组件、当前 episode 源码、当前 scene 数据、字体和该集终端录制等有效输入；历史 Manim 资产不进入指纹。其他 episode 的源码、旁白或发布文案变化不得使本集 Scene 缓存失效。音频、candidate 和 audit 也分别按内容指纹缓存。完全没有输入变化时，`build` 应显示 `HIT audio mix`、`HIT assemble` 和 `HIT audit main`，不得重新编码或抽帧。
 
 Scene 级源码指纹默认由 TypeScript AST 识别 `<PascalSceneId>Scene`，EP01 同时支持 `Ep01<PascalSceneId>Scene`。也可以用成对的 `// @git-course-scene <id>:start` 与 `:end` 显式标记。Scene 声明外的 helper、import 和 episode wrapper 属于共享依赖；共享代码变化会使该集全部 Scene 失效，Scene 函数内部变化只使对应 Scene 失效。EP01–EP08 均必须能解析出全部 Scene，否则 plan 直接失败。
 
@@ -195,12 +195,14 @@ release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已�
 - 对齐旁白和 BGM premaster 在同一个 FFmpeg filter graph 内完成，一次处理同时输出 `voiceover-aligned.m4a` 与 premaster；不得重新拆成先编码旁白、再解码混 BGM 的两轮流程。
 - BGM 使用固定低音量，当前基准为 `0.05`，不做 sidechain ducking。
 - SRT 不得泄漏 `<#...#>` 停顿标记。
+- 解说字幕直接使用 `scenes[].narration.text` 的短句正文。orchestrator 在规范化音频上检测停顿标记形成的真实静音边界，再据此生成逐句 SRT；句子数与内部静音边界无法匹配时必须阻断，不得按供应商 cue 数量平均分配文字。
+- `scenes[].captions` 与实际 SRT 保持逐 cue 同文同时间，并由 timeline generator 派生给 Remotion。相邻 scene 从上一段人声结束到下一段人声开始的间隔保持在 `1–2s`；最后一段到正片结束同样保持 `1–2s`，明确教学例外除外。
 
-## Remotion 与 Manim
+## Remotion 统一实现
 
-- Remotion：课程壳、终端、字幕、代码、轻量 Git 图、状态面板和最终合成。
-- Manim：DAG、对象模型、hash、三路合并、rebase 等几何关系复杂的原理动画。
-- 技术选择由教学表达决定，不因现有资产缺失而降级。
+- Git Course 的所有教学画面统一由 Remotion 实现，包括课程壳、终端、字幕、代码、Git 图、DAG、对象模型、hash、三路合并、rebase、状态面板和最终合成。
+- 抽象原理必须使用可复用的 React/SVG/CSS 状态模型表达；先定义教学状态与因果过渡，再实现时间线，不在 episode 内散写难维护的一次性图形。
+- `manim-viz`、`scripts/manim/git-course*`、`public/git-course/manim/` 和 `ManimClip` 仅作历史兼容保留，不参与新 scene、构建指纹、candidate 或 release。
 
 ## 审查与晋升
 

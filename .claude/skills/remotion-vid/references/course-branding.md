@@ -1,6 +1,6 @@
 # 系列课程品牌包装
 
-用于 Remotion 制作系列课程、技术课、品牌片头/片尾，以及 Remotion + Manim 混合成片。
+用于 Remotion 制作系列课程、技术课、品牌片头/片尾，以及课程 adapter 明确允许时的外部动画合成。
 
 ## 三种开头/结尾不要混淆
 
@@ -50,9 +50,9 @@
 - 5s 附近圆圈重叠：通常是“概念网络节点”和“品牌横线节点”同时存在。修法是品牌落版开始后让概念网络 opacity 归零，而不是只降到半透明。
 - 中文标题和底部圆点不齐：通常是标题组与底部标记组使用不同坐标体系。修法是建立 `lockup` 对象统一 x/y。
 
-## Remotion / Manim 分工
+## Remotion 优先与外部动画边界
 
-先判断镜头表达是否适合某种工具，再看本地有没有现成组件。不能因为本地没有 Manim 场景，就把适合 Manim 的抽象模型降级成静态 SVG。
+默认先用 Remotion 建模并实现完整镜头。课程 adapter 如果明确规定 Remotion-only，禁止提议、生成、扫描或合成 Manim；历史资产只按课程规则保留。只有 adapter 明确允许外部原理动画时，才继续使用下面的可选分工。
 
 Remotion 负责：
 
@@ -62,14 +62,14 @@ Remotion 负责：
 - 轻量 Git 图、ref 写入、HEAD/branch 指针
 - Manim 素材合成和最终剪辑
 
-Manim 负责：
+adapter 明确允许时，Manim 可负责：
 
 - blob/tree/commit 对象关系
 - DAG、parent chain、merge/rebase/reset 这种拓扑关系
 - 快照流、hash、内容寻址等抽象模型
 - 需要构建期几何检查的节点、箭头、标签
 
-如果镜头适合 Manim 但本地没有场景，应在制作文档中列为新增资产：
+如果 adapter 允许且镜头确实需要 Manim，但本地没有场景，应在制作文档中列为新增资产：
 
 ```text
 scripts/manim/<course>/scenes/<scene_name>.py
@@ -77,7 +77,7 @@ scripts/manim/<course>/scenes/<scene_name>.py
 
 ## 外部图片和网络素材
 
-课程优先用自制 Remotion/Manim 图形。只有这些情况才考虑外部图片：
+课程优先用符合 adapter 的自制图形。只有这些情况才考虑外部图片：
 
 - 需要真实界面或真实产品截图。
 - 需要历史语境或官方来源佐证。
@@ -88,7 +88,7 @@ scripts/manim/<course>/scenes/<scene_name>.py
 - 用途：为什么需要真实图片。
 - 来源：URL、截图方式或许可。
 - 存放：`public/<course>/assets/<episode-id>/`。
-- 替代：无法使用时如何用 Remotion/Manim 重绘。
+- 替代：无法使用时如何按课程 adapter 重绘。
 
 不要把网络图片当装饰背景。外部素材必须服务解释。
 
