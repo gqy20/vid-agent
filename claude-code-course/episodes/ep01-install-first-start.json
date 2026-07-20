@@ -248,7 +248,7 @@
     },
     {
       "id": "one-million-context",
-      "title": "[1m] 是 Claude Code 的通用标记",
+      "title": "[1m] 上下文",
       "start": 150,
       "duration": 35,
       "goal": "准确解释 [1m] 后缀的通用语义和使用前提",

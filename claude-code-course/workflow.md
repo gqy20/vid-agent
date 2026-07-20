@@ -97,9 +97,10 @@ Claude Code 的命令、模式和功能会变化。每集制作前必须记录�
 ## 字幕策略
 
 - episode JSON 中 `scenes[].narration.text` 是旁白正文，`subtitle` 保留为内容审查摘要；成片字幕以 TTS 生成的 SRT 为准，不再用摘要替代实际旁白。
-- TTS adapter 必须用 episode JSON 正文 canonicalize SRT 文本，同时保留 MMX 返回的语音时间戳。全局字幕 cue 等于 `voiceStart + SRT 相对时间`，画面字幕与对应规范化音频使用同一 manifest。
+- TTS adapter 必须以 episode JSON 正文为唯一文本源：先按旁白中的停顿分组对齐 MMX 返回的语音时间锚点，再在每个时间锚点内按完整语义句分配 cue。不得直接沿用会截断模型名、版本号或半句话的自动分词结果。全局字幕 cue 等于 `voiceStart + SRT 相对时间`，画面字幕与对应规范化音频使用同一 manifest。
 - Remotion 必须同时从该 manifest 读取音频路径和字幕 cue；manifest 缺失或 schema 不匹配时渲染失败，不允许静默回退到估算窗口或摘要字幕。
 - SRT 必须移除停顿标记以及句尾 `。`、`;`、`；` 等不利于观看节奏的标点，并保持与 narration 正文语义一致。
+- 单条字幕必须从语义边界开始和结束；`glm-5.2[1m]`、环境变量名、命令和路径等技术 token 不得从中间拆开后分次出现。
 - 账户标识、token、服务端点和宿主路径不得进入摘要字幕或 SRT。
 
 ## 审查扩展

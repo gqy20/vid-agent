@@ -209,6 +209,79 @@ const parseSrt = (path) => readFileSync(path, 'utf8').replace(/\r\n/g, '\n').tri
   return {from: parseSrtTime(from), to: parseSrtTime(to), text: lines.slice(timingIndex + 1).join('\n').trim()};
 }).filter((cue) => cue.text);
 
+const captionWeight = (value) => Array.from(normalizedNarrationText(value)).length;
+
+const semanticCaptionTexts = (value) => {
+  const clean = value
+    .replace(/\((?:breath|sighs?|sigh|clear-throat|clears throat|laughs?|chuckles?)\)/gi, '')
+    .replace(/<#[^>]+#>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  // A cue may span internal commas, but it must never stop halfway through a
+  // sentence. This keeps narration thoughts intact and also avoids splitting
+  // technical tokens such as glm-5.2[1m] or settings.json.
+  const clauses = clean.match(/[^。；！？!?]+[。；！？!?]?/gu)?.map((item) => item.trim()).filter(Boolean) ?? [clean];
+  const merged = [];
+  for (let index = 0; index < clauses.length; index += 1) {
+    let clause = clauses[index];
+    if (captionWeight(clause) < 10 && index + 1 < clauses.length && captionWeight(clause + clauses[index + 1]) <= 52) {
+      clause += clauses[index + 1];
+      index += 1;
+    } else if (merged.length > 0 && captionWeight(clause) < 10 && captionWeight(merged.at(-1) + clause) <= 52) {
+      merged[merged.length - 1] += clause;
+      continue;
+    }
+    merged.push(clause);
+  }
+  normalizedNarrationText(merged.join('')) === normalizedNarrationText(value)
+    || fail('Semantic caption text does not preserve the narration');
+  const protectedTokens = clean.match(/[A-Za-z0-9_./:-]+(?:\[[^\]]+\])?/g) ?? [];
+  for (const token of protectedTokens.filter((item) => item.length >= 4)) {
+    merged.some((caption) => caption.includes(token)) || fail(`Semantic caption split protected token: ${token}`);
+  }
+  return merged;
+};
+
+const semanticCaptionCues = (narration, timedCues) => {
+  timedCues.length > 0 || fail('Cannot build semantic captions without timed SRT cues');
+  const narrationGroups = narration.split(/<#[^>]+#>/).map((item) => item.trim()).filter(Boolean);
+  const anchoredGroups = narrationGroups.length === timedCues.length
+    ? narrationGroups.map((text, index) => ({text, from: timedCues[index].from, to: timedCues[index].to}))
+    : [{text: narration, from: timedCues[0].from, to: timedCues.at(-1).to}];
+  const result = [];
+  for (const group of anchoredGroups) {
+    const captions = semanticCaptionTexts(group.text);
+    const totalWeight = captions.reduce((sum, text) => sum + captionWeight(text), 0);
+    let offset = 0;
+    for (const text of captions) {
+      const weight = captionWeight(text);
+      const from = group.from + (group.to - group.from) * (offset / totalWeight);
+      const to = group.from + (group.to - group.from) * ((offset + weight) / totalWeight);
+      to > from || fail(`Semantic caption has an invalid duration: ${text}`);
+      result.push({from: Number(from.toFixed(3)), to: Number(to.toFixed(3)), text});
+      offset += weight;
+    }
+  }
+  normalizedNarrationText(result.map((cue) => cue.text).join('')) === normalizedNarrationText(narration)
+    || fail('Semantic caption cues do not preserve the full narration');
+  return result;
+};
+
+const formatSrtTime = (secondsValue) => {
+  const totalMs = Math.max(0, Math.round(secondsValue * 1000));
+  const hours = Math.floor(totalMs / 3_600_000);
+  const minutes = Math.floor((totalMs % 3_600_000) / 60_000);
+  const secondsPart = Math.floor((totalMs % 60_000) / 1000);
+  const milliseconds = totalMs % 1000;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secondsPart).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
+};
+
+const semanticSrt = (scene, timedCues) => `${semanticCaptionCues(scene.narration.text, timedCues).map((cue, index) => [
+  String(index + 1),
+  `${formatSrtTime(cue.from)} --> ${formatSrtTime(cue.to)}`,
+  cue.text.replace(/[。；;]+$/u, ''),
+].join('\n')).join('\n\n')}\n`;
+
 const mmxVersion = async (ctx) => (await run('mmx', ['--version'], {log: join(ctx.tmp, 'build/logs/mmx-version.log')})).trim();
 
 const taskFor = (ctx, scene, engineVersion) => {
@@ -363,6 +436,8 @@ const buildCaptionManifest = (ctx, tasks) => {
   for (const task of tasks) {
     const timing = validateArtifacts(task);
     const segment = task.scene.narration.segmentId;
+    const captionCues = semanticCaptionCues(task.scene.narration.text, timing.cues);
+    const captionSrt = semanticSrt(task.scene, timing.cues);
     segments.push({
       segmentId: segment,
       sceneId: task.scene.id,
@@ -373,8 +448,9 @@ const buildCaptionManifest = (ctx, tasks) => {
       srt: `claude-code-course/audio/${EPISODE_ID}/${segment}.srt`,
       fingerprint: task.fingerprint,
       sha256: shaFile(task.norm),
+      captionSrtSha256: sha(captionSrt),
     });
-    for (const cue of timing.cues) {
+    for (const cue of captionCues) {
       cues.push({
         segmentId: segment,
         from: Number((task.scene.narration.voiceStart + cue.from).toFixed(3)),
@@ -389,7 +465,7 @@ const buildCaptionManifest = (ctx, tasks) => {
     generatedAt: new Date().toISOString(),
     source: rel(ctx.path),
     audio: ctx.episode.audio,
-    subtitlePolicy: 'Exact canonical narration text on MMX-generated SRT timing; global times include scene voiceStart.',
+    subtitlePolicy: 'Complete narration sentences mapped onto MMX timing anchors; commas never create cue boundaries, protected technical tokens remain intact, and global times include scene voiceStart.',
     segments,
     cues,
   };
@@ -404,13 +480,19 @@ const materializePreview = (ctx, tasks) => {
     const segment = task.scene.narration.segmentId;
     for (const [source, name] of [
       [task.raw, `${segment}.mp3`],
-      [task.srt, `${segment}.srt`],
       [task.text, `${segment}.txt`],
       [task.norm, `${segment}_norm.mp3`],
     ]) {
       materializations.push({target: rel(join(previewSegments, name)), method: materialize(source, join(previewSegments, name))});
       materializations.push({target: rel(join(publicSegments, name)), method: materialize(source, join(publicSegments, name))});
     }
+    const captionSrt = semanticSrt(task.scene, parseSrt(task.srt));
+    const previewSrt = join(previewSegments, `${segment}.srt`);
+    const publicSrt = join(publicSegments, `${segment}.srt`);
+    writeFileSync(previewSrt, captionSrt, 'utf8');
+    writeFileSync(publicSrt, captionSrt, 'utf8');
+    materializations.push({target: rel(previewSrt), method: 'derived-semantic-srt'});
+    materializations.push({target: rel(publicSrt), method: 'derived-semantic-srt'});
   }
   writeJson(join(ctx.preview, 'captions.json'), manifest);
   writeJson(join(ctx.publicAudio, 'captions.json'), manifest);
@@ -501,8 +583,10 @@ const audioAudit = async (ctx) => {
     Math.abs(timing.duration - expectedDuration) <= 0.02 || fail(`${task.scene.narration.segmentId}: episode duration ${expectedDuration}s differs from audio ${timing.duration}s`);
     const publicAudio = join(ctx.publicAudio, `${task.scene.narration.segmentId}_norm.mp3`);
     const publicSrt = join(ctx.publicAudio, `${task.scene.narration.segmentId}.srt`);
+    const expectedSrt = semanticSrt(task.scene, timing.cues);
+    const semanticCues = semanticCaptionCues(task.scene.narration.text, timing.cues);
     existsSync(publicAudio) && shaFile(publicAudio) === shaFile(task.norm) || fail(`${task.scene.narration.segmentId}: public audio view differs from cache`);
-    existsSync(publicSrt) && shaFile(publicSrt) === shaFile(task.srt) || fail(`${task.scene.narration.segmentId}: public SRT view differs from cache`);
+    existsSync(publicSrt) && shaFile(publicSrt) === sha(expectedSrt) || fail(`${task.scene.narration.segmentId}: public semantic SRT differs from narration and timing anchors`);
     const output = await run('ffmpeg', [
       '-hide_banner', '-nostats', '-i', task.norm,
       '-af', 'loudnorm=I=-20:TP=-3:LRA=7:print_format=json',
@@ -520,11 +604,11 @@ const audioAudit = async (ctx) => {
       durationSeconds: timing.duration,
       voiceStart: task.scene.narration.voiceStart,
       voiceEnd: timing.voiceEnd,
-      cueCount: timing.cues.length,
+      cueCount: semanticCues.length,
       integratedLufs,
       truePeakDbtp,
       audioSha256: shaFile(task.norm),
-      srtSha256: shaFile(task.srt),
+      srtSha256: shaFile(publicSrt),
     };
   }));
   for (let index = 1; index < publicManifest.cues.length; index += 1) {
@@ -542,6 +626,8 @@ const audioAudit = async (ctx) => {
       cues: publicManifest.cues.length,
       exactText: true,
       srtTiming: true,
+      semanticBoundaries: true,
+      protectedTechnicalTokensIntact: true,
       sceneWindows: true,
       publicViewMatchesCache: true,
       loudness: '-20 LUFS +/- 1.0',

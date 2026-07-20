@@ -1,8 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Audio, interpolate, Sequence, staticFile, useCurrentFrame, useDelayRender} from 'remotion';
-import {COLOR, WEIGHT} from '../../../git-course/palette';
+import {SUBTITLE} from '../../designTokens';
 import {seconds} from '../../timeline';
-import {FONT} from '../../typography';
 
 type SyncedCaption = {
   segmentId: string;
@@ -30,6 +29,10 @@ type CaptionManifest = {
   segments: NarrationSegment[];
   cues: SyncedCaption[];
 };
+
+const cleanCaptionText = (value: string) => value
+  .replace(/[。；;]+$/u, '')
+  .replace(/(?<=[\p{Script=Han}A-Za-z0-9\]])\.$/u, '');
 
 export const SyncedNarrationTrack: React.FC<{
   manifest: string;
@@ -88,26 +91,24 @@ export const SyncedNarrationTrack: React.FC<{
             position: 'absolute',
             zIndex: 90,
             left: '50%',
-            bottom: 34,
+            bottom: SUBTITLE.bottom,
             width: 'fit-content',
-            maxWidth: 1500,
+            maxWidth: SUBTITLE.maxWidth,
             translate: `-50% ${(1 - cueOpacity) * 8}px`,
-            padding: '12px 24px 13px',
+            padding: '0 16px',
             boxSizing: 'border-box',
-            borderRadius: 10,
-            border: '1px solid rgba(255,255,255,0.12)',
-            background: 'rgba(20,23,41,0.88)',
-            color: COLOR.text.inverse,
-            fontFamily: FONT.sans,
-            fontSize: 30,
-            lineHeight: 1.42,
-            fontWeight: WEIGHT.bold,
+            color: SUBTITLE.lightText,
+            fontFamily: SUBTITLE.fontFamily,
+            fontSize: SUBTITLE.fontSize,
+            lineHeight: SUBTITLE.lineHeight,
+            fontWeight: SUBTITLE.fontWeight,
             textAlign: 'center',
             whiteSpace: 'pre-wrap',
+            textShadow: SUBTITLE.lightShadow,
             opacity: cueOpacity,
           }}
         >
-          {cue.text}
+          {cleanCaptionText(cue.text)}
         </div>
       ) : null}
     </>

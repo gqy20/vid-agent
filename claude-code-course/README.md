@@ -2,7 +2,7 @@
 
 一套以真实开发任务为主线的 Claude Code 视频课程。课程不照着官方文档目录逐项念功能，而是沿着学习者能力增长组织内容：**先会用，再稳定交付，然后扩展 Claude Code，最后用 Agent SDK 构建自己的智能体产品。**
 
-本课程遵守仓库级 [`课程视频统一生产规范`](../docs/course-production.md)。课程专属的真实终端、版本核验、证据审查和旧 EP01 迁移规则见 [`workflow.md`](workflow.md)，阶段验收见 [`checklist.md`](checklist.md)。当前尚未实现统一 orchestrator，因此 Candidate、Current 和 Release 阶段保持阻断，不能通过手工复制旧成片宣称完成。
+本课程遵守仓库级 [`课程视频统一生产规范`](../docs/course-production.md)。课程专属的真实终端、版本核验、证据审查和旧 EP01 迁移规则见 [`workflow.md`](workflow.md)，视觉与字体 token 见 [`visual-language.md`](visual-language.md)，阶段验收见 [`checklist.md`](checklist.md)。当前尚未实现统一 orchestrator，因此 Candidate、Current 和 Release 阶段保持阻断，不能通过手工复制旧成片宣称完成。
 
 ## 课程定位
 
@@ -222,7 +222,7 @@ pnpm --dir remotion claude-code-course audio-preview ep01-install-first-start
 pnpm --dir remotion claude-code-course audio-audit ep01-install-first-start
 ```
 
-该命令只写 `tmp/cache`、`tmp/preview` 和可重建的 Remotion public 预览视图，不生成或晋升 Candidate。画面字幕直接使用 MMX SRT 时间戳，并用 episode JSON 的旁白正文 canonicalize 文本；字幕和音频从同一个 manifest 读取，缺失时渲染会明确失败。
+该命令只写 `tmp/cache`、`tmp/preview` 和可重建的 Remotion public 预览视图，不生成或晋升 Candidate。画面字幕以 MMX SRT 时间戳为锚点，并用 episode JSON 的旁白正文重新切成完整语义句；模型名、版本号和环境变量不会从中间拆开。字幕和音频从同一个 manifest 读取，缺失时渲染会明确失败。
 
 ## 当前状态
 
@@ -231,6 +231,6 @@ pnpm --dir remotion claude-code-course audio-audit ep01-install-first-start
 - 正式 EP01 内容身份已确定为 `ep01-install-first-start`；旧 `ep01-agentic-loop` JSON 和 Composition 已移入或标记为 legacy，`ep01-install/current` 仍是不可晋升的旧产物。
 - 新 EP01 已扩展为 300 秒：客户端 / 渠道 / 模型关系、国内模型选择、变量与请求流、`[1m]` 通用上下文动画和官方文档截图已接入新的 `ClaudeCodeCourseEp01InstallFirstStart` Composition。
 - 安装与配置使用新 id 录屏；该录屏最后一次请求遇到 429，首次成功回答因此复用同版本、同导演流程的旧录屏片段，并在 episode JSON 记录来源。
-- 11 段 TTS、26 条 SRT cue、响度规范化、全局字幕 manifest 和受限课程 adapter 已接入并通过 preview audio audit；内容仍是 `draft`，该审计不是可晋升 verdict。
+- 11 段 TTS、33 条完整语义句字幕 cue、响度规范化、全局字幕 manifest 和受限课程 adapter 已接入并通过 preview audio audit；内容仍是 `draft`，该审计不是可晋升 verdict。
 - episode schema、workflow 和 checklist 已建立；完整 Candidate/Audit、Current 晋升与 Release/Publish adapter 仍待实现。
 - 下一步先迁移 EP01 并验证完整生产链，再把第一季其余集数逐集落成 episode JSON。
