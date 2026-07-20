@@ -78,7 +78,7 @@
       "id": "version-control",
       "title": "版本控制",
       "start": 34,
-      "duration": 30,
+      "duration": 31,
       "primaryTechnique": "Remotion timeline",
       "components": [
         "FlowDiagram",
@@ -95,8 +95,8 @@
     {
       "id": "snapshot-model",
       "title": "快照流",
-      "start": 64,
-      "duration": 32,
+      "start": 65,
+      "duration": 31,
       "primaryTechnique": "New Manim SnapshotStreamScene + Remotion captions",
       "components": [
         "SnapshotStreamScene",
@@ -106,7 +106,7 @@
       "goal": "建立 Git 记录快照流的心智模型。",
       "narration": {
         "segmentId": "04_snapshot_model",
-        "voiceStart": 64,
+        "voiceStart": 65,
         "text": "Git 和很多老式系统最大的不同，<#0.3#>是它更像在记录快照。\n\n每次 commit 像一次定格。<#0.3#>Git 关心的是这一刻整个项目长什么样。\n\nC0、C1、C2 不是散落的备份，<#0.25#>而是一串可以前后追踪的快照。<#0.35#>\n\n注意，快照不是粗暴复制整个项目。<#0.3#>Git 会把内容拆成对象，再组织成一次提交。\n\n如果文件没变，<#0.25#>Git 不重新存一份相同内容，<#0.25#>而是指向之前保存过的对象。\n\n所以关键是：<#0.3#>每次提交保存项目状态，<#0.25#>相同内容可以被复用。"
       }
     },

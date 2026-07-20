@@ -5,8 +5,8 @@ import {seconds} from '../timeline';
 export const EP01_SCENES = [
   {id: "hook", title: "问题", duration: seconds(12)},
   {id: "bad-model", title: "错误模型", duration: seconds(22)},
-  {id: "version-control", title: "版本控制", duration: seconds(30)},
-  {id: "snapshot-model", title: "快照流", duration: seconds(32)},
+  {id: "version-control", title: "版本控制", duration: seconds(31)},
+  {id: "snapshot-model", title: "快照流", duration: seconds(31)},
   {id: "practice-check", title: "实践验证", duration: seconds(30)},
   {id: "local-history", title: "本地历史", duration: seconds(30)},
   {id: "integrity", title: "完整性", duration: seconds(30)},
