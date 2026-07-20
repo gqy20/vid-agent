@@ -99,9 +99,9 @@ function SceneSignals({scene}: {scene: Scene}) {
 
 function SummaryBar({dashboard, filter, onFilter}: {dashboard: Dashboard; filter: QueueFilter; onFilter: (filter: QueueFilter) => void}) {
   const items: Array<{id: QueueFilter; title: string; value: number}> = [
-    {id: 'attention', title: '优先队列', value: dashboard.summary.attention},
-    {id: 'dirty', title: '待构建片段', value: dashboard.summary.dirty},
-    {id: 'all', title: '全部分集', value: dashboard.summary.episodes},
+    {id: 'attention', title: '优先', value: dashboard.summary.attention},
+    {id: 'dirty', title: '待构建', value: dashboard.summary.dirty},
+    {id: 'all', title: '全部', value: dashboard.summary.episodes},
   ];
   return <nav className="summary-bar" aria-label="队列筛选">
     {items.map((item) => <button key={item.id} className={filter === item.id ? 'is-active' : ''} onClick={() => onFilter(item.id)}>
@@ -110,12 +110,26 @@ function SummaryBar({dashboard, filter, onFilter}: {dashboard: Dashboard; filter
   </nav>;
 }
 
-function EpisodeQueue({episodes, selected, filter, onSelect}: {episodes: Episode[]; selected: string; filter: QueueFilter; onSelect: (id: string) => void}) {
+function EpisodeQueue({dashboard, selected, filter, onFilter, onSelect, onRefresh}: {
+  dashboard: Dashboard;
+  selected: string;
+  filter: QueueFilter;
+  onFilter: (filter: QueueFilter) => void;
+  onSelect: (id: string) => void;
+  onRefresh: () => void;
+}) {
+  const {episodes} = dashboard;
   const visible = episodes
     .filter((episode) => matchesFilter(episode, filter))
     .sort((a, b) => attentionPriority[a.attention] - attentionPriority[b.attention] || a.id.localeCompare(b.id));
   return <aside className="episode-queue" aria-label="分集工作队列">
-    <div className="queue-heading"><span>分集</span><small>{visible.length} / {episodes.length}</small></div>
+    <header className="queue-header">
+      <div className="queue-title"><strong>Git Course</strong><small>{visible.length} / {episodes.length} 集</small></div>
+      <button className="refresh-button" aria-label="刷新生产状态" title={`刷新生产状态 · 当前数据 ${relativeDate(dashboard.generatedAt)}`} onClick={onRefresh}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 6.7A7 7 0 1 0 17 11"/><path d="M16.2 2.8v3.9h-3.9"/></svg>
+      </button>
+      <SummaryBar dashboard={dashboard} filter={filter} onFilter={onFilter} />
+    </header>
     <div className="queue-list">
       {visible.map((episode) => <button key={episode.id} className={`queue-item ${selected === episode.id ? 'is-active' : ''}`} onClick={() => onSelect(episode.id)}>
         <span className="queue-number">{episode.id.slice(0, 4).toUpperCase()}</span>
@@ -521,13 +535,15 @@ export function App() {
   if (!dashboard || error) return <main className="loading-screen"><div className="error-mark">!</div><h1>控制台暂时不可用</h1><p>{error}</p><button onClick={() => void refresh()}>重新连接</button></main>;
 
   return <div className="app-shell">
-    <header className="topbar">
-      <div className="brand"><span className="brand-mark">GC</span><div><strong>Git Course</strong><small>Review Workbench</small></div></div>
-      <SummaryBar dashboard={dashboard} filter={filter} onFilter={setFilter} />
-      <div className="topbar-meta"><time>{relativeDate(dashboard.generatedAt)}</time><button onClick={() => {void refresh(); void refreshRuns();}}>刷新</button></div>
-    </header>
     <div className="review-shell">
-      <EpisodeQueue episodes={dashboard.episodes} selected={selectedId} filter={filter} onSelect={setSelectedId} />
+      <EpisodeQueue
+        dashboard={dashboard}
+        selected={selectedId}
+        filter={filter}
+        onFilter={setFilter}
+        onSelect={setSelectedId}
+        onRefresh={() => {void refresh(); void refreshRuns();}}
+      />
       {episode && <main className="review-main">
         <div className="episode-overview">
           <header className="episode-header">
