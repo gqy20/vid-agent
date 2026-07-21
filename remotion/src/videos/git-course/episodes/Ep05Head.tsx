@@ -12,7 +12,7 @@ import {
   GitStatePanel,
   NarrationSubtitle,
   RefInspectorCard,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
   type GitGraphState,
 } from '../kit';
 import {COLOR, WEIGHT} from '../palette';
@@ -181,15 +181,15 @@ const TerminalScene: React.FC = () => {
   const frame = useSceneFrame();
   return (
     <AbsoluteFill>
-      <div data-audit-id="ep05-head-terminal-recording" style={{position: 'absolute', left: 290, top: 176, width: 1340, height: 660}}>
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep05-head-flow.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep05-head-flow-hold.png"
-          holdFromFrame={170}
-          playbackRate={0.55}
-          mediaFit="cover"
-        />
-      </div>
+      <RecordedTerminalStage
+        auditId="ep05-head-terminal-recording"
+        rect={{x: 290, y: 176, width: 1340, height: 660}}
+        src="git-course-lab/terminal/ep05-head-flow.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep05-head-flow-hold.png"
+        holdFromFrame={170}
+        playbackRate={0.55}
+        mediaFit="cover"
+      />
       <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('terminal')} width={1180} auditId="ep05-terminal-caption" />
     </AbsoluteFill>
   );

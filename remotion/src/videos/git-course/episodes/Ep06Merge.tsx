@@ -7,16 +7,19 @@ import {
   CodeDiff,
   CommandPill,
   COURSE_GRAPH_GEOMETRY,
+  courseCommitAnchor,
+  courseCommitOuterRadius,
   createEpisodeRuntime,
   CourseLayout,
   CourseBranchLabel,
   CourseCommitNode,
+  CourseGraphEdge,
   CourseHeadMarker,
   EpisodeTitleCard,
   EpisodeTimeline,
   GitStatePanel,
   NarrationSubtitle,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
   SnapshotCard,
   type DiffLine,
 } from '../kit';
@@ -30,47 +33,6 @@ const EP06_RUNTIME = createEpisodeRuntime(EP06_SCENES);
 const useSceneFrame = () => useCurrentFrame();
 
 const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
-
-const insetLine = (x1: number, y1: number, x2: number, y2: number, inset: number) => {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.hypot(dx, dy);
-  const ux = dx / length;
-  const uy = dy / length;
-  return {x1: x1 + ux * inset, y1: y1 + uy * inset, x2: x2 - ux * inset, y2: y2 - uy * inset};
-};
-
-const CommitNode: React.FC<{id: string; x: number; y: number; tone?: 'base' | 'main' | 'feature'; opacity?: number; scale?: number}> = ({
-  id,
-  x,
-  y,
-  tone,
-  opacity = 1,
-  scale = 1,
-}) => {
-  const isBase = tone === 'base';
-  const stroke =
-    tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : COLOR.git.commit;
-  return (
-    <g transform={scale === 1 ? undefined : `translate(${x} ${y}) scale(${scale}) translate(${-x} ${-y})`}>
-      <CourseCommitNode id={id} x={x} y={y} stroke={stroke} strong={Boolean(tone)} opacity={opacity} ring={isBase ? {color: COLOR.text.secondary, dashed: true} : undefined} />
-    </g>
-  );
-};
-
-const BranchLabel: React.FC<{
-  name: string;
-  x: number;
-  y: number;
-  targetX: number;
-  targetY: number;
-  targetRadius?: number;
-  color: string;
-  opacity?: number;
-  compact?: boolean;
-}> = ({name, x, y, targetX, targetY, targetRadius, color, opacity = 1}) => <CourseBranchLabel name={name} x={x} y={y} targetX={targetX} targetY={targetY} targetRadius={targetRadius} color={color} opacity={opacity} />;
-
-const HeadLabel: React.FC<{x: number; y: number; opacity?: number}> = (props) => <CourseHeadMarker {...props} />;
 
 const MergeGraph: React.FC<{
   mode: 'ff-before' | 'ff-after' | 'diverged' | 'merged';
@@ -109,17 +71,10 @@ const MergeGraph: React.FC<{
         ? {x: 40, y: 0, width: showHead ? 880 : 700, height: 350}
         : {x: 40, y: 0, width: 880, height: 350};
   const height = Math.round((width * viewBox.height) / viewBox.width);
-  const edgeStroke = COURSE_GRAPH_GEOMETRY.edgeStroke;
-  const nodeOuterRadius = (COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2) * nodeScale;
-  const edgeInset = nodeOuterRadius + edgeStroke / 2;
-  const defaultNodeOuterRadius = COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2;
+  const nodeOuterRadius = courseCommitOuterRadius({scale: nodeScale, strong: true});
+  const defaultNodeOuterRadius = courseCommitOuterRadius({strong: true});
   const refOffset = 72 + Math.max(0, nodeOuterRadius - defaultNodeOuterRadius);
-  const trunkEdge = insetLine(c0, y, c2, y, edgeInset);
-  const forwardEdge = insetLine(c2, y, c3, y, edgeInset);
-  const upperBranchEdge = insetLine(c2, y, c3, 98, edgeInset);
-  const lowerBranchEdge = insetLine(c2, y, c4, 254, edgeInset);
-  const upperParentEdge = insetLine(c3, 98, m1, y, edgeInset);
-  const lowerParentEdge = insetLine(c4, 254, m1, y, edgeInset);
+  const node = (x: number, nodeY: number) => courseCommitAnchor(x, nodeY, {scale: nodeScale, strong: true});
 
   return (
     <svg
@@ -128,39 +83,39 @@ const MergeGraph: React.FC<{
       viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
       style={{display: 'block', overflow: 'visible'}}
     >
-      <line {...trunkEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+      <CourseGraphEdge from={node(c0, y)} to={node(c2, y)} />
       {mode === 'ff-before' || mode === 'ff-after' ? (
-        <line {...forwardEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={mode === 'ff-before' ? 0.9 : progress} />
+        <CourseGraphEdge from={node(c2, y)} to={node(c3, y)} opacity={mode === 'ff-before' ? 0.9 : progress} />
       ) : (
         <>
-          <line {...upperBranchEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
-          <line {...lowerBranchEdge} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+          <CourseGraphEdge from={node(c2, y)} to={node(c3, 98)} />
+          <CourseGraphEdge from={node(c2, y)} to={node(c4, 254)} />
         </>
       )}
       {showM1 ? (
         <>
-          <line {...upperParentEdge} stroke={showParentArrows ? COLOR.git.main : COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
-          <line {...lowerParentEdge} stroke={showParentArrows ? COLOR.git.feature : COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+          <CourseGraphEdge from={node(c3, 98)} to={node(m1, y)} color={showParentArrows ? COLOR.git.main : COLOR.git.graphLine} />
+          <CourseGraphEdge from={node(c4, 254)} to={node(m1, y)} color={showParentArrows ? COLOR.git.feature : COLOR.git.graphLine} />
         </>
       ) : null}
       {mode === 'ff-before' || mode === 'ff-after' ? (
         <>
-          <BranchLabel name="hotfix" x={c3} y={y - refOffset} targetX={c3} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.feature} compact={small} />
-          <BranchLabel name="main" x={mainTargetX} y={y + refOffset} targetX={mainTargetX} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.main} compact={small} />
+          <CourseBranchLabel name="hotfix" x={c3} y={y - refOffset} targetX={c3} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.feature} />
+          <CourseBranchLabel name="main" x={mainTargetX} y={y + refOffset} targetX={mainTargetX} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.main} />
         </>
       ) : (
         <>
-          <BranchLabel name="main" x={mainTargetX} y={mainTargetY - refOffset} targetX={mainTargetX} targetY={mainTargetY} targetRadius={nodeOuterRadius} color={COLOR.git.main} compact={small} />
-          <BranchLabel name="feature" x={featureTargetX} y={featureTargetY + refOffset} targetX={featureTargetX} targetY={featureTargetY} targetRadius={nodeOuterRadius} color={COLOR.git.feature} compact={small} />
+          <CourseBranchLabel name="main" x={mainTargetX} y={mainTargetY - refOffset} targetX={mainTargetX} targetY={mainTargetY} targetRadius={nodeOuterRadius} color={COLOR.git.main} />
+          <CourseBranchLabel name="feature" x={featureTargetX} y={featureTargetY + refOffset} targetX={featureTargetX} targetY={featureTargetY} targetRadius={nodeOuterRadius} color={COLOR.git.feature} />
         </>
       )}
-      <CommitNode id="C0" x={c0} y={y} scale={nodeScale} />
-      <CommitNode id="C1" x={c1} y={y} scale={nodeScale} />
-      <CommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : undefined} scale={nodeScale} />
-      {mode === 'ff-before' || mode === 'ff-after' ? <CommitNode id="C3" x={c3} y={y} tone="feature" scale={nodeScale} /> : <CommitNode id="C3" x={c3} y={98} tone="main" scale={nodeScale} />}
-      {showC4 ? <CommitNode id="C4" x={c4} y={254} tone="feature" scale={nodeScale} /> : null}
-      {showM1 ? <CommitNode id="M1" x={m1} y={y} scale={nodeScale} /> : null}
-      {showHead ? <HeadLabel x={headX} y={headY} opacity={small ? 0 : 1} /> : null}
+      <CourseCommitNode id="C0" x={c0} y={y} scale={nodeScale} />
+      <CourseCommitNode id="C1" x={c1} y={y} scale={nodeScale} />
+      <CourseCommitNode id="C2" x={c2} y={y} tone={showBaseLabels ? 'base' : 'default'} scale={nodeScale} />
+      {mode === 'ff-before' || mode === 'ff-after' ? <CourseCommitNode id="C3" x={c3} y={y} tone="feature" scale={nodeScale} /> : <CourseCommitNode id="C3" x={c3} y={98} tone="main" scale={nodeScale} />}
+      {showC4 ? <CourseCommitNode id="C4" x={c4} y={254} tone="feature" scale={nodeScale} /> : null}
+      {showM1 ? <CourseCommitNode id="M1" x={m1} y={y} scale={nodeScale} /> : null}
+      {showHead ? <CourseHeadMarker x={headX} y={headY} opacity={small ? 0 : 1} /> : null}
       {showBaseLabels ? (
         <>
           <text x={c2} y={y + 76} textAnchor="middle" fontFamily={FONT.sans} fontSize="28" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
@@ -419,15 +374,15 @@ const ConflictScene: React.FC = () => {
   return (
     <AbsoluteFill style={{padding: '126px 156px 122px', boxSizing: 'border-box'}}>
       {terminalVisible ? (
-        <div data-audit-id="ep06-conflict-terminal-recording" style={{position: 'absolute', left: 290, top: 176, width: 1340, height: 660}}>
-          <RecordedTerminalPanel
-            src="git-course-lab/terminal/ep06-merge-conflict.mp4"
-            holdFrameSrc="git-course-lab/terminal/ep06-merge-conflict-hold.png"
-            holdFromFrame={recording.holdFromFrame}
-            playbackRate={1.25}
-            mediaFit="cover"
-          />
-        </div>
+        <RecordedTerminalStage
+          auditId="ep06-conflict-terminal-recording"
+          rect={{x: 290, y: 176, width: 1340, height: 660}}
+          src="git-course-lab/terminal/ep06-merge-conflict.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep06-merge-conflict-hold.png"
+          holdFromFrame={recording.holdFromFrame}
+          playbackRate={1.25}
+          mediaFit="cover"
+        />
       ) : null}
       <div style={{position: 'absolute', left: 168, top: 210, width: 650, opacity: (codeVisible ? 1 : 0) * codeOut}}>
         <CodeDiff title="同一位置，两边都改了" lines={conflictLines} />

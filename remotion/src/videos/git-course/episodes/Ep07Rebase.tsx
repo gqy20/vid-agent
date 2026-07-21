@@ -6,14 +6,17 @@ import {
   CodeBlock,
   CommandPill,
   COURSE_GRAPH_GEOMETRY,
+  courseCommitAnchor,
+  courseCommitOuterRadius,
   createEpisodeRuntime,
   CourseBranchLabel,
   CourseCommitNode,
+  CourseGraphEdge,
   CourseLayout,
   EpisodeTitleCard,
   EpisodeTimeline,
   NarrationSubtitle,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
 } from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
@@ -26,50 +29,6 @@ const useSceneFrame = () => useCurrentFrame();
 const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
-
-const insetLine = (x1: number, y1: number, x2: number, y2: number, inset: number) => {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.hypot(dx, dy);
-  const ux = dx / length;
-  const uy = dy / length;
-  return {x1: x1 + ux * inset, y1: y1 + uy * inset, x2: x2 - ux * inset, y2: y2 - uy * inset};
-};
-
-const CommitNode: React.FC<{
-  id: string;
-  x: number;
-  y: number;
-  tone?: 'base' | 'main' | 'feature';
-  opacity?: number;
-  scale?: number;
-}> = ({id, x, y, tone, opacity = 1, scale = 1}) => {
-  const stroke = tone === 'main' ? COLOR.git.main : tone === 'feature' ? COLOR.git.feature : COLOR.git.commit;
-  return (
-    <g transform={scale === 1 ? undefined : `translate(${x} ${y}) scale(${scale}) translate(${-x} ${-y})`}>
-      <CourseCommitNode
-        id={id}
-        x={x}
-        y={y}
-        stroke={stroke}
-        strong={Boolean(tone)}
-        opacity={opacity}
-        ring={tone === 'base' ? {color: COLOR.text.secondary, dashed: true} : undefined}
-      />
-    </g>
-  );
-};
-
-const BranchLabel: React.FC<{
-  name: string;
-  x: number;
-  y: number;
-  targetX: number;
-  targetY: number;
-  targetRadius: number;
-  color: string;
-  opacity?: number;
-}> = (props) => <CourseBranchLabel {...props} />;
 
 type RebaseGraphMode = 'diverged' | 'merged' | 'rebased' | 'fast-forward';
 
@@ -120,56 +79,44 @@ const RebaseGraph: React.FC<{
   const featureTargetY = isRebased ? interpolate(featureRefProgress, [0, 1], [lowerY, upperY]) : lowerY;
   const viewBox = small ? {x: 60, y: -8, width: 840, height: 380} : {x: 40, y: -8, width: 920, height: 380};
   const height = Math.round((width * viewBox.height) / viewBox.width);
-  const edgeStroke = COURSE_GRAPH_GEOMETRY.edgeStroke;
-  const nodeOuterRadius = (COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2) * nodeScale;
-  const edgeInset = nodeOuterRadius + edgeStroke / 2;
-  const defaultNodeOuterRadius = COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2;
+  const nodeOuterRadius = courseCommitOuterRadius({scale: nodeScale, strong: true});
+  const defaultNodeOuterRadius = courseCommitOuterRadius({strong: true});
   const refOffset = 72 + Math.max(0, nodeOuterRadius - defaultNodeOuterRadius);
   const mainLabelY = mode === 'fast-forward' ? mainTargetY + refOffset : mainTargetY - refOffset;
   const featureLabelY = featureTargetY <= trunkY ? featureTargetY - refOffset : featureTargetY + refOffset;
-  const edge = (x1: number, y1: number, x2: number, y2: number) => insetLine(x1, y1, x2, y2, edgeInset);
-
-  const trunkLeft = edge(c0, trunkY, c1, trunkY);
-  const trunkRight = edge(c1, trunkY, c2, trunkY);
-  const upperBranch = edge(c2, trunkY, c3, upperY);
-  const lowerBranch = edge(c2, trunkY, c4, lowerY);
-  const lowerSecond = edge(c4, lowerY, c5, lowerY);
-  const primeFirst = edge(c3, upperY, c4p, upperY);
-  const primeSecond = edge(c4p, upperY, c5p, upperY);
-  const mergeUpper = edge(c3, upperY, m1, trunkY);
-  const mergeLower = edge(c5, lowerY, m1, trunkY);
+  const node = (x: number, y: number) => courseCommitAnchor(x, y, {scale: nodeScale, strong: true});
 
   return (
     <svg width={width} height={height} viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`} style={{display: 'block', overflow: 'visible'}}>
-      <line {...trunkLeft} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
-      <line {...trunkRight} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
-      <line {...upperBranch} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+      <CourseGraphEdge from={node(c0, trunkY)} to={node(c1, trunkY)} />
+      <CourseGraphEdge from={node(c1, trunkY)} to={node(c2, trunkY)} />
+      <CourseGraphEdge from={node(c2, trunkY)} to={node(c3, upperY)} />
 
       {mode === 'merged' || mode === 'diverged' ? (
         <>
-          <line {...lowerBranch} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
-          <line {...lowerSecond} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
+          <CourseGraphEdge from={node(c2, trunkY)} to={node(c4, lowerY)} />
+          <CourseGraphEdge from={node(c4, lowerY)} to={node(c5, lowerY)} />
         </>
       ) : showOld ? (
         <>
-          <line {...lowerBranch} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={oldOpacity} />
-          <line {...lowerSecond} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={oldOpacity} />
+          <CourseGraphEdge from={node(c2, trunkY)} to={node(c4, lowerY)} opacity={oldOpacity} />
+          <CourseGraphEdge from={node(c4, lowerY)} to={node(c5, lowerY)} opacity={oldOpacity} />
         </>
       ) : null}
 
       {mode === 'merged' ? (
         <>
-          <line {...mergeUpper} stroke={COLOR.git.main} strokeWidth={edgeStroke} strokeLinecap="round" />
-          <line {...mergeLower} stroke={COLOR.git.feature} strokeWidth={edgeStroke} strokeLinecap="round" />
+          <CourseGraphEdge from={node(c3, upperY)} to={node(m1, trunkY)} color={COLOR.git.main} />
+          <CourseGraphEdge from={node(c5, lowerY)} to={node(m1, trunkY)} color={COLOR.git.feature} />
         </>
       ) : isRebased ? (
         <>
-          <line {...primeFirst} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={primeOneOpacity} />
-          <line {...primeSecond} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={primeTwoOpacity} />
+          <CourseGraphEdge from={node(c3, upperY)} to={node(c4p, upperY)} opacity={primeOneOpacity} />
+          <CourseGraphEdge from={node(c4p, upperY)} to={node(c5p, upperY)} opacity={primeTwoOpacity} />
         </>
       ) : null}
 
-      <BranchLabel
+      <CourseBranchLabel
         name="main"
         x={mainTargetX}
         y={mainLabelY}
@@ -178,7 +125,7 @@ const RebaseGraph: React.FC<{
         targetRadius={nodeOuterRadius}
         color={COLOR.git.main}
       />
-      <BranchLabel
+      <CourseBranchLabel
         name="feature"
         x={featureTargetX}
         y={featureLabelY}
@@ -188,7 +135,7 @@ const RebaseGraph: React.FC<{
         color={COLOR.git.feature}
       />
       {showSharedRef && isRebased ? (
-        <BranchLabel
+        <CourseBranchLabel
           name="old ref"
           x={c5}
           y={lowerY + refOffset}
@@ -199,28 +146,28 @@ const RebaseGraph: React.FC<{
         />
       ) : null}
 
-      <CommitNode id="C0" x={c0} y={trunkY} scale={nodeScale} />
-      <CommitNode id="C1" x={c1} y={trunkY} scale={nodeScale} />
-      <CommitNode id="C2" x={c2} y={trunkY} tone={showBase ? 'base' : undefined} scale={nodeScale} />
-      <CommitNode id="C3" x={c3} y={upperY} tone="main" scale={nodeScale} />
+      <CourseCommitNode id="C0" x={c0} y={trunkY} scale={nodeScale} />
+      <CourseCommitNode id="C1" x={c1} y={trunkY} scale={nodeScale} />
+      <CourseCommitNode id="C2" x={c2} y={trunkY} tone={showBase ? 'base' : 'default'} scale={nodeScale} />
+      <CourseCommitNode id="C3" x={c3} y={upperY} tone="main" scale={nodeScale} />
       {mode === 'merged' || mode === 'diverged' ? (
         <>
-          <CommitNode id="C4" x={c4} y={lowerY} tone="feature" scale={nodeScale} />
-          <CommitNode id="C5" x={c5} y={lowerY} tone="feature" scale={nodeScale} />
+          <CourseCommitNode id="C4" x={c4} y={lowerY} tone="feature" scale={nodeScale} />
+          <CourseCommitNode id="C5" x={c5} y={lowerY} tone="feature" scale={nodeScale} />
         </>
       ) : (
         <>
           {showOld ? (
             <>
-              <CommitNode id="C4" x={c4} y={lowerY} tone="feature" opacity={oldOpacity} scale={nodeScale} />
-              <CommitNode id="C5" x={c5} y={lowerY} tone="feature" opacity={oldOpacity} scale={nodeScale} />
+              <CourseCommitNode id="C4" x={c4} y={lowerY} tone="feature" opacity={oldOpacity} scale={nodeScale} />
+              <CourseCommitNode id="C5" x={c5} y={lowerY} tone="feature" opacity={oldOpacity} scale={nodeScale} />
             </>
           ) : null}
-          <CommitNode id="C4′" x={c4p} y={upperY} tone="feature" opacity={primeOneOpacity} scale={nodeScale} />
-          <CommitNode id="C5′" x={c5p} y={upperY} tone="feature" opacity={primeTwoOpacity} scale={nodeScale} />
+          <CourseCommitNode id="C4′" x={c4p} y={upperY} tone="feature" opacity={primeOneOpacity} scale={nodeScale} />
+          <CourseCommitNode id="C5′" x={c5p} y={upperY} tone="feature" opacity={primeTwoOpacity} scale={nodeScale} />
         </>
       )}
-      {mode === 'merged' ? <CommitNode id="M1" x={m1} y={trunkY} scale={nodeScale} /> : null}
+      {mode === 'merged' ? <CourseCommitNode id="M1" x={m1} y={trunkY} scale={nodeScale} /> : null}
 
       {showBase ? (
         <text x={c2} y={trunkY + 80} textAnchor="middle" fontFamily={FONT.sans} fontSize="28" fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>
@@ -289,18 +236,15 @@ const TerminalRebaseScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '112px 142px 110px', boxSizing: 'border-box'}}>
-      <div
-        data-audit-id="ep07-rebase-terminal-recording"
-        style={{position: 'absolute', left: 250, top: 156, width: 1420, height: 768}}
-      >
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep07-rebase-flow.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep07-rebase-flow-hold.png"
-          holdFromFrame={recording.holdFromFrame}
-          playbackRate={1}
-          mediaFit="cover"
-        />
-      </div>
+      <RecordedTerminalStage
+        auditId="ep07-rebase-terminal-recording"
+        rect={{x: 250, y: 156, width: 1420, height: 768}}
+        src="git-course-lab/terminal/ep07-rebase-flow.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep07-rebase-flow-hold.png"
+        holdFromFrame={recording.holdFromFrame}
+        playbackRate={1}
+        mediaFit="cover"
+      />
       <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('terminal-rebase')} width={1320} bottom={64} auditId="ep07-terminal-rebase-caption" />
     </AbsoluteFill>
   );

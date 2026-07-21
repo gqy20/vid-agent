@@ -9,6 +9,7 @@ import {
   GitStatePanel,
   QuestionCaption,
   RecordedTerminalPanel,
+  RecordedTerminalStage,
   SceneCaption,
   CommandStrip,
   SvgArrowLine,
@@ -384,13 +385,14 @@ const AddScene: React.FC = () => {
   const terminalHeight = recordedTerminalHeight(terminalWidth, TERMINAL_RECORDINGS['ep02-add']);
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', left: 340, top: 166, width: terminalWidth, height: terminalHeight, zIndex: 9, opacity: terminalFullOpacity}}>
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep02-add.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep02-add-hold.png"
-          holdFromFrame={TERMINAL_RECORDINGS['ep02-add'].holdFromFrame}
-        />
-      </div>
+      <RecordedTerminalStage
+        rect={{x: 340, y: 166, width: terminalWidth, height: terminalHeight}}
+        zIndex={9}
+        opacity={terminalFullOpacity}
+        src="git-course-lab/terminal/ep02-add.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep02-add-hold.png"
+        holdFromFrame={TERMINAL_RECORDINGS['ep02-add'].holdFromFrame}
+      />
       <CommandStrip command="git add app.js" output="暂存当前内容" opacity={commandStrip * commandStripOut} />
       <div style={{opacity: boardIn}}>
         <Board
@@ -580,23 +582,14 @@ const CommitScene: React.FC = () => {
   const terminalHeight = recordedTerminalHeight(terminalWidth, TERMINAL_RECORDINGS['ep02-commit']);
   return (
     <AbsoluteFill>
-      <div
-        style={{
-          position: 'absolute',
-          left: 340,
-          top: 166,
-          width: terminalWidth,
-          height: terminalHeight,
-          zIndex: 9,
-          opacity: terminalFullOpacity,
-        }}
-      >
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep02-commit.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep02-commit-hold.png"
-          holdFromFrame={TERMINAL_RECORDINGS['ep02-commit'].holdFromFrame}
-        />
-      </div>
+      <RecordedTerminalStage
+        rect={{x: 340, y: 166, width: terminalWidth, height: terminalHeight}}
+        zIndex={9}
+        opacity={terminalFullOpacity}
+        src="git-course-lab/terminal/ep02-commit.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep02-commit-hold.png"
+        holdFromFrame={TERMINAL_RECORDINGS['ep02-commit'].holdFromFrame}
+      />
       <CommandStrip command={'git commit -m "update app"'} output="commit 读取 Index" opacity={commandStrip * commandStripOut} />
       <div style={{opacity: boardIn}}>
         <Board

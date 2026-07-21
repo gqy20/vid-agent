@@ -11,7 +11,7 @@ import {
   MotionTitle,
   PositionedMotion,
   QuestionCaption,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
   SceneCaption,
   SvgArrowLine,
   type GitGraphState,
@@ -535,17 +535,15 @@ export const Ep01PracticeCheckScene: React.FC = () => {
         用 log 和 show 看见这条历史
       </MotionTitle>
       <Sequence from={seconds(1.5)} layout="none">
-        <div
-          style={{position: 'absolute', left: 100, top: 224, width: logWidth, height: logHeight, opacity: logIn * logOut}}
-          data-audit-id="ep01-practice-log-terminal"
-        >
-          <RecordedTerminalPanel
-            src="git-course-lab/terminal/ep01-log.mp4"
-            holdFrameSrc="git-course-lab/terminal/ep01-log-hold.png"
-            holdFromFrame={TERMINAL_RECORDINGS['ep01-log'].holdFromFrame}
-            title="commit-history"
-          />
-        </div>
+        <RecordedTerminalStage
+          auditId="ep01-practice-log-terminal"
+          rect={{x: 100, y: 224, width: logWidth, height: logHeight}}
+          opacity={logIn * logOut}
+          src="git-course-lab/terminal/ep01-log.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep01-log-hold.png"
+          holdFromFrame={TERMINAL_RECORDINGS['ep01-log'].holdFromFrame}
+          title="commit-history"
+        />
       </Sequence>
       <div
         style={{
@@ -573,30 +571,26 @@ export const Ep01PracticeCheckScene: React.FC = () => {
         </div>
       </div>
       <Sequence from={seconds(9.5)} layout="none">
-        <div
-          style={{position: 'absolute', left: 300, top: 146, width: inspectWidth, height: inspectHeight, opacity: statIn * statOut}}
-          data-audit-id="ep01-practice-stat-terminal"
-        >
-          <RecordedTerminalPanel
-            src="git-course-lab/terminal/ep01-show-stat.mp4"
-            holdFrameSrc="git-course-lab/terminal/ep01-show-stat-hold.png"
-            holdFromFrame={TERMINAL_RECORDINGS['ep01-show-stat'].holdFromFrame}
-            title="open-head"
-          />
-        </div>
+        <RecordedTerminalStage
+          auditId="ep01-practice-stat-terminal"
+          rect={{x: 300, y: 146, width: inspectWidth, height: inspectHeight}}
+          opacity={statIn * statOut}
+          src="git-course-lab/terminal/ep01-show-stat.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep01-show-stat-hold.png"
+          holdFromFrame={TERMINAL_RECORDINGS['ep01-show-stat'].holdFromFrame}
+          title="open-head"
+        />
       </Sequence>
       <Sequence from={seconds(17.8)} layout="none">
-        <div
-          style={{position: 'absolute', left: 300, top: 146, width: inspectWidth, height: inspectHeight, opacity: nameIn * nameOut}}
-          data-audit-id="ep01-practice-name-terminal"
-        >
-          <RecordedTerminalPanel
-            src="git-course-lab/terminal/ep01-show-name-only.mp4"
-            holdFrameSrc="git-course-lab/terminal/ep01-show-name-only-hold.png"
-            holdFromFrame={TERMINAL_RECORDINGS['ep01-show-name-only'].holdFromFrame}
-            title="paths-in-head"
-          />
-        </div>
+        <RecordedTerminalStage
+          auditId="ep01-practice-name-terminal"
+          rect={{x: 300, y: 146, width: inspectWidth, height: inspectHeight}}
+          opacity={nameIn * nameOut}
+          src="git-course-lab/terminal/ep01-show-name-only.mp4"
+          holdFrameSrc="git-course-lab/terminal/ep01-show-name-only-hold.png"
+          holdFromFrame={TERMINAL_RECORDINGS['ep01-show-name-only'].holdFromFrame}
+          title="paths-in-head"
+        />
       </Sequence>
       <SceneCaption opacity={finalCaption} bottom={112} width={1240} fontSize={34} auditId="ep01-practice-caption">
         现在先不用理解所有字段，只看一件事：commit 可以被列出、打开和检查。
@@ -617,24 +611,20 @@ export const Ep01LocalHistoryScene: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <div
-        style={{
-          position: 'absolute',
-          left: interpolate(shrink, [0, 1], [terminalInitial.left, terminalFinal.left]),
-          top: interpolate(shrink, [0, 1], [terminalInitial.top, terminalFinal.top]),
+      <RecordedTerminalStage
+        auditId="ep01-local-terminal"
+        rect={{
+          x: interpolate(shrink, [0, 1], [terminalInitial.left, terminalFinal.left]),
+          y: interpolate(shrink, [0, 1], [terminalInitial.top, terminalFinal.top]),
           width: interpolate(shrink, [0, 1], [terminalInitial.width, terminalFinal.width]),
           height: interpolate(shrink, [0, 1], [terminalInitial.height, terminalFinal.height]),
-          opacity: interpolate(shrink, [0, 1], [1, 0.84]),
         }}
-        data-audit-id="ep01-local-terminal"
-      >
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep01-log.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep01-log-hold.png"
-          holdFromFrame={TERMINAL_RECORDINGS['ep01-log'].holdFromFrame}
-          title="local-history"
-        />
-      </div>
+        opacity={interpolate(shrink, [0, 1], [1, 0.84])}
+        src="git-course-lab/terminal/ep01-log.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep01-log-hold.png"
+        holdFromFrame={TERMINAL_RECORDINGS['ep01-log'].holdFromFrame}
+        title="local-history"
+      />
       <div
         style={{
           position: 'absolute',

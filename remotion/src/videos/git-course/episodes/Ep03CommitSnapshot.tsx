@@ -7,7 +7,7 @@ import {
   EpisodeTimeline,
   GitStatePanel,
   QuestionCaption,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
   SceneCaption,
   SvgArrowLine,
 } from '../kit';
@@ -133,25 +133,16 @@ const FromIndexScene: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <div
-        style={{
-          position: 'absolute',
-          left: 340,
-          top: 166,
-          width: terminalWidth,
-          height: terminalHeight,
-          opacity: terminalOut,
-          zIndex: 9,
-        }}
-        data-audit-id="ep03-commit-recording"
-      >
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep03-commit.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep03-commit-hold.png"
-          holdFromFrame={recording.holdFromFrame}
-          mediaFit="cover"
-        />
-      </div>
+      <RecordedTerminalStage
+        auditId="ep03-commit-recording"
+        rect={{x: 340, y: 166, width: terminalWidth, height: terminalHeight}}
+        opacity={terminalOut}
+        zIndex={9}
+        src="git-course-lab/terminal/ep03-commit.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep03-commit-hold.png"
+        holdFromFrame={recording.holdFromFrame}
+        mediaFit="cover"
+      />
       <div
         style={{
           position: 'absolute',

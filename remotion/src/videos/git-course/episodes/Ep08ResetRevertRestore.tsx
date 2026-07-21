@@ -6,16 +6,19 @@ import {
   CodeDiff,
   CommandPill,
   COURSE_GRAPH_GEOMETRY,
+  courseCommitAnchor,
+  courseCommitOuterRadius,
   createEpisodeRuntime,
   CourseBranchLabel,
   CourseCommitNode,
+  CourseGraphEdge,
   CourseHeadMarker,
   CourseLayout,
   EpisodeTitleCard,
   EpisodeTimeline,
   GitStatePanel,
   NarrationSubtitle,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
   SceneSequence,
   type GitArea,
 } from '../kit';
@@ -31,31 +34,6 @@ const EP08_RUNTIME = createEpisodeRuntime(EP08_SCENES);
 const useSceneFrame = () => useCurrentFrame();
 const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
-
-const insetLine = (x1: number, y1: number, x2: number, y2: number, inset: number) => {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.hypot(dx, dy);
-  const ux = dx / length;
-  const uy = dy / length;
-  return {x1: x1 + ux * inset, y1: y1 + uy * inset, x2: x2 - ux * inset, y2: y2 - uy * inset};
-};
-
-const CommitNode: React.FC<{
-  id: string;
-  x: number;
-  y: number;
-  tone?: 'main' | 'bad' | 'revert';
-  opacity?: number;
-  scale?: number;
-}> = ({id, x, y, tone, opacity = 1, scale = 1}) => {
-  const stroke = tone === 'bad' ? COLOR.git.conflict : tone === 'revert' ? COLOR.git.feature : tone === 'main' ? COLOR.git.main : COLOR.git.commit;
-  return (
-    <g transform={scale === 1 ? undefined : `translate(${x} ${y}) scale(${scale}) translate(${-x} ${-y})`}>
-      <CourseCommitNode id={id} x={x} y={y} stroke={stroke} strong={Boolean(tone)} opacity={opacity} />
-    </g>
-  );
-};
 
 const HistoryGraph: React.FC<{
   mode: 'bad' | 'reset' | 'revert' | 'stable';
@@ -80,36 +58,32 @@ const HistoryGraph: React.FC<{
       : c3;
   const viewBox = {x: 20, y: 20, width: 760, height: 300};
   const height = Math.round((width * viewBox.height) / viewBox.width);
-  const edgeStroke = COURSE_GRAPH_GEOMETRY.edgeStroke;
-  const nodeOuterRadius = (COURSE_GRAPH_GEOMETRY.nodeRadius + COURSE_GRAPH_GEOMETRY.nodeStrongStroke / 2) * nodeScale;
-  const edgeInset = nodeOuterRadius + edgeStroke / 2;
-  const c1c2 = insetLine(c1, y, c2, y, edgeInset);
-  const c2c3 = insetLine(c2, y, c3, y, edgeInset);
-  const c3r1 = insetLine(c3, y, r1, y, edgeInset);
+  const nodeOuterRadius = courseCommitOuterRadius({scale: nodeScale, strong: true});
+  const node = (x: number) => courseCommitAnchor(x, y, {scale: nodeScale, strong: true});
   const c3Opacity = mode === 'reset' ? interpolate(resetProgress, [0, 0.72, 1], [1, 1, 0.28]) : 1;
   const oldEdgeOpacity = mode === 'reset' ? interpolate(resetProgress, [0, 1], [1, 0.22]) : 1;
   const refY = 82;
 
   return (
     <svg width={width} height={height} viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`} style={{display: 'block', overflow: 'visible'}}>
-      <line {...c1c2} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" />
-      <line {...c2c3} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={oldEdgeOpacity} />
-      {mode === 'revert' ? <line {...c3r1} stroke={COLOR.git.graphLine} strokeWidth={edgeStroke} strokeLinecap="round" opacity={revertProgress} /> : null}
+      <CourseGraphEdge from={node(c1)} to={node(c2)} />
+      <CourseGraphEdge from={node(c2)} to={node(c3)} opacity={oldEdgeOpacity} />
+      {mode === 'revert' ? <CourseGraphEdge from={node(c3)} to={node(r1)} opacity={revertProgress} /> : null}
 
       <CourseBranchLabel name="main" x={mainX} y={refY} targetX={mainX} targetY={y} targetRadius={nodeOuterRadius} color={COLOR.git.main} />
       {showHead ? <CourseHeadMarker x={mainX + 132} y={refY} /> : null}
 
-      <CommitNode id="C1" x={c1} y={y} scale={nodeScale} />
-      <CommitNode id="C2" x={c2} y={y} tone={resetDone ? 'main' : undefined} scale={nodeScale} />
-      <CommitNode
+      <CourseCommitNode id="C1" x={c1} y={y} scale={nodeScale} />
+      <CourseCommitNode id="C2" x={c2} y={y} tone={resetDone ? 'main' : 'default'} scale={nodeScale} />
+      <CourseCommitNode
         id="C3"
         x={c3}
         y={y}
-        tone={mode === 'bad' || mode === 'revert' ? 'bad' : mode === 'stable' || (mode === 'reset' && !resetDone) ? 'main' : undefined}
+        tone={mode === 'bad' || mode === 'revert' ? 'conflict' : mode === 'stable' || (mode === 'reset' && !resetDone) ? 'main' : 'default'}
         opacity={c3Opacity}
         scale={nodeScale}
       />
-      {mode === 'revert' ? <CommitNode id="R1" x={r1} y={y} tone="revert" opacity={revertProgress} scale={nodeScale} /> : null}
+      {mode === 'revert' ? <CourseCommitNode id="R1" x={r1} y={y} tone="feature" opacity={revertProgress} scale={nodeScale} /> : null}
 
       {mode === 'bad' || mode === 'revert' ? (
         <text x={c3} y={242} textAnchor="middle" fontFamily={FONT.sans} fontSize="23" fontWeight={WEIGHT.bold} fill={COLOR.git.conflict}>
@@ -240,7 +214,7 @@ const ResetModesScene: React.FC = () => {
   const modelOpacity = mode === 'soft' ? softIn * softOut : mode === 'mixed' ? mixedIn * mixedOut : hardIn;
   const warningIn = interpolate(frame, [seconds(34.4), seconds(35.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const memoryIn = interpolate(frame, [seconds(37.3), seconds(38.1)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const terminalStyle = {position: 'absolute', left: 250, top: 156, width: 1420, height: 768} as const;
+  const terminalRect = {x: 250, y: 156, width: 1420, height: 768} as const;
 
   return (
     <AbsoluteFill style={{padding: '104px 132px 112px', boxSizing: 'border-box'}}>
@@ -272,19 +246,13 @@ const ResetModesScene: React.FC = () => {
       </div>
 
       <SceneSequence from={0} durationInFrames={seconds(4.8)}>
-        <div style={terminalStyle} data-audit-id="ep08-reset-soft-terminal">
-          <RecordedTerminalPanel src="git-course-lab/terminal/ep08-reset-soft.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-soft-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-soft'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
-        </div>
+        <RecordedTerminalStage auditId="ep08-reset-soft-terminal" rect={terminalRect} src="git-course-lab/terminal/ep08-reset-soft.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-soft-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-soft'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
       </SceneSequence>
       <SceneSequence from={seconds(19.2)} durationInFrames={seconds(4.4)}>
-        <div style={terminalStyle} data-audit-id="ep08-reset-mixed-terminal">
-          <RecordedTerminalPanel src="git-course-lab/terminal/ep08-reset-mixed.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-mixed-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-mixed'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
-        </div>
+        <RecordedTerminalStage auditId="ep08-reset-mixed-terminal" rect={terminalRect} src="git-course-lab/terminal/ep08-reset-mixed.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-mixed-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-mixed'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
       </SceneSequence>
       <SceneSequence from={seconds(27.4)} durationInFrames={seconds(4.8)}>
-        <div style={terminalStyle} data-audit-id="ep08-reset-hard-terminal">
-          <RecordedTerminalPanel src="git-course-lab/terminal/ep08-reset-hard.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-hard-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-hard'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
-        </div>
+        <RecordedTerminalStage auditId="ep08-reset-hard-terminal" rect={terminalRect} src="git-course-lab/terminal/ep08-reset-hard.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-hard-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-hard'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
       </SceneSequence>
       <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('reset-modes')} width={1320} bottom={64} auditId="ep08-reset-caption" />
     </AbsoluteFill>
@@ -313,9 +281,7 @@ const RevertScene: React.FC = () => {
         />
       </div>
       <SceneSequence from={0} durationInFrames={seconds(5.4)}>
-        <div style={{position: 'absolute', left: 250, top: 156, width: 1420, height: 768}} data-audit-id="ep08-revert-terminal">
-          <RecordedTerminalPanel src="git-course-lab/terminal/ep08-revert.mp4" holdFrameSrc="git-course-lab/terminal/ep08-revert-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-revert'].holdFromFrame} playbackRate={1.45} mediaFit="cover" />
-        </div>
+        <RecordedTerminalStage auditId="ep08-revert-terminal" rect={{x: 250, y: 156, width: 1420, height: 768}} src="git-course-lab/terminal/ep08-revert.mp4" holdFrameSrc="git-course-lab/terminal/ep08-revert-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-revert'].holdFromFrame} playbackRate={1.45} mediaFit="cover" />
       </SceneSequence>
       <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('revert')} width={1320} bottom={64} auditId="ep08-revert-caption" />
     </AbsoluteFill>
@@ -346,15 +312,16 @@ const RestoreScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '112px 142px 110px', boxSizing: 'border-box'}}>
-      <div style={{position: 'absolute', left: 250, top: 156, width: 1420, height: 768, opacity: terminalOut}} data-audit-id="ep08-restore-terminal-recording">
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep08-restore-flow.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep08-restore-flow-hold.png"
-          holdFromFrame={recording.holdFromFrame}
-          playbackRate={1.1}
-          mediaFit="cover"
-        />
-      </div>
+      <RecordedTerminalStage
+        auditId="ep08-restore-terminal-recording"
+        rect={{x: 250, y: 156, width: 1420, height: 768}}
+        opacity={terminalOut}
+        src="git-course-lab/terminal/ep08-restore-flow.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep08-restore-flow-hold.png"
+        holdFromFrame={recording.holdFromFrame}
+        playbackRate={1.1}
+        mediaFit="cover"
+      />
       <div style={{opacity: modelIn}}>
         <CommandPill command={command} branch="main" fontSize={mode === 'head-to-both' ? 24 : 34} />
         <div style={{position: 'absolute', left: 142, right: 142, top: 286}}>

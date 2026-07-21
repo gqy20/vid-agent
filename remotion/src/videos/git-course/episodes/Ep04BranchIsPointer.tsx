@@ -19,7 +19,7 @@ import {
   PositionedMotion,
   RefWrite,
   RefWriteBar,
-  RecordedTerminalPanel,
+  RecordedTerminalStage,
   SideLabel,
   StrikeThrough,
   SvgArrowLine,
@@ -234,18 +234,15 @@ const TerminalScene: React.FC = () => {
   const recording = TERMINAL_RECORDINGS['ep04-branch-flow'];
   return (
     <AbsoluteFill>
-      <div
-        data-audit-id="ep04-branch-terminal-recording"
-        style={{position: 'absolute', left: 290, top: 176, width: 1340, height: 660}}
-      >
-        <RecordedTerminalPanel
-          src="git-course-lab/terminal/ep04-branch-flow.mp4"
-          holdFrameSrc="git-course-lab/terminal/ep04-branch-flow-hold.png"
-          holdFromFrame={recording.holdFromFrame}
-          playbackRate={0.75}
-          mediaFit="cover"
-        />
-      </div>
+      <RecordedTerminalStage
+        auditId="ep04-branch-terminal-recording"
+        rect={{x: 290, y: 176, width: 1340, height: 660}}
+        src="git-course-lab/terminal/ep04-branch-flow.mp4"
+        holdFrameSrc="git-course-lab/terminal/ep04-branch-flow-hold.png"
+        holdFromFrame={recording.holdFromFrame}
+        playbackRate={0.75}
+        mediaFit="cover"
+      />
       <SceneCaption opacity={1} width={900} fontSize={32} bottom={104} auditId="ep04-terminal-caption">
         创建、切换、提交：只看三个名字如何变化
       </SceneCaption>
