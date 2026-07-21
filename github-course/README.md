@@ -40,6 +40,6 @@ Git Course 解释 commit、branch、HEAD、remote 和提交图；GitHub Course �
 - 两季 16 集大纲已建立。
 - 浏览器录制 runner 和无网络 smoke scenario 已建立。
 - Remotion 浏览器组件与状态桥接 gallery 已注册。
-- GH01 已完成 episode JSON、只读浏览器交互录制、DOM 自动标注 metadata、Remotion 第一版和 MMX 分段配音；当前产物是 1080p 带声完整 candidate。
-- orchestrator 已接入浏览器/scene/TTS 指纹、内容寻址 cache、视觉与完整 candidate、SRT/音频检查和 audit verdict。
-- 4K delivery profile、4K 浏览器重录、promote 和 publish 尚未接入；这些命令保持硬门禁。其余 15 集仍是规划。
+- GH01 已完成 episode JSON、1080p 迭代候选、原生 4K 浏览器重录、4K Remotion scene、MMX 分段配音和 4K 完整 candidate。
+- orchestrator 已接入 `hd30` / `uhd30` 双 profile、浏览器/scene/TTS 指纹、内容寻址 cache、4K 全量 audit、SHA-bound `approve` 与 `promote`。
+- `release-build`、release audit/approve 和 publish 尚未接入，继续保持硬门禁；其余 15 集仍是规划。

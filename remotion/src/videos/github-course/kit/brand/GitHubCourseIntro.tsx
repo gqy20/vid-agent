@@ -1,5 +1,7 @@
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
 import {COLOR, FONT, WEIGHT} from '../../palette';
+import {RADIUS} from '../../spacing';
+import {TYPE} from '../../typography';
 import {
   BrandCanvas,
   GitHubBrandLockup,
@@ -35,7 +37,7 @@ const STATES: CollaborationState[] = [
     title: 'Change proposed',
     detail: 'feature/auth-guide → main',
     accent: COLOR.github.open,
-    background: 'rgba(26,127,55,0.08)',
+    background: COLOR.effects.openWash,
     icon: 'pull-request',
   },
   {
@@ -44,7 +46,7 @@ const STATES: CollaborationState[] = [
     title: 'Review complete',
     detail: 'review approved',
     accent: COLOR.github.approved,
-    background: 'rgba(31,136,61,0.08)',
+    background: COLOR.effects.approvedWash,
     icon: 'review',
   },
   {
@@ -53,7 +55,7 @@ const STATES: CollaborationState[] = [
     title: 'Checks complete',
     detail: 'required checks passed',
     accent: COLOR.github.approved,
-    background: 'rgba(31,136,61,0.08)',
+    background: COLOR.effects.approvedWash,
     icon: 'actions',
   },
   {
@@ -62,7 +64,7 @@ const STATES: CollaborationState[] = [
     title: 'Change shared',
     detail: 'main updated',
     accent: COLOR.github.merged,
-    background: 'rgba(130,80,223,0.08)',
+    background: COLOR.effects.mergedWash,
     icon: 'merge',
   },
 ];
@@ -189,8 +191,8 @@ const CollaborationSignalField: React.FC<{frame: number}> = ({frame}) => {
                 left: '50%',
                 translate: '-50% 0',
                 fontFamily: FONT.mono,
-                fontSize: 16,
-                fontWeight: WEIGHT.bold,
+                fontSize: TYPE.uiSmall.fontSize,
+                fontWeight: WEIGHT.medium,
                 letterSpacing: 1.2,
                 whiteSpace: 'nowrap',
                 color: signal.color,
@@ -256,9 +258,9 @@ const StateFace: React.FC<{state: CollaborationState; opacity: number}> = ({stat
       <GitHubPlatformGlyph name={state.icon} size={54} />
     </div>
     <div>
-      <div style={{fontFamily: FONT.mono, fontSize: 18, fontWeight: WEIGHT.bold, color: state.accent, letterSpacing: 1.5}}>{state.eyebrow}</div>
-      <div style={{marginTop: 11, fontSize: 48, lineHeight: 1.08, fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>{state.title}</div>
-      <div style={{marginTop: 13, fontFamily: FONT.mono, fontSize: 20, color: COLOR.text.secondary}}>{state.detail}</div>
+      <div style={{...TYPE.uiSmall, fontFamily: FONT.mono, color: state.accent, letterSpacing: 1.2}}>{state.eyebrow}</div>
+      <div style={{...TYPE.title, marginTop: 12, color: COLOR.text.primary}}>{state.title}</div>
+      <div style={{...TYPE.uiSmall, marginTop: 12, fontFamily: FONT.mono, color: COLOR.text.secondary}}>{state.detail}</div>
     </div>
     <StatusBadge label={state.label} color={state.accent} background={state.background} />
   </div>
@@ -297,8 +299,8 @@ const RepositoryNavigation: React.FC<{progress: number}> = ({progress}) => {
               justifyContent: 'center',
               gap: 11,
               color: active ? COLOR.text.primary : COLOR.text.tertiary,
-              fontSize: 18,
-              fontWeight: active ? WEIGHT.bold : WEIGHT.regular,
+              fontSize: TYPE.uiSmall.fontSize,
+              fontWeight: active ? WEIGHT.medium : WEIGHT.regular,
             }}
           >
             <GitHubPlatformGlyph name={glyph} />
@@ -405,11 +407,11 @@ const RepositorySurface: React.FC<{
   >
     <div style={{height: 100, padding: '0 38px', display: 'flex', alignItems: 'center', gap: 18, borderBottom: `1px solid ${COLOR.stroke.soft}`}}>
       <GitHubMark size={42} />
-      <div style={{fontSize: 25, color: COLOR.text.secondary}}>
+      <div style={{...TYPE.ui, color: COLOR.text.secondary}}>
         github-course <span style={{color: COLOR.text.tertiary}}>/</span>{' '}
-        <span style={{fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>visible-collaboration</span>
+        <span style={{fontWeight: WEIGHT.medium, color: COLOR.text.primary}}>visible-collaboration</span>
       </div>
-      <div style={{padding: '5px 11px', borderRadius: 999, border: `1px solid ${COLOR.stroke.default}`, fontFamily: FONT.mono, fontSize: 14, color: COLOR.text.secondary}}>Public</div>
+      <div style={{padding: '5px 11px', borderRadius: RADIUS.pill, border: `1px solid ${COLOR.stroke.default}`, fontFamily: FONT.mono, fontSize: 16, color: COLOR.text.secondary}}>Public</div>
       <div style={{marginLeft: 'auto', display: 'flex', gap: 10}}>
         <RepositoryActionIcon action="watch" progress={symbolProgress[0]} />
         <RepositoryActionIcon action="fork" progress={symbolProgress[1]} />
@@ -420,8 +422,8 @@ const RepositorySurface: React.FC<{
     <RepositoryNavigation progress={contentProgress} />
 
     <div style={{padding: '32px 56px 0', opacity: contentProgress}}>
-      <div style={{fontFamily: FONT.mono, fontSize: 18, fontWeight: WEIGHT.bold, color: COLOR.github.action, letterSpacing: 1.5}}>PULL REQUEST · #42</div>
-      <div style={{marginTop: 14, fontSize: 43, lineHeight: 1.12, fontWeight: WEIGHT.bold, color: COLOR.github.logo}}>Clarify the authentication guide</div>
+      <div style={{...TYPE.uiSmall, fontFamily: FONT.mono, color: COLOR.github.action, letterSpacing: 1.2}}>PULL REQUEST · #42</div>
+      <div style={{...TYPE.title, marginTop: 14, color: COLOR.github.logo}}>Clarify the authentication guide</div>
     </div>
 
     <div style={{position: 'absolute', left: 56, right: 56, bottom: 38, height: 232, borderTop: `1px solid ${COLOR.stroke.soft}`, opacity: contentProgress}}>

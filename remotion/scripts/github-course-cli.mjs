@@ -27,8 +27,14 @@ const PUBLIC_BROWSER = join(REMOTION, 'public/github-course/browser');
 const FPS = 30;
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const AUDIT_POLICY_VERSION = 'github-course-visual-v1';
-const FULL_AUDIT_POLICY_VERSION = 'github-course-full-hd-v1';
+const RENDER_PROFILES = {
+  hd30: {name: 'hd30', scale: 1, width: 1920, height: 1080, fps: 30},
+  uhd30: {name: 'uhd30', scale: 2, width: 3840, height: 2160, fps: 30},
+};
+const AUDIT_POLICY_VERSION = 'github-course-visual-v3';
+const FULL_AUDIT_POLICY_VERSION = 'github-course-full-hd-v4';
+const UHD_AUDIT_POLICY_VERSION = 'github-course-visual-uhd-v2';
+const UHD_FULL_AUDIT_POLICY_VERSION = 'github-course-full-uhd-v2';
 const COMMAND = process.argv[2] ?? 'status';
 const COMMAND_ARGS = process.argv.slice(3);
 const EPISODE_ID = COMMAND_ARGS.find((arg) => !arg.startsWith('--'));
@@ -36,6 +42,9 @@ const FLAGS = new Map(COMMAND_ARGS.filter((arg) => arg.startsWith('--')).map((ar
   const [key, value = '1'] = arg.slice(2).split('=', 2);
   return [key, value];
 }));
+const UHD_COMMANDS = new Set(['browser-4k', 'build-4k', 'audit-4k', 'audit-full-4k', 'approve', 'promote']);
+const requestedProfileName = FLAGS.get('profile') ?? (UHD_COMMANDS.has(COMMAND) ? 'uhd30' : 'hd30');
+const ACTIVE_PROFILE = RENDER_PROFILES[requestedProfileName] ?? (() => { throw new Error(`Unknown render profile: ${requestedProfileName}`); })();
 
 const fail = (message) => { throw new Error(message); };
 const sha = (value) => createHash('sha256').update(value).digest('hex');
@@ -52,6 +61,31 @@ const writeJson = (path, value) => {
   renameSync(partial, path);
 };
 const rel = (path) => relative(ROOT, path).replaceAll('\\', '/');
+
+const copyAtomically = (source, target) => {
+  mkdirSync(dirname(target), {recursive: true});
+  const partial = `${target}.partial`;
+  rmSync(partial, {force: true});
+  copyFileSync(source, partial);
+  renameSync(partial, target);
+};
+
+const replaceDirectoryAtomically = (target, materialize) => {
+  const next = `${target}.next`;
+  const previous = `${target}.previous`;
+  rmSync(next, {recursive: true, force: true});
+  mkdirSync(next, {recursive: true});
+  materialize(next);
+  rmSync(previous, {recursive: true, force: true});
+  if (existsSync(target)) renameSync(target, previous);
+  try {
+    renameSync(next, target);
+  } catch (error) {
+    if (!existsSync(target) && existsSync(previous)) renameSync(previous, target);
+    throw error;
+  }
+  rmSync(previous, {recursive: true, force: true});
+};
 
 const walkFiles = (root, accept = () => true) => {
   if (!existsSync(root)) return [];
@@ -146,7 +180,10 @@ const validateEpisode = (episode, path, {checkAssets = false} = {}) => {
     for (const field of ['src', 'poster', 'metadata']) {
       typeof recording[field] === 'string' && recording[field].startsWith('github-course/browser/') || fail(`${episode.episodeId}:${recording.id}: invalid ${field}`);
     }
-    if (checkAssets) validateBrowserAsset(recording);
+    if (checkAssets) {
+      validateBrowserAsset(recordingForProfile(recording, RENDER_PROFILES.hd30), RENDER_PROFILES.hd30);
+      if (recording.delivery) validateBrowserAsset(recordingForProfile(recording, RENDER_PROFILES.uhd30), RENDER_PROFILES.uhd30);
+    }
   }
   for (const scene of episode.scenes) {
     if (scene.browserRecordingId) recordingIds.has(scene.browserRecordingId) || fail(`${episode.episodeId}:${scene.id}: unknown browser recording ${scene.browserRecordingId}`);
@@ -154,12 +191,25 @@ const validateEpisode = (episode, path, {checkAssets = false} = {}) => {
   return episode;
 };
 
-const validateBrowserAsset = (recording) => {
+const validateBrowserAsset = (recording, profile) => {
   const paths = browserPaths(recording);
   for (const path of [paths.video, paths.poster, paths.metadata]) existsSync(path) || fail(`${recording.id}: browser asset missing: ${rel(path)}`);
   const metadata = json(paths.metadata);
   metadata.recordingId === recording.scenarioId || metadata.recordingId === recording.id || fail(`${recording.id}: metadata recordingId mismatch`);
   metadata.containsSensitiveState === false || fail(`${recording.id}: generated metadata is sensitive`);
+  const metadataProfile = metadata.profile ?? (profile.name === 'hd30' ? 'hd30' : null);
+  metadataProfile === profile.name || fail(`${recording.id}: metadata profile must be ${profile.name}`);
+  metadata.viewport?.width === recording.viewport.width && metadata.viewport?.height === recording.viewport.height || fail(`${recording.id}: metadata viewport mismatch`);
+  const metadataCaptureResolution = metadata.captureResolution ?? (profile.name === 'hd30' ? metadata.viewport : null);
+  metadataCaptureResolution?.width === recording.captureResolution.width && metadataCaptureResolution?.height === recording.captureResolution.height || fail(`${recording.id}: metadata capture resolution mismatch`);
+  const metadataDeviceScaleFactor = metadata.deviceScaleFactor ?? (profile.name === 'hd30' ? 1 : null);
+  metadataDeviceScaleFactor === recording.deviceScaleFactor || fail(`${recording.id}: metadata deviceScaleFactor mismatch`);
+  const metadataCaptureMode = metadata.captureMode ?? (profile.name === 'hd30' ? 'fixed-viewport' : null);
+  metadataCaptureMode === recording.captureMode || fail(`${recording.id}: metadata captureMode mismatch`);
+  const video = probe(paths.video).streams.find((stream) => stream.codec_type === 'video');
+  video?.width === recording.captureResolution.width && video?.height === recording.captureResolution.height || fail(`${recording.id}: browser video must be ${recording.captureResolution.width}x${recording.captureResolution.height}`);
+  const poster = probe(paths.poster).streams.find((stream) => stream.codec_type === 'video');
+  poster?.width === recording.captureResolution.width && poster?.height === recording.captureResolution.height || fail(`${recording.id}: browser poster must be ${recording.captureResolution.width}x${recording.captureResolution.height}`);
   const regionIds = new Set();
   for (const region of metadata.focusRegions ?? []) {
     !regionIds.has(region.id) || fail(`${recording.id}: duplicate focus region ${region.id}`);
@@ -176,21 +226,22 @@ const validateAll = ({checkAssets = false} = {}) => {
   return episodes;
 };
 
-const loadContext = () => {
+const loadContext = (profile = ACTIVE_PROFILE) => {
   EPISODE_ID || fail('Usage: pnpm github-course <command> <episode-id>');
   const episodePath = join(EPISODES, `${EPISODE_ID}.json`);
   existsSync(episodePath) || fail(`Unknown episode: ${EPISODE_ID}`);
   const episode = validateEpisode(json(episodePath), episodePath);
   const base = join(REMOTION, 'renders/github-course', EPISODE_ID);
   const tmp = join(base, 'tmp');
-  const build = join(tmp, 'build');
+  const build = profile.name === 'hd30' ? join(tmp, 'build') : join(tmp, 'build', profile.name);
   const cache = join(tmp, 'cache');
   const statePath = join(build, 'state.json');
   const state = existsSync(statePath) ? json(statePath) : {schemaVersion: 1, scenes: {}, browser: {}, tts: {}};
   state.scenes ??= {};
   state.browser ??= {};
   state.tts ??= {};
-  return {episode, episodePath, base, tmp, build, cache, statePath, state};
+  const current = join(base, 'current');
+  return {episode, episodePath, base, tmp, build, cache, current, statePath, state, profile};
 };
 
 const compositionFor = (episodeId) => ({
@@ -207,6 +258,24 @@ const browserPaths = (recording) => ({
   metadata: join(REMOTION, 'public', recording.metadata),
 });
 
+const recordingForProfile = (recording, profile) => {
+  if (profile.name === 'hd30') {
+    return {
+      ...recording,
+      profile: profile.name,
+      captureResolution: recording.viewport,
+      deviceScaleFactor: 1,
+      captureMode: 'fixed-viewport',
+    };
+  }
+  recording.delivery || fail(`${recording.id}: delivery browser declaration is required for ${profile.name}`);
+  return {
+    ...recording,
+    ...recording.delivery,
+    profile: profile.name,
+  };
+};
+
 const browserSourceFingerprint = (recording) => {
   const scenarioName = recording.scenarioId.replaceAll('-', '_');
   const files = [
@@ -215,7 +284,16 @@ const browserSourceFingerprint = (recording) => {
     join(BROWSER_LAB, 'scenarios/__init__.py'),
     join(BROWSER_LAB, `scenarios/${scenarioName}.py`),
   ];
-  return sha(JSON.stringify({schema: 1, scenarioId: recording.scenarioId, sourceHash: hashFiles(files), viewport: recording.viewport}));
+  return sha(JSON.stringify({
+    schema: 2,
+    scenarioId: recording.scenarioId,
+    sourceHash: hashFiles(files),
+    profile: recording.profile,
+    viewport: recording.viewport,
+    captureResolution: recording.captureResolution,
+    deviceScaleFactor: recording.deviceScaleFactor,
+    captureMode: recording.captureMode,
+  }));
 };
 
 const sourceParts = (ctx) => {
@@ -253,20 +331,28 @@ const visualBaseHash = (ctx) => {
   const shared = [
     join(courseRoot, 'data/episodes.ts'),
     join(courseRoot, 'palette.ts'),
+    join(courseRoot, 'spacing.ts'),
     join(courseRoot, 'timeline.ts'),
     join(courseRoot, 'typography.ts'),
     join(courseRoot, 'kit/index.ts'),
+    join(courseRoot, 'kit/brand/BrandPrimitives.tsx'),
+    join(courseRoot, 'kit/caption/GitHubNarrationSubtitle.tsx'),
     join(courseRoot, 'kit/layout/GitHubCourseLayout.tsx'),
     join(courseRoot, 'kit/browser/types.ts'),
+    join(courseRoot, 'kit/browser/BrowserStage.tsx'),
     join(courseRoot, 'kit/browser/BrowserPanel.tsx'),
     join(courseRoot, 'kit/browser/BrowserFocusScene.tsx'),
     join(courseRoot, 'kit/browser/BrowserEvidenceScene.tsx'),
     join(courseRoot, 'kit/bridge/GitHubStateBridge.tsx'),
+    join(courseRoot, 'kit/platform/PlatformStateLegend.tsx'),
   ];
   const parts = sourceParts(ctx);
   return sha(JSON.stringify({
-    schema: 1,
-    fileHash: hashFiles([...shared, join(REMOTION, 'src/fonts.css'), join(REMOTION, 'package.json'), join(REMOTION, 'pnpm-lock.yaml'), join(REMOTION, 'remotion.config.ts')]),
+    schema: 2,
+    // The lockfile captures runtime/toolchain dependency changes. Hashing the
+    // whole package.json also invalidated every GitHub scene when an unrelated
+    // npm script changed, even though the rendered output could not change.
+    fileHash: hashFiles([...shared, join(REMOTION, 'src/fonts.css'), join(REMOTION, 'pnpm-lock.yaml'), join(REMOTION, 'remotion.config.ts')]),
     sharedEpisodeSource: parts.shared,
   }));
 };
@@ -300,6 +386,57 @@ const srtText = (path) => readFileSync(path, 'utf8')
   .split(/\r?\n/)
   .filter((line) => line.trim() && !/^\d+$/.test(line.trim()) && !/-->/.test(line))
   .join('');
+
+const srtTimestampSeconds = (value) => {
+  const match = value.trim().match(/^(\d{2}):(\d{2}):(\d{2})[,.](\d{3})$/);
+  match || fail(`Invalid SRT timestamp: ${value}`);
+  return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]) + Number(match[4]) / 1000;
+};
+
+const parseSrtCues = (path, offsetSeconds = 0) => readFileSync(path, 'utf8')
+  .trim()
+  .split(/\r?\n\s*\r?\n/)
+  .filter(Boolean)
+  .map((block) => {
+    const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (/^\d+$/.test(lines[0] ?? '')) lines.shift();
+    const timing = lines.shift()?.match(/^(.+?)\s+-->\s+(.+)$/);
+    timing || fail(`Invalid SRT cue in ${rel(path)}`);
+    const from = offsetSeconds + srtTimestampSeconds(timing[1]);
+    const to = offsetSeconds + srtTimestampSeconds(timing[2]);
+    to > from || fail(`Non-positive SRT cue in ${rel(path)}`);
+    return {from: Number(from.toFixed(3)), to: Number(to.toFixed(3)), text: lines.join(' ')};
+  });
+
+// Keep these limits aligned with GitHub Course spacing.ts and visual-language.md.
+// Width units approximate rendered glyph widths: a CJK glyph is one unit,
+// while Latin text and punctuation consume a proportional fraction.
+const SUBTITLE_MAX_LINES = 2;
+const SUBTITLE_MAX_UNITS_PER_LINE = 38;
+const SUBTITLE_MAX_UNITS_PER_CUE = SUBTITLE_MAX_LINES * SUBTITLE_MAX_UNITS_PER_LINE;
+const subtitleWidthUnits = (text) => [...text].reduce((total, character) => {
+  if (/\s/u.test(character)) return total + 0.3;
+  if (/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(character)) return total + 1;
+  if (/[A-Z0-9]/.test(character)) return total + 0.65;
+  if (/[a-z]/.test(character)) return total + 0.52;
+  return total + 0.45;
+}, 0);
+
+const overfullSubtitleCues = (cues) => cues
+  .map((cue) => ({...cue, widthUnits: subtitleWidthUnits(cue.text)}))
+  .filter((cue) => cue.widthUnits > SUBTITLE_MAX_UNITS_PER_CUE);
+
+const subtitleCuesFor = (ctx, ttsTasks) => ttsTasks.flatMap((task) => {
+  task.hit || fail(`${task.scene.narration.segmentId}: subtitles are not ready for scene rendering`);
+  const offset = task.scene.narration.voiceStart;
+  const sceneEnd = task.scene.start + task.scene.duration;
+  const cues = parseSrtCues(task.paths.srt, offset);
+  cues.length > 0 || fail(`${task.scene.narration.segmentId}: SRT has no cues`);
+  cues.every((cue) => cue.from >= offset && cue.to <= sceneEnd) || fail(`${task.scene.narration.segmentId}: subtitle cue escapes its scene window`);
+  const overfull = overfullSubtitleCues(cues);
+  overfull.length === 0 || fail(`${task.scene.narration.segmentId}: subtitle cue exceeds ${SUBTITLE_MAX_LINES} lines / ${SUBTITLE_MAX_UNITS_PER_CUE} CJK-equivalent units: ${overfull[0].text}`);
+  return cues;
+});
 
 const ttsFingerprint = (ctx, scene) => sha(JSON.stringify({
   schema: 1,
@@ -354,33 +491,14 @@ const audioFingerprint = (ctx, ttsTasks) => {
 };
 
 const plan = (ctx) => {
-  const browser = (ctx.episode.browserRecordings ?? []).map((recording) => {
+  const profileRecordings = (ctx.episode.browserRecordings ?? []).map((recording) => recordingForProfile(recording, ctx.profile));
+  const browser = profileRecordings.map((recording) => {
     const fingerprint = browserSourceFingerprint(recording);
     const metadataPath = browserPaths(recording).metadata;
     const metadata = existsSync(metadataPath) ? json(metadataPath) : null;
     const assetsPresent = Object.values(browserPaths(recording)).every(existsSync);
     const hit = assetsPresent && metadata?.sourceFingerprint === fingerprint && ctx.state.browser[recording.id]?.fingerprint === fingerprint;
     return {recording, fingerprint, hit, assetsPresent};
-  });
-  const baseHash = visualBaseHash(ctx);
-  const recordings = new Map((ctx.episode.browserRecordings ?? []).map((recording) => [recording.id, recording]));
-  const scenes = ctx.episode.scenes.map((scene, index) => {
-    const {narration: _narration, ...visualScene} = scene;
-    const recording = scene.browserRecordingId ? recordings.get(scene.browserRecordingId) : null;
-    const assetFingerprint = recording ? recordingAssetFingerprint(recording) : null;
-    const fingerprint = sha(JSON.stringify({schema: 1, baseHash, sourceBlock: sourceParts(ctx).blocks.get(scene.id), scene: visualScene, assetFingerprint, fps: FPS, width: WIDTH, height: HEIGHT}));
-    let cached = ctx.state.scenes[scene.id];
-    let hit = cached?.fingerprint === fingerprint && existsSync(join(ROOT, cached.path ?? ''));
-    if (!hit && existsSync(join(ctx.cache, 'scenes'))) {
-      const recovered = readdirSync(join(ctx.cache, 'scenes')).find((name) => name.endsWith(`_${fingerprint.slice(0, 12)}.mp4`));
-      if (recovered) {
-        const path = join(ctx.cache, 'scenes', recovered);
-        cached = {fingerprint, path: rel(path), sha256: shaFile(path), recoveredAt: new Date().toISOString()};
-        ctx.state.scenes[scene.id] = cached;
-        hit = true;
-      }
-    }
-    return {scene, index, fingerprint, hit, cached};
   });
   const tts = ctx.episode.scenes.map((scene) => {
     const paths = ttsCachePaths(ctx, scene);
@@ -390,15 +508,48 @@ const plan = (ctx) => {
       && metadata.normalizedSha256 === shaFile(paths.norm);
     return {scene, fingerprint: paths.fingerprint, paths, hit};
   });
+  const ttsBySegment = new Map(tts.map((task) => [task.scene.narration.segmentId, task]));
+  const baseHash = visualBaseHash(ctx);
+  const recordings = new Map(profileRecordings.map((recording) => [recording.id, recording]));
+  const sceneCacheDir = ctx.profile.name === 'hd30' ? join(ctx.cache, 'scenes') : join(ctx.cache, 'scenes', ctx.profile.name);
+  const scenes = ctx.episode.scenes.map((scene, index) => {
+    const {narration: _narration, ...visualScene} = scene;
+    const subtitleTask = ttsBySegment.get(scene.narration.segmentId) ?? fail(`${scene.id}: missing TTS task`);
+    const subtitleFingerprint = subtitleTask.hit
+      ? sha(JSON.stringify({srtSha256: shaFile(subtitleTask.paths.srt), voiceStart: scene.narration.voiceStart}))
+      : null;
+    const recording = scene.browserRecordingId ? recordings.get(scene.browserRecordingId) : null;
+    const assetFingerprint = recording ? recordingAssetFingerprint(recording) : null;
+    const nativeBrowserOverlay = ctx.profile.name === 'uhd30' && scene.id === 'browser-repository'
+      ? 'native-uhd-browser-overlay-v1:x320:y298:w3200:h1494:rate1.15:hold12'
+      : null;
+    const fingerprintInput = {schema: 3, baseHash, sourceBlock: sourceParts(ctx).blocks.get(scene.id), scene: visualScene, subtitleFingerprint, assetFingerprint, profile: ctx.profile};
+    if (nativeBrowserOverlay) fingerprintInput.nativeBrowserOverlay = nativeBrowserOverlay;
+    const fingerprint = sha(JSON.stringify(fingerprintInput));
+    let cached = ctx.state.scenes[scene.id];
+    let hit = subtitleFingerprint !== null && cached?.fingerprint === fingerprint && existsSync(join(ROOT, cached.path ?? ''));
+    if (!hit && subtitleFingerprint !== null && existsSync(sceneCacheDir)) {
+      const recovered = readdirSync(sceneCacheDir).find((name) => name.endsWith(`_${fingerprint.slice(0, 12)}.mp4`));
+      if (recovered) {
+        const path = join(sceneCacheDir, recovered);
+        cached = {fingerprint, path: rel(path), sha256: shaFile(path), recoveredAt: new Date().toISOString()};
+        ctx.state.scenes[scene.id] = cached;
+        hit = true;
+      }
+    }
+    return {scene, index, fingerprint, hit, cached};
+  });
   return {baseHash, browser, scenes, tts};
 };
 
 const printPlan = (ctx, buildPlan) => {
-  console.log(`GitHub Course · ${ctx.episode.episodeId}`);
+  console.log(`GitHub Course · ${ctx.episode.episodeId} · ${ctx.profile.name} ${ctx.profile.width}x${ctx.profile.height}`);
   for (const task of buildPlan.browser) console.log(`${task.hit ? 'HIT  ' : 'BUILD'} browser ${task.recording.id}`);
   for (const task of buildPlan.scenes) console.log(`${task.hit ? 'HIT  ' : 'BUILD'} render  ${task.scene.id}`);
   for (const task of buildPlan.tts) console.log(`${task.hit ? 'HIT  ' : 'BUILD'} tts     ${task.scene.narration.segmentId}`);
-  console.log('BLOCK promote 1080p candidates are not promotable; 4K gate is not open');
+  console.log(ctx.profile.name === 'uhd30'
+    ? 'GATE  promote requires the exact 4K full candidate to pass audit and approval'
+    : 'BLOCK promote 1080p candidates are not promotable');
 };
 
 const recordBrowserAssets = async (ctx) => {
@@ -410,9 +561,11 @@ const recordBrowserAssets = async (ctx) => {
     return;
   }
   const settled = await Promise.allSettled(tasks.map(async (task) => {
-    await run('uv', ['run', 'python', join(BROWSER_LAB, 'record.py'), task.recording.scenarioId], {cwd: ROOT, log: join(ctx.build, 'logs/browser', `${task.recording.id}.log`)});
+    const args = ['run', 'python', join(BROWSER_LAB, 'record.py'), task.recording.scenarioId, '--profile', ctx.profile.name];
+    if (FLAGS.has('normalize-existing')) args.push('--normalize-existing');
+    await run('uv', args, {cwd: ROOT, log: join(ctx.build, 'logs/browser', `${task.recording.id}.log`)});
     const paths = browserPaths(task.recording);
-    const metadata = validateBrowserAsset(task.recording);
+    const metadata = validateBrowserAsset(task.recording, ctx.profile);
     metadata.sourceFingerprint = task.fingerprint;
     writeJson(paths.metadata, metadata);
     const assetFingerprint = recordingAssetFingerprint(task.recording);
@@ -424,13 +577,72 @@ const recordBrowserAssets = async (ctx) => {
   failures.length === 0 || fail(`${failures.length} browser recording(s) failed:\n${failures.map((item) => item.reason?.message ?? String(item.reason)).join('\n')}`);
 };
 
+const compositeNativeUhdBrowserVideo = async (ctx, item) => {
+  if (ctx.profile.name !== 'uhd30' || item.task.scene.id !== 'browser-repository') return;
+  const declaration = (ctx.episode.browserRecordings ?? []).find((recording) => recording.id === item.task.scene.browserRecordingId);
+  declaration || fail(`${item.task.scene.id}: browser recording declaration is missing`);
+  const recording = recordingForProfile(declaration, ctx.profile);
+  const source = browserPaths(recording).video;
+  existsSync(source) || fail(`${item.task.scene.id}: native UHD browser source is missing`);
+  const partial = `${item.cachePath}.overlay.partial.mp4`;
+  rmSync(partial, {force: true});
+  try {
+    await run('ffmpeg', [
+      '-nostdin', '-y',
+      '-i', item.cachePath,
+      '-i', source,
+      '-filter_complex',
+      '[1:v]scale=3200:1800,crop=3200:1494:0:0,setpts=PTS/1.15[browser];[0:v][browser]overlay=320:298:enable=\'lt(t,12)\':eof_action=pass:shortest=0[out]',
+      '-map', '[out]',
+      '-an',
+      '-r', String(FPS),
+      '-c:v', 'libx264',
+      '-preset', 'medium',
+      '-crf', '18',
+      '-pix_fmt', 'yuv420p',
+      '-movflags', '+faststart',
+      '-f', 'mp4',
+      partial,
+    ], {log: join(ctx.build, 'logs/native-uhd-browser-overlay.log')});
+    renameSync(partial, item.cachePath);
+    const completion = json(item.completionPath);
+    writeJson(item.completionPath, {
+      ...completion,
+      nativeBrowserOverlay: {
+        source: rel(source),
+        sourceSha256: shaFile(source),
+        x: 320,
+        y: 298,
+        width: 3200,
+        visibleHeight: 1494,
+        playbackRate: 1.15,
+        holdFromSeconds: 12,
+      },
+    });
+  } catch (error) {
+    rmSync(partial, {force: true});
+    rmSync(item.cachePath, {force: true});
+    throw error;
+  }
+};
+
 const renderScenes = async (ctx, tasks) => {
   if (tasks.length === 0) return;
+  const subtitlePlan = plan(ctx);
+  const subtitleCues = subtitleCuesFor(ctx, subtitlePlan.tts);
   const logicalCpus = cpus().length;
-  const profilePath = join(REMOTION, 'renders/github-course/tmp/render-profile-hd30.json');
-  const stable = existsSync(profilePath) ? json(profilePath).maxStableConcurrencyPerBrowser : logicalCpus;
+  const profilePath = join(REMOTION, `renders/github-course/tmp/render-profile-${ctx.profile.name}.json`);
+  const sharedProfilePath = join(REMOTION, `renders/git-course/tmp/render-profile-${ctx.profile.name}.json`);
+  const savedProfile = existsSync(profilePath) ? json(profilePath) : existsSync(sharedProfilePath) ? json(sharedProfilePath) : {};
+  const defaultConcurrency = ctx.profile.scale > 1 ? Math.max(1, Math.floor(logicalCpus / 18)) : logicalCpus;
+  const stable = savedProfile.maxStableConcurrencyPerBrowser ?? defaultConcurrency;
   const requested = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(logicalCpus / tasks.length)));
   const concurrency = FLAGS.has('render-concurrency') ? requested : Math.min(requested, stable ?? logicalCpus);
+  const savedBrowserPools = savedProfile.maxStableBrowserPools ?? null;
+  const maxParallelTasks = Math.max(1, Math.min(
+    tasks.length,
+    Number(FLAGS.get('render-browser-pools') ?? savedBrowserPools ?? Math.max(1, Math.floor(logicalCpus / concurrency))),
+  ));
   const bundleFingerprint = hashFiles([
     ...walkFiles(join(REMOTION, 'src'), (path) => /\.(?:ts|tsx|css)$/.test(path)),
     join(REMOTION, 'package.json'),
@@ -438,7 +650,7 @@ const renderScenes = async (ctx, tasks) => {
     join(REMOTION, 'remotion.config.ts'),
   ]);
   const bundleDir = join(REMOTION, 'renders/github-course/tmp/bundles', bundleFingerprint);
-  const cacheDir = join(ctx.cache, 'scenes');
+  const cacheDir = ctx.profile.name === 'hd30' ? join(ctx.cache, 'scenes') : join(ctx.cache, 'scenes', ctx.profile.name);
   mkdirSync(cacheDir, {recursive: true});
   const planned = tasks.map((task) => {
     const start = task.scene.start * FPS;
@@ -460,19 +672,25 @@ const renderScenes = async (ctx, tasks) => {
     schemaVersion: 1,
     entryPoint: join(REMOTION, 'src/index.ts'),
     compositionId: compositionFor(ctx.episode.episodeId),
+    inputProps: {subtitleCues, renderProfile: ctx.profile.name},
     logicalCpus,
+    maxParallelTasks,
     bundleDir,
     bundleFingerprint,
     profilePath,
     timeoutInMilliseconds: Number(FLAGS.get('timeout-ms') ?? 120000),
     telemetryPath: join(ctx.build, 'telemetry/render-scenes.json'),
-    tasks: planned.map((item) => ({sceneId: item.task.scene.id, start: item.start, end: item.end, output: item.output, cacheOutput: item.cachePath, completionPath: item.completionPath, scale: 1, concurrency, fallbackConcurrency: stable ?? logicalCpus})),
+    tasks: planned.map((item) => ({sceneId: item.task.scene.id, start: item.start, end: item.end, output: item.output, cacheOutput: item.cachePath, completionPath: item.completionPath, scale: ctx.profile.scale, concurrency, fallbackConcurrency: stable ?? defaultConcurrency})),
   });
   let renderError = null;
   try {
     await run('node', [join(REMOTION, 'scripts/git-course-render-scenes.mjs'), planPath], {log: join(ctx.build, 'logs/render-scenes.log')});
   } catch (error) {
     renderError = error;
+  }
+  for (const item of planned) {
+    if (!existsSync(item.cachePath) || !existsSync(item.completionPath)) continue;
+    await compositeNativeUhdBrowserVideo(ctx, item);
   }
   for (const item of planned) {
     if (!existsSync(item.cachePath) || !existsSync(item.completionPath)) continue;
@@ -515,7 +733,17 @@ const buildAudio = async (ctx, buildPlan) => {
 
   const synthesizeIds = dirty.filter((task) => {
     const staged = stagedPaths(task.scene);
-    return (!existsSync(task.paths.raw) || !existsSync(task.paths.srt)) && (!existsSync(staged.raw) || !existsSync(staged.srt));
+    const sourceMatches = (path) => existsSync(path)
+      && readFileSync(path, 'utf8').trim() === task.scene.narration.text.trim();
+    const cachedSpeechMatches = existsSync(task.paths.raw)
+      && existsSync(task.paths.srt)
+      && sourceMatches(task.paths.text);
+    const stagedSpeechMatches = existsSync(staged.raw)
+      && existsSync(staged.srt)
+      && sourceMatches(staged.text);
+    // A stable staging filename may contain the previous narration take. It is
+    // reusable only when its staged source text still matches this exact scene.
+    return !cachedSpeechMatches && !stagedSpeechMatches;
   }).map((task) => task.scene.narration.segmentId);
   const normalizeIds = dirty.map((task) => task.scene.narration.segmentId);
   const manifest = narrationSource(ctx);
@@ -585,7 +813,7 @@ const assembleVisual = async (ctx, buildPlan) => {
     existsSync(path) || fail(`Missing scene cache: ${rel(path)}`);
     return {sceneId: task.scene.id, path, sha256: shaFile(path)};
   });
-  const inputFingerprint = sha(JSON.stringify({schema: 1, scenes: ordered.map((item) => item.sha256)}));
+  const inputFingerprint = sha(JSON.stringify({schema: 2, profile: ctx.profile, scenes: ordered.map((item) => item.sha256)}));
   const candidate = join(candidateDir, `${ctx.episode.episodeId}_visual.mp4`);
   const artifactPath = join(ctx.build, 'visual-artifact-manifest.json');
   if (existsSync(candidate) && existsSync(artifactPath)) {
@@ -599,7 +827,7 @@ const assembleVisual = async (ctx, buildPlan) => {
   writeFileSync(concat, ordered.map((item) => `file '${item.path.replaceAll("'", "'\\''")}'`).join('\n') + '\n');
   await run('ffmpeg', ['-nostdin', '-y', '-f', 'concat', '-safe', '0', '-i', concat, '-map', '0:v:0', '-c:v', 'copy', '-an', '-movflags', '+faststart', '-f', 'mp4', `${candidate}.partial`], {log: join(ctx.build, 'logs/assemble-visual.log')});
   renameSync(`${candidate}.partial`, candidate);
-  const artifact = {schemaVersion: 1, kind: 'visual-only', episodeId: ctx.episode.episodeId, inputFingerprint, path: rel(candidate), sha256: shaFile(candidate), createdAt: new Date().toISOString(), scenes: ordered.map((item) => ({sceneId: item.sceneId, path: rel(item.path), sha256: item.sha256}))};
+  const artifact = {schemaVersion: 2, kind: 'visual-only', profile: ctx.profile, episodeId: ctx.episode.episodeId, inputFingerprint, path: rel(candidate), sha256: shaFile(candidate), createdAt: new Date().toISOString(), scenes: ordered.map((item) => ({sceneId: item.sceneId, path: rel(item.path), sha256: item.sha256}))};
   writeJson(artifactPath, artifact);
   const reviewDir = join(candidateDir, 'scenes');
   rmSync(reviewDir, {recursive: true, force: true});
@@ -612,7 +840,7 @@ const assembleVisual = async (ctx, buildPlan) => {
 const assembleFull = async (ctx, visual, audio) => {
   const candidate = join(ctx.build, `candidate/${ctx.episode.episodeId}.mp4`);
   const artifactPath = join(ctx.build, 'full-artifact-manifest.json');
-  const inputFingerprint = sha(JSON.stringify({schema: 1, visual: shaFile(visual.candidate), audio: shaFile(audio.mix)}));
+  const inputFingerprint = sha(JSON.stringify({schema: 2, profile: ctx.profile, visual: shaFile(visual.candidate), audio: shaFile(audio.mix)}));
   if (existsSync(candidate) && existsSync(artifactPath)) {
     const previous = json(artifactPath);
     if (previous.inputFingerprint === inputFingerprint && previous.sha256 === shaFile(candidate)) {
@@ -635,8 +863,9 @@ const assembleFull = async (ctx, visual, audio) => {
   ], {log: join(ctx.build, 'logs/assemble-full.log')});
   renameSync(`${candidate}.partial`, candidate);
   const artifact = {
-    schemaVersion: 1,
-    kind: 'full-hd-candidate',
+    schemaVersion: 2,
+    kind: ctx.profile.name === 'uhd30' ? 'full-uhd-candidate' : 'full-hd-candidate',
+    profile: ctx.profile,
     episodeId: ctx.episode.episodeId,
     inputFingerprint,
     path: rel(candidate),
@@ -681,7 +910,8 @@ const auditVisual = async (ctx, candidate = join(ctx.build, `candidate/${ctx.epi
   const artifactSha256 = shaFile(candidate);
   const inputFingerprint = existsSync(join(ctx.build, 'visual-artifact-manifest.json')) ? json(join(ctx.build, 'visual-artifact-manifest.json')).inputFingerprint : artifactSha256;
   const auditScriptSha256 = shaFile(join(REMOTION, 'scripts/audit-video-stills.sh'));
-  const auditFingerprint = sha(JSON.stringify({policy: AUDIT_POLICY_VERSION, auditScriptSha256, artifactSha256, boundaries: readFileSync(planData.boundariesPath, 'utf8'), keyframes: readFileSync(planData.keyframesPath, 'utf8')}));
+  const auditPolicyVersion = ctx.profile.name === 'uhd30' ? UHD_AUDIT_POLICY_VERSION : AUDIT_POLICY_VERSION;
+  const auditFingerprint = sha(JSON.stringify({policy: auditPolicyVersion, profile: ctx.profile, auditScriptSha256, artifactSha256, boundaries: readFileSync(planData.boundariesPath, 'utf8'), keyframes: readFileSync(planData.keyframesPath, 'utf8')}));
   const auditDir = join(ctx.build, 'audit/visual');
   const verdictPath = join(auditDir, 'verdict.json');
   if (existsSync(verdictPath) && existsSync(join(auditDir, 'report.html'))) {
@@ -699,19 +929,21 @@ const auditVisual = async (ctx, candidate = join(ctx.build, `candidate/${ctx.epi
   const sampling = json(join(auditDir, 'manifest.json')).sampling;
   const checks = [
     {id: 'video.stream', status: video ? 'pass' : 'fail', details: video ? `${video.width}x${video.height} ${video.r_frame_rate}` : 'missing'},
-    {id: 'video.resolution', status: video?.width === WIDTH && video?.height === HEIGHT ? 'pass' : 'fail', details: `${video?.width ?? 0}x${video?.height ?? 0}`},
+    {id: 'video.resolution', status: video?.width === ctx.profile.width && video?.height === ctx.profile.height ? 'pass' : 'fail', details: `${video?.width ?? 0}x${video?.height ?? 0}`},
     {id: 'video.fps', status: video?.r_frame_rate === `${FPS}/1` ? 'pass' : 'fail', details: video?.r_frame_rate ?? 'missing'},
     {id: 'duration.visual', status: Math.abs(duration - ctx.episode.durationSeconds) <= 0.08 ? 'pass' : 'fail', details: `${duration}s expected ${ctx.episode.durationSeconds}s`},
-    {id: 'audio.pending', status: audio ? 'fail' : 'needs_review', details: audio ? 'visual candidate unexpectedly contains audio' : 'audio adapter not connected'},
+    {id: 'audio.intentional-silent', status: audio ? 'fail' : 'pass', details: audio ? 'visual candidate unexpectedly contains audio' : 'visual-only candidate is intentionally silent'},
     {id: 'sampling.continuous2fps', status: sampling.review.actualFrames === sampling.review.expectedFrames ? 'pass' : 'fail', details: `${sampling.review.actualFrames}/${sampling.review.expectedFrames}`},
     {id: 'sampling.boundaries10fps', status: sampling.boundaries.count === planData.boundaryCount ? 'pass' : 'fail', details: `${sampling.boundaries.count}/${planData.boundaryCount}`},
     {id: 'sampling.keyframes', status: sampling.keyframes.count === planData.keyframeCount ? 'pass' : 'fail', details: `${sampling.keyframes.count}/${planData.keyframeCount}`},
   ];
-  for (const recording of ctx.episode.browserRecordings ?? []) {
+  for (const declaration of ctx.episode.browserRecordings ?? []) {
+    const recording = recordingForProfile(declaration, ctx.profile);
     try {
-      const metadata = validateBrowserAsset(recording);
+      const metadata = validateBrowserAsset(recording, ctx.profile);
       checks.push({id: `browser.${recording.id}.sensitive`, status: metadata.containsSensitiveState === false ? 'pass' : 'fail', details: `capturedAt=${metadata.capturedAt}`});
       checks.push({id: `browser.${recording.id}.focus-regions`, status: (metadata.focusRegions ?? []).length > 0 ? 'pass' : 'needs_review', details: `${(metadata.focusRegions ?? []).length} region(s)`});
+      checks.push({id: `browser.${recording.id}.native-resolution`, status: 'pass', details: `${recording.captureResolution.width}x${recording.captureResolution.height}`});
     } catch (error) {
       checks.push({id: `browser.${recording.id}.assets`, status: 'fail', details: error.message});
     }
@@ -721,12 +953,13 @@ const auditVisual = async (ctx, candidate = join(ctx.build, `candidate/${ctx.epi
   const verdict = {
     schemaVersion: 1,
     episodeId: ctx.episode.episodeId,
-    scope: 'visual',
+    scope: ctx.profile.name === 'uhd30' ? 'visual-uhd' : 'visual',
+    profile: ctx.profile,
     artifact: rel(candidate),
     artifactSha256,
     inputFingerprint,
     auditFingerprint,
-    auditPolicyVersion: AUDIT_POLICY_VERSION,
+    auditPolicyVersion,
     createdAt: new Date().toISOString(),
     verdict: machineFailed ? 'fail' : 'needs_review',
     promotable: false,
@@ -748,8 +981,10 @@ const auditFull = async (ctx, candidate = join(ctx.build, `candidate/${ctx.episo
   const visualVerdictPath = join(ctx.build, 'audit/visual/verdict.json');
   existsSync(visualVerdictPath) || fail('Visual audit must run before full audit.');
   const visualVerdict = json(visualVerdictPath);
+  const auditPolicyVersion = ctx.profile.name === 'uhd30' ? UHD_FULL_AUDIT_POLICY_VERSION : FULL_AUDIT_POLICY_VERSION;
   const auditFingerprint = sha(JSON.stringify({
-    policy: FULL_AUDIT_POLICY_VERSION,
+    policy: auditPolicyVersion,
+    profile: ctx.profile,
     artifactSha256,
     visualAuditFingerprint: visualVerdict.auditFingerprint,
     tts: ctx.episode.scenes.map((scene) => ttsFingerprint(ctx, scene)),
@@ -772,6 +1007,10 @@ const auditFull = async (ctx, candidate = join(ctx.build, `candidate/${ctx.episo
   const truePeak = Number(loudness?.input_tp);
   let srtClean = true;
   let narrationAligned = true;
+  let subtitleTimelineAligned = true;
+  let subtitleLayoutSafe = true;
+  let subtitleCueCount = 0;
+  let subtitleMaxWidthUnits = 0;
   for (const scene of ctx.episode.scenes) {
     const segment = scene.narration.segmentId;
     const staged = {
@@ -782,8 +1021,17 @@ const auditFull = async (ctx, candidate = join(ctx.build, `candidate/${ctx.episo
     };
     try {
       validateTtsArtifacts(ctx, scene, staged);
+      const cues = parseSrtCues(staged.srt, scene.narration.voiceStart);
+      const sceneEnd = scene.start + scene.duration;
+      subtitleCueCount += cues.length;
+      for (const cue of cues) subtitleMaxWidthUnits = Math.max(subtitleMaxWidthUnits, subtitleWidthUnits(cue.text));
+      if (overfullSubtitleCues(cues).length > 0) subtitleLayoutSafe = false;
+      if (cues.length === 0 || cues.some((cue) => cue.from < scene.narration.voiceStart || cue.to > sceneEnd)) {
+        subtitleTimelineAligned = false;
+      }
     } catch {
       narrationAligned = false;
+      subtitleTimelineAligned = false;
     }
     if (!existsSync(staged.srt) || /<#|#>/.test(readFileSync(staged.srt, 'utf8'))) srtClean = false;
   }
@@ -791,26 +1039,29 @@ const auditFull = async (ctx, candidate = join(ctx.build, `candidate/${ctx.episo
   const checks = [
     {id: 'video.stream', status: video ? 'pass' : 'fail', details: video ? `${video.width}x${video.height} ${video.r_frame_rate}` : 'missing'},
     {id: 'audio.stream', status: audio ? 'pass' : 'fail', details: audio ? `${audio.codec_name} ${audio.sample_rate}Hz ${audio.channels}ch` : 'missing'},
-    {id: 'video.resolution', status: video?.width === WIDTH && video?.height === HEIGHT ? 'pass' : 'fail', details: `${video?.width ?? 0}x${video?.height ?? 0}`},
+    {id: 'video.resolution', status: video?.width === ctx.profile.width && video?.height === ctx.profile.height ? 'pass' : 'fail', details: `${video?.width ?? 0}x${video?.height ?? 0}`},
     {id: 'video.fps', status: video?.r_frame_rate === `${FPS}/1` ? 'pass' : 'fail', details: video?.r_frame_rate ?? 'missing'},
     {id: 'duration.full', status: Math.abs(duration - ctx.episode.durationSeconds) <= 0.08 ? 'pass' : 'fail', details: `${duration}s expected ${ctx.episode.durationSeconds}s`},
     {id: 'audio.sample-rate', status: Number(audio?.sample_rate) === 48000 ? 'pass' : 'fail', details: audio?.sample_rate ?? 'missing'},
     {id: 'audio.loudness', status: Number.isFinite(integrated) && Math.abs(integrated - (-16)) <= 0.6 && Number.isFinite(truePeak) && truePeak <= -1.5 ? 'pass' : 'fail', details: `${integrated} LUFS, ${truePeak} dBTP`},
     {id: 'subtitle.pause-marker', status: srtClean ? 'pass' : 'fail', details: srtClean ? 'clean' : 'pause marker found'},
+    {id: 'subtitle.narration-sync', status: subtitleTimelineAligned ? 'pass' : 'fail', details: subtitleTimelineAligned ? `${subtitleCueCount} cue(s) aligned to narration voiceStart and scene windows` : 'one or more subtitle cues escape their narration window'},
+    {id: 'subtitle.layout-capacity', status: subtitleLayoutSafe ? 'pass' : 'fail', details: `${subtitleMaxWidthUnits.toFixed(1)}/${SUBTITLE_MAX_UNITS_PER_CUE} CJK-equivalent units; max ${SUBTITLE_MAX_LINES} lines`},
     {id: 'narration.scene-windows', status: narrationAligned ? 'pass' : 'fail', details: narrationAligned ? `${ctx.episode.scenes.length}/${ctx.episode.scenes.length}` : 'one or more narration segments do not match their scene'},
     {id: 'visual.encoded-audit', status: visualMachineFailed ? 'fail' : 'pass', details: rel(visualVerdictPath)},
-    {id: 'full.human-review', status: 'needs_review', details: 'Listen for pronunciation, pacing, caption meaning, and browser click clarity.'},
+    {id: 'full.human-review', status: 'needs_review', details: 'Listen for pronunciation and pacing; verify each rendered subtitle enters and leaves with its spoken SRT cue.'},
   ];
   const machineFailed = checks.some((check) => check.status === 'fail');
   const verdict = {
     schemaVersion: 1,
     episodeId: ctx.episode.episodeId,
-    scope: 'full-hd',
+    scope: ctx.profile.name === 'uhd30' ? 'full-uhd' : 'full-hd',
+    profile: ctx.profile,
     artifact: rel(candidate),
     artifactSha256,
     inputFingerprint: existsSync(join(ctx.build, 'full-artifact-manifest.json')) ? json(join(ctx.build, 'full-artifact-manifest.json')).inputFingerprint : artifactSha256,
     auditFingerprint,
-    auditPolicyVersion: FULL_AUDIT_POLICY_VERSION,
+    auditPolicyVersion,
     createdAt: new Date().toISOString(),
     verdict: machineFailed ? 'fail' : 'needs_review',
     promotable: false,
@@ -842,7 +1093,100 @@ const approveVisual = (ctx) => {
   console.log('PASS  approve-visual (full promotion remains blocked until audio is connected)');
 };
 
+const assertIterationReadyFor4k = () => {
+  const iteration = loadContext(RENDER_PROFILES.hd30);
+  const verdictPath = join(iteration.build, 'audit/full/verdict.json');
+  existsSync(verdictPath) || fail('Build and audit the 1080p iteration candidate before starting 4K delivery.');
+  const verdict = json(verdictPath);
+  verdict.checks.every((check) => check.status !== 'fail') || fail('The 1080p full audit contains failed machine checks.');
+  const candidate = join(iteration.build, `candidate/${iteration.episode.episodeId}.mp4`);
+  existsSync(candidate) && verdict.artifactSha256 === shaFile(candidate) || fail('The 1080p audit is stale; rebuild before starting 4K delivery.');
+};
+
+const assertBuildFresh = (ctx) => {
+  const buildPlan = plan(ctx);
+  const staleBrowser = buildPlan.browser.filter((task) => !task.hit).map((task) => task.recording.id);
+  const staleScenes = buildPlan.scenes.filter((task) => !task.hit).map((task) => task.scene.id);
+  const staleTts = buildPlan.tts.filter((task) => !task.hit).map((task) => task.scene.narration.segmentId);
+  staleBrowser.length === 0 || fail(`4K browser inputs changed after build: ${staleBrowser.join(', ')}`);
+  staleScenes.length === 0 || fail(`4K visual inputs changed after build: ${staleScenes.join(', ')}`);
+  staleTts.length === 0 || fail(`Narration inputs changed after build: ${staleTts.join(', ')}`);
+  ctx.state.audio?.fingerprint === audioFingerprint(ctx, buildPlan.tts) || fail('Audio inputs changed after build.');
+};
+
+const approve4k = (ctx) => {
+  ctx.profile.name === 'uhd30' || fail('Main approval only accepts the 4K delivery profile.');
+  const note = FLAGS.get('note');
+  note || fail('approve requires --note=...');
+  assertBuildFresh(ctx);
+  const pairs = [
+    {scope: 'visual', candidate: join(ctx.build, `candidate/${ctx.episode.episodeId}_visual.mp4`)},
+    {scope: 'full', candidate: join(ctx.build, `candidate/${ctx.episode.episodeId}.mp4`)},
+  ];
+  const approval = {reviewer: process.env.USER ?? 'unknown', approvedAt: new Date().toISOString(), note};
+  for (const pair of pairs) {
+    const path = join(ctx.build, `audit/${pair.scope}/verdict.json`);
+    existsSync(path) || fail(`Run the 4K ${pair.scope} audit before approval.`);
+    const verdict = json(path);
+    verdict.profile?.name === 'uhd30' || fail(`${pair.scope} verdict is not a 4K verdict.`);
+    verdict.checks.every((check) => check.status !== 'fail') || fail(`Cannot approve failed ${pair.scope} audit.`);
+    existsSync(pair.candidate) && verdict.artifactSha256 === shaFile(pair.candidate) || fail(`${pair.scope} 4K candidate changed after audit.`);
+    verdict.verdict = 'pass';
+    verdict.promotable = pair.scope === 'full';
+    verdict.approval = approval;
+    for (const check of verdict.checks) if (check.id.endsWith('human-review')) check.status = 'pass';
+    writeJson(path, verdict);
+  }
+  console.log('PASS  approve 4K main candidate');
+};
+
+const promote4k = (ctx) => {
+  ctx.profile.name === 'uhd30' || fail('Promotion only accepts the 4K delivery profile.');
+  const fullVerdictPath = join(ctx.build, 'audit/full/verdict.json');
+  const visualVerdictPath = join(ctx.build, 'audit/visual/verdict.json');
+  for (const path of [fullVerdictPath, visualVerdictPath]) existsSync(path) || fail(`Missing 4K verdict: ${rel(path)}`);
+  const fullVerdict = json(fullVerdictPath);
+  const visualVerdict = json(visualVerdictPath);
+  fullVerdict.verdict === 'pass' && fullVerdict.promotable === true || fail(`4K full verdict is ${fullVerdict.verdict}; approval required.`);
+  visualVerdict.verdict === 'pass' || fail(`4K visual verdict is ${visualVerdict.verdict}; approval required.`);
+  assertBuildFresh(ctx);
+
+  const candidate = join(ctx.build, `candidate/${ctx.episode.episodeId}.mp4`);
+  const visualCandidate = join(ctx.build, `candidate/${ctx.episode.episodeId}_visual.mp4`);
+  const fullManifestPath = join(ctx.build, 'full-artifact-manifest.json');
+  const visualManifestPath = join(ctx.build, 'visual-artifact-manifest.json');
+  for (const path of [candidate, visualCandidate, fullManifestPath, visualManifestPath]) existsSync(path) || fail(`Missing approved 4K artifact: ${rel(path)}`);
+  const fullManifest = json(fullManifestPath);
+  const visualManifest = json(visualManifestPath);
+  fullManifest.profile?.name === 'uhd30' && visualManifest.profile?.name === 'uhd30' || fail('Artifact manifests are not 4K.');
+  fullManifest.path === rel(candidate) && fullManifest.sha256 === shaFile(candidate) && fullVerdict.artifactSha256 === fullManifest.sha256 || fail('Full manifest, verdict and 4K candidate SHA do not match.');
+  visualManifest.path === rel(visualCandidate) && visualManifest.sha256 === shaFile(visualCandidate) && visualVerdict.artifactSha256 === visualManifest.sha256 || fail('Visual manifest, verdict and 4K candidate SHA do not match.');
+  fullManifest.visual?.sha256 === visualManifest.sha256 || fail('Full manifest does not bind the approved 4K visual candidate.');
+  const audioMix = join(ctx.build, 'candidate/audio/mix.m4a');
+  existsSync(audioMix) && fullManifest.audio?.sha256 === shaFile(audioMix) || fail('Approved audio mix changed after build.');
+  visualManifest.scenes.length === ctx.episode.scenes.length || fail('4K scene count does not match the episode.');
+  for (const [index, item] of visualManifest.scenes.entries()) {
+    item.sceneId === ctx.episode.scenes[index].id || fail(`4K scene order mismatch at ${item.sceneId}.`);
+    const path = resolve(ROOT, item.path);
+    path.startsWith(`${join(ctx.cache, 'scenes', 'uhd30')}/`) || fail(`Unexpected 4K scene path: ${item.path}`);
+    existsSync(path) && item.sha256 === shaFile(path) || fail(`Approved 4K scene changed: ${item.path}`);
+  }
+
+  copyAtomically(candidate, join(ctx.current, `${ctx.episode.episodeId}.mp4`));
+  replaceDirectoryAtomically(join(ctx.current, 'scenes'), (target) => {
+    visualManifest.scenes.forEach((item, index) => copyAtomically(resolve(ROOT, item.path), join(target, `${String(index + 1).padStart(2, '0')}_${item.sceneId.replaceAll('-', '_')}.mp4`)));
+  });
+  const candidateAudio = join(ctx.build, 'candidate/audio');
+  replaceDirectoryAtomically(join(ctx.current, 'audio'), (target) => {
+    for (const source of walkFiles(candidateAudio, (path) => !path.endsWith('.partial'))) copyAtomically(source, join(target, relative(candidateAudio, source)));
+  });
+  copyAtomically(fullVerdictPath, join(ctx.current, 'audit/verdict.json'));
+  copyAtomically(fullManifestPath, join(ctx.current, 'artifact-manifest.json'));
+  console.log(`PASS  promote ${rel(join(ctx.current, `${ctx.episode.episodeId}.mp4`))}`);
+};
+
 const build = async (ctx) => {
+  if (ctx.profile.name === 'uhd30') assertIterationReadyFor4k();
   const initial = plan(ctx);
   const dirtyBrowser = initial.browser.filter((task) => !task.hit);
   if (dirtyBrowser.length > 0) {
@@ -851,32 +1195,40 @@ const build = async (ctx) => {
   }
   const buildPlan = plan(ctx);
   printPlan(ctx, buildPlan);
-  const [renderResult, audioResult] = await Promise.allSettled([
-    renderScenes(ctx, buildPlan.scenes.filter((task) => !task.hit)),
-    buildAudio(ctx, buildPlan),
-  ]);
+  // Rendered subtitles are driven by the exact MMX SRT cues, so TTS is a real
+  // input dependency of every scene instead of an independent side task.
+  const audioResult = await buildAudio(ctx, buildPlan);
+  const renderPlan = plan(ctx);
+  await renderScenes(ctx, renderPlan.scenes.filter((task) => !task.hit));
   writeJson(ctx.statePath, ctx.state);
-  const failures = [renderResult, audioResult].filter((result) => result.status === 'rejected');
-  if (failures.length > 0) fail(`Independent tasks finished with ${failures.length} failure(s):\n${failures.map((result) => result.reason?.message ?? String(result.reason)).join('\n')}`);
   const refreshed = plan(ctx);
   const assembled = await assembleVisual(ctx, refreshed);
   await auditVisual(ctx, assembled.candidate);
-  const full = await assembleFull(ctx, assembled, audioResult.value);
+  const full = await assembleFull(ctx, assembled, audioResult);
   await auditFull(ctx, full.candidate);
 };
 
-const status = (ctx) => {
+const printProfileStatus = (ctx) => {
   const buildPlan = plan(ctx);
   printPlan(ctx, buildPlan);
   const candidate = join(ctx.build, `candidate/${ctx.episode.episodeId}_visual.mp4`);
   const verdict = join(ctx.build, 'audit/visual/verdict.json');
   const fullCandidate = join(ctx.build, `candidate/${ctx.episode.episodeId}.mp4`);
   const fullVerdict = join(ctx.build, 'audit/full/verdict.json');
-  console.log(`visual  candidate: ${existsSync(candidate) ? rel(candidate) : 'missing'}`);
-  console.log(`visual  verdict:   ${existsSync(verdict) ? json(verdict).verdict : 'missing'}`);
-  console.log(`full    candidate: ${existsSync(fullCandidate) ? rel(fullCandidate) : 'missing'}`);
-  console.log(`full    verdict:   ${existsSync(fullVerdict) ? json(fullVerdict).verdict : 'missing'}`);
-  console.log('current/release:   blocked (1080p candidates are not promotable; 4K gate is not open)');
+  console.log(`${ctx.profile.name} visual candidate: ${existsSync(candidate) ? rel(candidate) : 'missing'}`);
+  console.log(`${ctx.profile.name} visual verdict:   ${existsSync(verdict) ? json(verdict).verdict : 'missing'}`);
+  console.log(`${ctx.profile.name} full candidate:   ${existsSync(fullCandidate) ? rel(fullCandidate) : 'missing'}`);
+  console.log(`${ctx.profile.name} full verdict:     ${existsSync(fullVerdict) ? json(fullVerdict).verdict : 'missing'}`);
+};
+
+const status = () => {
+  const hd = loadContext(RENDER_PROFILES.hd30);
+  const uhd = loadContext(RENDER_PROFILES.uhd30);
+  printProfileStatus(hd);
+  printProfileStatus(uhd);
+  const current = join(uhd.current, `${uhd.episode.episodeId}.mp4`);
+  console.log(`current 4K: ${existsSync(current) ? rel(current) : 'missing (requires 4K approve + promote)'}`);
+  console.log('release/publish: blocked until the GitHub Course release adapter is implemented');
 };
 
 const main = async () => {
@@ -889,13 +1241,19 @@ const main = async () => {
   else if (COMMAND === 'fingerprints') {
     const buildPlan = plan(ctx);
     console.log(JSON.stringify({episodeId: ctx.episode.episodeId, visualBaseHash: buildPlan.baseHash, browser: Object.fromEntries(buildPlan.browser.map((task) => [task.recording.id, task.fingerprint])), scenes: Object.fromEntries(buildPlan.scenes.map((task) => [task.scene.id, task.fingerprint]))}, null, 2));
-  } else if (COMMAND === 'status') status(ctx);
-  else if (COMMAND === 'browser') await recordBrowserAssets(ctx);
-  else if (COMMAND === 'build') await build(ctx);
+  } else if (COMMAND === 'status') status();
+  else if (COMMAND === 'browser' || COMMAND === 'browser-4k') await recordBrowserAssets(ctx);
+  else if (COMMAND === 'build' || COMMAND === 'build-4k') await build(ctx);
   else if (COMMAND === 'audit') await auditVisual(ctx);
-  else if (COMMAND === 'audit-full') await auditFull(ctx);
+  else if (COMMAND === 'audit-full' || COMMAND === 'audit-full-4k') await auditFull(ctx);
+  else if (COMMAND === 'audit-4k') {
+    await auditVisual(ctx);
+    await auditFull(ctx);
+  }
   else if (COMMAND === 'approve-visual') approveVisual(ctx);
-  else if (['approve', 'promote', 'release-build', 'release-audit', 'release-approve', 'publish'].includes(COMMAND)) fail(`${COMMAND} is blocked until the GitHub Course 4K adapter and release gate are implemented.`);
+  else if (COMMAND === 'approve') approve4k(ctx);
+  else if (COMMAND === 'promote') promote4k(ctx);
+  else if (['release-build', 'release-audit', 'release-approve', 'publish'].includes(COMMAND)) fail(`${COMMAND} is blocked until the GitHub Course release adapter is implemented.`);
   else fail(`Unknown command: ${COMMAND}`);
 };
 

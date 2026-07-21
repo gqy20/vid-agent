@@ -23,7 +23,7 @@
     }
   },
   "content": {
-    "alignmentMarkdown": "# GH01 Audio Alignment\n\nTTS 固定为 `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`。分段人声规范化到约 `-20 LUFS`，复用 Git Course BGM，固定 `volume=0.05`，整集母带目标 `-16 LUFS`、`-3.0 dBTP`。\n\n| Segment | Scene window | Voice start | Voice duration | Voice end | End gap |\n|---|---:|---:|---:|---:|---:|\n| `01_hook` | 0-12s | 0.3s | 7.967s | 8.267s | 3.733s |\n| `02_local_git` | 12-38s | 12.3s | 17.633s | 29.933s | 8.067s |\n| `03_browser_repository` | 38-66s | 38.3s | 15.282s | 53.582s | 12.418s |\n| `04_platform_layer` | 66-96s | 66.3s | 17.816s | 84.116s | 11.884s |\n| `05_state_bridge` | 96-128s | 96.3s | 16.196s | 112.496s | 15.504s |\n| `06_takeaway` | 128-150s | 128.3s | 13.192s | 141.492s | 8.508s |\n\n总旁白时长约 `88.086s`，占正片 `58.72%`。SRT 时间码来自 MMX，文本由 episode JSON 的停顿段规范化，已检查无 `<#...#>` 泄漏和 UTF-8 截断。"
+    "alignmentMarkdown": "# GH01 Audio Alignment\n\nTTS 固定为 `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`。分段人声规范化到约 `-20 LUFS`，复用 Git Course BGM，固定 `volume=0.05`，整集母带目标 `-16 LUFS`、`-3.0 dBTP`。\n\n| Segment | Scene window | Voice start | Alignment intent |\n|---|---:|---:|---|\n| `01_hook` | 0-10.5s | 0.3s | 问题说完后保留约 2.2s 静止思考时间 |\n| `02_local_git` | 10.5-37s | 10.8s | `commit` 写对象并移动引用后停顿约 0.9s |\n| `03_browser_repository` | 37-65s | 37.3s | 普通句间停顿保持 0.4-0.6s |\n| `04_platform_layer` | 65-95.5s | 65.3s | Git 对象与平台状态边界后停顿约 0.9s |\n| `05_state_bridge` | 95.5-128s | 95.8s | 三层判断问题后停顿约 0.95s，再进入示例 |\n| `06_takeaway` | 128-150s | 128.3s | 保留约 1s 片尾收束时间 |\n\n普通句间停顿继续使用 `<#0.25#>` 至 `<#0.45#>`，只有关键模型切换提升到 `<#0.9#>` 至 `<#0.95#>`。精确人声时长、voice end 与 end gap 由候选 audio manifest 和审查结果派生，不在本字段重复维护。SRT 时间码来自 MMX，文本由 episode JSON 的停顿段规范化，必须检查无 `<#...#>` 泄漏和 UTF-8 截断。Remotion 字幕直接使用这些 SRT cue，并按每段 `voiceStart` 映射到整集时间线；scene cache 指纹包含 SRT SHA，不使用手写 `captionIn` 模拟旁白字幕。"
   },
   "teachingIntent": {
     "question": "GitHub 是 Git 的网页版吗？",
@@ -43,7 +43,7 @@
       "https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F",
       "https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain"
     ],
-    "verifiedAt": "2026-07-17"
+    "verifiedAt": "2026-07-20"
   },
   "productionPolicy": {
     "remotionOwns": [
@@ -106,6 +106,21 @@
         "width": 1600,
         "height": 900
       },
+      "delivery": {
+        "src": "github-course/browser/uhd30/gh01-repository-layers.mp4",
+        "poster": "github-course/browser/uhd30/gh01-repository-layers-poster.png",
+        "metadata": "github-course/browser/uhd30/gh01-repository-layers.json",
+        "viewport": {
+          "width": 1600,
+          "height": 900
+        },
+        "captureResolution": {
+          "width": 3840,
+          "height": 2160
+        },
+        "deviceScaleFactor": 2.4,
+        "captureMode": "native-window-dsf"
+      },
       "containsSensitiveState": false
     }
   ],
@@ -115,12 +130,12 @@
       "title": "GitHub 等于 Git？",
       "caption": "没有网络时，为什么仍然可以 commit？",
       "start": 0,
-      "duration": 12,
+      "duration": 10.5,
       "goal": "提出 Git 与 GitHub 是否是同一件事的常见误区。",
       "primaryTechnique": "Remotion",
       "components": [
         "GitHubCourseLayout",
-        "QuestionCaption"
+        "GitHubNarrationSubtitle"
       ],
       "narration": {
         "segmentId": "01_hook",
@@ -131,75 +146,77 @@
     {
       "id": "local-git",
       "title": "Git 在本地保存历史",
-      "caption": "Git 管理本地对象、refs 和提交历史",
-      "start": 12,
-      "duration": 26,
+      "caption": "Git 在本地写历史；fetch、pull、push 才连接远端",
+      "start": 10.5,
+      "duration": 26.5,
       "goal": "说明完整仓库历史和核心 Git 状态存在本地，常见操作不依赖 GitHub。",
       "primaryTechnique": "GitGraph",
       "components": [
         "LocalRepositoryModel",
-        "SceneCaption"
+        "GitHubNarrationSubtitle"
       ],
       "narration": {
         "segmentId": "02_local_git",
-        "voiceStart": 12.3,
-        "text": "Git 是分布式版本控制系统。<#0.35#>一份本地仓库里，就有项目文件和提交历史。<#0.3#>.git 目录保存 objects、refs、HEAD 和 index。<#0.35#>commit、branch、log、diff 这些操作，主要读取和修改本地数据，<#0.25#>不需要先连接 GitHub。"
+        "voiceStart": 10.8,
+        "text": "Git 是分布式版本控制系统。<#0.35#>一份本地仓库里，就有项目文件和提交历史。<#0.3#>.git 目录保存 objects、refs、HEAD 和 index。<#0.35#>git commit 会在本地写入提交对象，并移动当前分支引用。<#0.9#>commit、branch、log、diff 主要读写本地数据。<#0.35#>fetch、pull、push 才需要连接远端。<#0.25#>断网也不影响本地历史。"
       }
     },
     {
       "id": "browser-repository",
       "title": "GitHub 托管仓库",
-      "caption": "Code 页面展示仓库内容；Pull requests 与 Actions 提供协作入口",
-      "start": 38,
+      "caption": "浏览器展示 GitHub 上的仓库，不是本地 working tree 或 index",
+      "start": 37,
       "duration": 28,
       "goal": "用真实 GitHub 仓库页面建立平台层的视觉证据。",
       "primaryTechnique": "BrowserFocusScene",
       "browserRecordingId": "repository-layers",
       "components": [
         "BrowserFocusScene",
-        "BrowserPanel"
+        "BrowserPanel",
+        "GitHubNarrationSubtitle"
       ],
       "narration": {
         "segmentId": "03_browser_repository",
-        "voiceStart": 38.3,
-        "text": "GitHub 的第一层职责，是托管 Git 仓库。<#0.35#>浏览器里的 Code 页面，让其他人查看文件、branch 和 commit。<#0.3#>但页面上还出现了 Issues、Pull requests 和 Actions。<#0.35#>这些不是本地 Git 命令的另一种皮肤，<#0.25#>而是平台提供的协作入口。"
+        "voiceStart": 37.3,
+        "text": "GitHub 的第一层职责，是托管 Git 仓库。<#0.35#>浏览器里看到的，是 GitHub 服务器上这份仓库的内容，<#0.25#>不是你电脑里的 working tree 或 index。<#0.4#>Code 页面让其他人查看文件、branch 和 commit。<#0.3#>但页面上还出现了 Issues、Pull requests 和 Actions。<#0.35#>这些不是本地 Git 命令的另一种皮肤，<#0.25#>而是平台提供的协作入口。<#0.35#>页面状态可以继续变化，而你的本地仓库不会自动跟着变化。"
       }
     },
     {
       "id": "platform-layer",
       "title": "GitHub 增加协作状态",
       "caption": "PR、Review 与 Checks 是 GitHub 协作状态，不是 Git 对象",
-      "start": 66,
-      "duration": 30,
+      "start": 65,
+      "duration": 30.5,
       "goal": "区分 Git 数据与 Issues、Pull Request、Review、Checks 等平台状态。",
       "primaryTechnique": "BrowserEvidenceScene",
       "browserRecordingId": "repository-layers",
       "components": [
         "BrowserEvidenceScene",
-        "PlatformStateLegend"
+        "PlatformStateLegend",
+        "GitHubNarrationSubtitle"
       ],
       "narration": {
         "segmentId": "04_platform_layer",
-        "voiceStart": 66.3,
-        "text": "GitHub 在 Git 仓库周围增加协作状态。<#0.3#>Issue 组织问题，Pull Request 提议、讨论和合并代码变化，Review 表达审查结论，Checks 展示自动化结果。<#0.4#>它们会引用 branch 和 commit，<#0.25#>但它们本身不是普通的 Git commit、tree 或 blob。"
+        "voiceStart": 65.3,
+        "text": "GitHub 在 Git 仓库周围增加协作状态。<#0.3#>Issue 组织问题，Pull Request 提议、讨论和合并代码变化，Review 表达审查结论，Checks 展示自动化结果。<#0.4#>它们会引用 branch 和 commit，<#0.25#>但它们本身不是普通的 Git commit、tree 或 blob。<#0.9#>Pull Request 可以随着 head branch 的新 commit 更新，Review 和 Checks 也会围绕这些 commit 改变状态。<#0.35#>只 clone 仓库，不会把这些讨论与结论变成本地 Git 对象。"
       }
     },
     {
       "id": "state-bridge",
       "title": "页面动作不等于 Git 变化",
-      "caption": "打开 PR 页面只读取平台状态；本地 Git 历史不变",
-      "start": 96,
-      "duration": 32,
+      "caption": "先定位变化发生在哪一层，再判断其他仓库是否同步",
+      "start": 95.5,
+      "duration": 32.5,
       "goal": "建立浏览器动作、GitHub 平台状态和 Git 状态的三层因果检查。",
       "primaryTechnique": "GitHubStateBridge",
       "components": [
         "GitHubStateBridge",
-        "SceneCaption"
+        "GitHubNarrationSubtitle"
       ],
       "narration": {
         "segmentId": "05_state_bridge",
-        "voiceStart": 96.3,
-        "text": "以后看到一个 GitHub 操作，<#0.25#>先分三层判断。<#0.35#>浏览器做了什么？平台状态变成什么？底层 Git 的 refs 或 commits 有没有变化？<#0.45#>现在我们只是打开 Pull requests 页面。<#0.3#>平台展示了协作信息，<#0.25#>本地 objects 和 refs 没有因此改变。"
+        "voiceStart": 95.8,
+        "text": "以后看到一个 GitHub 操作，<#0.25#>先分三层判断。<#0.35#>浏览器做了什么？平台状态变成什么？底层 Git 的 refs 或 commits 有没有变化？<#0.95#>现在我们只是打开 Pull requests 页面。<#0.3#>平台展示了协作信息，<#0.25#>本地 objects 和 refs 没有因此改变。<#0.4#>如果网页上合并了 Pull Request，先变化的是 GitHub 端的目标分支。<#0.35#>你的本地分支仍要通过 fetch 或 pull，才会看到新的提交。<#0.4#>把三层分开，就不会把一次页面点击，误解成所有仓库同时改变。"
       }
     },
     {
@@ -212,12 +229,12 @@
       "primaryTechnique": "Remotion",
       "components": [
         "ResponsibilitySummary",
-        "SceneCaption"
+        "GitHubNarrationSubtitle"
       ],
       "narration": {
         "segmentId": "06_takeaway",
         "voiceStart": 128.3,
-        "text": "记住这条边界：<#0.3#>Git 管理版本历史，GitHub 围绕这段历史组织托管与协作。<#0.45#>连接两边的是 remote、fetch 和 push。<#0.35#>下一集，我们先把 Git identity 和 GitHub account 分开。"
+        "text": "记住这条边界：<#0.3#>Git 管理版本历史，GitHub 围绕这段历史组织托管与协作。<#0.4#>Git 可以不依赖 GitHub 存在；GitHub 则以 Git 仓库为基础，再增加身份、权限和协作流程。<#0.45#>连接两边的是 remote、fetch 和 push。<#0.35#>下一集，我们先把 Git identity 和 GitHub account 分开。"
       }
     }
   ]

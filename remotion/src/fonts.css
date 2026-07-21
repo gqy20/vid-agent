@@ -91,3 +91,65 @@
   font-style: normal;
   font-display: swap;
 }
+
+/*
+ * GitHub Course typography deliberately separates Latin and CJK faces.
+ * Inter comes first, so its Latin glyphs are used before falling back to
+ * Noto Sans CJK SC for Chinese. The local() sources provide the intended
+ * 500/600 masters on the course workstation; bundled faces keep previews
+ * renderable when those local masters are unavailable.
+ */
+@font-face {
+  font-family: 'GitHubCourseDisplayLatin';
+  src:
+    local('Inter Display SemiBold'),
+    local('InterDisplay-SemiBold'),
+    url('../public/fonts/Inter-Bold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GitHubCourseTextLatin';
+  src:
+    local('Inter Regular'),
+    local('Inter'),
+    url('../public/fonts/Inter-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GitHubCourseTextLatin';
+  src:
+    local('Inter Medium'),
+    local('Inter-Medium'),
+    url('../public/fonts/Inter-Regular.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GitHubCourseCJK';
+  src:
+    local('Noto Sans CJK SC Regular'),
+    local('Noto Sans CJK SC'),
+    url('../public/fonts/NotoSansCJK-Regular.ttc') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GitHubCourseCJK';
+  src:
+    local('Noto Sans CJK SC Medium'),
+    local('Noto Sans CJK SC'),
+    url('../public/fonts/NotoSansCJK-Regular.ttc') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}

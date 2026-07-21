@@ -1,5 +1,21 @@
 import {interpolate} from 'remotion';
 import {COLOR, FONT, WEIGHT} from '../../palette';
+import {RADIUS, SPACE} from '../../spacing';
+import {TYPE} from '../../typography';
+
+export const GitMark: React.FC<{
+  size: number;
+  opacity?: number;
+}> = ({size, opacity = 1}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden style={{display: 'block', opacity}}>
+    <path d="M12 1.25 22.75 12 12 22.75 1.25 12 12 1.25Z" fill={COLOR.git.logo} />
+    <path d="m7.45 7.35 8.95 8.95M11.85 11.75l3.6-3.6" fill="none" stroke="#fff" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="7.45" cy="7.35" r="1.55" fill="#fff" />
+    <circle cx="11.85" cy="11.75" r="1.55" fill="#fff" />
+    <circle cx="16.4" cy="16.3" r="1.55" fill="#fff" />
+    <circle cx="15.45" cy="8.15" r="1.55" fill="#fff" />
+  </svg>
+);
 
 export const GitHubMark: React.FC<{
   size: number;
@@ -131,25 +147,11 @@ export const BrandCanvas: React.FC<{children: React.ReactNode}> = ({children}) =
       position: 'absolute',
       inset: 0,
       overflow: 'hidden',
-      background: `
-        radial-gradient(circle at 18% 22%, rgba(9,105,218,0.075), transparent 31%),
-        radial-gradient(circle at 82% 74%, rgba(130,80,223,0.06), transparent 29%),
-        linear-gradient(135deg, #ffffff 0%, ${COLOR.canvas.base} 48%, #f3f5f7 100%)
-      `,
+      background: COLOR.canvas.base,
       color: COLOR.text.primary,
       fontFamily: FONT.sans,
     }}
   >
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `radial-gradient(${COLOR.stroke.soft} 0.9px, transparent 0.9px)`,
-        backgroundSize: '34px 34px',
-        opacity: 0.32,
-        maskImage: 'radial-gradient(circle at 50% 46%, black 0%, black 52%, transparent 88%)',
-      }}
-    />
     {children}
   </div>
 );
@@ -163,16 +165,16 @@ export const StatusBadge: React.FC<{
     style={{
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 9,
-      padding: '8px 13px',
-      borderRadius: 999,
+      gap: SPACE.xs,
+      padding: `${SPACE.xs}px ${SPACE.sm}px`,
+      borderRadius: RADIUS.pill,
       color,
       background,
       border: `1px solid ${color}44`,
       fontFamily: FONT.mono,
-      fontSize: 18,
+      fontSize: TYPE.uiSmall.fontSize,
       lineHeight: 1,
-      fontWeight: WEIGHT.bold,
+      fontWeight: WEIGHT.medium,
       letterSpacing: 0.4,
       whiteSpace: 'nowrap',
     }}
@@ -293,9 +295,9 @@ export const GitHubBrandLockup: React.FC<{
             width: 304,
             marginRight: 28,
             textAlign: 'right',
-            fontSize: 72,
+            fontSize: TYPE.hero.fontSize,
             lineHeight: 1,
-            fontWeight: 900,
+            fontWeight: WEIGHT.semibold,
             letterSpacing: 1.2,
             opacity: interpolate(progress, [0.36, 0.8], [0, 1], {
               extrapolateLeft: 'clamp',
@@ -316,9 +318,9 @@ export const GitHubBrandLockup: React.FC<{
             boxSizing: 'border-box',
             textAlign: 'right',
             fontFamily: FONT.sans,
-            fontSize: 92,
+            fontSize: TYPE.display.fontSize,
             lineHeight: 1,
-            fontWeight: 900,
+            fontWeight: WEIGHT.semibold,
             opacity: interpolate(progress, [0.4, 0.78], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
@@ -349,8 +351,8 @@ export const GitHubBrandLockup: React.FC<{
         style={{
           marginTop: 18,
           fontFamily: FONT.mono,
-          fontSize: 27,
-          fontWeight: 800,
+          fontSize: TYPE.ui.fontSize,
+          fontWeight: WEIGHT.medium,
           color: COLOR.text.secondary,
           letterSpacing: 1.2,
           opacity: interpolate(progress, [0.66, 1], [0, 1], {

@@ -42,6 +42,23 @@ uv run python scripts/browser-recordings/github-course-lab/record.py gh01-reposi
 场景只依赖仓库级导航，不读取或断言会变化的 star、fork、issue、PR 或 commit 数量。
 runner 会先完成页面准备，再按实际准备耗时裁掉网络加载段，只保留短 lead-in 和正式动作。
 
+## 4K 录制
+
+正式生产优先通过 GitHub Course orchestrator 录制，确保 episode JSON、录屏指纹和候选构建使用同一规格：
+
+```bash
+pnpm --dir remotion github-course browser-4k gh01-git-vs-github
+```
+
+需要单独调试录屏时，可以直接选择 `uhd30` profile：
+
+```bash
+uv run python scripts/browser-recordings/github-course-lab/record.py \
+  gh01-repository-layers --profile uhd30
+```
+
+`uhd30` 使用 1600×900 教学视口和 2.4 device scale factor 原生捕获 3840×2160 画面，产物写入 `remotion/public/github-course/browser/uhd30/`。录制结束后会按 episode 中既有 1080p 证据的动作时长归一化时间线，避免编码负载改变讲解与操作的同步关系；不会对 1080p 画面做空间放大。
+
 ## 认证状态
 
 真实 GitHub 场景只能使用专用测试账户或组织。storage state 放在：

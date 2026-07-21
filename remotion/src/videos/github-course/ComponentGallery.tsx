@@ -1,6 +1,6 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {BrowserPanel, GitHubCourseLayout, GitHubStateBridge} from './kit';
-import {COLOR, FONT} from './palette';
+import {COLOR} from './palette';
 import {seconds} from './timeline';
 import {TYPE} from './typography';
 
@@ -33,8 +33,7 @@ export const ComponentGallery: React.FC = () => {
             auditId="github-gallery-browser"
           />
           <div style={{paddingTop: 18}}>
-            <div style={{...TYPE.uiSmall, color: COLOR.github.action, fontFamily: FONT.mono}}>REAL UI AS EVIDENCE</div>
-            <div style={{...TYPE.title, marginTop: 14}}>浏览器负责动作，模型负责解释</div>
+            <div style={TYPE.title}>浏览器负责动作，模型负责解释</div>
             <div style={{...TYPE.body, marginTop: 18, color: COLOR.text.secondary}}>
               正式录制由 github-course-lab 派生。Remotion 不重画 GitHub 页面，只做稳定裁切和语义标注。
             </div>
@@ -48,16 +47,16 @@ export const ComponentGallery: React.FC = () => {
                 opacity: statusIn,
               }}
             >
-              <div style={{...TYPE.uiSmall, color: COLOR.github.approved}}>CHECKS PASSED</div>
-              <div style={{...TYPE.body, marginTop: 8}}>平台允许合并，不代表 Git 模型可以省略</div>
+              <div style={{...TYPE.body, color: COLOR.text.primary}}>Checks 通过后，平台允许合并</div>
+              <div style={{...TYPE.ui, marginTop: 8, color: COLOR.text.secondary}}>但 Git 状态变化仍然需要单独解释</div>
             </div>
           </div>
         </div>
         <div style={{position: 'absolute', left: 72, right: 72, bottom: 70}}>
           <GitHubStateBridge
-            browser={{eyebrow: 'BROWSER ACTION', title: '点击 Merge', detail: '真实页面产生一次平台操作'}}
-            platform={{eyebrow: 'PLATFORM STATE', title: 'PR → merged', detail: 'review、checks 与 rules 已满足'}}
-            git={{eyebrow: 'GIT STATE', title: 'main → C6', detail: '提交图按选定 merge 策略变化'}}
+            browser={{title: '点击 Merge', detail: '真实页面产生一次平台操作', accent: 'action'}}
+            platform={{title: 'PR → merged', detail: 'review、checks 与 rules 已满足', accent: 'merged'}}
+            git={{title: 'main → C6', detail: '提交图按选定 merge 策略变化', accent: 'git'}}
           />
         </div>
       </AbsoluteFill>

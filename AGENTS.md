@@ -23,7 +23,7 @@
 ### 当前课程适配状态
 
 - **Git Course**：完整实现 build、main audit/approve、promote、release-build/audit/approve 和 publish，可作为共享机制的参考实现。
-- **GitHub Course**：目前只完成 1080p 浏览器/Scene/TTS、candidate 和 visual/full audit；4K、Current、Release 和 Publish 继续硬阻断，直到 adapter 真正实现。
+- **GitHub Course**：已完成 1080p 迭代、原生 4K 浏览器/Scene/TTS、4K candidate、visual/full audit 和 SHA-bound approve/promote；Release 与 Publish 继续硬阻断，直到对应 adapter 真正实现。
 - **Claude Code Course**：目前是课程内容与旧 composition 的迁移阶段；没有统一 orchestrator、candidate/audit 或 release gate，不得把旧 `current` 当成新流程已经完成。
 
 ## 课程适配边界

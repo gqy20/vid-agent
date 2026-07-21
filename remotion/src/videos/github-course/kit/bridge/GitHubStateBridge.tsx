@@ -1,69 +1,125 @@
-import {interpolate, useCurrentFrame} from 'remotion';
-import {COLOR, FONT} from '../../palette';
+import {Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {COLOR} from '../../palette';
+import {SPACE} from '../../spacing';
 import {TYPE} from '../../typography';
 
+type BridgeAccent = 'neutral' | 'action' | 'merged' | 'git';
+
 type BridgeState = {
-  eyebrow: string;
   title: string;
   detail: string;
-  tone: 'browser' | 'platform' | 'git';
+  accent?: BridgeAccent;
 };
 
-const stateColor = (tone: BridgeState['tone']) => {
-  if (tone === 'platform') return COLOR.github.merged;
-  if (tone === 'git') return COLOR.git.main;
-  return COLOR.github.action;
+const stateColor = (accent: BridgeAccent = 'neutral') => {
+  if (accent === 'action') return COLOR.github.action;
+  if (accent === 'merged') return COLOR.github.merged;
+  if (accent === 'git') return COLOR.git.main;
+  return COLOR.stroke.strong;
 };
+
+const LAYERS = ['浏览器动作', 'GitHub 平台', 'Git 状态'] as const;
+const NODE_SIZE = 58;
+const CONNECTOR_GAP = 14;
+const CONNECTOR_OFFSET = NODE_SIZE / 2 + CONNECTOR_GAP;
+
+const Connector: React.FC<{progress: number; left: string}> = ({progress, left}) => (
+  <div
+    style={{
+      position: 'absolute',
+      left,
+      top: 104,
+      width: `calc(33.3333% - ${CONNECTOR_OFFSET * 2}px)`,
+      height: 2,
+      borderRadius: 999,
+      background: COLOR.stroke.soft,
+      overflow: 'hidden',
+    }}
+  >
+    <div
+      style={{
+        width: `${progress * 100}%`,
+        height: '100%',
+        borderRadius: 999,
+        background: COLOR.github.action,
+      }}
+    />
+  </div>
+);
 
 export const GitHubStateBridge: React.FC<{
-  browser: Omit<BridgeState, 'tone'>;
-  platform: Omit<BridgeState, 'tone'>;
-  git: Omit<BridgeState, 'tone'>;
+  browser: BridgeState;
+  platform: BridgeState;
+  git: BridgeState;
   auditId?: string;
 }> = ({browser, platform, git, auditId = 'github-state-bridge'}) => {
   const frame = useCurrentFrame();
-  const states: BridgeState[] = [
-    {...browser, tone: 'browser'},
-    {...platform, tone: 'platform'},
-    {...git, tone: 'git'},
-  ];
+  const {fps} = useVideoConfig();
+  const states: BridgeState[] = [browser, platform, git];
+  const travel = spring({
+    frame,
+    fps,
+    delay: 8,
+    durationInFrames: 52,
+    config: {damping: 200, stiffness: 120, mass: 1, overshootClamping: true},
+  });
+  const trackIn = interpolate(frame, [0, 18], [0, 1], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const firstConnector = interpolate(travel, [0, 0.5], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const secondConnector = interpolate(travel, [0.5, 1], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
 
   return (
-    <div data-audit-id={auditId} style={{display: 'grid', gridTemplateColumns: '1fr 70px 1fr 70px 1fr', alignItems: 'stretch'}}>
-      {states.map((state, index) => {
-        const inProgress = interpolate(frame, [index * 12, index * 12 + 12], [0, 1], {
-          extrapolateLeft: 'clamp',
-          extrapolateRight: 'clamp',
-        });
-        const color = stateColor(state.tone);
-        const card = (
-          <div
-            key={state.title}
-            style={{
-              minHeight: 190,
-              padding: '24px 26px',
-              border: `1px solid ${COLOR.stroke.soft}`,
-              borderTop: `5px solid ${color}`,
-              borderRadius: 10,
-              background: COLOR.canvas.raised,
-              boxShadow: `0 16px 40px ${COLOR.effects.shadowSoft}`,
-              opacity: inProgress,
-              translate: `0 ${(1 - inProgress) * 12}px`,
-            }}
-          >
-            <div style={{...TYPE.uiSmall, color, fontFamily: FONT.mono}}>{state.eyebrow}</div>
-            <div style={{...TYPE.title, fontSize: 31, marginTop: 14, color: COLOR.text.primary}}>{state.title}</div>
-            <div style={{...TYPE.body, fontSize: 21, marginTop: 13, color: COLOR.text.secondary}}>{state.detail}</div>
-          </div>
-        );
-        if (index === states.length - 1) return card;
-        return [
-          card,
-          <div key={`${state.title}-arrow`} style={{display: 'grid', placeItems: 'center', color: COLOR.stroke.strong, ...TYPE.title}}>
-            →
-          </div>,
-        ];
-      })}
+    <div data-audit-id={auditId} style={{position: 'relative', minHeight: 286}}>
+      <div style={{opacity: trackIn}}>
+        <Connector progress={firstConnector} left={`calc(16.6667% + ${CONNECTOR_OFFSET}px)`} />
+        <Connector progress={secondConnector} left={`calc(50% + ${CONNECTOR_OFFSET}px)`} />
+      </div>
+
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)'}}>
+        {states.map((state, index) => {
+          const itemIn = interpolate(frame, [index * 18, index * 18 + 18], [0, 1], {
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          });
+          const color = stateColor(state.accent);
+          return (
+            <div key={state.title} style={{textAlign: 'center', opacity: itemIn}}>
+              <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary}}>{LAYERS[index]}</div>
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  width: NODE_SIZE,
+                  height: NODE_SIZE,
+                  boxSizing: 'border-box',
+                  margin: `${SPACE.xxl}px auto ${SPACE.xl}px`,
+                  borderRadius: 999,
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: COLOR.canvas.base,
+                  border: `3px solid ${color}`,
+                  color,
+                  ...TYPE.ui,
+                }}
+              >
+                {index + 1}
+              </div>
+              <div style={{...TYPE.section, color: COLOR.text.primary}}>{state.title}</div>
+              <div style={{...TYPE.ui, margin: `${SPACE.md}px auto 0`, maxWidth: 420, color: COLOR.text.secondary}}>{state.detail}</div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

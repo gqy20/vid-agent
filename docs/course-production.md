@@ -21,7 +21,7 @@
 | 课程 | 内容与迭代 | Candidate / Audit | Current | Release / Publish |
 | --- | --- | --- | --- | --- |
 | Git Course | 已实现 | 已实现 | 已实现 | 已实现 |
-| GitHub Course | 已实现 1080p 迭代 | 已实现 1080p visual/full audit | 4K adapter 完成前阻断 | 尚未实现 |
+| GitHub Course | 已实现 1080p 迭代与原生 4K 重建 | 已实现 1080p / 4K visual/full audit | 已实现 4K approve/promote | 尚未实现 |
 | Claude Code Course | 内容与旧 composition 并存 | 尚未实现统一门禁 | 旧产物仅作迁移输入 | 尚未实现 |
 
 “规范统一”不等于“能力已经实现”。新增入口、前端按钮或文档命令前，必须先让对应 orchestrator 提供真实状态和门禁。

@@ -109,7 +109,9 @@ async def capture_focus_region(
 
     viewport = page.viewport_size
     if viewport is None:
-        raise RuntimeError("Browser focus capture requires a fixed viewport")
+        viewport = await page.evaluate(
+            "({width: window.innerWidth, height: window.innerHeight})"
+        )
     return normalize_focus_region(
         region_id=region_id,
         boxes=boxes,

@@ -2,7 +2,7 @@
 
 本课程遵守仓库级 [`课程视频统一生产规范`](../docs/course-production.md)。GitHub adapter 负责真实浏览器录制、平台状态、Git 状态桥接和 1080p→4K 双规格交付；共享规范负责 Candidate、SHA-bound audit、approve/promote、Current 和 Release/Publish 的统一语义。
 
-当前实现只到 1080p candidate/audit。以下 4K、Current 和发布规则是接入门槛，不代表对应命令已经可用；实际能力以本文“当前框架边界”和 orchestrator 为准。
+当前实现已覆盖 1080p 迭代、原生 4K 浏览器证据、4K candidate/audit、SHA-bound approve 与 promote。Release 和 Publish 仍未实现，继续保持硬阻断。
 
 ## 唯一内容源
 
@@ -60,6 +60,9 @@ scripts/browser-recordings/github-course-lab/
 remotion/public/github-course/browser/<recording-id>.mp4
 remotion/public/github-course/browser/<recording-id>-poster.png
 remotion/public/github-course/browser/<recording-id>.json
+remotion/public/github-course/browser/uhd30/<recording-id>.mp4
+remotion/public/github-course/browser/uhd30/<recording-id>-poster.png
+remotion/public/github-course/browser/uhd30/<recording-id>.json
 ```
 
 认证 storage state 只能保存在 `scripts/browser-recordings/github-course-lab/.auth/`，不得复制到 `remotion/public/`、episode JSON 或构建报告。
@@ -99,26 +102,38 @@ pnpm --dir remotion github-course plan gh01-git-vs-github
 pnpm --dir remotion github-course browser gh01-git-vs-github
 pnpm --dir remotion github-course build gh01-git-vs-github
 pnpm --dir remotion github-course audit-full gh01-git-vs-github
+pnpm --dir remotion github-course browser-4k gh01-git-vs-github
+pnpm --dir remotion github-course build-4k gh01-git-vs-github
+pnpm --dir remotion github-course audit-4k gh01-git-vs-github
+pnpm --dir remotion github-course approve gh01-git-vs-github --note="..."
+pnpm --dir remotion github-course promote gh01-git-vs-github
 pnpm --dir remotion github-course status gh01-git-vs-github
 ```
 
-当前 `browser` 根据 scenario 源码、runner 和 viewport 指纹判断录制是否 dirty，并把源码指纹写入派生
-metadata；接入 4K adapter 时，画质 profile 和录制尺寸也必须进入该指纹。`build` 复用一次
-Remotion bundle，并行渲染 dirty scene 与 dirty TTS；成功 scene 和分段语音立即进入内容寻址
-cache。视觉 candidate 与带声完整 candidate 都只组装到 `tmp/build/candidate/`。
+当前 `browser` 根据 scenario 源码、runner、viewport、capture resolution、DPR 和 capture mode
+判断录制是否 dirty，并把源码指纹写入派生 metadata。`browser-4k` 使用 1600×900 CSS 教学布局与
+2.4 DPR 的原生 3840×2160 浏览器表面，不能以补边或 1080p upscale 代替。`build` 复用一次
+Remotion bundle；TTS/SRT 是字幕渲染的真实输入依赖，必须先准备好精确 cue，再并行渲染 dirty scene。
+成功 scene 和分段语音立即进入内容寻址 cache。视觉 candidate 与带声完整 candidate 都只组装到
+`tmp/build/candidate/`。
 
 TTS 通过仓库现有语音脚本调用 MMX CLI，配置从 episode JSON 固定为
 `speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`。每段生成 MP3 与 SRT，
 SRT 保留 MMX 时间码、使用 episode JSON 停顿段规范文本，再清理句尾标点；分段人声约
 `-20 LUFS / -3 dBFS`，复用 Git Course BGM `volume=0.05`，完整混音约
-`-16 LUFS`。完整审查检查音轨、采样率、响度、scene 窗口、SRT 停顿标记与视觉审查结果。
+`-16 LUFS`。Remotion 必须按 `scenes[].narration.voiceStart + SRT cue` 显示逐句字幕；不得用 scene
+末尾的总结文案、固定 `captionIn` 或估算帧代替旁白字幕。SRT SHA 和 `voiceStart` 必须进入 scene
+指纹。完整审查检查音轨、采样率、响度、scene 窗口、字幕时间线、SRT 停顿标记与视觉审查结果。
+字幕固定使用无框底部轨道，最多两行；orchestrator 以 `38` 个中文等宽字符/行、`76` 单 cue 容量
+执行 `subtitle.layout-capacity` 检查。超限 cue 必须回到 episode JSON / SRT 派生链拆句，不能在
+Remotion 中缩小字号、截断或覆盖浏览器证据。浏览器证据窗固定保留 1600px 教学宽度，顶部对齐
+裁掉低价值页面底部，并为字幕轨道保留独立空间。
 
-视觉审查仍可使用 `approve-visual --note=...` 绑定候选 SHA，但当前 1080p visual/full candidate
-的 `promotable` 固定为 false。正式 `approve / promote / release-build / release-audit /
-release-approve / publish` 仍主动拒绝执行，不能覆盖 `current/`。下一阶段是接入 4K browser /
-render profile、发布包装和平台物料，并让发布门禁验证 `deliveryResolution`，禁止 1080p
-candidate 晋升。
+视觉审查仍可使用 `approve-visual --note=...` 绑定 1080p 候选 SHA，但 1080p visual/full candidate
+的 `promotable` 固定为 false。正式 `approve` 只接受机器检查无 fail、人工复核完成且 SHA 未变化的
+`uhd30` candidate；`promote` 会重新核对 browser/scene/TTS/audio 指纹、manifest 和磁盘 SHA，之后
+才原子写入 `current/`。`release-build / release-audit / release-approve / publish` 仍主动拒绝执行。
 
 `approve-visual` 是迭代期的临时视觉确认，不等同于共享规范中的 main approval。它不能把机器
-`fail` 当作问题已经修复，也不能被 4K 或 release 阶段继承；接入正式门禁时必须先让机器检查
-重新产生 `needs_review`，再由人工批准当前精确 SHA。
+`fail` 当作问题已经修复，也不能被 4K 或 release 阶段继承；4K 必须重新产生独立的
+`needs_review`，再由人工批准当前精确 SHA。

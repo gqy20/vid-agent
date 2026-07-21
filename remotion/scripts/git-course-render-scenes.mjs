@@ -89,7 +89,7 @@ const chromiumOptions = isUhd ? {gl: 'angle', enableMultiProcessOnLinux: true} :
 const composition = await selectComposition({
   serveUrl,
   id: plan.compositionId,
-  inputProps: {},
+  inputProps: plan.inputProps ?? {},
   browserExecutable: process.env.REMOTION_BROWSER_EXECUTABLE ?? undefined,
   timeoutInMilliseconds: plan.timeoutInMilliseconds ?? 120000,
   logLevel: 'warn',
@@ -119,6 +119,7 @@ const renderTask = async (task) => {
         await renderMedia({
           composition,
           serveUrl,
+          inputProps: plan.inputProps ?? {},
           browserExecutable: process.env.REMOTION_BROWSER_EXECUTABLE ?? undefined,
           chromiumOptions,
           codec: 'h264',

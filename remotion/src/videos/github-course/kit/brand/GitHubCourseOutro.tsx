@@ -1,5 +1,6 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {COLOR, FONT, WEIGHT} from '../../palette';
+import {TYPE} from '../../typography';
 import {
   BrandCanvas,
   GitHubBrandLockup,
@@ -63,7 +64,7 @@ const NetworkNode: React.FC<{
         display: 'grid',
         placeItems: 'center',
         color: node.color,
-        background: 'rgba(255,255,255,0.93)',
+        background: COLOR.canvas.overlay,
         border: `1px solid ${node.color}42`,
         boxShadow: `0 18px 44px ${COLOR.effects.shadowPanel}`,
         opacity: nodeIn * opacity,
@@ -78,8 +79,8 @@ const NetworkNode: React.FC<{
           left: '50%',
           translate: '-50% 0',
           fontFamily: FONT.mono,
-          fontSize: 15,
-          fontWeight: WEIGHT.bold,
+          fontSize: TYPE.uiSmall.fontSize,
+          fontWeight: WEIGHT.medium,
           letterSpacing: 1.2,
           whiteSpace: 'nowrap',
           color: node.color,
@@ -232,9 +233,9 @@ export const GitHubCourseOutro: React.FC = () => {
             top: 78,
             textAlign: 'center',
             fontFamily: FONT.mono,
-            fontSize: 18,
+            fontSize: TYPE.uiSmall.fontSize,
             color: COLOR.github.action,
-            fontWeight: WEIGHT.bold,
+            fontWeight: WEIGHT.medium,
             letterSpacing: 2.2,
             opacity: labelIn * (1 - labelOut),
           }}

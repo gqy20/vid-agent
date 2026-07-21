@@ -4,7 +4,10 @@ import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 import type {BrowserFocusRegion, BrowserRecordingMetadata, BrowserRecordingSource} from './types';
 
-const HEADER_HEIGHT = 58;
+// The 1600x900 recording sits below this chrome inside a 1600x958 reference
+// frame. At the 1456px lesson-stage width, 53px preserves the same 16:9
+// viewport without object-fit cropping.
+const HEADER_HEIGHT = 53;
 
 const browserUrlParts = (rawUrl = 'github.com/course-lab') => {
   const normalized = rawUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -88,7 +91,12 @@ export const BrowserPanel: React.FC<{
   const metadataHighlights = useMetadataHighlights(recording, highlights ? undefined : highlightIds);
   const resolvedHighlights = highlights ?? metadataHighlights;
   const url = browserUrlParts(recording.url);
-  const panelIn = interpolate(frame, [0, 10], [0, 1], {extrapolateRight: 'clamp'});
+  // Browser scenes use hard cuts. Finish the panel entrance during premount so
+  // the first visible frame does not flash an empty course canvas.
+  const panelIn = interpolate(frame, [-10, 0], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
   const hasVideo = Boolean(recording.src) && !preferPoster && (holdFromFrame === undefined || frame < holdFromFrame);
   const hasPoster = Boolean(recording.poster);
 
@@ -99,6 +107,7 @@ export const BrowserPanel: React.FC<{
         position: 'relative',
         width: '100%',
         height: '100%',
+        boxSizing: 'border-box',
         borderRadius: 12,
         overflow: 'hidden',
         border: `1px solid ${COLOR.stroke.default}`,
@@ -177,11 +186,11 @@ export const BrowserPanel: React.FC<{
             gap: 8,
             minWidth: 0,
             color: COLOR.text.tertiary,
-            fontFamily: FONT.mono,
+            fontFamily: FONT.sans,
             fontSize: 13,
             lineHeight: 1,
-            fontWeight: WEIGHT.bold,
-            letterSpacing: 0.8,
+            fontWeight: WEIGHT.medium,
+            letterSpacing: 0.4,
             textTransform: 'uppercase',
             whiteSpace: 'nowrap',
           }}
@@ -192,68 +201,70 @@ export const BrowserPanel: React.FC<{
           <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{recording.title ?? recording.id}</span>
         </div>
       </div>
-      <div style={{position: 'absolute', left: 0, right: 0, top: HEADER_HEIGHT, bottom: 0, background: COLOR.browser.viewport}}>
-        {hasVideo && recording.src ? (
-          <OffthreadVideo
-            src={staticFile(recording.src)}
-            muted
-            playbackRate={playbackRate}
-            style={{width: '100%', height: '100%', objectFit: 'cover', display: 'block'}}
-          />
-        ) : hasPoster && recording.poster ? (
-          <Img src={staticFile(recording.poster)} style={{width: '100%', height: '100%', objectFit: 'cover', display: 'block'}} />
-        ) : (
-          <div style={{position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: '#ffffff'}}>
-            <div style={{textAlign: 'center'}}>
-              <div style={{...TYPE.title, fontSize: 34, color: COLOR.text.primary}}>Browser recording slot</div>
-              <div style={{...TYPE.code, marginTop: 14, color: COLOR.text.secondary}}>{recording.id}</div>
-              <div style={{...TYPE.body, marginTop: 18, color: COLOR.text.tertiary}}>等待 github-course-lab 派生真实录制</div>
+      <div style={{position: 'absolute', left: 0, right: 0, top: HEADER_HEIGHT, bottom: 0, overflow: 'hidden', background: COLOR.browser.viewport}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 0, aspectRatio: '1600 / 900'}}>
+          {hasVideo && recording.src ? (
+            <OffthreadVideo
+              src={staticFile(recording.src)}
+              muted
+              playbackRate={playbackRate}
+              style={{width: '100%', height: '100%', objectFit: 'cover', display: 'block'}}
+            />
+          ) : hasPoster && recording.poster ? (
+            <Img src={staticFile(recording.poster)} style={{width: '100%', height: '100%', objectFit: 'cover', display: 'block'}} />
+          ) : (
+            <div style={{position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: COLOR.browser.viewport}}>
+              <div style={{textAlign: 'center'}}>
+                <div style={{...TYPE.section, color: COLOR.text.primary}}>Browser recording slot</div>
+                <div style={{...TYPE.code, marginTop: 14, color: COLOR.text.secondary}}>{recording.id}</div>
+                <div style={{...TYPE.body, marginTop: 18, color: COLOR.text.tertiary}}>等待 github-course-lab 派生真实录制</div>
+              </div>
             </div>
-          </div>
-        )}
-        {resolvedHighlights.map((highlight, index) => {
-          const highlightIn = interpolate(frame, [14 + index * 8, 24 + index * 8], [0, 1], {
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-          });
-          const color = toneColor(highlight.tone);
-          return (
-            <div
-              key={highlight.id}
-              data-audit-id={`${auditId}-${highlight.id}`}
-              style={{
-                position: 'absolute',
-                left: `${highlight.x * 100}%`,
-                top: `${highlight.y * 100}%`,
-                width: `${highlight.width * 100}%`,
-                height: `${highlight.height * 100}%`,
-                border: `3px solid ${color}`,
-                borderRadius: 8,
-                boxShadow: `0 0 0 9999px rgba(31,35,40,${0.12 * highlightIn})`,
-                opacity: highlightIn,
-                pointerEvents: 'none',
-              }}
-            >
-              {highlight.label ? (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: -42,
-                    padding: '7px 11px',
-                    borderRadius: 6,
-                    background: color,
-                    color: COLOR.text.inverse,
-                    ...TYPE.uiSmall,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {highlight.label}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+          )}
+          {resolvedHighlights.map((highlight, index) => {
+            const highlightIn = interpolate(frame, [14 + index * 8, 24 + index * 8], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            });
+            const color = toneColor(highlight.tone);
+            return (
+              <div
+                key={highlight.id}
+                data-audit-id={`${auditId}-${highlight.id}`}
+                style={{
+                  position: 'absolute',
+                  left: `${highlight.x * 100}%`,
+                  top: `${highlight.y * 100}%`,
+                  width: `${highlight.width * 100}%`,
+                  height: `${highlight.height * 100}%`,
+                  border: `3px solid ${color}`,
+                  borderRadius: 8,
+                  boxShadow: `0 0 0 9999px rgba(31,35,40,${0.12 * highlightIn})`,
+                  opacity: highlightIn,
+                  pointerEvents: 'none',
+                }}
+              >
+                {highlight.label ? (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: -42,
+                      padding: '7px 11px',
+                      borderRadius: 6,
+                      background: color,
+                      color: COLOR.text.inverse,
+                      ...TYPE.uiSmall,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {highlight.label}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

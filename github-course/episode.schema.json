@@ -100,6 +100,37 @@
               "height": {"type": "integer", "minimum": 720}
             }
           },
+          "delivery": {
+            "description": "Native UHD browser evidence used only by the 4K delivery profile.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["src", "poster", "metadata", "viewport", "captureResolution", "deviceScaleFactor", "captureMode"],
+            "properties": {
+              "src": {"type": "string", "pattern": "^github-course/browser/uhd30/.+\\.mp4$"},
+              "poster": {"type": "string", "pattern": "^github-course/browser/uhd30/.+-poster\\.png$"},
+              "metadata": {"type": "string", "pattern": "^github-course/browser/uhd30/.+\\.json$"},
+              "viewport": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["width", "height"],
+                "properties": {
+                  "width": {"const": 1600},
+                  "height": {"const": 900}
+                }
+              },
+              "captureResolution": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["width", "height"],
+                "properties": {
+                  "width": {"const": 3840},
+                  "height": {"const": 2160}
+                }
+              },
+              "deviceScaleFactor": {"const": 2.4},
+              "captureMode": {"const": "native-window-dsf"}
+            }
+          },
           "containsSensitiveState": {"const": false}
         }
       }
