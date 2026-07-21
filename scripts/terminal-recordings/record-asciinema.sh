@@ -38,23 +38,6 @@ HOME_DIR="$TMP_ROOT/home"
 CAST="$TMP_ROOT/$RECORDING_ID.cast"
 GIF="$TMP_ROOT/$RECORDING_ID.gif"
 
-case "$RECORDING_ID" in
-  ep01-log) CURSOR_ROW=4 ;;
-  ep01-show-stat) CURSOR_ROW=10 ;;
-  ep01-show-name-only) CURSOR_ROW=9 ;;
-  ep02-add) CURSOR_ROW=3 ;;
-  ep02-status-mm) CURSOR_ROW=2 ;;
-  ep02-commit) CURSOR_ROW=5 ;;
-  ep03-commit) CURSOR_ROW=5 ;;
-  ep04-branch-flow) CURSOR_ROW=10 ;;
-  ep05-head-flow) CURSOR_ROW=11 ;;
-  ep06-merge-conflict) CURSOR_ROW=6 ;;
-  ep08-restore-flow) CURSOR_ROW=11 ;;
-  ep08-reset-soft|ep08-reset-mixed|ep08-reset-hard) CURSOR_ROW=4 ;;
-  ep08-revert) CURSOR_ROW=7 ;;
-  *) CURSOR_ROW=-1 ;;
-esac
-
 [[ -f "$DEMO" ]] || { echo "Missing demo: $DEMO" >&2; exit 1; }
 [[ -f "$FIXTURE" ]] || { echo "Missing fixture: $FIXTURE" >&2; exit 1; }
 
@@ -95,13 +78,8 @@ agg --quiet --cols 72 --rows 14 \
   --fps-cap 30 --last-frame-duration 2 --no-loop --theme "$theme" "$CAST" "$GIF"
 
 GIF_DURATION="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$GIF")"
-CURSOR_START="$(awk -v duration="$GIF_DURATION" 'BEGIN {start = duration - 2 - (1 / 30); if (start < 0) start = 0; printf "%.6f", start}')"
-if [[ "$CURSOR_ROW" -ge 0 ]]; then
-  CURSOR_Y=$((35 + CURSOR_ROW * 51))
-  VIDEO_FILTER="fps=30,drawbox=x=58:y=$CURSOR_Y:w=3:h=26:color=0x8bd49c:t=fill:enable='gte(t,$CURSOR_START)',pad=ceil(iw/2)*2:ceil(ih/2)*2"
-else
-  VIDEO_FILTER='fps=30,pad=ceil(iw/2)*2:ceil(ih/2)*2'
-fi
+HOLD_START="$(awk -v duration="$GIF_DURATION" 'BEGIN {start = duration - 2 - (1 / 30); if (start < 0) start = 0; printf "%.6f", start}')"
+VIDEO_FILTER='fps=30,pad=ceil(iw/2)*2:ceil(ih/2)*2'
 
 ffmpeg -loglevel error -y -i "$GIF" -vf "$VIDEO_FILTER" \
   -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$OUT"
@@ -111,7 +89,7 @@ ffmpeg -loglevel error -y -sseof -0.2 -i "$OUT" -frames:v 1 "$HOLD"
 OUT_FRAMES="$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=noprint_wrappers=1:nokey=1 "$OUT")"
 OUT_WIDTH="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=noprint_wrappers=1:nokey=1 "$OUT")"
 OUT_HEIGHT="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=noprint_wrappers=1:nokey=1 "$OUT")"
-HOLD_FROM_FRAME="$(awk -v start="$CURSOR_START" 'BEGIN {printf "%d", int(start * 30 + 0.5)}')"
+HOLD_FROM_FRAME="$(awk -v start="$HOLD_START" 'BEGIN {printf "%d", int(start * 30 + 0.5)}')"
 
 printf '{\n  "id": "%s",\n  "durationInFrames": %s,\n  "holdFromFrame": %s,\n  "width": %s,\n  "height": %s,\n  "fps": 30,\n  "font": "Source Code Pro Medium",\n  "fontSize": 32,\n  "lineHeight": 1.6,\n  "theme": "git-course-termius-dark"\n}\n' \
   "$RECORDING_ID" "$OUT_FRAMES" "$HOLD_FROM_FRAME" "$OUT_WIDTH" "$OUT_HEIGHT" > "$METADATA"

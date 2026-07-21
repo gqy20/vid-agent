@@ -1569,18 +1569,28 @@ const previewAudio = async (ctx) => {
   mkdirSync(previewSegmentsDir, {recursive: true});
   const currentSegmentsDir = join(ctx.current, 'audio/segments');
   const selectedSegments = new Set(selected.map((task) => task.scene.narration.segmentId));
-  for (const source of walkFiles(currentSegmentsDir)) {
-    const target = join(previewSegmentsDir, source.slice(currentSegmentsDir.length + 1));
-    const selectedSource = [...selectedSegments].some((segment) => target.endsWith(`/${segment}.mp3`)
-      || target.endsWith(`/${segment}.srt`)
-      || target.endsWith(`/${segment}.txt`)
-      || target.endsWith(`/${segment}_norm.mp3`));
-    if (selectedSource) {
-      rmSync(target, {force: true});
+  for (const task of buildPlan.tts) {
+    const segment = task.scene.narration.segmentId;
+    const targets = {
+      raw: join(previewSegmentsDir, `${segment}.mp3`),
+      srt: join(previewSegmentsDir, `${segment}.srt`),
+      text: join(previewSegmentsDir, `${segment}.txt`),
+      norm: join(previewSegmentsDir, `${segment}_norm.mp3`),
+    };
+    if (selectedSegments.has(segment)) {
+      for (const target of Object.values(targets)) rmSync(target, {force: true});
       continue;
     }
-    if (source.endsWith('.mp3')) materializeView(source, target);
-    else copyAtomically(source, target);
+    const sources = task.hit
+      ? {raw: task.cas.raw, srt: task.cas.srt, text: task.cas.text, norm: task.cas.norm}
+      : {
+          raw: join(currentSegmentsDir, `${segment}.mp3`),
+          srt: join(currentSegmentsDir, `${segment}.srt`),
+          text: join(currentSegmentsDir, `${segment}.txt`),
+          norm: join(currentSegmentsDir, `${segment}_norm.mp3`),
+        };
+    for (const kind of ['raw', 'norm']) if (existsSync(sources[kind])) materializeView(sources[kind], targets[kind]);
+    for (const kind of ['srt', 'text']) if (existsSync(sources[kind])) copyAtomically(sources[kind], targets[kind]);
   }
   const segmentIds = selected.map((task) => task.scene.narration.segmentId);
   const bgm = bgmPath(ctx);
