@@ -13,6 +13,7 @@
     "git-course:generate": "node scripts/git-course.mjs generate",
     "git-course:narration": "node scripts/git-course.mjs narration",
     "git-course:release": "node scripts/git-course.mjs release",
+    "git-course:lab:audit": "STRICT=1 scripts/audit-overlaps.sh GitCourseComponentLab 75,225,375,525,675,825 renders/git-course/tmp/component-lab/audit",
     "git-course": "node scripts/git-course-cli.mjs",
     "github-course": "node scripts/github-course-cli.mjs",
     "segments:audit": "scripts/audit-range-segments.sh",

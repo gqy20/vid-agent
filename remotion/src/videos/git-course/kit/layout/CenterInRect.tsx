@@ -9,6 +9,8 @@ export const CenterInRect: React.FC<{
 }> = ({children, rect = COURSE_RECTS.centerModel, opticalOffset = {x: 0, y: 0}, auditId}) => (
   <div
     data-audit-id={auditId}
+    data-audit-ignore="centering-container"
+    data-audit-safe-area="center-model"
     style={{
       ...rectToStyle(rect),
       display: 'flex',

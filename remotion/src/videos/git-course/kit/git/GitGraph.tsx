@@ -147,6 +147,7 @@ export const GitGraph: React.FC<{
         <g
           key={point.id}
           data-audit-id={`${auditId}-commit-${point.id}`}
+          data-audit-group={auditId}
           opacity={idx === positions.length - 1 && positions.length > 3 ? point.opacity : 1}
         >
           <circle
@@ -196,6 +197,7 @@ export const GitGraph: React.FC<{
           <g key={branch.name} opacity={reveal} transform={`translate(0 ${interpolate(reveal, [0, 1], [-18, 0])})`}>
             <BranchLabel
               auditId={`${auditId}-branch-${branch.name}`}
+              auditGroup={auditId}
               label={branch.name}
               color={getBranchColor(branch)}
               x={x}
@@ -214,7 +216,7 @@ export const GitGraph: React.FC<{
           opacity={detachedConnectorOpacity * 0.88}
         />
       ) : null}
-      {showHeadMarker && currentHead ? <HeadMarker auditId={`${auditId}-head`} x={currentHead.x} y={currentHead.y} /> : null}
+      {showHeadMarker && currentHead ? <HeadMarker auditId={`${auditId}-head`} auditGroup={auditId} x={currentHead.x} y={currentHead.y} /> : null}
       {note ? (
         <text x="62" y="244" fontFamily={FONT.sans} fontSize={TYPE.ui.fontSize} fill={COLOR.text.secondary}>
           {note}
@@ -272,8 +274,8 @@ const getHeadMarkerPosition = (
   };
 };
 
-const HeadMarker: React.FC<{auditId: string; x: number; y: number}> = ({auditId, x, y}) => (
-  <g data-audit-id={auditId}>
+const HeadMarker: React.FC<{auditId: string; auditGroup: string; x: number; y: number}> = ({auditId, auditGroup, x, y}) => (
+  <g data-audit-id={auditId} data-audit-group={auditGroup}>
     <rect x={x - 49} y={y - 22} width="98" height="44" rx="22" fill={COLOR.canvas.raised} stroke={COLOR.git.head} strokeWidth="2.6" />
     <circle cx={x - 28} cy={y} r="5" fill={COLOR.git.head} />
     <text
@@ -290,15 +292,16 @@ const HeadMarker: React.FC<{auditId: string; x: number; y: number}> = ({auditId,
   </g>
 );
 
-const BranchLabel: React.FC<{auditId: string; label: string; color: string; x: number; y: number}> = ({
+const BranchLabel: React.FC<{auditId: string; auditGroup?: string; label: string; color: string; x: number; y: number}> = ({
   auditId,
+  auditGroup,
   label,
   color,
   x,
   y,
 }) => {
   return (
-    <g data-audit-id={auditId}>
+    <g data-audit-id={auditId} data-audit-group={auditGroup}>
       <rect x={x - 58} y={y - 24} width="116" height="48" rx="8" fill={color} opacity="0.96" />
       <text
         x={x}

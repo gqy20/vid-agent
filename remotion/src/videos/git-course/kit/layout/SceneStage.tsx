@@ -9,7 +9,7 @@ export const SceneStage: React.FC<{
   readonly auditId?: string;
   readonly style?: React.CSSProperties;
 }> = ({preset, children, rect = SCENE_STAGE_RECTS[preset], auditId, style}) => (
-  <AbsoluteFill data-layout-preset={preset} data-audit-id={auditId}>
-    <div style={{...rectToStyle(rect), ...style}}>{children}</div>
+  <AbsoluteFill data-layout-preset={preset}>
+    <div data-audit-id={auditId} data-audit-ignore="safe-area" data-audit-safe-area={preset} style={{...rectToStyle(rect), ...style}}>{children}</div>
   </AbsoluteFill>
 );

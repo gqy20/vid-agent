@@ -16,6 +16,7 @@ MIN_GAP="${MIN_GAP:-44}"
 GHOST_OPACITY_MIN="${GHOST_OPACITY_MIN:-0.02}"
 GHOST_OPACITY_MAX="${GHOST_OPACITY_MAX:-0.18}"
 WAIT_MS="${WAIT_MS:-450}"
+STRICT="${STRICT:-0}"
 
 mkdir -p "$OUT_DIR"
 
@@ -108,6 +109,7 @@ playwright-cli -s=remotion-overlap-audit run-code "async page => {
         const id = el.getAttribute('data-audit-id') || '';
         const opacity = opacityOf(el);
         const area = rect.width * rect.height;
+        const explicitlyIgnored = el.hasAttribute('data-audit-ignore');
         return {
           index,
           id,
@@ -119,7 +121,10 @@ playwright-cli -s=remotion-overlap-audit run-code "async page => {
           area: Number(area.toFixed(2)),
           opacity: Number(opacity.toFixed(3)),
           text: (el.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 80),
-          ignored: ignoreId(id) || rect.width < 1 || rect.height < 1 || area < minArea || opacity < 0.02,
+          explicitlyIgnored,
+          allowOverflow: el.hasAttribute('data-audit-allow-overflow'),
+          auditGroup: el.getAttribute('data-audit-group') || '',
+          ignored: explicitlyIgnored || ignoreId(id) || rect.width < 1 || rect.height < 1 || area < minArea || opacity < 0.02,
           el,
         };
       });
@@ -138,13 +143,63 @@ playwright-cli -s=remotion-overlap-audit run-code "async page => {
         return {dx, dy, xOverlap, yOverlap};
       };
       for (const item of elements) {
-        if (item.ignored && item.opacity >= ghostOpacityMin && item.opacity <= ghostOpacityMax && item.area >= minArea && !ignoreId(item.id)) {
+        if (!item.explicitlyIgnored && item.ignored && item.opacity >= ghostOpacityMin && item.opacity <= ghostOpacityMax && item.area >= minArea && !ignoreId(item.id)) {
           visualIssues.push({
             type: 'ghost',
             id: item.id,
             opacity: item.opacity,
             text: item.text,
           });
+        }
+      }
+      const rectContains = (outer, inner, tolerance = 1) =>
+        inner.x >= outer.x - tolerance &&
+        inner.y >= outer.y - tolerance &&
+        inner.x + inner.width <= outer.x + outer.width + tolerance &&
+        inner.y + inner.height <= outer.y + outer.height + tolerance;
+      const viewport = {x: 0, y: 0, width: innerWidth, height: innerHeight};
+      const compositionBoundsOf = (el) => {
+        let node = el.parentElement;
+        while (node) {
+          const rect = node.getBoundingClientRect();
+          const style = getComputedStyle(node);
+          const isCompositionSurface = rect.width > 200 && rect.height > 200;
+          if (style.overflow === 'hidden' && style.transform !== 'none' && isCompositionSurface) {
+            return {x: rect.x, y: rect.y, width: rect.width, height: rect.height};
+          }
+          node = node.parentElement;
+        }
+        return viewport;
+      };
+      for (const item of active) {
+        if (item.allowOverflow) continue;
+        const compositionBounds = compositionBoundsOf(item.el);
+        if (!rectContains(compositionBounds, item)) {
+          visualIssues.push({
+            type: 'bounds',
+            id: item.id,
+            scope: 'composition',
+            x: item.x,
+            y: item.y,
+            width: item.width,
+            height: item.height,
+          });
+        }
+        const safeArea = item.el.parentElement?.closest('[data-audit-safe-area]');
+        if (safeArea) {
+          const safeRect = safeArea.getBoundingClientRect();
+          const safeBounds = {x: safeRect.x, y: safeRect.y, width: safeRect.width, height: safeRect.height};
+          if (!rectContains(safeBounds, item)) {
+            visualIssues.push({
+              type: 'bounds',
+              id: item.id,
+              scope: safeArea.getAttribute('data-audit-safe-area') || 'safe-area',
+              x: item.x,
+              y: item.y,
+              width: item.width,
+              height: item.height,
+            });
+          }
         }
       }
       for (let i = 0; i < active.length; i++) {
@@ -166,6 +221,7 @@ playwright-cli -s=remotion-overlap-audit run-code "async page => {
           const gap = distance(a, b);
           if (
             intersection.area === 0 &&
+            !(a.auditGroup && a.auditGroup === b.auditGroup) &&
             ((gap.xOverlap > minGap && gap.dy > 0 && gap.dy < minGap) ||
               (gap.yOverlap > minGap && gap.dx > 0 && gap.dx < minGap))
           ) {
@@ -239,6 +295,8 @@ for (const frame of report.results) {
     for (const issue of frame.visualIssues) {
       if (issue.type === 'ghost') {
         lines.push(`| ghost | \`${issue.id}\` | ${issue.text || ''} | opacity=${issue.opacity} |`);
+      } else if (issue.type === 'bounds') {
+        lines.push(`| bounds | \`${issue.id}\` | \`${issue.scope}\` | x=${issue.x}, y=${issue.y}, width=${issue.width}, height=${issue.height} |`);
       } else {
         lines.push(`| near | \`${issue.a}\` | \`${issue.b}\` | dx=${issue.dx}, dy=${issue.dy}, xOverlap=${issue.xOverlap}, yOverlap=${issue.yOverlap} |`);
       }
@@ -261,3 +319,14 @@ NODE
 
 echo "overlap json: $JSON_OUT"
 echo "overlap report: $MD_OUT"
+
+if [[ "$STRICT" == "1" ]]; then
+  node - "$JSON_OUT" <<'NODE'
+const fs = require('fs');
+const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+if (report.overlapCount > 0 || report.visualIssueCount > 0) {
+  console.error(`strict overlap audit failed: overlaps=${report.overlapCount}, visualIssues=${report.visualIssueCount}`);
+  process.exit(1);
+}
+NODE
+fi

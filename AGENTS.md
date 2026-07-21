@@ -45,7 +45,7 @@
 - Remotion 统一负责课程结构、终端演示、字幕、代码、Git 图、对象关系、hash 传播、三方合并、rebase、状态面板和最终合成。
 - 几何复杂的概念应先沉淀为 `remotion/src/videos/git-course/kit/` 中可复用、可审查的 React/SVG/CSS 状态模型；不得在 episode 内堆一次性 SVG，也不得新增 Manim 集成作为捷径。
 - 创建 episode 局部 UI 前，优先复用 `remotion/src/videos/git-course/kit/` 组件。新增抽象要匹配现有组件系统。
-- 字幕保持克制。使用既有字幕组件（`NarrationSubtitle`、`ActionCaption`、`QuestionCaption` 及相关 kit 组件），不要在 episode 文件里散写自定义字幕样式。
+- 字幕保持克制。使用既有字幕组件（`CaptionLayer`、`NarrationSubtitle`、`SceneCaption`、`QuestionCaption`），不要在 episode 文件里散写自定义字幕样式。
 - 字幕应该补充结论或因果提示，不要重复画面已经表达的信息。
 - 避免无意义的循环、脉冲、晃动或缩放效果。高亮应该进入一次，解释状态变化，然后回到语义样式。
 - 控制信息密度。一个镜头里不要让 commit 图、终端、branch refs、HEAD、工作区、暂存区和字幕同时争夺注意力。
@@ -108,13 +108,13 @@
 
 优先把 episode 中反复出现的镜头结构沉淀为组合，而不是在单集里堆散装 JSX。
 
-- `QuestionScene`：标题 / 问题 / 极简主视觉。
-- `TerminalFocusScene`：终端独占，负责输入命令。
-- `StateTransitionScene`：命令导致状态变化，适合 Ep02 和后续涉及工作区、暂存区、仓库的内容。
-- `CenterModelScene`：居中模型解释，适合 Ep01、commit graph、branch pointer、hash、merge 和 rebase。
-- `ModelTransitionScene`：用 React 状态、SVG 关系线和时间进度表达抽象模型的因果变化。
+- `SceneStage(question)`：标题 / 问题 / 极简主视觉。
+- `RecordedTerminalStage`：真实终端录屏，负责命令证据。
+- `GitStateFlow`：命令导致状态变化，适合 Working Tree、Index、Repository。
+- `SceneStage(center-model)` + `CenterInRect`：居中解释 commit graph、branch pointer、hash、merge 和 rebase。
+- `CourseGraphPrimitives`：用统一节点、圆边连接和语义标签表达 DAG 关系。
 
-当前已有基础组件包括 `CourseLayout`、`SceneSequence`、`GitStatePanel`、`GitGraph`、`CenterGraph`、`CodeBlock`、`CodeDiff`、`TerminalPanel`、`TypedCommandTerminal`、`QuestionCaption` 和 `SceneCaption`。新增结构时应优先组合这些组件。
+当前公共基座包括 `createEpisodeRuntime`、`EpisodeTimeline`、`CourseLayout`、`SceneStage`、`COURSE_RECTS`、`GitGraph`、`CourseGraphPrimitives`、`GitStateFlow`、`RecordedTerminalStage`、`CaptionLayer`、`CodeBlock` 和 `CodeDiff`。共享组件变更先通过 `GitCourseComponentLab` 和严格布局审查，再 preview 真实 scene。
 
 ## 本地改动卫生
 

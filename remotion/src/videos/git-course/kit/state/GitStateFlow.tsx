@@ -49,7 +49,14 @@ export const GitStateFlow: React.FC<{
           })}
         </svg>
       ) : null}
-      <GitStatePanel areas={areas} areaOpacity={areaOpacity} prominent={prominent} compact={compact} gap={gap} />
+      <GitStatePanel
+        areas={areas}
+        areaOpacity={areaOpacity}
+        prominent={prominent}
+        compact={compact}
+        gap={gap}
+        auditId={auditId ? `${auditId}-area` : undefined}
+      />
     </div>
   );
 };

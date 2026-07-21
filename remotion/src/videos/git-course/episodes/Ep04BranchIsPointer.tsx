@@ -1,7 +1,7 @@
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP04} from '../data/episodes';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
-import {type GitCourseState} from '../data/terminalScripts';
+import {type GitCourseState} from '../data/gitCourseState';
 import {seconds} from '../timeline';
 import {
   BranchPointerHookGraph,

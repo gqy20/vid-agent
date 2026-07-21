@@ -13,6 +13,7 @@ export const RecordedTerminalStage: React.FC<RecordedTerminalPanelProps & {
 }> = ({rect = COURSE_RECTS.terminal, opacity = 1, zIndex, auditId, style, ...terminalProps}) => (
   <div
     data-audit-id={auditId}
+    data-audit-safe-area="terminal"
     style={{
       ...rectToStyle(rect),
       opacity,

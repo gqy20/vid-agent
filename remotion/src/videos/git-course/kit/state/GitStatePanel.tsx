@@ -1,3 +1,4 @@
+import {Fragment} from 'react';
 import {COLOR, FONT, WEIGHT} from '../../palette';
 import {TYPE} from '../../typography';
 
@@ -14,19 +15,33 @@ const AREA_ACCENT: Record<GitArea['id'], string> = {
   repository: COLOR.git.main,
 };
 
+const FileLabel: React.FC<{readonly value: string}> = ({value}) => (
+  <span style={{minWidth: 0, overflowWrap: 'break-word', wordBreak: 'normal'}}>
+    {value.split('/').map((part, index) => (
+      <Fragment key={`${part}-${index}`}>
+        {index > 0 ? <><span>/</span><wbr /></> : null}
+        {part}
+      </Fragment>
+    ))}
+  </span>
+);
+
 export const GitStatePanel: React.FC<{
   areas: readonly GitArea[];
   areaOpacity?: Partial<Record<GitArea['id'], number>>;
   prominent?: boolean;
   compact?: boolean;
   gap?: number;
-}> = ({areas, areaOpacity, prominent = false, compact = false, gap = 14}) => {
+  auditId?: string;
+}> = ({areas, areaOpacity, prominent = false, compact = false, gap = 14, auditId}) => {
   return (
     <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap, width: '100%'}}>
       {areas.map((area) => (
         <div
           key={area.id}
           data-git-area-id={area.id}
+          data-audit-id={auditId ? `${auditId}-${area.id}` : undefined}
+          data-audit-group={auditId}
           style={{
             minHeight: prominent ? 304 : compact ? 174 : 260,
             borderRadius: 8,
@@ -111,7 +126,7 @@ export const GitStatePanel: React.FC<{
                     flex: '0 0 auto',
                   }}
                 />
-                <span>{file}</span>
+                <FileLabel value={file} />
               </div>
             ))}
           </div>

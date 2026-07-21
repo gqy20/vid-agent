@@ -172,7 +172,7 @@
       "duration": 25,
       "primaryTechnique": "GitGraph + command",
       "components": [
-        "TerminalFocusScene",
+        "RecordedTerminalStage",
         "CommandPill",
         "GitGraph",
         "SideLabel"

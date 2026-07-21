@@ -62,7 +62,7 @@
 
 - 旁白字幕：用于完整句子，位置为底部安全区，左右各留 `420px`，字号使用 `TYPE.subtitle`，颜色使用 `text.primary`，最多两行。
 - 动作提示：用于短因果提示，例如 `写入一条 ref`、`只移动 feature`，左右各留 `690px`，字号使用 `TYPE.ui`，不超过 12 个汉字或一个短代码短语。
-- 组件使用：旁白统一用 `NarrationSubtitle`，动作提示统一用 `ActionCaption`，不在 episode 中直接使用旧的 `Subtitle` API。
+- 组件使用：旁白统一用 `NarrationSubtitle`，动作提示统一用 `SceneCaption`，不在 episode 中直接使用旧的 `Subtitle` API。
 
 统一规则：
 

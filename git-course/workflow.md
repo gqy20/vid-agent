@@ -202,7 +202,13 @@ release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已�
 
 - Git Course 的所有教学画面统一由 Remotion 实现，包括课程壳、终端、字幕、代码、Git 图、DAG、对象模型、hash、三路合并、rebase、状态面板和最终合成。
 - 抽象原理必须使用可复用的 React/SVG/CSS 状态模型表达；先定义教学状态与因果过渡，再实现时间线，不在 episode 内散写难维护的一次性图形。
+- episode 统一通过 `createEpisodeRuntime` 和 `EpisodeTimeline` 消费生成的 scene 数据；不得在各集重新维护 scene start、duration 或 captions 查找函数。
+- 静态位置优先使用 `COURSE_RECTS`、`SceneStage`、`CenterInRect` 和 `FitToRect`；动画 transform 只表达状态变化，不用于掩盖未居中或尺寸失控。
+- 完整终端操作统一使用 `RecordedTerminalStage` 和 `git-course-lab` 真实录屏；`CommandPill` / `CommandStrip` 只作为状态画面的命令上下文。
+- Git 图优先使用 `GitGraph` 或 `CourseGraphPrimitives`，Working Tree / Index / Repository 优先使用 `GitStateFlow`，字幕统一经过 `CaptionLayer`。
 - `manim-viz`、`scripts/manim/git-course*`、`public/git-course/manim/` 和 `ManimClip` 仅作历史兼容保留，不参与新 scene、构建指纹、candidate 或 release。
+
+共享 kit 的视觉或几何改动先在 `GitCourseComponentLab` 覆盖正常输入和长内容输入，并执行 `pnpm --dir remotion git-course:lab:audit`。Lab 只写 `renders/git-course/tmp/component-lab/`，不进入 episode 生命周期；自动检查通过后仍需 preview 受影响的真实 scene。
 
 ## 审查与晋升
 
