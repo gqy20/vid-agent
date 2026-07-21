@@ -9,7 +9,9 @@ import {
   CenterGraph,
   CommandPill,
   CourseLayout,
+  createEpisodeRuntime,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitGraph,
   SceneCaption,
   MiniRefLine,
@@ -18,7 +20,6 @@ import {
   RefWrite,
   RefWriteBar,
   RecordedTerminalPanel,
-  SceneSequence,
   SideLabel,
   StrikeThrough,
   SvgArrowLine,
@@ -30,22 +31,7 @@ import {TYPE} from '../typography';
 export {EP04_DURATION_IN_FRAMES, EP04_SCENES} from '../data/episodeTimelines.generated';
 import {EP04_DURATION_IN_FRAMES, EP04_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep04SceneId = (typeof EP04_SCENES)[number]['id'];
-
-const getEp04SceneStart = (id: Ep04SceneId) => {
-  let cursor = 0;
-  for (const scene of EP04_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP04 scene: ${id}`);
-};
-
-const getEp04SceneDuration = (id: Ep04SceneId) => {
-  const scene = EP04_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP04 scene: ${id}`);
-  return scene.duration;
-};
+const EP04_RUNTIME = createEpisodeRuntime(EP04_SCENES);
 
 const graphState = (state: GitCourseState): GitGraphState => ({
   commits: state.commits.map((commit) => ({id: commit})),
@@ -452,6 +438,20 @@ const TakeawayScene: React.FC = () => {
   );
 };
 
+const EP04_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'mental-model': MentalModelScene,
+  terminal: TerminalScene,
+  'branch-write': BranchWriteScene,
+  'ref-storage': RefStorageScene,
+  'branch-result': BranchResultScene,
+  'start-point': StartPointScene,
+  switch: SwitchScene,
+  commit: CommitScene,
+  compare: CompareScene,
+  takeaway: TakeawayScene,
+};
+
 export const Ep04BranchIsPointer: React.FC = () => {
   const frame = useCurrentFrame();
 
@@ -461,52 +461,10 @@ export const Ep04BranchIsPointer: React.FC = () => {
       episodeTitle={EP04.title}
       scenes={EP04_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp04SceneStart('terminal')}
-      showEpisodeTitle={(current) => current >= getEp04SceneStart('terminal')}
+      showHeader={(current) => current >= EP04_RUNTIME.start('terminal')}
+      showEpisodeTitle={(current) => current >= EP04_RUNTIME.start('terminal')}
     >
-      <SceneSequence from={getEp04SceneStart('hook')} durationInFrames={getEp04SceneDuration('hook')}>
-        <HookScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('mental-model')} durationInFrames={getEp04SceneDuration('mental-model')}>
-        <MentalModelScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('terminal')} durationInFrames={getEp04SceneDuration('terminal')}>
-        <TerminalScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('branch-write')} durationInFrames={getEp04SceneDuration('branch-write')}>
-        <BranchWriteScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('ref-storage')} durationInFrames={getEp04SceneDuration('ref-storage')}>
-        <RefStorageScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('branch-result')} durationInFrames={getEp04SceneDuration('branch-result')}>
-        <BranchResultScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('start-point')} durationInFrames={getEp04SceneDuration('start-point')}>
-        <StartPointScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('switch')} durationInFrames={getEp04SceneDuration('switch')}>
-        <SwitchScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('commit')} durationInFrames={getEp04SceneDuration('commit')}>
-        <CommitScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('compare')} durationInFrames={getEp04SceneDuration('compare')}>
-        <CompareScene />
-      </SceneSequence>
-
-      <SceneSequence from={getEp04SceneStart('takeaway')} durationInFrames={getEp04SceneDuration('takeaway')}>
-        <TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP04_RUNTIME} components={EP04_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

@@ -6,11 +6,13 @@ import {
   CodeDiff,
   CommandPill,
   COURSE_GRAPH_GEOMETRY,
+  createEpisodeRuntime,
   CourseBranchLabel,
   CourseCommitNode,
   CourseHeadMarker,
   CourseLayout,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitStatePanel,
   NarrationSubtitle,
   RecordedTerminalPanel,
@@ -22,30 +24,9 @@ import {TYPE} from '../typography';
 export {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
 import {EP08_DURATION_IN_FRAMES, EP08_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep08SceneId = (typeof EP08_SCENES)[number]['id'];
 type ResetMode = 'soft' | 'mixed' | 'hard';
 type RestoreMode = 'index-to-worktree' | 'head-to-worktree' | 'head-to-index' | 'head-to-both';
-
-const getEp08SceneStart = (id: Ep08SceneId) => {
-  let cursor = 0;
-  for (const scene of EP08_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP08 scene: ${id}`);
-};
-
-const getEp08SceneDuration = (id: Ep08SceneId) => {
-  const scene = EP08_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP08 scene: ${id}`);
-  return scene.duration;
-};
-
-const getEp08Captions = (id: Ep08SceneId) => {
-  const scene = EP08_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP08 scene: ${id}`);
-  return scene.captions;
-};
+const EP08_RUNTIME = createEpisodeRuntime(EP08_SCENES);
 
 const useSceneFrame = () => useCurrentFrame();
 const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
@@ -207,7 +188,7 @@ const HookScene: React.FC = () => {
       <div style={{position: 'absolute', left: '50%', top: 748, transform: `translateX(-50%) translateY(${(1 - questionIn) * 12}px)`, opacity: questionIn, ...TYPE.hero, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>
         改历史，还是改文件？
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('hook')} width={1320} bottom={64} auditId="ep08-hook-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('hook')} width={1320} bottom={64} auditId="ep08-hook-caption" />
     </AbsoluteFill>
   );
 };
@@ -237,7 +218,7 @@ const ThreeTreesScene: React.FC = () => {
         <span style={{color: COLOR.git.head}}>→</span>
         <span style={{color: COLOR.text.primary}}>target layer</span>
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('three-trees')} width={1320} bottom={64} auditId="ep08-trees-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('three-trees')} width={1320} bottom={64} auditId="ep08-trees-caption" />
     </AbsoluteFill>
   );
 };
@@ -305,7 +286,7 @@ const ResetModesScene: React.FC = () => {
           <RecordedTerminalPanel src="git-course-lab/terminal/ep08-reset-hard.mp4" holdFrameSrc="git-course-lab/terminal/ep08-reset-hard-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-reset-hard'].holdFromFrame} playbackRate={1.6} mediaFit="cover" />
         </div>
       </SceneSequence>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('reset-modes')} width={1320} bottom={64} auditId="ep08-reset-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('reset-modes')} width={1320} bottom={64} auditId="ep08-reset-caption" />
     </AbsoluteFill>
   );
 };
@@ -336,7 +317,7 @@ const RevertScene: React.FC = () => {
           <RecordedTerminalPanel src="git-course-lab/terminal/ep08-revert.mp4" holdFrameSrc="git-course-lab/terminal/ep08-revert-hold.png" holdFromFrame={TERMINAL_RECORDINGS['ep08-revert'].holdFromFrame} playbackRate={1.45} mediaFit="cover" />
         </div>
       </SceneSequence>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('revert')} width={1320} bottom={64} auditId="ep08-revert-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('revert')} width={1320} bottom={64} auditId="ep08-revert-caption" />
     </AbsoluteFill>
   );
 };
@@ -384,7 +365,7 @@ const RestoreScene: React.FC = () => {
           main / HEAD / commit graph 保持不动
         </div>
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('restore')} width={1320} bottom={64} auditId="ep08-restore-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('restore')} width={1320} bottom={64} auditId="ep08-restore-caption" />
     </AbsoluteFill>
   );
 };
@@ -422,7 +403,7 @@ const ChooseScene: React.FC = () => {
           </span>
         ))}
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('choose')} width={1320} bottom={64} auditId="ep08-choose-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('choose')} width={1320} bottom={64} auditId="ep08-choose-caption" />
     </AbsoluteFill>
   );
 };
@@ -459,9 +440,19 @@ const TakeawayScene: React.FC = () => {
         <SummaryCard command="revert" node="R1" description="向前写入新提交" color={COLOR.git.feature} opacity={revertIn} />
         <SummaryCard command="restore" node="file" description="恢复选定文件层" color={COLOR.git.workingTree} opacity={restoreIn} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp08Captions('takeaway')} width={1320} bottom={64} auditId="ep08-takeaway-caption" />
+      <NarrationSubtitle frame={frame} cues={EP08_RUNTIME.captions('takeaway')} width={1320} bottom={64} auditId="ep08-takeaway-caption" />
     </AbsoluteFill>
   );
+};
+
+const EP08_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'three-trees': ThreeTreesScene,
+  'reset-modes': ResetModesScene,
+  revert: RevertScene,
+  restore: RestoreScene,
+  choose: ChooseScene,
+  takeaway: TakeawayScene,
 };
 
 export const Ep08ResetRevertRestore: React.FC = () => {
@@ -473,16 +464,10 @@ export const Ep08ResetRevertRestore: React.FC = () => {
       episodeTitle={EP08.title}
       scenes={EP08_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp08SceneStart('three-trees')}
-      showEpisodeTitle={(current) => current >= getEp08SceneStart('three-trees')}
+      showHeader={(current) => current >= EP08_RUNTIME.start('three-trees')}
+      showEpisodeTitle={(current) => current >= EP08_RUNTIME.start('three-trees')}
     >
-      <SceneSequence from={getEp08SceneStart('hook')} durationInFrames={getEp08SceneDuration('hook')}><HookScene /></SceneSequence>
-      <SceneSequence from={getEp08SceneStart('three-trees')} durationInFrames={getEp08SceneDuration('three-trees')}><ThreeTreesScene /></SceneSequence>
-      <SceneSequence from={getEp08SceneStart('reset-modes')} durationInFrames={getEp08SceneDuration('reset-modes')}><ResetModesScene /></SceneSequence>
-      <SceneSequence from={getEp08SceneStart('revert')} durationInFrames={getEp08SceneDuration('revert')}><RevertScene /></SceneSequence>
-      <SceneSequence from={getEp08SceneStart('restore')} durationInFrames={getEp08SceneDuration('restore')}><RestoreScene /></SceneSequence>
-      <SceneSequence from={getEp08SceneStart('choose')} durationInFrames={getEp08SceneDuration('choose')}><ChooseScene /></SceneSequence>
-      <SceneSequence from={getEp08SceneStart('takeaway')} durationInFrames={getEp08SceneDuration('takeaway')}><TakeawayScene /></SceneSequence>
+      <EpisodeTimeline runtime={EP08_RUNTIME} components={EP08_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

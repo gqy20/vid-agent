@@ -6,41 +6,21 @@ import {
   CodeBlock,
   CommandPill,
   COURSE_GRAPH_GEOMETRY,
+  createEpisodeRuntime,
   CourseBranchLabel,
   CourseCommitNode,
   CourseLayout,
   EpisodeTitleCard,
+  EpisodeTimeline,
   NarrationSubtitle,
   RecordedTerminalPanel,
-  SceneSequence,
 } from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {TYPE} from '../typography';
 export {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
 import {EP07_DURATION_IN_FRAMES, EP07_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep07SceneId = (typeof EP07_SCENES)[number]['id'];
-
-const getEp07SceneStart = (id: Ep07SceneId) => {
-  let cursor = 0;
-  for (const scene of EP07_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP07 scene: ${id}`);
-};
-
-const getEp07SceneDuration = (id: Ep07SceneId) => {
-  const scene = EP07_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP07 scene: ${id}`);
-  return scene.duration;
-};
-
-const getEp07Captions = (id: Ep07SceneId) => {
-  const scene = EP07_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP07 scene: ${id}`);
-  return scene.captions;
-};
+const EP07_RUNTIME = createEpisodeRuntime(EP07_SCENES);
 
 const useSceneFrame = () => useCurrentFrame();
 const commitX = (idx: number) => 110 + idx * COURSE_GRAPH_GEOMETRY.commitGap;
@@ -276,7 +256,7 @@ const HookScene: React.FC = () => {
       <div style={{position: 'absolute', left: '50%', top: 752, transform: `translateX(-50%) translateY(${(1 - ruleIn) * 12}px)`, opacity: ruleIn, ...TYPE.hero, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>
         rebase = replay
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('hook')} width={1320} bottom={64} auditId="ep07-hook-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('hook')} width={1320} bottom={64} auditId="ep07-hook-caption" />
     </AbsoluteFill>
   );
 };
@@ -298,7 +278,7 @@ const CompareMergeScene: React.FC = () => {
           <RebaseGraph mode="rebased" width={800} small showOld nodeScale={1.42} />
         </div>
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('compare-merge')} width={1320} bottom={64} auditId="ep07-compare-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('compare-merge')} width={1320} bottom={64} auditId="ep07-compare-caption" />
     </AbsoluteFill>
   );
 };
@@ -321,7 +301,7 @@ const TerminalRebaseScene: React.FC = () => {
           mediaFit="cover"
         />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('terminal-rebase')} width={1320} bottom={64} auditId="ep07-terminal-rebase-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('terminal-rebase')} width={1320} bottom={64} auditId="ep07-terminal-rebase-caption" />
     </AbsoluteFill>
   );
 };
@@ -369,7 +349,7 @@ const ReplayModelScene: React.FC = () => {
         />
       </div>
 
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('replay-model')} width={1320} bottom={64} auditId="ep07-replay-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('replay-model')} width={1320} bottom={64} auditId="ep07-replay-caption" />
     </AbsoluteFill>
   );
 };
@@ -401,7 +381,7 @@ const NewIdentityScene: React.FC = () => {
       <div style={{position: 'absolute', left: '50%', top: 260, width: 1040, transform: `translateX(-50%) translateY(${(1 - graphIn) * 16}px)`, opacity: graphIn}}>
         <RebaseGraph mode="rebased" width={1040} small showOld nodeScale={1.32} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('new-identity')} width={1320} bottom={64} auditId="ep07-identity-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('new-identity')} width={1320} bottom={64} auditId="ep07-identity-caption" />
     </AbsoluteFill>
   );
 };
@@ -416,7 +396,7 @@ const FastForwardAfterScene: React.FC = () => {
       <div style={{position: 'absolute', left: '50%', top: 238, width: 1280, transform: 'translateX(-50%)'}}>
         <RebaseGraph mode="fast-forward" width={1280} progress={motion} showOld={false} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('fast-forward-after')} width={1320} bottom={64} auditId="ep07-ff-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('fast-forward-after')} width={1320} bottom={64} auditId="ep07-ff-caption" />
     </AbsoluteFill>
   );
 };
@@ -434,7 +414,7 @@ const PublicRiskScene: React.FC = () => {
       <div style={{position: 'absolute', right: 142, top: 244, width: 540, opacity: cardsIn}}>
         <CodeBlock title="同一份工作，两组身份" lines={['old ref  → C5', 'feature  → C5′', 'parent relation: none']} highlight={[0, 1]} highlightBorderColor={COLOR.git.head} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('public-risk')} width={1320} bottom={64} auditId="ep07-risk-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('public-risk')} width={1320} bottom={64} auditId="ep07-risk-caption" />
     </AbsoluteFill>
   );
 };
@@ -466,9 +446,20 @@ const TakeawayScene: React.FC = () => {
           ))}
         </div>
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp07Captions('takeaway')} width={1320} bottom={64} auditId="ep07-takeaway-caption" />
+      <NarrationSubtitle frame={frame} cues={EP07_RUNTIME.captions('takeaway')} width={1320} bottom={64} auditId="ep07-takeaway-caption" />
     </AbsoluteFill>
   );
+};
+
+const EP07_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'compare-merge': CompareMergeScene,
+  'terminal-rebase': TerminalRebaseScene,
+  'replay-model': ReplayModelScene,
+  'new-identity': NewIdentityScene,
+  'fast-forward-after': FastForwardAfterScene,
+  'public-risk': PublicRiskScene,
+  takeaway: TakeawayScene,
 };
 
 export const Ep07Rebase: React.FC = () => {
@@ -480,33 +471,10 @@ export const Ep07Rebase: React.FC = () => {
       episodeTitle={EP07.title}
       scenes={EP07_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp07SceneStart('compare-merge')}
-      showEpisodeTitle={(current) => current >= getEp07SceneStart('compare-merge')}
+      showHeader={(current) => current >= EP07_RUNTIME.start('compare-merge')}
+      showEpisodeTitle={(current) => current >= EP07_RUNTIME.start('compare-merge')}
     >
-      <SceneSequence from={getEp07SceneStart('hook')} durationInFrames={getEp07SceneDuration('hook')}>
-        <HookScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('compare-merge')} durationInFrames={getEp07SceneDuration('compare-merge')}>
-        <CompareMergeScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('terminal-rebase')} durationInFrames={getEp07SceneDuration('terminal-rebase')}>
-        <TerminalRebaseScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('replay-model')} durationInFrames={getEp07SceneDuration('replay-model')}>
-        <ReplayModelScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('new-identity')} durationInFrames={getEp07SceneDuration('new-identity')}>
-        <NewIdentityScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('fast-forward-after')} durationInFrames={getEp07SceneDuration('fast-forward-after')}>
-        <FastForwardAfterScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('public-risk')} durationInFrames={getEp07SceneDuration('public-risk')}>
-        <PublicRiskScene />
-      </SceneSequence>
-      <SceneSequence from={getEp07SceneStart('takeaway')} durationInFrames={getEp07SceneDuration('takeaway')}>
-        <TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP07_RUNTIME} components={EP07_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

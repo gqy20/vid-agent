@@ -4,14 +4,15 @@ import {
   CenterGraph,
   CodeBlock,
   CourseLayout,
+  createEpisodeRuntime,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitGraph,
   MotionTitle,
   PositionedMotion,
   QuestionCaption,
   RecordedTerminalPanel,
   SceneCaption,
-  SceneSequence,
   SvgArrowLine,
   type GitGraphState,
 } from '../kit';
@@ -22,15 +23,7 @@ export {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.gen
 import {EP01_DURATION_IN_FRAMES, EP01_SCENES} from '../data/episodeTimelines.generated';
 
 type Ep01SceneId = (typeof EP01_SCENES)[number]['id'];
-
-const getEp01SceneStart = (id: Ep01SceneId) => {
-  let cursor = 0;
-  for (const scene of EP01_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP01 scene: ${id}`);
-};
+const EP01_RUNTIME = createEpisodeRuntime(EP01_SCENES);
 
 const sceneTitleOpacity = (frame: number) => {
   const titleIn = interpolate(frame, [0, seconds(0.55)], [0, 1], {extrapolateRight: 'clamp'});
@@ -884,7 +877,7 @@ const Ep01ScenePreview: React.FC<{
   children: React.ReactNode;
 }> = ({sceneId, children}) => {
   const frame = useCurrentFrame();
-  const sceneStart = getEp01SceneStart(sceneId);
+  const sceneStart = EP01_RUNTIME.start(sceneId);
 
   return (
     <CourseLayout
@@ -942,6 +935,17 @@ export const Ep01TakeawayPreview: React.FC = () => (
   </Ep01ScenePreview>
 );
 
+const EP01_SCENE_COMPONENTS = {
+  hook: Ep01HookScene,
+  'bad-model': Ep01BadModelScene,
+  'version-control': Ep01VersionControlScene,
+  'snapshot-model': Ep01SnapshotModelScene,
+  'practice-check': Ep01PracticeCheckScene,
+  'local-history': Ep01LocalHistoryScene,
+  integrity: Ep01IntegrityScene,
+  takeaway: Ep01TakeawayScene,
+};
+
 export const Ep01WhatGitStores: React.FC = () => {
   const frame = useCurrentFrame();
 
@@ -951,33 +955,10 @@ export const Ep01WhatGitStores: React.FC = () => {
       episodeTitle="Git 到底记录什么"
       scenes={EP01_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp01SceneStart('bad-model')}
-      showEpisodeTitle={(current) => current >= getEp01SceneStart('bad-model')}
+      showHeader={(current) => current >= EP01_RUNTIME.start('bad-model')}
+      showEpisodeTitle={(current) => current >= EP01_RUNTIME.start('bad-model')}
     >
-      <SceneSequence from={getEp01SceneStart('hook')} durationInFrames={EP01_SCENES[0].duration}>
-        <Ep01HookScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('bad-model')} durationInFrames={EP01_SCENES[1].duration}>
-        <Ep01BadModelScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('version-control')} durationInFrames={EP01_SCENES[2].duration}>
-        <Ep01VersionControlScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('snapshot-model')} durationInFrames={EP01_SCENES[3].duration}>
-        <Ep01SnapshotModelScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('practice-check')} durationInFrames={EP01_SCENES[4].duration}>
-        <Ep01PracticeCheckScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('local-history')} durationInFrames={EP01_SCENES[5].duration}>
-        <Ep01LocalHistoryScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('integrity')} durationInFrames={EP01_SCENES[6].duration}>
-        <Ep01IntegrityScene />
-      </SceneSequence>
-      <SceneSequence from={getEp01SceneStart('takeaway')} durationInFrames={EP01_SCENES[7].duration}>
-        <Ep01TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP01_RUNTIME} components={EP01_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

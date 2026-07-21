@@ -2,12 +2,13 @@ import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {
   CommitNode,
   CourseLayout,
+  createEpisodeRuntime,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitStatePanel,
   QuestionCaption,
   RecordedTerminalPanel,
   SceneCaption,
-  SceneSequence,
   SvgArrowLine,
 } from '../kit';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
@@ -17,22 +18,7 @@ import {TYPE} from '../typography';
 export {EP03_DURATION_IN_FRAMES, EP03_SCENES} from '../data/episodeTimelines.generated';
 import {EP03_DURATION_IN_FRAMES, EP03_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep03SceneId = (typeof EP03_SCENES)[number]['id'];
-
-const getEp03SceneStart = (id: Ep03SceneId) => {
-  let cursor = 0;
-  for (const scene of EP03_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP03 scene: ${id}`);
-};
-
-const getEp03SceneDuration = (id: Ep03SceneId) => {
-  const scene = EP03_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP03 scene: ${id}`);
-  return scene.duration;
-};
+const EP03_RUNTIME = createEpisodeRuntime(EP03_SCENES);
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
@@ -428,6 +414,16 @@ const TakeawayScene: React.FC = () => {
   );
 };
 
+const EP03_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'from-index': FromIndexScene,
+  'object-model': ObjectModelScene,
+  'commit-fields': CommitFieldsScene,
+  'parent-chain': ParentChainScene,
+  'hash-identity': HashIdentityScene,
+  takeaway: TakeawayScene,
+};
+
 export const Ep03CommitSnapshot: React.FC = () => {
   const frame = useCurrentFrame();
   return (
@@ -436,30 +432,10 @@ export const Ep03CommitSnapshot: React.FC = () => {
       episodeTitle="Commit 不是保存按钮"
       scenes={EP03_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp03SceneStart('from-index')}
-      showEpisodeTitle={(current) => current >= getEp03SceneStart('from-index')}
+      showHeader={(current) => current >= EP03_RUNTIME.start('from-index')}
+      showEpisodeTitle={(current) => current >= EP03_RUNTIME.start('from-index')}
     >
-      <SceneSequence from={getEp03SceneStart('hook')} durationInFrames={getEp03SceneDuration('hook')}>
-        <HookScene />
-      </SceneSequence>
-      <SceneSequence from={getEp03SceneStart('from-index')} durationInFrames={getEp03SceneDuration('from-index')}>
-        <FromIndexScene />
-      </SceneSequence>
-      <SceneSequence from={getEp03SceneStart('object-model')} durationInFrames={getEp03SceneDuration('object-model')}>
-        <ObjectModelScene />
-      </SceneSequence>
-      <SceneSequence from={getEp03SceneStart('commit-fields')} durationInFrames={getEp03SceneDuration('commit-fields')}>
-        <CommitFieldsScene />
-      </SceneSequence>
-      <SceneSequence from={getEp03SceneStart('parent-chain')} durationInFrames={getEp03SceneDuration('parent-chain')}>
-        <ParentChainScene />
-      </SceneSequence>
-      <SceneSequence from={getEp03SceneStart('hash-identity')} durationInFrames={getEp03SceneDuration('hash-identity')}>
-        <HashIdentityScene />
-      </SceneSequence>
-      <SceneSequence from={getEp03SceneStart('takeaway')} durationInFrames={getEp03SceneDuration('takeaway')}>
-        <TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP03_RUNTIME} components={EP03_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

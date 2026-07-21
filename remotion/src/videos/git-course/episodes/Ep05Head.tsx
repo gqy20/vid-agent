@@ -5,12 +5,13 @@ import {
   CenterGraph,
   CommandPill,
   CourseLayout,
+  createEpisodeRuntime,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitGraph,
   GitStatePanel,
   NarrationSubtitle,
   RefInspectorCard,
-  SceneSequence,
   RecordedTerminalPanel,
   type GitGraphState,
 } from '../kit';
@@ -19,28 +20,7 @@ import {TYPE} from '../typography';
 export {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
 import {EP05_DURATION_IN_FRAMES, EP05_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep05SceneId = (typeof EP05_SCENES)[number]['id'];
-
-const getEp05SceneStart = (id: Ep05SceneId) => {
-  let cursor = 0;
-  for (const scene of EP05_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP05 scene: ${id}`);
-};
-
-const getEp05SceneDuration = (id: Ep05SceneId) => {
-  const scene = EP05_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP05 scene: ${id}`);
-  return scene.duration;
-};
-
-const getEp05Captions = (id: Ep05SceneId) => {
-  const scene = EP05_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP05 scene: ${id}`);
-  return scene.captions;
-};
+const EP05_RUNTIME = createEpisodeRuntime(EP05_SCENES);
 
 type Ep05GitState = {
   main: 'C2';
@@ -147,7 +127,7 @@ const HookScene: React.FC = () => {
       <div style={{opacity: graphIn, transform: `translateY(${(1 - graphIn) * 22}px)`}}>
         <CenterGraph state={SYMBOLIC_REF_GRAPH} top={250} width={1160} headMarkerOffsetX={118} branchOffset={84} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('hook')} auditId="ep05-hook-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('hook')} auditId="ep05-hook-caption" />
     </AbsoluteFill>
   );
 };
@@ -192,7 +172,7 @@ const SymbolicRefScene: React.FC = () => {
       <div style={{opacity: graphIn, transform: `translateY(${(1 - graphIn) * 24}px)`}}>
         <CenterGraph state={SYMBOLIC_REF_GRAPH} top={390} width={1080} headMarkerOffsetX={118} branchOffset={84} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('symbolic-ref')} auditId="ep05-symbolic-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('symbolic-ref')} auditId="ep05-symbolic-caption" />
     </AbsoluteFill>
   );
 };
@@ -210,7 +190,7 @@ const TerminalScene: React.FC = () => {
           mediaFit="cover"
         />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('terminal')} width={1180} auditId="ep05-terminal-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('terminal')} width={1180} auditId="ep05-terminal-caption" />
     </AbsoluteFill>
   );
 };
@@ -268,7 +248,7 @@ const SwitchScene: React.FC = () => {
           ]}
         />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('switch')} auditId="ep05-switch-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('switch')} auditId="ep05-switch-caption" />
     </AbsoluteFill>
   );
 };
@@ -321,7 +301,7 @@ const CommitCurrentScene: React.FC = () => {
           auditId="ep05-commit-feature-ref"
         />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('commit-current')} auditId="ep05-commit-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('commit-current')} auditId="ep05-commit-caption" />
     </AbsoluteFill>
   );
 };
@@ -429,7 +409,7 @@ const DetachedScene: React.FC = () => {
           </div>
         </div>
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('detached')} auditId="ep05-detached-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('detached')} auditId="ep05-detached-caption" />
     </AbsoluteFill>
   );
 };
@@ -466,9 +446,19 @@ const TakeawayScene: React.FC = () => {
           auditId="ep05-takeaway-graph"
         />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp05Captions('takeaway')} auditId="ep05-takeaway-caption" />
+      <NarrationSubtitle frame={frame} cues={EP05_RUNTIME.captions('takeaway')} auditId="ep05-takeaway-caption" />
     </AbsoluteFill>
   );
+};
+
+const EP05_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'symbolic-ref': SymbolicRefScene,
+  terminal: TerminalScene,
+  switch: SwitchScene,
+  'commit-current': CommitCurrentScene,
+  detached: DetachedScene,
+  takeaway: TakeawayScene,
 };
 
 export const Ep05Head: React.FC = () => {
@@ -480,30 +470,10 @@ export const Ep05Head: React.FC = () => {
       episodeTitle={EP05.title}
       scenes={EP05_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp05SceneStart('terminal')}
-      showEpisodeTitle={(current) => current >= getEp05SceneStart('terminal')}
+      showHeader={(current) => current >= EP05_RUNTIME.start('terminal')}
+      showEpisodeTitle={(current) => current >= EP05_RUNTIME.start('terminal')}
     >
-      <SceneSequence from={getEp05SceneStart('hook')} durationInFrames={getEp05SceneDuration('hook')}>
-        <HookScene />
-      </SceneSequence>
-      <SceneSequence from={getEp05SceneStart('symbolic-ref')} durationInFrames={getEp05SceneDuration('symbolic-ref')}>
-        <SymbolicRefScene />
-      </SceneSequence>
-      <SceneSequence from={getEp05SceneStart('terminal')} durationInFrames={getEp05SceneDuration('terminal')}>
-        <TerminalScene />
-      </SceneSequence>
-      <SceneSequence from={getEp05SceneStart('switch')} durationInFrames={getEp05SceneDuration('switch')}>
-        <SwitchScene />
-      </SceneSequence>
-      <SceneSequence from={getEp05SceneStart('commit-current')} durationInFrames={getEp05SceneDuration('commit-current')}>
-        <CommitCurrentScene />
-      </SceneSequence>
-      <SceneSequence from={getEp05SceneStart('detached')} durationInFrames={getEp05SceneDuration('detached')}>
-        <DetachedScene />
-      </SceneSequence>
-      <SceneSequence from={getEp05SceneStart('takeaway')} durationInFrames={getEp05SceneDuration('takeaway')}>
-        <TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP05_RUNTIME} components={EP05_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

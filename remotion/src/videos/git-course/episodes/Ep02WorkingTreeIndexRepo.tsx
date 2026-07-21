@@ -3,12 +3,13 @@ import {
   CodeBlock,
   CodeDiff,
   CourseLayout,
+  createEpisodeRuntime,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitStatePanel,
   QuestionCaption,
   RecordedTerminalPanel,
   SceneCaption,
-  SceneSequence,
   CommandStrip,
   SvgArrowLine,
 } from '../kit';
@@ -19,22 +20,7 @@ import {TYPE} from '../typography';
 export {EP02_DURATION_IN_FRAMES, EP02_SCENES} from '../data/episodeTimelines.generated';
 import {EP02_DURATION_IN_FRAMES, EP02_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep02SceneId = (typeof EP02_SCENES)[number]['id'];
-
-const getEp02SceneStart = (id: Ep02SceneId) => {
-  let cursor = 0;
-  for (const scene of EP02_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP02 scene: ${id}`);
-};
-
-const getEp02SceneDuration = (id: Ep02SceneId) => {
-  const scene = EP02_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP02 scene: ${id}`);
-  return scene.duration;
-};
+const EP02_RUNTIME = createEpisodeRuntime(EP02_SCENES);
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const TERMINAL_HEADER_HEIGHT = 42;
@@ -686,6 +672,16 @@ const TakeawayScene: React.FC = () => {
 };
 // @git-course-scene takeaway:end
 
+const EP02_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'three-areas': ThreeAreasScene,
+  modify: ModifyScene,
+  add: AddScene,
+  'edit-after-add': EditAfterAddScene,
+  commit: CommitScene,
+  takeaway: TakeawayScene,
+};
+
 export const Ep02WorkingTreeIndexRepo: React.FC = () => {
   const frame = useCurrentFrame();
   return (
@@ -694,30 +690,10 @@ export const Ep02WorkingTreeIndexRepo: React.FC = () => {
       episodeTitle="工作区、暂存区、仓库"
       scenes={EP02_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp02SceneStart('three-areas')}
-      showEpisodeTitle={(current) => current >= getEp02SceneStart('three-areas')}
+      showHeader={(current) => current >= EP02_RUNTIME.start('three-areas')}
+      showEpisodeTitle={(current) => current >= EP02_RUNTIME.start('three-areas')}
     >
-      <SceneSequence from={getEp02SceneStart('hook')} durationInFrames={getEp02SceneDuration('hook')}>
-        <HookScene />
-      </SceneSequence>
-      <SceneSequence from={getEp02SceneStart('three-areas')} durationInFrames={getEp02SceneDuration('three-areas')}>
-        <ThreeAreasScene />
-      </SceneSequence>
-      <SceneSequence from={getEp02SceneStart('modify')} durationInFrames={getEp02SceneDuration('modify')}>
-        <ModifyScene />
-      </SceneSequence>
-      <SceneSequence from={getEp02SceneStart('add')} durationInFrames={getEp02SceneDuration('add')}>
-        <AddScene />
-      </SceneSequence>
-      <SceneSequence from={getEp02SceneStart('edit-after-add')} durationInFrames={getEp02SceneDuration('edit-after-add')}>
-        <EditAfterAddScene />
-      </SceneSequence>
-      <SceneSequence from={getEp02SceneStart('commit')} durationInFrames={getEp02SceneDuration('commit')}>
-        <CommitScene />
-      </SceneSequence>
-      <SceneSequence from={getEp02SceneStart('takeaway')} durationInFrames={getEp02SceneDuration('takeaway')}>
-        <TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP02_RUNTIME} components={EP02_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };

@@ -7,15 +7,16 @@ import {
   CodeDiff,
   CommandPill,
   COURSE_GRAPH_GEOMETRY,
+  createEpisodeRuntime,
   CourseLayout,
   CourseBranchLabel,
   CourseCommitNode,
   CourseHeadMarker,
   EpisodeTitleCard,
+  EpisodeTimeline,
   GitStatePanel,
   NarrationSubtitle,
   RecordedTerminalPanel,
-  SceneSequence,
   SnapshotCard,
   type DiffLine,
 } from '../kit';
@@ -24,28 +25,7 @@ import {TYPE} from '../typography';
 export {EP06_DURATION_IN_FRAMES, EP06_SCENES} from '../data/episodeTimelines.generated';
 import {EP06_DURATION_IN_FRAMES, EP06_SCENES} from '../data/episodeTimelines.generated';
 
-type Ep06SceneId = (typeof EP06_SCENES)[number]['id'];
-
-const getEp06SceneStart = (id: Ep06SceneId) => {
-  let cursor = 0;
-  for (const scene of EP06_SCENES) {
-    if (scene.id === id) return cursor;
-    cursor += scene.duration;
-  }
-  throw new Error(`Unknown EP06 scene: ${id}`);
-};
-
-const getEp06SceneDuration = (id: Ep06SceneId) => {
-  const scene = EP06_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP06 scene: ${id}`);
-  return scene.duration;
-};
-
-const getEp06Captions = (id: Ep06SceneId) => {
-  const scene = EP06_SCENES.find((item) => item.id === id);
-  if (!scene) throw new Error(`Unknown EP06 scene: ${id}`);
-  return scene.captions;
-};
+const EP06_RUNTIME = createEpisodeRuntime(EP06_SCENES);
 
 const useSceneFrame = () => useCurrentFrame();
 
@@ -238,7 +218,7 @@ const HookScene: React.FC = () => {
         <div style={{...TYPE.title, marginBottom: 20}}>已经分叉</div>
         <MergeGraph mode="diverged" width={900} small />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('hook')} width={1320} bottom={64} auditId="ep06-hook-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('hook')} width={1320} bottom={64} auditId="ep06-hook-caption" />
     </AbsoluteFill>
   );
 };
@@ -257,7 +237,7 @@ const FastForwardScene: React.FC = () => {
       <SideNote x={1020} y={738} color={COLOR.git.main} opacity={noteIn}>
         作用：接入 hotfix，不额外制造汇合节点
       </SideNote>
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('fast-forward')} width={1320} bottom={64} auditId="ep06-ff-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('fast-forward')} width={1320} bottom={64} auditId="ep06-ff-caption" />
     </AbsoluteFill>
   );
 };
@@ -279,7 +259,7 @@ const DivergedScene: React.FC = () => {
       <SideNote x={238} y={748} color={COLOR.git.commit} opacity={labelsIn}>
         作用：merge base 分开共同内容与双方变化
       </SideNote>
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('diverged')} width={1320} bottom={64} auditId="ep06-diverged-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('diverged')} width={1320} bottom={64} auditId="ep06-diverged-caption" />
     </AbsoluteFill>
   );
 };
@@ -355,7 +335,7 @@ const ThreeWayScene: React.FC = () => {
         auditId="ep06-three-way-theirs"
       />
 
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('three-way')} width={1320} bottom={64} auditId="ep06-three-way-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('three-way')} width={1320} bottom={64} auditId="ep06-three-way-caption" />
     </AbsoluteFill>
   );
 };
@@ -383,7 +363,7 @@ const MergeCommitScene: React.FC = () => {
       <SideNote x={1240} y={700} color={COLOR.git.commit} opacity={arrowsIn}>
         作用：保留两条开发线的来源
       </SideNote>
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('merge-commit')} width={1320} bottom={64} auditId="ep06-merge-commit-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('merge-commit')} width={1320} bottom={64} auditId="ep06-merge-commit-caption" />
     </AbsoluteFill>
   );
 };
@@ -467,7 +447,7 @@ const ConflictScene: React.FC = () => {
       <div style={{position: 'absolute', left: 332, right: 332, top: 426, opacity: panelIn, transform: `translateY(${(1 - panelIn) * 16}px)`}}>
         <GitStatePanel compact areas={stateAreas} />
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('conflict')} width={1320} bottom={64} auditId="ep06-conflict-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('conflict')} width={1320} bottom={64} auditId="ep06-conflict-caption" />
     </AbsoluteFill>
   );
 };
@@ -492,9 +472,19 @@ const TakeawayScene: React.FC = () => {
           <div style={{...TYPE.subtitle, color: COLOR.text.primary, marginTop: 32}}>三方合并，生成 M1</div>
         </div>
       </div>
-      <NarrationSubtitle frame={frame} cues={getEp06Captions('takeaway')} width={1320} bottom={64} auditId="ep06-takeaway-caption" />
+      <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('takeaway')} width={1320} bottom={64} auditId="ep06-takeaway-caption" />
     </AbsoluteFill>
   );
+};
+
+const EP06_SCENE_COMPONENTS = {
+  hook: HookScene,
+  'fast-forward': FastForwardScene,
+  diverged: DivergedScene,
+  'three-way': ThreeWayScene,
+  'merge-commit': MergeCommitScene,
+  conflict: ConflictScene,
+  takeaway: TakeawayScene,
 };
 
 export const Ep06Merge: React.FC = () => {
@@ -506,30 +496,10 @@ export const Ep06Merge: React.FC = () => {
       episodeTitle={EP06.title}
       scenes={EP06_SCENES}
       currentFrame={frame}
-      showHeader={(current) => current >= getEp06SceneStart('fast-forward')}
-      showEpisodeTitle={(current) => current >= getEp06SceneStart('fast-forward')}
+      showHeader={(current) => current >= EP06_RUNTIME.start('fast-forward')}
+      showEpisodeTitle={(current) => current >= EP06_RUNTIME.start('fast-forward')}
     >
-      <SceneSequence from={getEp06SceneStart('hook')} durationInFrames={getEp06SceneDuration('hook')}>
-        <HookScene />
-      </SceneSequence>
-      <SceneSequence from={getEp06SceneStart('fast-forward')} durationInFrames={getEp06SceneDuration('fast-forward')}>
-        <FastForwardScene />
-      </SceneSequence>
-      <SceneSequence from={getEp06SceneStart('diverged')} durationInFrames={getEp06SceneDuration('diverged')}>
-        <DivergedScene />
-      </SceneSequence>
-      <SceneSequence from={getEp06SceneStart('three-way')} durationInFrames={getEp06SceneDuration('three-way')}>
-        <ThreeWayScene />
-      </SceneSequence>
-      <SceneSequence from={getEp06SceneStart('merge-commit')} durationInFrames={getEp06SceneDuration('merge-commit')}>
-        <MergeCommitScene />
-      </SceneSequence>
-      <SceneSequence from={getEp06SceneStart('conflict')} durationInFrames={getEp06SceneDuration('conflict')}>
-        <ConflictScene />
-      </SceneSequence>
-      <SceneSequence from={getEp06SceneStart('takeaway')} durationInFrames={getEp06SceneDuration('takeaway')}>
-        <TakeawayScene />
-      </SceneSequence>
+      <EpisodeTimeline runtime={EP06_RUNTIME} components={EP06_SCENE_COMPONENTS} />
     </CourseLayout>
   );
 };
