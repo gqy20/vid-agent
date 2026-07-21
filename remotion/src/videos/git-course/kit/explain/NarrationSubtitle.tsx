@@ -1,16 +1,12 @@
 import {Easing, interpolate} from 'remotion';
 import {seconds} from '../../timeline';
-import {COLOR, WEIGHT} from '../../palette';
-import {TYPE} from '../../typography';
+import {CaptionLayer} from './CaptionLayer';
 
 export type NarrationCaptionCue = {
   readonly from: number;
   readonly to: number;
   readonly text: string;
 };
-
-const cleanCaptionText = (text: string) =>
-  text.replace(/[。；;]+$/g, '').replace(/(?<=[\p{Script=Han}A-Za-z0-9])\.$/u, '');
 
 export const NarrationSubtitle: React.FC<{
   frame: number;
@@ -35,29 +31,5 @@ export const NarrationSubtitle: React.FC<{
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <div
-      data-audit-id={auditId}
-      style={{
-        position: 'absolute',
-        left: '50%',
-        bottom,
-        width: 'fit-content',
-        maxWidth: width,
-        boxSizing: 'border-box',
-        padding: '0 12px',
-        translate: `-50% ${(1 - enter) * 10}px`,
-        textAlign: 'center',
-        ...TYPE.subtitle,
-        fontSize: 32,
-        lineHeight: 1.42,
-        fontWeight: WEIGHT.bold,
-        color: COLOR.text.primary,
-        textShadow: '0 1px 0 rgba(247, 247, 244, 0.9)',
-        opacity: enter * exit,
-      }}
-    >
-      {cleanCaptionText(cue.text)}
-    </div>
-  );
+  return <CaptionLayer variant="narration" bottom={bottom} width={width} opacity={enter * exit} translateY={(1 - enter) * 10} auditId={auditId}>{cue.text}</CaptionLayer>;
 };

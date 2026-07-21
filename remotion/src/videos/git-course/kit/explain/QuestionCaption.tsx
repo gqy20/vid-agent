@@ -1,5 +1,4 @@
-import {COLOR} from '../../palette';
-import {TYPE} from '../../typography';
+import {CaptionLayer} from './CaptionLayer';
 
 export const QuestionCaption: React.FC<{
   children: React.ReactNode;
@@ -10,21 +9,7 @@ export const QuestionCaption: React.FC<{
   translateY?: number;
   auditId?: string;
 }> = ({children, bottom = 132, width = 920, fontSize, opacity = 1, translateY = 0, auditId}) => (
-  <div
-    data-audit-id={auditId}
-    style={{
-      position: 'absolute',
-      left: '50%',
-      bottom,
-      width,
-      ...TYPE.subtitle,
-      fontSize: fontSize ?? TYPE.subtitle.fontSize,
-      color: COLOR.text.primary,
-      opacity,
-      textAlign: 'center',
-      transform: `translate(-50%, ${translateY}px)`,
-    }}
-  >
+  <CaptionLayer variant="question" bottom={bottom} width={width} fontSize={fontSize} opacity={opacity} translateY={translateY} auditId={auditId}>
     {children}
-  </div>
+  </CaptionLayer>
 );

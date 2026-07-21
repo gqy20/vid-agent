@@ -5,7 +5,7 @@ import {
   createEpisodeRuntime,
   EpisodeTitleCard,
   EpisodeTimeline,
-  GitStatePanel,
+  GitStateFlow,
   QuestionCaption,
   RecordedTerminalStage,
   SceneCaption,
@@ -157,7 +157,7 @@ const FromIndexScene: React.FC = () => {
         commit 读取 Index
       </div>
       <div style={{position: 'absolute', left: 106, top: 316, width: 1450, opacity: boardIn}} data-audit-id="ep03-index-board">
-        <GitStatePanel
+        <GitStateFlow
           prominent
           areas={[
             {id: 'working-tree', title: 'Working Tree', files: ['app.js:v2', 'search.js:draft']},

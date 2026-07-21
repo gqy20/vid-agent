@@ -7,6 +7,8 @@ export type {DiffLine} from './kit/code/CodeDiff';
 export {FileTree} from './kit/code/FileTree';
 export type {FileTreeNode} from './kit/code/FileTree';
 export {QuestionCaption} from './kit/explain/QuestionCaption';
+export {CaptionLayer} from './kit/explain/CaptionLayer';
+export type {CaptionLayerVariant} from './kit/explain/CaptionLayer';
 export {NarrationSubtitle} from './kit/explain/NarrationSubtitle';
 export type {NarrationCaptionCue} from './kit/explain/NarrationSubtitle';
 export {SceneCaption} from './kit/explain/SceneCaption';
@@ -44,6 +46,8 @@ export {ArrowLine, DrawLine, FocusPulse, MotionTitle, StrikeThrough, SvgArrowLin
 export {clamp01, easeOutBack, easeOutCubic, mix} from './kit/motion';
 export {GitStatePanel} from './kit/state/GitStatePanel';
 export type {GitArea} from './kit/state/GitStatePanel';
+export {GitStateFlow} from './kit/state/GitStateFlow';
+export type {GitStateTransition} from './kit/state/GitStateFlow';
 export {TerminalFocusScene} from './kit/terminal/TerminalFocusScene';
 export {TerminalPanel} from './kit/terminal/TerminalPanel';
 export {RecordedTerminalPanel} from './kit/terminal/RecordedTerminalPanel';

@@ -9,7 +9,7 @@ import {
   EpisodeTitleCard,
   EpisodeTimeline,
   GitGraph,
-  GitStatePanel,
+  GitStateFlow,
   NarrationSubtitle,
   RefInspectorCard,
   RecordedTerminalStage,
@@ -240,7 +240,7 @@ const SwitchScene: React.FC = () => {
         />
       </div>
       <div style={{position: 'absolute', left: 610, top: 718, width: 700, opacity: workspaceIn * workspaceOut}}>
-        <GitStatePanel
+        <GitStateFlow
           compact
           areas={[
             {id: 'working-tree', title: 'Working Tree', files: ['匹配 feature @ C2'], active: true},

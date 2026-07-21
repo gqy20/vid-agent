@@ -16,7 +16,7 @@ import {
   CourseLayout,
   EpisodeTitleCard,
   EpisodeTimeline,
-  GitStatePanel,
+  GitStateFlow,
   NarrationSubtitle,
   RecordedTerminalStage,
   SceneSequence,
@@ -182,11 +182,12 @@ const ThreeTreesScene: React.FC = () => {
   return (
     <AbsoluteFill style={{padding: '126px 150px 112px', boxSizing: 'border-box'}}>
       <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 48}}>撤销前，先看三棵树</div>
-      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, width: '100%'}}>
-        <div style={{opacity: repoIn}}><GitStatePanel areas={[areas[0]]} prominent /></div>
-        <div style={{opacity: indexIn}}><GitStatePanel areas={[areas[1]]} prominent /></div>
-        <div style={{opacity: wtIn}}><GitStatePanel areas={[areas[2]]} prominent /></div>
-      </div>
+      <GitStateFlow
+        areas={areas}
+        areaOpacity={{repository: repoIn, index: indexIn, 'working-tree': wtIn}}
+        prominent
+        gap={18}
+      />
       <div style={{position: 'absolute', left: '50%', top: 696, transform: `translateX(-50%) translateY(${(1 - flowIn) * 12}px)`, opacity: flowIn, display: 'flex', alignItems: 'center', gap: 26, ...TYPE.title, fontWeight: WEIGHT.bold}}>
         <span style={{color: COLOR.text.secondary}}>source</span>
         <span style={{color: COLOR.git.head}}>→</span>
@@ -235,7 +236,7 @@ const ResetModesScene: React.FC = () => {
           ))}
         </div>
         <div style={{position: 'absolute', left: 132, right: 132, top: 510}}>
-          <GitStatePanel areas={resetAreas(mode)} prominent />
+          <GitStateFlow areas={resetAreas(mode)} prominent />
         </div>
         <div style={{position: 'absolute', left: 132, top: 448, opacity: mode === 'hard' ? warningIn : 0, transform: `translateY(${(1 - warningIn) * 10}px)`, padding: '12px 18px', borderRadius: 8, border: `2px solid ${COLOR.git.conflict}`, background: 'rgba(182,78,69,0.08)', ...TYPE.ui, color: COLOR.git.conflict, fontWeight: WEIGHT.bold}}>
           hard 会覆盖已跟踪文件的未提交修改
@@ -326,7 +327,7 @@ const RestoreScene: React.FC = () => {
         <CommandPill command={command} branch="main" fontSize={mode === 'head-to-both' ? 24 : 34} />
         <div style={{position: 'absolute', left: 142, right: 142, top: 286}}>
           <div style={{textAlign: 'center', ...TYPE.title, color: COLOR.text.primary, fontWeight: WEIGHT.bold, marginBottom: 30}}>{relation}</div>
-          <GitStatePanel areas={restoreAreas(mode)} prominent />
+          <GitStateFlow areas={restoreAreas(mode)} prominent />
         </div>
         <div style={{position: 'absolute', left: '50%', top: 720, transform: `translateX(-50%) translateY(${(1 - unchangedIn) * 10}px)`, opacity: unchangedIn, ...TYPE.ui, color: COLOR.text.secondary, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>
           main / HEAD / commit graph 保持不动

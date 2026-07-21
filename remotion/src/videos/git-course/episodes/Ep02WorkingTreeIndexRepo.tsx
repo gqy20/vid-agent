@@ -6,7 +6,7 @@ import {
   createEpisodeRuntime,
   EpisodeTitleCard,
   EpisodeTimeline,
-  GitStatePanel,
+  GitStateFlow,
   QuestionCaption,
   RecordedTerminalPanel,
   RecordedTerminalStage,
@@ -85,7 +85,7 @@ const Board: React.FC<{
 	  width?: number;
 	}> = ({workingFiles, indexFiles, repositoryFiles, active = 'none', opacity = 1, left = 154, top = 250, width = 1612}) => (
 	  <div style={{position: 'absolute', left, top, width, opacity}} data-audit-id="ep02-state-board">
-	    <GitStatePanel
+	    <GitStateFlow
 	      prominent
 	      areas={[
 	        {id: 'working-tree', title: 'Working Tree', files: workingFiles, active: active === 'working-tree'},

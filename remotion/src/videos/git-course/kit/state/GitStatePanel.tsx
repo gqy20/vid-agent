@@ -16,14 +16,17 @@ const AREA_ACCENT: Record<GitArea['id'], string> = {
 
 export const GitStatePanel: React.FC<{
   areas: readonly GitArea[];
+  areaOpacity?: Partial<Record<GitArea['id'], number>>;
   prominent?: boolean;
   compact?: boolean;
-}> = ({areas, prominent = false, compact = false}) => {
+  gap?: number;
+}> = ({areas, areaOpacity, prominent = false, compact = false, gap = 14}) => {
   return (
-    <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap: 14, width: '100%'}}>
+    <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap, width: '100%'}}>
       {areas.map((area) => (
         <div
           key={area.id}
+          data-git-area-id={area.id}
           style={{
             minHeight: prominent ? 304 : compact ? 174 : 260,
             borderRadius: 8,
@@ -33,6 +36,7 @@ export const GitStatePanel: React.FC<{
             padding: prominent ? '24px 24px 22px' : compact ? '16px 18px 14px' : '20px 20px 18px',
             position: 'relative',
             overflow: 'hidden',
+            opacity: areaOpacity?.[area.id] ?? 1,
           }}
         >
           <div

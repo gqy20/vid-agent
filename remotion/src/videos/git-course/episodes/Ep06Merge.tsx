@@ -17,7 +17,7 @@ import {
   CourseHeadMarker,
   EpisodeTitleCard,
   EpisodeTimeline,
-  GitStatePanel,
+  GitStateFlow,
   NarrationSubtitle,
   RecordedTerminalStage,
   SnapshotCard,
@@ -400,7 +400,7 @@ const ConflictScene: React.FC = () => {
         {phaseLabel}
       </div>
       <div style={{position: 'absolute', left: 332, right: 332, top: 426, opacity: panelIn, transform: `translateY(${(1 - panelIn) * 16}px)`}}>
-        <GitStatePanel compact areas={stateAreas} />
+        <GitStateFlow compact areas={stateAreas} />
       </div>
       <NarrationSubtitle frame={frame} cues={EP06_RUNTIME.captions('conflict')} width={1320} bottom={64} auditId="ep06-conflict-caption" />
     </AbsoluteFill>
