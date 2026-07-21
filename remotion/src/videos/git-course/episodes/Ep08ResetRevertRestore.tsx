@@ -265,7 +265,7 @@ const ResetModesScene: React.FC = () => {
     <AbsoluteFill style={{padding: '104px 132px 112px', boxSizing: 'border-box'}}>
       <div style={{opacity: modelOpacity}} data-audit-id="ep08-reset-model-continuity">
         <CommandPill command={command} branch="main" />
-        <div style={{position: 'absolute', left: 110, top: 150, width: 840}}>
+        <div style={{position: 'absolute', left: 110, top: 204, width: 840}}>
           <HistoryGraph mode="reset" width={840} progress={move} nodeScale={1.18} />
         </div>
         <div style={{position: 'absolute', right: 120, top: 230, display: 'flex', gap: 16}}>
@@ -453,7 +453,7 @@ const TakeawayScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{padding: '136px 164px 118px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 76}}>第一季收束：先认对象</div>
+      <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 76}}>撤销判断：先认对象</div>
       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 64, alignItems: 'start'}}>
         <SummaryCard command="reset" node="ref" description="移动引用和三棵树" color={COLOR.git.main} opacity={resetIn} />
         <SummaryCard command="revert" node="R1" description="向前写入新提交" color={COLOR.git.feature} opacity={revertIn} />

@@ -6,9 +6,9 @@ const column = ({x, command, fill, target}) => `<g transform="translate(${x} 755
 const body = `
   ${K.bg({c1: {cx: 1450, cy: 390, rx: 560, ry: 330, fill: TEAL}, c2: {cx: 105, cy: 940, rx: 300, ry: 190, fill: TOMATO}})}
   ${K.badge({ep: '08', tag: 'undo'})}
-  <text x="66" y="548" font-family="${FONT.sans}" font-size="300" font-weight="${K.WEIGHT.bold}" letter-spacing="-14" fill="${TOMATO}">撤销</text>
-  <text x="820" y="320" font-family="${FONT.sans}" font-size="180" font-weight="${K.WEIGHT.bold}" letter-spacing="-9" fill="${INK}">不止</text>
-  <text x="820" y="568" font-family="${FONT.sans}" font-size="180" font-weight="${K.WEIGHT.bold}" letter-spacing="-9" fill="${INK}">一个按钮</text>
+  <text x="186" y="518" font-family="${FONT.sans}" font-size="300" font-weight="${K.WEIGHT.bold}" letter-spacing="-14" fill="${TOMATO}">撤销</text>
+  <text x="1000" y="320" font-family="${FONT.sans}" font-size="180" font-weight="${K.WEIGHT.bold}" letter-spacing="-9" fill="${INK}">不止</text>
+  <text x="1000" y="568" font-family="${FONT.sans}" font-size="180" font-weight="${K.WEIGHT.bold}" letter-spacing="-9" fill="${INK}">一个按钮</text>
   ${column({x: 90, command: 'reset', fill: TOMATO, target: '移动引用'})}
   ${column({x: 710, command: 'revert', fill: MUSTARD, target: '新建提交'})}
   ${column({x: 1330, command: 'restore', fill: TEAL, target: '恢复文件'})}`;
