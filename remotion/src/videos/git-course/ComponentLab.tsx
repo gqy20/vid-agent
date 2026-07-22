@@ -11,20 +11,13 @@ import {
   SceneStage,
   type GitGraphState,
 } from './kit';
-import {COLOR, FONT, WEIGHT} from './palette';
+import {COLOR, WEIGHT} from './palette';
 import {seconds} from './timeline';
 import {TYPE} from './typography';
 
 export const COMPONENT_LAB_SCENE_DURATION = seconds(5);
 
-const LAB_SECTIONS = [
-  {id: 'layout', title: 'Layout geometry'},
-  {id: 'graph', title: 'Git graph'},
-  {id: 'state', title: 'State flow'},
-  {id: 'terminal', title: 'Recorded terminal'},
-  {id: 'captions', title: 'Caption layer'},
-  {id: 'stress', title: 'Stress case'},
-] as const;
+const LAB_SECTIONS = ['layout', 'graph', 'state', 'terminal', 'captions', 'stress'] as const;
 
 export const COMPONENT_LAB_DURATION = COMPONENT_LAB_SCENE_DURATION * LAB_SECTIONS.length;
 
@@ -32,33 +25,18 @@ const LabShell: React.FC<{readonly section: string; readonly children: React.Rea
   const frame = useCurrentFrame();
   return (
     <CourseLayout
-      seriesTitle="看得见的 Git · Component Lab"
+      seriesTitle="看得见的 Git · 组件实验室"
       episodeTitle={section}
       currentFrame={frame}
     >
       {children}
-      <div
-        data-audit-ignore="lab-label"
-        style={{
-          position: 'absolute',
-          left: 76,
-          bottom: 34,
-          ...TYPE.label,
-          color: COLOR.text.tertiary,
-          fontFamily: FONT.mono,
-          fontWeight: WEIGHT.bold,
-        }}
-      >
-        DEVELOPMENT COMPOSITION · NOT A RELEASE ASSET
-      </div>
     </CourseLayout>
   );
 };
 
-const DemoTitle: React.FC<{readonly eyebrow: string; readonly title: string}> = ({eyebrow, title}) => (
-  <div data-audit-id={`lab-title-${eyebrow}`} style={{position: 'absolute', left: 0, top: 0}}>
-    <div style={{...TYPE.label, color: COLOR.text.tertiary, fontFamily: FONT.mono, fontWeight: WEIGHT.bold}}>{eyebrow}</div>
-    <div style={{...TYPE.hero, marginTop: 10, fontWeight: WEIGHT.bold}}>{title}</div>
+const DemoTitle: React.FC<{readonly auditId: string; readonly title: string}> = ({auditId, title}) => (
+  <div data-audit-id={auditId} style={{position: 'absolute', left: 0, top: 0}}>
+    <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>{title}</div>
   </div>
 );
 
@@ -72,10 +50,10 @@ const graphState: GitGraphState = {
 };
 
 export const ComponentLabLayout: React.FC = () => (
-  <LabShell section="01 / Layout geometry">
+  <LabShell section="01 / 布局">
     <LayoutDebug rects={['header', 'centerModel', 'terminal', 'subtitle']} />
     <SceneStage preset="center-model" auditId="lab-layout-stage">
-      <DemoTitle eyebrow="DETERMINISTIC RECTS" title="先确定舞台，再放主视觉" />
+      <DemoTitle auditId="lab-title-layout" title="先确定舞台，再放主视觉" />
       <div
         data-audit-id="lab-layout-model"
         style={{
@@ -93,7 +71,7 @@ export const ComponentLabLayout: React.FC = () => (
           fontWeight: WEIGHT.bold,
         }}
       >
-        1656 × 760 center-model stage
+        1656 × 760 · 居中模型舞台
       </div>
     </SceneStage>
   </LabShell>
@@ -103,9 +81,9 @@ export const ComponentLabGraph: React.FC = () => {
   const frame = useCurrentFrame();
   const progress = interpolate(frame, [18, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <LabShell section="02 / Git graph">
+    <LabShell section="02 / 提交图">
       <SceneStage preset="center-model" auditId="lab-graph-stage">
-        <DemoTitle eyebrow="SEMANTIC GEOMETRY" title="节点、连线、refs 使用同一套尺寸" />
+        <DemoTitle auditId="lab-title-graph" title="节点、连线与引用使用同一套尺寸" />
         <CenterInRect rect={{x: 188, y: 178, width: 1280, height: 520}} auditId="lab-graph-center">
           <GitGraph
             state={graphState}
@@ -113,7 +91,7 @@ export const ComponentLabGraph: React.FC = () => {
             height={414}
             showFrame
             branchMotion={{name: 'feature', from: 'C2', to: 'C3', progress}}
-            note="feature ref moves; commits stay immutable"
+            note="feature 引用移动，提交保持不变"
             auditId="lab-git-graph"
           />
         </CenterInRect>
@@ -126,9 +104,9 @@ export const ComponentLabState: React.FC = () => {
   const frame = useCurrentFrame();
   const progress = interpolate(frame, [20, 92], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <LabShell section="03 / State flow">
+    <LabShell section="03 / 状态流">
       <SceneStage preset="state-transition" auditId="lab-state-stage">
-        <DemoTitle eyebrow="CAUSE → EFFECT" title="命令之后，状态板接管主视觉" />
+        <DemoTitle auditId="lab-title-state" title="命令之后，状态板接管主视觉" />
         <div style={{position: 'absolute', left: 0, right: 0, top: 210}}>
           <GitStateFlow
             auditId="lab-state-flow"
@@ -147,7 +125,7 @@ export const ComponentLabState: React.FC = () => {
 };
 
 export const ComponentLabTerminal: React.FC = () => (
-  <LabShell section="04 / Recorded terminal">
+  <LabShell section="04 / 终端录制">
     <RecordedTerminalStage
       auditId="lab-recorded-terminal"
       rect={{...COURSE_RECTS.terminal, y: 142, height: 700}}
@@ -156,7 +134,7 @@ export const ComponentLabTerminal: React.FC = () => (
       holdFromFrame={213}
       playbackRate={1}
       mediaFit="cover"
-      title="git-course-lab · real recording"
+      title="git-course-lab · 真实录制"
     />
     <CaptionLayer variant="scene" bottom={112} auditId="lab-terminal-caption">
       终端只使用 git-course-lab 的真实录制素材
@@ -165,16 +143,16 @@ export const ComponentLabTerminal: React.FC = () => (
 );
 
 export const ComponentLabCaptions: React.FC = () => (
-  <LabShell section="05 / Caption layer">
+  <LabShell section="05 / 字幕层">
     <SceneStage preset="takeaway" auditId="lab-caption-stage">
-      <DemoTitle eyebrow="ONE RENDERING BASE" title="三种语义，共享同一安全区规则" />
+      <DemoTitle auditId="lab-title-captions" title="三种字幕语义，共享同一安全区" />
       <div
         data-audit-id="lab-caption-explanation"
         style={{position: 'absolute', left: 280, right: 280, top: 260, ...TYPE.title, textAlign: 'center', color: COLOR.text.secondary}}
       >
-        narration 负责逐 cue 同步
+        旁白字幕负责逐句同步
         <br />
-        scene 负责短结论 · question 负责问题收束
+        场景字幕负责短结论 · 问题字幕负责收束
       </div>
     </SceneStage>
     <CaptionLayer variant="question" bottom={300} auditId="lab-caption-question">为什么要区分语义？</CaptionLayer>
@@ -184,9 +162,9 @@ export const ComponentLabCaptions: React.FC = () => (
 );
 
 export const ComponentLabStress: React.FC = () => (
-  <LabShell section="06 / Stress case">
+  <LabShell section="06 / 边界测试">
     <SceneStage preset="state-transition" auditId="lab-stress-stage">
-      <DemoTitle eyebrow="LONG CONTENT" title="先暴露约束，再进入 episode" />
+      <DemoTitle auditId="lab-title-stress" title="先暴露边界约束，再进入分集" />
       <div style={{position: 'absolute', left: 0, right: 0, top: 208}}>
         <GitStateFlow
           auditId="lab-stress-flow"
@@ -218,7 +196,7 @@ const LAB_COMPONENTS = [
 export const ComponentLab: React.FC = () => (
   <AbsoluteFill>
     {LAB_COMPONENTS.map((Component, index) => (
-      <Sequence key={LAB_SECTIONS[index].id} from={index * COMPONENT_LAB_SCENE_DURATION} durationInFrames={COMPONENT_LAB_SCENE_DURATION}>
+      <Sequence key={LAB_SECTIONS[index]} from={index * COMPONENT_LAB_SCENE_DURATION} durationInFrames={COMPONENT_LAB_SCENE_DURATION}>
         <Component />
       </Sequence>
     ))}

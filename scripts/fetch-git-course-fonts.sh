@@ -21,12 +21,15 @@ copy_font() {
 }
 
 copy_font "/usr/share/fonts/opentype/inter/Inter-Regular.otf" "Inter-Regular.otf"
+copy_font "/usr/share/fonts/opentype/inter/Inter-Medium.otf" "Inter-Medium.otf"
+copy_font "/usr/share/fonts/opentype/inter/Inter-SemiBold.otf" "Inter-SemiBold.otf"
 copy_font "/usr/share/fonts/opentype/inter/Inter-Bold.otf" "Inter-Bold.otf"
 copy_font "/usr/share/fonts/opentype/inter/Inter-Black.otf" "Inter-Black.otf"
 copy_font "/usr/share/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf" "JetBrainsMono-Regular.ttf"
 copy_font "/usr/share/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf" "JetBrainsMono-Bold.ttf"
 copy_font "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf" "NotoSans-Regular.ttf"
 copy_font "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc" "NotoSansCJK-Regular.ttc"
+copy_font "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc" "NotoSansCJK-Medium.ttc"
 copy_font "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc" "NotoSansCJK-Bold.ttc"
 
 tmp="$(mktemp -d)"

@@ -1,6 +1,5 @@
 import {AbsoluteFill} from 'remotion';
 import {COLOR, FONT, WEIGHT} from '../../palette';
-import {TYPE} from '../../typography';
 import {ChapterProgress} from './ChapterProgress';
 import {VideoProgress} from './VideoProgress';
 
@@ -35,20 +34,42 @@ export const CourseLayout: React.FC<{
         style={{
           position: 'absolute',
           left: 72,
-          top: 24,
+          top: 22,
           right: 72,
-          height: 38,
+          height: 42,
           display: 'grid',
           gridTemplateColumns: '1fr auto 1fr',
           alignItems: 'center',
           borderBottom: `1px solid ${COLOR.stroke.default}`,
+          fontFamily: FONT.ui,
+          fontSynthesis: 'none',
           zIndex: 20,
           opacity: shouldShowHeader ? 1 : 0,
         }}
       >
-        <div style={{...TYPE.uiSmall, color: COLOR.text.secondary, fontWeight: WEIGHT.bold}}>{seriesTitle}</div>
+        <div
+          style={{
+            color: COLOR.text.secondary,
+            fontSize: 17,
+            fontWeight: WEIGHT.medium,
+            lineHeight: 1.15,
+            letterSpacing: '0.01em',
+          }}
+        >
+          {seriesTitle}
+        </div>
         {scenes ? <ChapterProgress scenes={scenes} currentFrame={currentFrame} /> : null}
-        <div style={{...TYPE.ui, color: COLOR.text.primary, fontWeight: WEIGHT.bold, justifySelf: 'end', opacity: shouldShowEpisodeTitle ? 1 : 0}}>
+        <div
+          style={{
+            color: COLOR.text.primary,
+            fontSize: 19,
+            fontWeight: WEIGHT.semibold,
+            lineHeight: 1.15,
+            letterSpacing: '0.01em',
+            justifySelf: 'end',
+            opacity: shouldShowEpisodeTitle ? 1 : 0,
+          }}
+        >
           {episodeTitle}
         </div>
       </header>

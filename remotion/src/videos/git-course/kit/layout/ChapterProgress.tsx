@@ -1,5 +1,4 @@
-import {COLOR, WEIGHT} from '../../palette';
-import {TYPE} from '../../typography';
+import {COLOR, FONT, WEIGHT} from '../../palette';
 import type {CourseScene} from './CourseLayout';
 
 const getActiveIndex = (scenes: readonly CourseScene[], currentFrame: number) => {
@@ -20,12 +19,32 @@ export const ChapterProgress: React.FC<{
   const activeScene = scenes[activeIndex];
 
   return (
-    <div data-audit-id="chapter-progress" style={{width: 300, justifySelf: 'center', display: 'grid'}}>
+    <div
+      data-audit-id="chapter-progress"
+      style={{width: 300, justifySelf: 'center', display: 'grid', fontFamily: FONT.ui, fontSynthesis: 'none'}}
+    >
       <div style={{display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'baseline'}}>
-        <span style={{...TYPE.uiSmall, color: COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
+        <span
+          style={{
+            color: COLOR.text.tertiary,
+            fontSize: 16,
+            fontWeight: WEIGHT.semibold,
+            fontVariantNumeric: 'tabular-nums',
+            lineHeight: 1.15,
+            letterSpacing: '0.01em',
+          }}
+        >
           {String(activeIndex + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}
         </span>
-        <span style={{...TYPE.uiSmall, color: COLOR.text.secondary, fontWeight: WEIGHT.bold}}>
+        <span
+          style={{
+            color: COLOR.text.secondary,
+            fontSize: 17,
+            fontWeight: WEIGHT.medium,
+            lineHeight: 1.15,
+            letterSpacing: '0.01em',
+          }}
+        >
           {activeScene?.title}
         </span>
       </div>

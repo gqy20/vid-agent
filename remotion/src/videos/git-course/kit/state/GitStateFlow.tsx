@@ -1,5 +1,4 @@
 import {COLOR, FONT, WEIGHT} from '../../palette';
-import {TYPE} from '../../typography';
 import {GitStatePanel, type GitArea} from './GitStatePanel';
 
 export type GitStateTransition = {
@@ -11,7 +10,16 @@ export type GitStateTransition = {
 };
 
 const FLOW_WIDTH = 1000;
-const FLOW_HEIGHT = 70;
+
+const flowGeometry = ({prominent, compact}: {readonly prominent?: boolean; readonly compact?: boolean}) => {
+  if (prominent) {
+    return {height: 100, commandFontSize: 32, commandBaselineY: 34, arrowY: 75};
+  }
+  if (compact) {
+    return {height: 78, commandFontSize: 22, commandBaselineY: 24, arrowY: 57};
+  }
+  return {height: 90, commandFontSize: 26, commandBaselineY: 29, arrowY: 67};
+};
 
 export const GitStateFlow: React.FC<{
   readonly areas: readonly GitArea[];
@@ -24,11 +32,12 @@ export const GitStateFlow: React.FC<{
 }> = ({areas, transitions = [], areaOpacity, prominent, compact, gap, auditId}) => {
   const indexById = new Map(areas.map((area, index) => [area.id, index]));
   const centerX = (index: number) => ((index + 0.5) / areas.length) * FLOW_WIDTH;
+  const geometry = flowGeometry({prominent, compact});
 
   return (
     <div data-audit-id={auditId} data-git-state-flow style={{position: 'relative', width: '100%'}}>
       {transitions.length > 0 ? (
-        <svg width="100%" height={FLOW_HEIGHT} viewBox={`0 0 ${FLOW_WIDTH} ${FLOW_HEIGHT}`} style={{display: 'block', overflow: 'visible'}}>
+        <svg width="100%" height={geometry.height} viewBox={`0 0 ${FLOW_WIDTH} ${geometry.height}`} style={{display: 'block', overflow: 'visible'}}>
           {transitions.map((transition, index) => {
             const fromIndex = indexById.get(transition.from);
             const toIndex = indexById.get(transition.to);
@@ -41,9 +50,28 @@ export const GitStateFlow: React.FC<{
             const color = transition.color ?? COLOR.git.head;
             return (
               <g key={`${transition.from}-${transition.to}-${index}`} opacity={progress}>
-                <line x1={startX} y1="28" x2={endX} y2="28" stroke={color} strokeWidth="5" strokeLinecap="round" />
-                <path d={`M${endX - direction * 12} 19 L${endX} 28 L${endX - direction * 12} 37`} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-                {transition.label ? <text x={(startX + targetX) / 2} y="62" textAnchor="middle" fontFamily={FONT.mono} fontSize={TYPE.label.fontSize} fontWeight={WEIGHT.bold} fill={COLOR.text.secondary}>{transition.label}</text> : null}
+                {transition.label ? (
+                  <text
+                    x={(startX + targetX) / 2}
+                    y={geometry.commandBaselineY}
+                    textAnchor="middle"
+                    fontFamily={FONT.mono}
+                    fontSize={geometry.commandFontSize}
+                    fontWeight={WEIGHT.bold}
+                    fill={COLOR.text.primary}
+                  >
+                    {transition.label}
+                  </text>
+                ) : null}
+                <line x1={startX} y1={geometry.arrowY} x2={endX} y2={geometry.arrowY} stroke={color} strokeWidth="5" strokeLinecap="round" />
+                <path
+                  d={`M${endX - direction * 12} ${geometry.arrowY - 9} L${endX} ${geometry.arrowY} L${endX - direction * 12} ${geometry.arrowY + 9}`}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </g>
             );
           })}

@@ -16,7 +16,17 @@ const AREA_ACCENT: Record<GitArea['id'], string> = {
 };
 
 const FileLabel: React.FC<{readonly value: string}> = ({value}) => (
-  <span style={{minWidth: 0, overflowWrap: 'break-word', wordBreak: 'normal'}}>
+  <span
+    style={{
+      display: 'block',
+      flex: '1 1 0',
+      minWidth: 0,
+      maxWidth: '100%',
+      whiteSpace: 'normal',
+      overflowWrap: 'anywhere',
+      wordBreak: 'normal',
+    }}
+  >
     {value.split('/').map((part, index) => (
       <Fragment key={`${part}-${index}`}>
         {index > 0 ? <><span>/</span><wbr /></> : null}
@@ -34,6 +44,10 @@ export const GitStatePanel: React.FC<{
   gap?: number;
   auditId?: string;
 }> = ({areas, areaOpacity, prominent = false, compact = false, gap = 14, auditId}) => {
+  const fileFontSize = prominent ? 26 : compact ? 22 : 19;
+  const bulletSize = 9;
+  const bulletFirstLineOffset = (fileFontSize * TYPE.codeSmall.lineHeight - bulletSize) / 2;
+
   return (
     <div style={{display: 'grid', gridTemplateColumns: `repeat(${areas.length}, 1fr)`, gap, width: '100%'}}>
       {areas.map((area) => (
@@ -112,18 +126,19 @@ export const GitStatePanel: React.FC<{
                   color: COLOR.text.secondary,
                   padding: '7px 4px',
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   gap: 10,
                 }}
               >
                 <span
                   style={{
-                    width: 9,
-                    height: 9,
+                    width: bulletSize,
+                    height: bulletSize,
                     borderRadius: 999,
                     background: AREA_ACCENT[area.id],
                     opacity: area.active ? 1 : 0.62,
                     flex: '0 0 auto',
+                    marginTop: bulletFirstLineOffset,
                   }}
                 />
                 <FileLabel value={file} />
