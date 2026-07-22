@@ -19,12 +19,27 @@ cat > /home/cc/.tmux.conf <<'EOF'
 set -g status-right 'Claude Code Lab'
 EOF
 
+run_director() {
+  set +e
+  bash "/workspace/lab/$EP/run.sh"
+  director_status=$?
+  claude_binary=/home/cc/.local/bin/claude
+  if [[ -x "$claude_binary" && -n "${CC_RECORDING_VERSION_FILE:-}" ]]; then
+    "$claude_binary" --version > "$CC_RECORDING_VERSION_FILE" 2>/dev/null || true
+    chmod 600 "$CC_RECORDING_VERSION_FILE" 2>/dev/null || true
+  fi
+  tmux has-session -t cc 2>/dev/null && tmux kill-session -t cc
+  exit "$director_status"
+}
+
 if [[ "${CC_MODE:-run}" == "install" ]]; then
   # install 模式：claude 由 run.sh 的 install.sh 现场装。
   tmux new-session -d -s cc -x 120 -y 28 -c /home/cc/project
-  bash "/workspace/lab/$EP/run.sh" &
-  tmux attach -t cc
-  exit 0
+  run_director &
+  director_pid=$!
+  tmux attach -t cc || true
+  wait "$director_pid"
+  exit $?
 fi
 
 # run 模式：claude 已挂 /opt/claude，建入口 + settings（permissions allow 免 --dangerously-skip-permissions）
@@ -38,5 +53,7 @@ export PATH="/home/cc/.local/bin:$PATH"
 
 tmux new-session -d -s cc -x 120 -y 28 -c /home/cc/project
 tmux send-keys -t "cc:0.0" "claude" Enter
-bash "/workspace/lab/$EP/run.sh" &
-tmux attach -t cc
+run_director &
+director_pid=$!
+tmux attach -t cc || true
+wait "$director_pid"

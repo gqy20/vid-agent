@@ -23,6 +23,9 @@
 - [ ] prompt、工具调用、结果和结论按因果顺序出现。
 - [ ] sidecar 包含输入、输出、等待区间、关键帧和剪辑边界。
 - [ ] 没有账号、token、主目录、私有路径或真实业务数据泄漏。
+- [ ] 本次 run 的 `manifest.json` 绑定 Claude Code 版本、镜像身份、退出状态和日志 SHA。
+- [ ] 原始 session/debug 日志只位于权限受限且 Git 忽略的 `tmp/recordings/<run-id>/raw/`，没有归档 `settings.json`。
+- [ ] `sensitive-scan.json` 已核对；公开素材只使用白名单 `session-trace.jsonl`，不直接读取 raw session。
 
 ## Candidate 与主审查（尚未实现）
 
@@ -33,6 +36,20 @@
 - [ ] 终端、字幕、画面、音频、版本适用性和状态因果检查通过。
 - [ ] 人工 verdict 为 `pass` 且绑定当前 Candidate 实际 SHA。
 - [ ] promote 核对全部输入指纹后原子写入 Current。
+
+## Draft Preview（已实现）
+
+- [ ] episode JSON 显式固定 TTS model、voice、language、speed，以及 BGM source 与 `volume=0.05`。
+- [ ] 每个 scene 的旁白头部和尾部留白均不超过 2 秒，且由 `validate` 根据真实 TTS 时长硬校验。
+- [ ] `audio-preview` 的全部 narration 段均命中或写入内容寻址 cache。
+- [ ] schema v3 manifest 同时绑定分段音频、完整字幕 cue、BGM SHA 和 `mix.m4a` 指纹。
+- [ ] `audio-audit` 通过分段 `-20 LUFS`、字幕 1–2 行、完整节目约 `-16 LUFS` 和 AAC 真峰值门限。
+- [ ] `preview --video` 只在音频 verdict 与 active mix SHA 匹配时运行，整片先写内容寻址 cache，再物化到固定的 `tmp/preview/episode.mp4`。
+- [ ] 换轨前后视频流哈希一致，分辨率、帧率、帧数与时长没有变化。
+- [ ] 分镜预览只使用 `tmp/preview/scenes/01_scene_id.mp4` 形式，并由根 manifest 记录 cache path、fingerprint、SHA 和物化方式。
+- [ ] Draft 核对入口固定为 `tmp/preview/episode.mp4` 与 `tmp/preview/review/report.html`，没有 `v2`、`v3`、`4k-preview` 或临时审查目录。
+- [ ] `clean` 默认 dry-run，只有显式 `--apply=true` 才清理旧 Preview 视图，且不触碰 CAS、Candidate 或 Current。
+- [ ] Preview 没有被命名、复制或描述为 Candidate、Current、Release 或 Published。
 
 ## Release 与 Publish（尚未实现）
 

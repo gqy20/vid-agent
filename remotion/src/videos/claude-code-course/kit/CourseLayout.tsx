@@ -82,19 +82,18 @@ export const CourseLayout: React.FC<{
           opacity: shouldShowHeader ? 1 : 0,
         }}
       >
-        <div style={{...TYPE.labelSmall, color: COLOR.text.secondary}}>{seriesTitle}</div>
+        <div style={{...TYPE.chrome, color: COLOR.text.secondary}}>{seriesTitle}</div>
         {scenes ? (
           <div data-audit-id="claude-course-chapter-progress" style={{display: 'flex', alignItems: 'baseline', gap: 9}}>
-            <span style={{...TYPE.labelSmall, color: COLOR.text.tertiary}}>
+            <span style={{...TYPE.chromeIndex, color: COLOR.text.tertiary, fontVariantNumeric: 'tabular-nums'}}>
               {String(activeIndex + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}
             </span>
-            <span style={{...TYPE.labelSmall, color: COLOR.text.secondary}}>{activeScene?.title}</span>
+            <span style={{...TYPE.chrome, color: COLOR.text.secondary}}>{activeScene?.title}</span>
           </div>
         ) : null}
         <div
           style={{
-            ...TYPE.label,
-            fontSize: 20,
+            ...TYPE.chromeStrong,
             justifySelf: 'end',
             color: COLOR.text.primary,
             opacity: shouldShowEpisodeTitle ? 1 : 0,

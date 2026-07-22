@@ -14,7 +14,7 @@ AUDIT_TITLE="${AUDIT_TITLE:-Git Course Audit}"
 now_ms() { date +%s%3N; }
 AUDIT_STARTED_MS="$(now_ms)"
 
-for cmd in ffmpeg ffprobe sha256sum awk montage identify convert; do
+for cmd in ffmpeg ffprobe sha256sum awk; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "missing command: $cmd" >&2
     exit 1
@@ -35,7 +35,11 @@ EXPECTED_REVIEW_FRAMES="$(awk -v d="$VIDEO_DURATION" -v fps="$REVIEW_FPS" 'BEGIN
 OVERVIEW_INTERVAL="$(awk -v d="$VIDEO_DURATION" 'BEGIN {printf "%.6f", (d - 0.1) / 15}')"
 
 FONT_FILE="/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-STAMP="drawtext=fontfile=${FONT_FILE}:text='%{pts\\:hms}':x=14:y=14:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.58"
+if ffmpeg -hide_banner -filters 2>/dev/null | grep -q ' drawtext '; then
+  STAMP="drawtext=fontfile=${FONT_FILE}:text='%{pts\\:hms}':x=14:y=14:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.58"
+else
+  STAMP="null"
+fi
 
 # Independent full-video scans run together. Each process still has one clear
 # responsibility, while wall time is bounded by the slowest scan.
@@ -94,15 +98,29 @@ make_sheets() {
   local files=()
   mapfile -t files < <(find "$frames_dir" -maxdepth 1 -type f -name '*.jpg' | sort)
   [ "${#files[@]}" -gt 0 ] || return 0
-  montage "${files[@]}" -tile 5x1 -geometry +0+0 "$sheets_dir/${prefix}-%03d.jpg"
-  local remainder=$((${#files[@]} % 5))
-  if [ "$remainder" -gt 0 ]; then
-    local last_page=$(((${#files[@]} - 1) / 5))
-    local last_file="$sheets_dir/${prefix}-$(printf '%03d' "$last_page").jpg"
-    local frame_width
-    frame_width="$(identify -format '%w' "${files[0]}")"
-    convert "$last_file" -crop "$((frame_width * remainder))x+0+0" +repage "$last_file"
-  fi
+  local page=0
+  local start=0
+  while [ "$start" -lt "${#files[@]}" ]; do
+    local remaining=$((${#files[@]} - start))
+    local count=$((remaining < 5 ? remaining : 5))
+    local output="$sheets_dir/${prefix}-$(printf '%03d' "$page").jpg"
+    if [ "$count" -eq 1 ]; then
+      ffmpeg -nostdin -y -i "${files[$start]}" -frames:v 1 "$output" >/dev/null 2>&1
+    else
+      local inputs=()
+      local labels=""
+      local index
+      for ((index = 0; index < count; index++)); do
+        inputs+=( -i "${files[$((start + index))]}" )
+        labels="${labels}[${index}:v]"
+      done
+      ffmpeg -nostdin -y "${inputs[@]}" \
+        -filter_complex "${labels}hstack=inputs=${count}" \
+        -frames:v 1 "$output" >/dev/null 2>&1
+    fi
+    page=$((page + 1))
+    start=$((start + count))
+  done
 }
 
 SHEETS_STARTED_MS="$(now_ms)"

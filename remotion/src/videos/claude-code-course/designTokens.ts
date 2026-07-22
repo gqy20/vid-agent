@@ -82,6 +82,40 @@ export const COLOR = {
   },
 } as const;
 
+// Abstract teaching objects should read as editorial layout, not application
+// cards. Only captured evidence (screenshots and terminals) receives a full
+// frame plus elevation.
+export const FRAME = {
+  hairline: `1px solid ${COLOR.stroke.soft}`,
+  evidence: `1px solid ${COLOR.stroke.default}`,
+  focusRail: 4,
+  radius: {
+    code: 8,
+    evidence: 12,
+  },
+} as const;
+
+export const SURFACE = {
+  editorial: {
+    background: 'transparent',
+    border: 'none',
+    borderRadius: 0,
+    boxShadow: 'none',
+  },
+  code: {
+    background: COLOR.canvas.soft,
+    border: 'none',
+    borderRadius: FRAME.radius.code,
+    boxShadow: 'none',
+  },
+  evidence: {
+    background: COLOR.canvas.raised,
+    border: FRAME.evidence,
+    borderRadius: FRAME.radius.evidence,
+    boxShadow: `0 20px 54px ${COLOR.effects.shadowPanel}`,
+  },
+} as const;
+
 // Semantic type roles for a 1920x1080 course frame. Components should use
 // these roles instead of inventing per-scene font families or weights.
 export const TYPE = {
@@ -91,9 +125,12 @@ export const TYPE = {
   body: {fontFamily: FONT.sans, fontSize: 28, lineHeight: 1.48, fontWeight: WEIGHT.regular, letterSpacing: 0},
   label: {fontFamily: FONT.sans, fontSize: 24, lineHeight: 1.4, fontWeight: WEIGHT.bold, letterSpacing: 0},
   labelSmall: {fontFamily: FONT.sans, fontSize: 20, lineHeight: 1.32, fontWeight: WEIGHT.bold, letterSpacing: 0},
+  chrome: {fontFamily: FONT.sans, fontSize: 19, lineHeight: 1.25, fontWeight: WEIGHT.regular, letterSpacing: '0.01em'},
+  chromeIndex: {fontFamily: FONT.mono, fontSize: 18, lineHeight: 1.2, fontWeight: WEIGHT.regular, letterSpacing: '0.02em'},
+  chromeStrong: {fontFamily: FONT.sans, fontSize: 20, lineHeight: 1.25, fontWeight: WEIGHT.bold, letterSpacing: 0},
   code: {fontFamily: FONT.mono, fontSize: 26, lineHeight: 1.45, fontWeight: WEIGHT.regular, letterSpacing: 0},
   codeSmall: {fontFamily: FONT.mono, fontSize: 21, lineHeight: 1.4, fontWeight: WEIGHT.regular, letterSpacing: 0},
-  subtitle: {fontFamily: FONT.sans, fontSize: 38, lineHeight: 1.34, fontWeight: WEIGHT.bold, letterSpacing: 0},
+  subtitle: {fontFamily: FONT.sans, fontSize: 34, lineHeight: 1.38, fontWeight: WEIGHT.bold, letterSpacing: 0},
 
   // Compatibility aliases while legacy compositions are still registered.
   hero: {fontFamily: FONT.display, fontSize: 82, lineHeight: 1.1, fontWeight: WEIGHT.bold, letterSpacing: 0},
@@ -119,6 +156,8 @@ export const LAYOUT = {
 export const SUBTITLE = {
   bottom: 30,
   maxWidth: 1480,
+  maxLines: 2,
+  hardLineUnits: 40,
   ...TYPE.subtitle,
   lightText: COLOR.text.primary,
   lightShadow: '0 1px 0 rgba(255,255,255,0.98), 0 0 12px rgba(250,249,245,0.98)',

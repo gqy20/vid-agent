@@ -4,13 +4,25 @@
 
 ## 当前实现边界
 
-当前只有课程大纲、一个旧 episode JSON、一个旧 Remotion composition、脚本化终端素材和一个直接保存的旧 Current。尚不存在 Claude Code Course orchestrator、统一 Candidate、SHA-bound audit verdict、approve/promote 或 Release/Publish。
+当前已实现 draft 阶段 adapter：episode 校验、TTS 计划、内容寻址语音缓存、课程 BGM 混音、音频审查、内容寻址整片/分镜导入，以及稳定命名的 Preview 核对入口。尚不存在统一 Candidate、SHA-bound 主视频 audit verdict、approve/promote 或 Release/Publish。
+
+已实现且只产生 preview 的命令：
+
+```text
+pnpm --dir remotion claude-code-course validate <episode-id>
+pnpm --dir remotion claude-code-course plan <episode-id>
+pnpm --dir remotion claude-code-course audio-preview <episode-id> [--scenes=<scene-id>]
+pnpm --dir remotion claude-code-course audio-audit <episode-id>
+pnpm --dir remotion claude-code-course preview <episode-id> --video=<episode-local-source.mp4>
+pnpm --dir remotion claude-code-course preview <episode-id> --scene=<scene-id> --video=<episode-local-scene.mp4>
+pnpm --dir remotion claude-code-course preview <episode-id>
+pnpm --dir remotion claude-code-course clean <episode-id> [--apply=true]
+pnpm --dir remotion claude-code-course status <episode-id>
+```
 
 因此目前只能编辑和迁移内容，不能宣称完成正式生产。以下目标命令在真正实现前必须保持不可用：
 
 ```text
-pnpm --dir remotion claude-code-course plan <episode-id>
-pnpm --dir remotion claude-code-course preview <episode-id>
 pnpm --dir remotion claude-code-course build <episode-id>
 pnpm --dir remotion claude-code-course approve <episode-id>
 pnpm --dir remotion claude-code-course promote <episode-id>
@@ -20,7 +32,30 @@ pnpm --dir remotion claude-code-course release-approve <episode-id>
 pnpm --dir remotion claude-code-course publish <episode-id>
 ```
 
-文档列出这些命令是为了固定统一语义，不代表 `remotion/package.json` 已注册它们。
+文档列出这些目标命令是为了固定统一语义，不代表它们已接入正式生命周期。
+
+## Draft Preview 资产所有权
+
+Draft Preview 也必须遵守共享资产所有权，不能因为尚未实现 Candidate 就在 preview 中堆历史版本：
+
+```text
+tmp/cache/episodes/<fingerprint>/episode.mp4    # 整片 CAS
+tmp/cache/scenes/<fingerprint>/                 # 分镜 CAS
+tmp/cache/tts/                                  # TTS CAS
+tmp/cache/audio-mix/                            # 混音 CAS
+tmp/preview/episode.mp4                         # 唯一整片核对入口
+tmp/preview/scenes/01_scene_id.mp4              # 稳定分镜入口
+tmp/preview/review/report.html                  # Draft 核对首页
+tmp/preview/review/audio-audit.json             # Draft 音频证据
+tmp/preview/manifest.json                       # 当前视图的 SHA / 指纹 / profile
+```
+
+- Preview 文件优先从 CAS hardlink 物化，失败时才复制；更新使用临时路径原子替换。
+- 分辨率、版本和 SHA 写入 manifest，不进入文件名。禁止新建 `v2`、`v3`、`4k-preview`、`final-check` 等平行入口。
+- `preview --video` 的输入必须位于本集产物根内，输出固定为 `tmp/preview/episode.mp4`；不接受 `--output`。
+- `preview --scene` 根据 episode JSON 顺序生成 `01_scene_id.mp4`，并验证分镜时长。
+- `clean` 只清理旧 Preview 入口，默认 dry-run；只有 `--apply=true` 才执行。CAS、Candidate、Current 不在其删除范围内。
+- 每轮交付只报告阶段、`episode.mp4`、本轮变更分镜和 `review/report.html`，不把 cache、task 或临时抽帧作为用户核对入口。
 
 ## 唯一内容源与 EP01 迁移
 
@@ -65,6 +100,8 @@ claude-code-course/episodes/<episode-id>.json
 - 账号、token、主目录、私有仓库、环境变量和历史命令中的敏感内容不进入公开素材；
 - 录制脚本、fixture、终端尺寸、字体、主题和 Claude Code 版本进入输入指纹。
 
+每次正式录制还必须在 `tmp/recordings/<run-id>/` 留下本地日志证据。容器 `~/.claude/projects`、`~/.claude/debug`、导演日志和事件进入权限受限的 `raw/`；认证配置、原始 cast 和中间视频不得归档。公开素材或课程代码只能读取白名单派生的 `sanitized/session-trace.jsonl`，不得直接读取 raw session。`manifest.json` 必须绑定 run 状态、Claude Code 版本、镜像身份和文件 SHA，`audit/sensitive-scan.json` 必须明确给出 `pass`、`warn` 或 `fail`。日志清理默认 dry-run，只有显式 `--apply=true` 才能删除旧 run。
+
 官方文档截图属于来源证据，不属于产品实操录屏。当前 EP01 使用 `scripts/browser-recordings/claude-code-course-lab/capture_official_docs.py` 固定视口派生公开页面截图与 manifest；不得访问或截取账户、控制台、套餐详情和密钥页面。截图资产、关注区域、来源 URL 与核验日期必须回写 episode JSON。
 
 ## 版本与来源核验
@@ -92,13 +129,17 @@ Claude Code 的命令、模式和功能会变化。每集制作前必须记录�
 - TTS 配置统一从 episode JSON 的 `audio` 读取，不再新增顶层 `tts` 变体。
 - narration `.txt`、manifest、MP3、SRT 和规范化音频全部由 orchestrator 派生。
 - 分段人声默认沿用课程共享基线：`speech-2.8-hd`、`Chinese (Mandarin)_Gentleman`、`zh`、`1.25`，约 `-20 LUFS / -3 dBFS`。
-- BGM、完整节目响度和发布包装参数必须在 adapter 实现时显式固定，不能依赖旧成片的未知设置。
+- EP01 复用 Git / GitHub Course 已批准的课程 BGM，由 episode JSON 显式记录来源并固定 `volume=0.05`；不使用 sidechain ducking。
+- `audio-preview` 只重建指纹变化的 TTS，并通过共享混音脚本生成内容寻址 `mix.m4a`；完整节目目标约 `-16 LUFS`，AAC 真峰值不得超过 `-1.4 dBTP`。
+- `audio-audit` 必须核对分段音频、字幕、BGM SHA、混音指纹、节目响度和公开 preview view。只有匹配 active mix 的 `pass` 才允许物化完整视频 Preview。
+- `preview --video` 把视频流与已审计混音组合成内容寻址整片，再物化到固定的 `tmp/preview/episode.mp4`；视频流必须直接复制且帧数、分辨率和时长与输入一致。它不是 Candidate、Current 或 Release。
 
 ## 字幕策略
 
 - episode JSON 中 `scenes[].narration.text` 是旁白正文，`subtitle` 保留为内容审查摘要；成片字幕以 TTS 生成的 SRT 为准，不再用摘要替代实际旁白。
 - TTS adapter 必须以 episode JSON 正文为唯一文本源：先按旁白中的停顿分组对齐 MMX 返回的语音时间锚点，再在每个时间锚点内按完整语义句分配 cue。不得直接沿用会截断模型名、版本号或半句话的自动分词结果。全局字幕 cue 等于 `voiceStart + SRT 相对时间`，画面字幕与对应规范化音频使用同一 manifest。
-- Remotion 必须同时从该 manifest 读取音频路径和字幕 cue；manifest 缺失或 schema 不匹配时渲染失败，不允许静默回退到估算窗口或摘要字幕。
+- 每个 scene 的旁白开始前和结束后留白均不得超过 2 秒；`durationSeconds` 必须来自规范化 TTS 实际时长，`validate` 对头尾留白执行硬校验，不能用静音、裁切或变速伪造紧凑节奏。
+- Remotion 必须同时从 schema v3 manifest 读取已审计 `mix.m4a` 和字幕 cue；manifest 缺失、mix 缺失或 schema 不匹配时渲染失败，不允许静默回退到分段音轨、估算窗口或摘要字幕。
 - SRT 必须移除停顿标记以及句尾 `。`、`;`、`；` 等不利于观看节奏的标点，并保持与 narration 正文语义一致。
 - 单条字幕必须从语义边界开始和结束；`glm-5.2[1m]`、环境变量名、命令和路径等技术 token 不得从中间拆开后分次出现。
 - 账户标识、token、服务端点和宿主路径不得进入摘要字幕或 SRT。

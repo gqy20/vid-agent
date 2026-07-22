@@ -16,6 +16,7 @@
     "git-course": "node scripts/git-course-cli.mjs",
     "github-course": "node scripts/github-course-cli.mjs",
     "claude-code-course": "node scripts/claude-code-course-cli.mjs",
+    "claude-code-course:test": "node --test scripts/lib/claude-code-preview.test.mjs",
     "segments:audit": "scripts/audit-range-segments.sh",
     "audit:overlaps": "scripts/audit-overlaps.sh",
     "meta:sync": "scripts/sync-current-meta.sh",

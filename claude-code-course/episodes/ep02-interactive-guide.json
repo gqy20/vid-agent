@@ -1,0 +1,279 @@
+{
+  "episodeId": "ep02-interactive-guide",
+  "title": "交互界面生存指南",
+  "subtitle": "三个入口，三个控制键",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 300,
+  "goal": "在同一个真实项目会话中，学会用斜杠菜单发现能力、用 @ 精确提供文件、用 ! 执行确定性命令，并通过多行输入、过程展开、中断和权限模式控制会话",
+  "content": {
+    "coreModel": "Claude Code 的交互界面由输入入口和会话控制组成：/ 用于发现命令与扩展能力，@ 用于提供明确上下文，! 用于直接执行 Shell；Ctrl+O 用于观察详细过程，Esc 用于中断并重新定向，Shift+Tab 默认在 default、acceptEdits 与 plan 三种权限模式间切换。",
+    "alignmentMarkdown": "EP02 使用同一个 task-board 示例项目完成全部演示。测试失败、文件内容和 Git 状态必须真实；模型回复可以受提示词影响，但不得把非确定性措辞写成固定产品行为。Slash 菜单、文件补全、Shell 模式、transcript viewer、interrupt 和 permission mode 必须来自同一次真实 Claude Code 2.1.216 终端录制。",
+    "interactionGrammar": [
+      {
+        "token": "/",
+        "role": "发现",
+        "meaning": "打开统一能力入口，展示内置命令、捆绑 Skill，以及项目、用户、插件或 MCP 提供的扩展"
+      },
+      {
+        "token": "@",
+        "role": "上下文",
+        "meaning": "触发文件或目录路径补全，把明确对象交给 Claude"
+      },
+      {
+        "token": "!",
+        "role": "确定性动作",
+        "meaning": "直接运行 Shell 命令，把真实输出加入当前会话；2.1.186 及以后默认由 Claude 自动回应输出"
+      }
+    ],
+    "controlKeys": [
+      {
+        "key": "Ctrl+O",
+        "role": "观察",
+        "meaning": "打开 transcript viewer，查看详细工具调用和结果"
+      },
+      {
+        "key": "Esc",
+        "role": "中断",
+        "meaning": "停止当前响应或工具调用，保留已完成工作并允许重新定向"
+      },
+      {
+        "key": "Shift+Tab",
+        "role": "切换模式",
+        "meaning": "默认循环切换 default、acceptEdits 与 plan；auto 和 bypassPermissions 只有满足条件并启用后才加入，dontAsk 不进入默认循环"
+      }
+    ],
+    "permissionModel": {
+      "baselineModes": [
+        {
+          "mode": "default",
+          "label": "默认",
+          "read": "直接运行",
+          "edit": "先询问",
+          "shell": "Shell / 网络通常先询问",
+          "display": {
+            "read": "直接",
+            "edit": "先问",
+            "run": "先问"
+          },
+          "bestFor": "初次使用与敏感项目"
+        },
+        {
+          "mode": "acceptEdits",
+          "label": "自动接受编辑",
+          "read": "直接运行",
+          "edit": "工作区编辑自动接受",
+          "shell": "文件命令自动，其他 Shell / 网络仍询问",
+          "display": {
+            "read": "直接",
+            "edit": "自动",
+            "run": "部分自动"
+          },
+          "bestFor": "持续迭代并在 diff 中复核"
+        },
+        {
+          "mode": "plan",
+          "label": "计划模式",
+          "read": "只读探索",
+          "edit": "不修改源码",
+          "shell": "只读探索命令，网络仍受权限控制",
+          "display": {
+            "read": "只读",
+            "edit": "禁止",
+            "run": "只读探索"
+          },
+          "bestFor": "复杂任务先研究方案"
+        }
+      ],
+      "optionalModes": [
+        {
+          "mode": "auto",
+          "short": "后台安全检查",
+          "meaning": "不弹出权限询问，由后台安全检查判断动作；可用性受账户、模型与服务商限制"
+        },
+        {
+          "mode": "dontAsk",
+          "short": "仅运行预批准工具",
+          "meaning": "只运行预批准工具，其余原本需要询问的动作直接拒绝"
+        },
+        {
+          "mode": "bypassPermissions",
+          "short": "跳过检查，仅限隔离环境",
+          "meaning": "跳过权限询问和安全检查，只适合隔离容器或虚拟机"
+        }
+      ],
+      "rules": "模式定义默认基线，allow、ask、deny 规则再按工具和参数细分；deny 优先于 ask，ask 优先于 allow"
+    },
+    "demoTask": {
+      "project": "task-board",
+      "file": "src/auth/validate-token.js",
+      "test": "test/validate-token.test.js",
+      "command": "pnpm test",
+      "prompt": "解释空 Token 为什么没有被拒绝，先不要修改代码，并指出对应测试位置",
+      "expectedEvidence": "真实失败测试、被引用源码、Claude Code 工具详情和被中断后的重新定向"
+    }
+  },
+  "sourceOfTruth": {
+    "references": [
+      "https://code.claude.com/docs/en/interactive-mode",
+      "https://code.claude.com/docs/en/commands",
+      "https://code.claude.com/docs/en/permission-modes",
+      "https://code.claude.com/docs/en/permissions",
+      "https://code.claude.com/docs/en/keybindings"
+    ]
+  },
+  "verifiedWith": {
+    "date": "2026-07-22",
+    "claudeCodeVersion": "2.1.216"
+  },
+  "productionPolicy": {
+    "remotionOwns": [
+      "course shell",
+      "interaction grammar animation",
+      "recorded terminal evidence",
+      "keyboard focus overlays",
+      "narration",
+      "subtitles"
+    ],
+    "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep02-interactive-guide/run.sh",
+    "terminalFixture": "scripts/terminal-recordings/claude-code-lab/fixtures/task-board",
+    "terminalEvidence": "同一次真实终端录制覆盖 Slash 菜单、@ 文件补全、! Shell 模式、多行输入、Ctrl+O、Esc 与 Shift+Tab；pnpm test 必须在 fixture 中真实失败",
+    "sensitiveValues": "录制运行时使用本地忽略的 ANTHROPIC_AUTH_TOKEN；公开素材不得显示 Token、宿主路径、账号或私有数据",
+    "versionBoundary": "快捷键可能受平台、终端和用户 keybindings 影响；画面以课程记录的 Linux 终端和 Claude Code 2.1.216 为准"
+  },
+  "audio": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25,
+    "bgm": {
+      "source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3",
+      "volume": 0.05
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "能输入，不等于会控制",
+      "start": 0,
+      "duration": 15,
+      "goal": "用重复粘贴路径、来回切终端和失控搜索建立问题",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1,
+        "durationSeconds": 12.727483,
+        "text": "第一次进入 Claude Code，你可以直接输入。<#0.25#>但只会聊天，就会遇到三个问题：上下文给不准、命令来回切、执行方向不对却不知道怎样停。<#0.25#>先把六个动作连成一套操作顺序。"
+      }
+    },
+    {
+      "id": "interaction-model",
+      "title": "入口与控制",
+      "start": 15,
+      "duration": 30,
+      "goal": "建立三个输入入口和三个控制动作的整体模型",
+      "narration": {
+        "segmentId": "02_interaction_model",
+        "voiceStart": 16,
+        "durationSeconds": 27.271474,
+        "text": "把交互界面分成两组就够了。<#0.25#>斜杠、艾特和感叹号决定你怎样输入；Control 加 O、Escape 和 Shift 加 Tab 决定你怎样观察、中断和切换模式。<#0.3#>入口解决送进会话的对象和动作，控制键解决运行中怎样看、怎样停、怎样决定可执行范围。<#0.25#>后面每一步都回到两个问题：我给了什么，以及我允许它做到哪里。看到结果后，也要知道下一步该按哪个控制键，并及时纠偏。"
+      }
+    },
+    {
+      "id": "slash-entry",
+      "title": "/：发现能力",
+      "start": 45,
+      "duration": 35,
+      "goal": "说明 Slash 菜单是命令与扩展能力的统一发现入口",
+      "narration": {
+        "segmentId": "03_slash_entry",
+        "voiceStart": 46,
+        "durationSeconds": 33.895465,
+        "text": "输入斜杠，会打开统一能力入口。<#0.25#>这里既有 Claude Code 内置命令，也可能出现捆绑 Skill，以及项目、用户、插件或 MCP 提供的扩展。<#0.25#>菜单不是固定清单：版本、安装的 Skill 和项目配置都会改变它。内置命令处理会话、模型和设置；Skill 封装可复用流程；插件与 MCP 把外部能力接进来。<#0.25#>所以先看当前菜单，再逐项选择能力，不要凭记忆猜命令，也别把扩展误认成内置功能。出现什么以当前环境为准，完全不必把整张列表背下来。"
+      }
+    },
+    {
+      "id": "file-mention",
+      "title": "@：提供上下文",
+      "start": 80,
+      "duration": 35,
+      "goal": "用真实文件补全演示精确引用代码对象",
+      "narration": {
+        "segmentId": "04_file_mention",
+        "voiceStart": 81,
+        "durationSeconds": 33.463923,
+        "text": "输入艾特，再键入部分路径，Claude Code 会补全项目里的文件或目录。<#0.25#>这比在提示词里说那个认证文件更准确。补全成功后，路径会作为明确引用进入提示词，不必复制整段代码，也减少同名文件歧义。<#0.25#>路径只是第一层，任务还需要边界。像这次一样，把源文件、问题条件和不修改的要求放在同一段输入里，模型才不会自动扩大范围。如果还要关联测试，就继续艾特测试文件，而不是说顺便看看附近代码。<#0.25#>对象、范围和动作越清楚，Claude 越不需要扫描无关目录。"
+      }
+    },
+    {
+      "id": "shell-mode",
+      "title": "!：执行确定性命令",
+      "start": 115,
+      "duration": 35,
+      "goal": "真实运行失败测试，并说明输出进入会话上下文",
+      "narration": {
+        "segmentId": "05_shell_mode",
+        "voiceStart": 116,
+        "durationSeconds": 32.383469,
+        "text": "需要一个确定结果时，不必先让模型转述命令。<#0.25#>在空输入行键入感叹号，直接运行 pnpm test。感叹号会把你写下的命令交给当前 Shell，所以工作目录、环境变量和退出码都是真实的。<#0.25#>它适合测试、格式化、查看 Git 状态这类结果确定的动作。测试真实失败，输出进入当前会话；从 2.1.186 开始，Claude 默认会自动回应这份证据。<#0.25#>命令执行前仍要像平时在终端里一样判断影响范围；再让它基于输出分析，高风险命令尤其要先核对。"
+      }
+    },
+    {
+      "id": "multiline-prompt",
+      "title": "多行输入表达边界",
+      "start": 150,
+      "duration": 30,
+      "goal": "用多行提示组织目标、约束和验收条件",
+      "narration": {
+        "segmentId": "06_multiline_prompt",
+        "voiceStart": 151,
+        "durationSeconds": 28.027483,
+        "text": "任务稍微复杂，就不要把目标、约束和验收条件挤在一行。<#0.25#>常见终端可以用 Shift 加 Enter 换行；需要通用方式时用 Control 加 J。<#0.25#>目标告诉它要解决什么；约束说明不能改、不能扩展到哪里；证据规定回答必须落到哪一行代码、哪一条测试或哪一个命令结果。<#0.25#>这不是格式主义，它让中断、复查和验收更容易纠偏。沿用同样结构，先写验收再执行，并逐项核对结果。"
+      }
+    },
+    {
+      "id": "observe-process",
+      "title": "Ctrl+O：看清过程",
+      "start": 180,
+      "duration": 45,
+      "goal": "从折叠结果进入 transcript viewer，观察工具和结果",
+      "narration": {
+        "segmentId": "07_observe_process",
+        "voiceStart": 181,
+        "durationSeconds": 42.211474,
+        "postGainDb": -0.4,
+        "text": "发送任务后，Claude 会读取被引用文件和对应测试。<#0.25#>默认界面会折叠一部分工具细节。按 Control 加 O 打开 transcript viewer，就能查看更完整的工具调用和结果。<#0.25#>重点核对三件事：它实际读了哪些文件，运行了哪些工具，工具结果怎样支撑最终判断。这里先看到 validate-token.js 的条件，再看到失败测试，最后才接受空字符串被错误放行这个结论。<#0.25#>如果答案和证据对不上，就从 transcript 找到第一处分叉，补充上下文或改写任务，而不是要求重做全部工作。需要时回看工具结果。<#0.25#>展开过程不是为了盯住每一行，而是为了让关键判断可以追溯，尤其在写文件、运行命令和访问网络之前。"
+      }
+    },
+    {
+      "id": "interrupt-and-mode",
+      "title": "中断与模式切换",
+      "start": 225,
+      "duration": 50,
+      "goal": "演示及时中断过宽任务，并区分重新定向与权限模式",
+      "narration": {
+        "segmentId": "08_interrupt_and_mode",
+        "voiceStart": 226,
+        "durationSeconds": 47.539478,
+        "text": "如果 Claude 开始扫描整个项目，但你只看认证模块，按 Escape 中断。<#0.25#>已经完成的工作会保留，接着把范围收窄到 src/auth 和对应测试。中断解决的是方向问题。<#0.3#>权限模式解决的是默认能做什么。Shift 加 Tab 在 default、acceptEdits 和 plan 之间循环。<#0.25#>default 直接读取，但文件修改、Shell 命令和网络请求通常先问。acceptEdits 自动接受工作区编辑和常见文件命令，其他命令仍问。plan 只做只读探索和方案，不修改源码。<#0.3#>还有 auto、只运行预批准工具的 dontAsk，以及跳过权限检查的 bypassPermissions；它只适合隔离容器或虚拟机。<#0.25#>模式定默认基线，工具再用 allow、ask、deny 规则细分，而且 deny 优先。"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "先控制，再委派",
+      "start": 275,
+      "duration": 25,
+      "goal": "收束交互入口和控制动作，并连接下一集 Agent Loop",
+      "narration": {
+        "segmentId": "09_takeaway",
+        "voiceStart": 276,
+        "durationSeconds": 22.879478,
+        "text": "记住这套顺序：斜杠找入口，艾特给上下文，感叹号跑确定命令；看不清就展开，方向不对就中断，需要时再切换模式。<#0.25#>权限越宽，复核责任越大。先把对象、动作和边界讲清楚，再把任务交给 Claude。每一步都让下一步更可验证。<#0.25#>下一集，我们看这些输入怎样进入完整的 Agent Loop。"
+      }
+    }
+  ],
+  "release": {}
+}

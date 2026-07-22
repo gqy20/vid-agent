@@ -39,6 +39,7 @@
 #   MASTER_TRUE_PEAK=-2.2
 #   FINAL_TRUE_PEAK_CEILING=-1.5
 #   MASTER_LRA=7
+#   FINAL_INTEGRATED_TOLERANCE=0.6
 set -euo pipefail
 
 usage() {
@@ -73,6 +74,7 @@ MASTER_LUFS="${MASTER_LUFS:--16}"
 MASTER_TRUE_PEAK="${MASTER_TRUE_PEAK:--2.2}"
 MASTER_LRA="${MASTER_LRA:-7}"
 FINAL_TRUE_PEAK_CEILING="${FINAL_TRUE_PEAK_CEILING:--1.5}"
+FINAL_INTEGRATED_TOLERANCE="${FINAL_INTEGRATED_TOLERANCE:-0.6}"
 
 if [ -z "$BGM_FILE" ]; then
   if [ -f "${AUDIO_DIR}/bgm.mp3" ]; then
@@ -343,9 +345,9 @@ ffmpeg -hide_banner -nostats \
   -af "loudnorm=I=${MASTER_LUFS}:TP=${MASTER_TRUE_PEAK}:LRA=${MASTER_LRA}:print_format=json" \
   -f null - >/dev/null 2>"$FINAL_LOUDNESS_STATS"
 
-node - "$FINAL_LOUDNESS_STATS" "$MASTER_LUFS" "$FINAL_TRUE_PEAK_CEILING" <<'NODE'
+node - "$FINAL_LOUDNESS_STATS" "$MASTER_LUFS" "$FINAL_TRUE_PEAK_CEILING" "$FINAL_INTEGRATED_TOLERANCE" <<'NODE'
 const fs = require('node:fs');
-const [statsPath, targetIText, truePeakCeilingText] = process.argv.slice(2);
+const [statsPath, targetIText, truePeakCeilingText, integratedToleranceText] = process.argv.slice(2);
 const log = fs.readFileSync(statsPath, 'utf8');
 const match = log.match(/\{\s*"input_i"[\s\S]*?\}/);
 if (!match) throw new Error(`Could not parse final loudness stats from ${statsPath}`);
@@ -354,8 +356,12 @@ const integrated = Number(stats.input_i);
 const truePeak = Number(stats.input_tp);
 const targetI = Number(targetIText);
 const truePeakCeiling = Number(truePeakCeilingText);
-if (!Number.isFinite(integrated) || Math.abs(integrated - targetI) > 0.6) {
-  throw new Error(`Final integrated loudness ${integrated} LUFS is outside ${targetI} +/- 0.6 LU`);
+const integratedTolerance = Number(integratedToleranceText);
+if (!Number.isFinite(integratedTolerance) || integratedTolerance <= 0) {
+  throw new Error(`Invalid final integrated loudness tolerance: ${integratedToleranceText}`);
+}
+if (!Number.isFinite(integrated) || Math.abs(integrated - targetI) > integratedTolerance) {
+  throw new Error(`Final integrated loudness ${integrated} LUFS is outside ${targetI} +/- ${integratedTolerance} LU`);
 }
 if (!Number.isFinite(truePeak) || truePeak > truePeakCeiling) {
   throw new Error(`Final true peak ${truePeak} dBTP exceeds ${truePeakCeiling} dBTP`);

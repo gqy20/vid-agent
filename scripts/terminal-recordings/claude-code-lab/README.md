@@ -6,7 +6,51 @@
 - `<episode-id>.json`：媒体尺寸、帧数和 hold frame 等基础元数据。
 - `<episode-id>.timeline.json`：内容分段、媒体帧范围和建议剪辑策略。
 
-三者输出到 `remotion/public/claude-code-course/terminal/`。`.cast`、导演日志和原始事件只存在于临时目录，完成后删除；timeline 不保存命令正文、终端输出或认证令牌。
+三者输出到 `remotion/public/claude-code-course/terminal/`。`.cast`、GIF 和含敏感值的中间视频只存在于临时目录，完成后删除；导演日志、原始事件和 Claude session 按下述本地日志规则归档。timeline 不保存命令正文、终端输出或认证令牌。
+
+## 本地录制日志
+
+每次录制都会生成唯一 run id，并把 Claude Code 会话证据归档到本集已忽略的本地目录：
+
+```text
+remotion/renders/claude-code-course/<episode-id>/tmp/recordings/<run-id>/
+├── manifest.json
+├── raw/
+│   ├── projects/                 # 容器 ~/.claude/projects
+│   ├── debug/                    # 容器 ~/.claude/debug
+│   └── director/{run.log,events.jsonl}
+├── sanitized/session-trace.jsonl
+└── audit/sensitive-scan.json
+```
+
+- run 目录和子目录固定为 `700`，文件固定为 `600`，并由 `remotion/.gitignore` 阻止提交。
+- 原始 `.cast`、GIF、中间视频和 `~/.claude/settings.json` 不进入归档；真实认证配置仍随临时目录销毁。
+- `session-trace.jsonl` 只保留事件类型、角色、相对时间、工具名和导演 segment 元数据，不保存提示词、回复正文、工具参数、工具结果、绝对路径、session id 或 tool id。
+- `sensitive-scan.json` 只保存分类、数量和相对文件名，不保存命中的敏感值。`fail` 表示本地 raw 中检测到凭据或私钥，需要人工处理；它不能替代公开视频的像素脱敏和 cast 泄漏阻断。
+- `manifest.json` 绑定 episode、run id、退出状态、Claude Code 版本、镜像身份以及归档文件 SHA。成功和失败录制使用同一结构，不再覆盖一个固定的 failure log。
+
+默认 run id 为 UTC 时间加进程号；需要重现实验名称时可显式设置 `CC_RECORDING_RUN_ID`，但同一集不得复用已有 id：
+
+```bash
+CC_RECORDING_RUN_ID=ep02-permissions-review \
+  scripts/terminal-recordings/claude-code-lab/record-tmux.sh ep02-interactive-guide run
+```
+
+查看本集的本地录制记录：
+
+```bash
+python3 scripts/terminal-recordings/claude-code-lab/manage-recording-logs.py \
+  list ep02-interactive-guide
+```
+
+清理命令默认只预览。下面先列出“仅保留最新 10 次”会删除的目录，只有传入布尔值为真的 `--apply` 才实际删除：
+
+```bash
+python3 scripts/terminal-recordings/claude-code-lab/manage-recording-logs.py \
+  prune ep02-interactive-guide --keep 10
+python3 scripts/terminal-recordings/claude-code-lab/manage-recording-logs.py \
+  prune ep02-interactive-guide --keep 10 --apply=true
+```
 
 ## 基础镜像
 
@@ -33,6 +77,16 @@ EP01 的安装录制如果需要访问宿主代理，应显式传入代理地址
 CC_INSTALL_PROXY=http://127.0.0.1:7890 \
   scripts/terminal-recordings/claude-code-lab/record-tmux.sh ep01-install-first-start install
 ```
+
+4K 课程预览保持 `120×28` 的终端布局，仅把字体栅格密度提升为两倍：
+
+```bash
+CC_TERMINAL_FONT_SIZE=48 \
+  scripts/terminal-recordings/claude-code-lab/record-tmux.sh ep01-install-first-start install
+```
+
+该配置生成约 `3516×2020` 的终端内容面，进入 3840×2160 Remotion 成片时只缩小、不放大；
+脱敏坐标会依据实际媒体尺寸自动缩放。
 
 代理与认证信息只在运行容器时传入，不进入镜像层。录制脚本会从仓库根目录的本地 `.env` 加载 `ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_BASE_URL` 和 `ANTHROPIC_MODEL`；该文件必须保持 `600` 权限且不得提交。EP01 沿用原流程，在受控的原始 cast 中输入真实 Token，然后对 Shell 和 `settings.json` 中的两处出现执行像素马赛克。原始 cast、GIF 和中间 MP4 无论成功、失败或中断都会删除。
 

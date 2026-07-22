@@ -8,6 +8,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from playwright.async_api import Locator, Page, async_playwright
 
@@ -17,6 +18,8 @@ REPO_ROOT = SCRIPT_DIR.parents[2]
 EPISODE_ID = "ep01-install-first-start"
 OUTPUT_ROOT = REPO_ROOT / "remotion/public/claude-code-course/browser" / EPISODE_ID
 TMP_ROOT = REPO_ROOT / "remotion/renders/claude-code-course/tmp/browser-captures"
+VIEWPORT = {"width": 1600, "height": 900}
+DEVICE_SCALE_FACTOR = 2.4
 
 
 @dataclass(frozen=True)
@@ -53,8 +56,8 @@ EVIDENCE_PAGES = (
     EvidencePage(
         evidence_id="kimi-k3-claude-code",
         title="Kimi K3 · Claude Code",
-        url="https://www.kimi.com/code/docs/en/third-party-tools/other-coding-agents",
-        target_patterns=(r"k3\[1m\]", r"K3 \+ 1M context", r"only needed for Claude Code env vars"),
+        url="https://www.kimi.com/code/docs/kimi-code/models.html",
+        target_patterns=(r"上下文窗口.*最高 1M", r"1M 上下文窗口", r"Kimi K3"),
         source_label="Kimi Code Docs",
     ),
     EvidencePage(
@@ -89,7 +92,7 @@ async def find_target(page: Page, patterns: tuple[str, ...]) -> tuple[Locator, s
     raise RuntimeError(f"None of the evidence targets were visible: {patterns}")
 
 
-async def capture(page: Page, evidence: EvidencePage) -> dict[str, object]:
+async def capture(page: Page, evidence: EvidencePage, output_root: Path) -> dict[str, object]:
     await page.goto(evidence.url, wait_until="domcontentloaded", timeout=90_000)
     try:
         await page.wait_for_load_state("networkidle", timeout=12_000)
@@ -105,7 +108,7 @@ async def capture(page: Page, evidence: EvidencePage) -> dict[str, object]:
     if box is None:
         raise RuntimeError(f"Cannot measure evidence target: {evidence.evidence_id}")
 
-    screenshot_path = OUTPUT_ROOT / f"{evidence.evidence_id}.png"
+    screenshot_path = output_root / f"{evidence.evidence_id}.png"
     await page.screenshot(path=screenshot_path, full_page=False, animations="disabled")
     viewport = page.viewport_size
     if viewport is None:
@@ -119,6 +122,11 @@ async def capture(page: Page, evidence: EvidencePage) -> dict[str, object]:
         "matchedPattern": matched_pattern,
         "capturedAt": datetime.now(timezone.utc).isoformat(),
         "viewport": viewport,
+        "deviceScaleFactor": DEVICE_SCALE_FACTOR,
+        "outputPixels": {
+            "width": round(viewport["width"] * DEVICE_SCALE_FACTOR),
+            "height": round(viewport["height"] * DEVICE_SCALE_FACTOR),
+        },
         "containsSensitiveState": False,
         "screenshot": f"claude-code-course/browser/{EPISODE_ID}/{screenshot_path.name}",
         "focusRegion": {
@@ -139,7 +147,8 @@ async def main() -> None:
         async with async_playwright() as playwright:
             browser = await playwright.chromium.launch(channel="chrome", headless=True)
             context = await browser.new_context(
-                viewport={"width": 1600, "height": 900},
+                viewport=VIEWPORT,
+                device_scale_factor=DEVICE_SCALE_FACTOR,
                 locale="zh-CN",
                 timezone_id="Asia/Shanghai",
                 color_scheme="light",
@@ -148,20 +157,22 @@ async def main() -> None:
             )
             page = await context.new_page()
             for evidence in EVIDENCE_PAGES:
-                results.append(await capture(page, evidence))
+                results.append(await capture(page, evidence, temp_dir))
             await context.close()
             await browser.close()
 
         manifest = {
             "schemaVersion": 1,
             "episodeId": EPISODE_ID,
-            "verifiedDate": "2026-07-20",
+            "verifiedDate": datetime.now(ZoneInfo("Asia/Shanghai")).date().isoformat(),
             "capturePolicy": "Public official documentation only; no account, console, credential, pricing, or usage-quota pages. Context eligibility may be retained as a capability boundary.",
             "items": results,
         }
-        manifest_path = OUTPUT_ROOT / "manifest.json"
+        manifest_path = temp_dir / "manifest.json"
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(manifest_path)
+        for generated in temp_dir.iterdir():
+            shutil.move(str(generated), OUTPUT_ROOT / generated.name)
+        print(OUTPUT_ROOT / "manifest.json")
         for item in results:
             print(OUTPUT_ROOT / Path(str(item["screenshot"])).name)
     finally:

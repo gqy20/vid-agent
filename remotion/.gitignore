@@ -19,6 +19,8 @@ renders/*/renders/*/*.mp4
 !renders/*/renders/current/*.mp4
 
 # Series layout: renders/<series>/<episode>/{current,tmp}
+# Claude Code 的 raw session/debug 日志含私密会话内容，必须显式保持本地。
+renders/claude-code-course/*/tmp/recordings/
 renders/*/*/tmp/
 renders/git-course/tmp/
 renders/github-course/tmp/

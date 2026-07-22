@@ -7,6 +7,7 @@ import {
   linkSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   renameSync,
   rmSync,
   statSync,
@@ -15,6 +16,17 @@ import {
 import {spawn} from 'node:child_process';
 import {dirname, join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {
+  applyWasExplicitlyEnabled,
+  draftPreviewLayout,
+  episodePreviewMatchesAudio,
+  orderedSceneFilename,
+  pathIsInside,
+  stableAudioPreviewEntries,
+  stablePreviewRootEntries,
+  stableReviewEntries,
+  visualAuditMatchesEpisode,
+} from './lib/claude-code-preview.mjs';
 
 const REMOTION = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(REMOTION, '..');
@@ -37,11 +49,13 @@ const rel = (path) => relative(ROOT, path);
 const json = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const writeJson = (path, value) => {
   mkdirSync(dirname(path), {recursive: true});
-  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  const partial = `${path}.partial-${process.pid}`;
+  writeFileSync(partial, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  renameSync(partial, path);
 };
-const run = (command, args, {cwd = REMOTION, log} = {}) => new Promise((resolvePromise, rejectPromise) => {
+const run = (command, args, {cwd = REMOTION, log, env = {}} = {}) => new Promise((resolvePromise, rejectPromise) => {
   mkdirSync(dirname(log), {recursive: true});
-  const child = spawn(command, args, {cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe']});
+  const child = spawn(command, args, {cwd, env: {...process.env, ...env}, stdio: ['ignore', 'pipe', 'pipe']});
   const chunks = [];
   child.stdout.on('data', (chunk) => chunks.push(chunk));
   child.stderr.on('data', (chunk) => chunks.push(chunk));
@@ -65,6 +79,11 @@ const loadEpisode = () => {
   episode.audio?.voice === 'Chinese (Mandarin)_Gentleman' || fail(`${EPISODE_ID}: unexpected audio.voice`);
   episode.audio?.language === 'zh' || fail(`${EPISODE_ID}: audio.language must be zh`);
   episode.audio?.speed === 1.25 || fail(`${EPISODE_ID}: audio.speed must be 1.25`);
+  typeof episode.audio?.bgm?.source === 'string' && episode.audio.bgm.source.length > 0
+    || fail(`${EPISODE_ID}: audio.bgm.source is required`);
+  episode.audio.bgm.volume === 0.05 || fail(`${EPISODE_ID}: audio.bgm.volume must be 0.05`);
+  existsSync(resolve(ROOT, episode.audio.bgm.source))
+    || fail(`${EPISODE_ID}: BGM not found: ${episode.audio.bgm.source}`);
   const segmentIds = new Set();
   let cursor = 0;
   for (const scene of episode.scenes) {
@@ -76,6 +95,12 @@ const loadEpisode = () => {
     !segmentIds.has(narration.segmentId) || fail(`${scene.id}: duplicate narration segment id`);
     segmentIds.add(narration.segmentId);
     narration.voiceStart >= scene.start && narration.voiceStart < scene.start + scene.duration || fail(`${scene.id}: voiceStart outside scene`);
+    Number.isFinite(narration.durationSeconds) && narration.durationSeconds > 0 || fail(`${scene.id}: invalid narration duration`);
+    const leadingSilence = narration.voiceStart - scene.start;
+    const trailingSilence = scene.start + scene.duration - narration.voiceStart - narration.durationSeconds;
+    leadingSilence <= 2 || fail(`${scene.id}: leading narration whitespace ${leadingSilence.toFixed(3)}s exceeds 2s`);
+    trailingSilence >= 0 || fail(`${scene.id}: narration exceeds scene by ${Math.abs(trailingSilence).toFixed(3)}s`);
+    trailingSilence <= 2 || fail(`${scene.id}: trailing narration whitespace ${trailingSilence.toFixed(3)}s exceeds 2s`);
     cursor += scene.duration;
   }
   cursor === episode.durationSeconds || fail(`${EPISODE_ID}: scene duration sum ${cursor} != ${episode.durationSeconds}`);
@@ -87,12 +112,13 @@ const context = () => {
   const root = join(REMOTION, 'renders/claude-code-course', EPISODE_ID);
   const tmp = join(root, 'tmp');
   const statePath = join(tmp, 'state.json');
+  const preview = draftPreviewLayout(root);
   return {
     ...loaded,
     root,
     tmp,
     cache: join(tmp, 'cache'),
-    preview: join(tmp, 'preview/audio'),
+    preview,
     source: join(tmp, 'narration-source'),
     tasks: join(tmp, 'build/tasks'),
     logs: join(tmp, 'build/logs/tts'),
@@ -211,6 +237,76 @@ const parseSrt = (path) => readFileSync(path, 'utf8').replace(/\r\n/g, '\n').tri
 
 const captionWeight = (value) => Array.from(normalizedNarrationText(value)).length;
 
+const CAPTION_LAYOUT = {
+  maxLines: 2,
+  hardLineUnits: 40,
+};
+
+const subtitleDisplayText = (value) => value
+  .replace(/[。；;]+$/u, '')
+  .replace(/(?<=[\p{Script=Han}A-Za-z0-9\]])\.$/u, '');
+
+const captionUnit = (character) => {
+  if (/\s/u.test(character)) return 0.32;
+  if (/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(character)) return 1;
+  if (/[A-Z]/u.test(character)) return 0.7;
+  if (/[a-z0-9]/u.test(character)) return 0.56;
+  if (/[._/\-:[\]]/u.test(character)) return 0.42;
+  if (/[，。；：！？、]/u.test(character)) return 1;
+  return 0.62;
+};
+
+const captionDisplayUnits = (value) => Array.from(value).reduce((sum, character) => sum + captionUnit(character), 0);
+
+const captionTokens = (value) => value.match(/[A-Za-z0-9_./:-]+(?:\[[^\]]+\])?|\s+|./gu) ?? [];
+
+const captionLines = (value) => {
+  const display = subtitleDisplayText(value).trim();
+  const tokens = captionTokens(display);
+  const total = captionDisplayUnits(display);
+  total <= CAPTION_LAYOUT.hardLineUnits || tokens.length > 1 || fail(`Subtitle token exceeds one line: ${display}`);
+  if (total <= CAPTION_LAYOUT.hardLineUnits) return [display];
+  total <= CAPTION_LAYOUT.hardLineUnits * CAPTION_LAYOUT.maxLines
+    || fail(`Subtitle exceeds two-line width budget: ${display}`);
+  const candidates = [];
+  for (let index = 1; index < tokens.length; index += 1) {
+    const left = tokens.slice(0, index).join('').trimEnd();
+    const right = tokens.slice(index).join('').trimStart();
+    if (!left || !right) continue;
+    const leftUnits = captionDisplayUnits(left);
+    const rightUnits = captionDisplayUnits(right);
+    if (leftUnits > CAPTION_LAYOUT.hardLineUnits || rightUnits > CAPTION_LAYOUT.hardLineUnits) continue;
+    const previous = tokens[index - 1];
+    const next = tokens[index];
+    const semanticPriority = /[，、：；！？,.!?;:]\s*$/u.test(previous)
+      ? 3
+      : /\s/u.test(previous) || /^\s/u.test(next)
+        ? 2
+        : 1;
+    candidates.push({left, right, semanticPriority, imbalance: Math.abs(leftUnits - rightUnits)});
+  }
+  candidates.length > 0 || fail(`Subtitle cannot be balanced into two protected lines: ${display}`);
+  candidates.sort((a, b) => b.semanticPriority - a.semanticPriority || a.imbalance - b.imbalance);
+  const lines = [candidates[0].left, candidates[0].right];
+  const protectedTokens = display.match(/[A-Za-z0-9_./:-]+(?:\[[^\]]+\])?/g) ?? [];
+  for (const token of protectedTokens.filter((item) => item.length >= 4)) {
+    lines.some((line) => line.includes(token)) || fail(`Subtitle line break split protected token: ${token}`);
+  }
+  return lines;
+};
+
+const validateCaptionLines = (cue) => {
+  Array.isArray(cue.lines) || fail(`Subtitle cue is missing derived lines: ${cue.text}`);
+  cue.lines.length >= 1 && cue.lines.length <= CAPTION_LAYOUT.maxLines
+    || fail(`Subtitle cue has ${cue.lines.length} lines: ${cue.text}`);
+  cue.lines.join('').replace(/\s+/g, '') === subtitleDisplayText(cue.text).replace(/\s+/g, '')
+    || fail(`Subtitle lines do not preserve display text: ${cue.text}`);
+  for (const line of cue.lines) {
+    captionDisplayUnits(line) <= CAPTION_LAYOUT.hardLineUnits
+      || fail(`Subtitle line exceeds width budget: ${line}`);
+  }
+};
+
 const semanticCaptionTexts = (value) => {
   const clean = value
     .replace(/\((?:breath|sighs?|sigh|clear-throat|clears throat|laughs?|chuckles?)\)/gi, '')
@@ -285,6 +381,7 @@ const semanticSrt = (scene, timedCues) => `${semanticCaptionCues(scene.narration
 const mmxVersion = async (ctx) => (await run('mmx', ['--version'], {log: join(ctx.tmp, 'build/logs/mmx-version.log')})).trim();
 
 const taskFor = (ctx, scene, engineVersion) => {
+  const postGainDb = Number.isFinite(scene.narration.postGainDb) ? scene.narration.postGainDb : null;
   const fingerprint = sha(JSON.stringify({
     schema: 2,
     text: scene.narration.text,
@@ -295,6 +392,7 @@ const taskFor = (ctx, scene, engineVersion) => {
     engine: engineVersion,
     subtitles: 'mmx-srt+canonical-source-v2',
     normalization: 'acompressor-threshold-22-ratio2+loudnorm-I-20-TP-3-LRA7+alimiter-0.90',
+    ...(postGainDb === null ? {} : {postGainDb}),
   }));
   const dir = join(ctx.cache, 'tts', fingerprint);
   return {
@@ -306,6 +404,7 @@ const taskFor = (ctx, scene, engineVersion) => {
     text: join(dir, 'source.txt'),
     norm: join(dir, 'normalized.mp3'),
     metadata: join(dir, 'metadata.json'),
+    postGainDb,
   };
 };
 
@@ -364,10 +463,14 @@ const generateTask = async (ctx, task, engineVersion) => {
   existsSync(raw) || fail(`${segment}: mmx did not create audio`);
   existsSync(srt) || fail(`${segment}: mmx did not create SRT`);
   canonicalizeSrt(task.scene, srt);
+  const normalizationFilter = [
+    'acompressor=threshold=-22dB:ratio=2.0:attack=8:release=120:makeup=1.0,loudnorm=I=-20:TP=-3:LRA=7,alimiter=limit=0.90',
+    ...(task.postGainDb === null ? [] : [`volume=${task.postGainDb}dB`]),
+  ].join(',');
   await run('ffmpeg', [
     '-y', '-hide_banner', '-nostats',
     '-i', raw,
-    '-af', 'acompressor=threshold=-22dB:ratio=2.0:attack=8:release=120:makeup=1.0,loudnorm=I=-20:TP=-3:LRA=7,alimiter=limit=0.90',
+    '-af', normalizationFilter,
     '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '128k', norm,
   ], {log: join(ctx.logs, `${segment}-normalize.log`)});
   const durationText = await run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', norm], {log: join(ctx.logs, `${segment}-ffprobe.log`)});
@@ -389,6 +492,7 @@ const generateTask = async (ctx, task, engineVersion) => {
     voice: ctx.episode.audio.voice,
     language: ctx.episode.audio.language,
     speed: ctx.episode.audio.speed,
+    postGainDb: task.postGainDb,
     engineVersion,
     rawSha256: shaFile(raw),
     srtSha256: shaFile(srt),
@@ -430,7 +534,128 @@ const materialize = (source, target) => {
   }
 };
 
-const buildCaptionManifest = (ctx, tasks) => {
+const materializeAtomic = (source, target) => {
+  mkdirSync(dirname(target), {recursive: true});
+  if (existsSync(target) && shaFile(source) === shaFile(target)) return 'existing';
+  const partial = `${target}.partial-${process.pid}`;
+  rmSync(partial, {force: true});
+  let method = 'hardlink';
+  try {
+    linkSync(source, partial);
+  } catch {
+    copyFileSync(source, partial);
+    method = 'copy';
+  }
+  renameSync(partial, target);
+  return method;
+};
+
+const bgmFor = (ctx) => {
+  const source = resolve(ROOT, ctx.episode.audio.bgm.source);
+  return {
+    source,
+    volume: ctx.episode.audio.bgm.volume,
+    sha256: shaFile(source),
+    publicAsset: `claude-code-course/audio/${EPISODE_ID}/bgm.mp3`,
+  };
+};
+
+const mixTaskFor = (ctx, tasks) => {
+  const bgm = bgmFor(ctx);
+  const fingerprint = sha(JSON.stringify({
+    schema: 2,
+    episodeId: EPISODE_ID,
+    durationSeconds: ctx.episode.durationSeconds,
+    bgm: {sha256: bgm.sha256, volume: bgm.volume},
+    narration: tasks.map((task) => ({
+      segmentId: task.scene.narration.segmentId,
+      voiceStart: task.scene.narration.voiceStart,
+      sha256: shaFile(task.norm),
+    })),
+    mix: 'git-course-build-voiceover-v2+master-I-16-TP-3-LRA7+ceiling-1.5+tolerance-1.0',
+    scriptSha256: shaFile(join(REMOTION, 'scripts/git-course-build-voiceover.sh')),
+  }));
+  const dir = join(ctx.cache, 'audio-mix', fingerprint);
+  return {
+    bgm,
+    fingerprint,
+    dir,
+    mix: join(dir, 'mix.m4a'),
+    voiceover: join(dir, 'voiceover-aligned.m4a'),
+    metadata: join(dir, 'metadata.json'),
+  };
+};
+
+const mixCacheHit = (task) => {
+  if (![task.mix, task.voiceover, task.metadata].every(existsSync)) return false;
+  const metadata = json(task.metadata);
+  return metadata.fingerprint === task.fingerprint
+    && metadata.mixSha256 === shaFile(task.mix)
+    && metadata.voiceoverSha256 === shaFile(task.voiceover);
+};
+
+const ensureMix = async (ctx, tasks) => {
+  const task = mixTaskFor(ctx, tasks);
+  if (mixCacheHit(task)) return task;
+  const partial = `${task.dir}.partial-${process.pid}`;
+  rmSync(partial, {recursive: true, force: true});
+  const segments = join(partial, 'segments');
+  mkdirSync(segments, {recursive: true});
+  for (const narrationTask of tasks) {
+    const segment = narrationTask.scene.narration.segmentId;
+    for (const [source, name] of [
+      [narrationTask.raw, `${segment}.mp3`],
+      [narrationTask.srt, `${segment}.srt`],
+      [narrationTask.text, `${segment}.txt`],
+      [narrationTask.norm, `${segment}_norm.mp3`],
+    ]) materialize(source, join(segments, name));
+  }
+  await run(join(REMOTION, 'scripts/git-course-build-voiceover.sh'), [EPISODE_ID], {
+    env: {
+      AUDIO_DIR: partial,
+      NARRATION_MANIFEST: join(ctx.source, 'manifest.tsv'),
+      TMP_DIR: join(ctx.tasks, `audio-mix-${task.fingerprint.slice(0, 12)}`),
+      BGM_FILE: task.bgm.source,
+      BGM_VOLUME: String(task.bgm.volume),
+      EPISODE_DURATION: String(ctx.episode.durationSeconds),
+      SKIP_TTS: '1',
+      SKIP_NORM: '1',
+      SKIP_REMUX: '1',
+      MASTER_LUFS: '-16',
+      MASTER_TRUE_PEAK: '-3.0',
+      FINAL_TRUE_PEAK_CEILING: '-1.5',
+      FINAL_INTEGRATED_TOLERANCE: '1.0',
+    },
+    log: join(ctx.tmp, 'build/logs/audio-mix', `${task.fingerprint}.log`),
+  });
+  const mix = join(partial, 'mix.m4a');
+  const voiceover = join(partial, 'voiceover-aligned.m4a');
+  existsSync(mix) || fail('Audio mix did not produce mix.m4a');
+  existsSync(voiceover) || fail('Audio mix did not produce voiceover-aligned.m4a');
+  const durationText = await run('ffprobe', [
+    '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', mix,
+  ], {log: join(ctx.tmp, 'build/logs/audio-mix', `${task.fingerprint}-ffprobe.log`)});
+  const durationSeconds = Number(durationText.trim());
+  Math.abs(durationSeconds - ctx.episode.durationSeconds) <= 0.15
+    || fail(`Audio mix duration ${durationSeconds}s != episode ${ctx.episode.durationSeconds}s`);
+  writeJson(join(partial, 'metadata.json'), {
+    schemaVersion: 1,
+    fingerprint: task.fingerprint,
+    durationSeconds,
+    bgmSha256: task.bgm.sha256,
+    bgmVolume: task.bgm.volume,
+    mixSha256: shaFile(mix),
+    voiceoverSha256: shaFile(voiceover),
+    generatedAt: new Date().toISOString(),
+  });
+  mkdirSync(dirname(task.dir), {recursive: true});
+  if (existsSync(task.dir)) rmSync(task.dir, {recursive: true, force: true});
+  renameSync(partial, task.dir);
+  mixCacheHit(task) || fail('Audio mix cache validation failed after build');
+  return task;
+};
+
+const buildCaptionManifest = (ctx, tasks, mixTask) => {
   const cues = [];
   const segments = [];
   for (const task of tasks) {
@@ -456,25 +681,124 @@ const buildCaptionManifest = (ctx, tasks) => {
         from: Number((task.scene.narration.voiceStart + cue.from).toFixed(3)),
         to: Number((task.scene.narration.voiceStart + cue.to).toFixed(3)),
         text: cue.text,
+        lines: captionLines(cue.text),
       });
     }
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     episodeId: EPISODE_ID,
+    durationSeconds: ctx.episode.durationSeconds,
     generatedAt: new Date().toISOString(),
     source: rel(ctx.path),
-    audio: ctx.episode.audio,
-    subtitlePolicy: 'Complete narration sentences mapped onto MMX timing anchors; commas never create cue boundaries, protected technical tokens remain intact, and global times include scene voiceStart.',
+    audio: {
+      ...ctx.episode.audio,
+      bgm: {
+        source: ctx.episode.audio.bgm.source,
+        publicAsset: mixTask.bgm.publicAsset,
+        volume: mixTask.bgm.volume,
+        sha256: mixTask.bgm.sha256,
+      },
+    },
+    mix: {
+      audio: `claude-code-course/audio/${EPISODE_ID}/mix.m4a`,
+      sha256: shaFile(mixTask.mix),
+      durationSeconds: json(mixTask.metadata).durationSeconds,
+      fingerprint: mixTask.fingerprint,
+    },
+    subtitlePolicy: 'Complete narration sentences mapped onto MMX timing anchors; every cue stores one or two balanced display lines, each line stays within a conservative 40-em mixed-script budget, protected technical tokens remain intact, and global times include scene voiceStart.',
     segments,
     cues,
   };
 };
 
-const materializePreview = (ctx, tasks) => {
-  const previewSegments = join(ctx.preview, 'segments');
+const escapeHtml = (value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;');
+
+const previewManifestBase = (ctx) => ({
+  schemaVersion: 1,
+  episodeId: EPISODE_ID,
+  stage: 'draft',
+  ownership: 'Rebuildable stable preview views backed by tmp/cache; not Candidate, Current, or Release.',
+  episode: null,
+  scenes: {},
+  audio: null,
+  review: {
+    reportPath: rel(ctx.preview.report),
+    audioAuditPath: null,
+  },
+});
+
+const currentPreviewManifest = (ctx) => {
+  if (!existsSync(ctx.preview.manifest)) return previewManifestBase(ctx);
+  const manifest = json(ctx.preview.manifest);
+  return manifest.schemaVersion === 1 && manifest.episodeId === EPISODE_ID
+    ? {...previewManifestBase(ctx), ...manifest}
+    : previewManifestBase(ctx);
+};
+
+const writePreviewReport = (ctx, manifest) => {
+  const episode = manifest.episode;
+  const scenes = Object.entries(manifest.scenes ?? {});
+  const episodeSection = episode
+    ? `<video controls preload="metadata" src="../episode.mp4"></video>
+       <dl><dt>规格</dt><dd>${episode.width}×${episode.height} · ${episode.fps}fps · ${episode.durationSeconds.toFixed(3)}s</dd>
+       <dt>SHA</dt><dd><code>${escapeHtml(episode.sha256)}</code></dd></dl>`
+    : '<p class="empty">整片预览尚未生成。</p>';
+  const sceneSection = scenes.length > 0
+    ? `<ul>${scenes.map(([sceneId, scene]) => `<li><a href="../scenes/${escapeHtml(scene.filename)}">${escapeHtml(scene.filename)}</a><span>${escapeHtml(sceneId)} · ${escapeHtml(scene.sha256.slice(0, 12))}</span></li>`).join('')}</ul>`
+    : '<p class="empty">本轮没有已物化的分镜预览。</p>';
+  const audit = manifest.review?.audioAuditPath
+    ? `<a href="audio-audit.json">audio-audit.json</a>`
+    : '<span class="empty">尚未审查</span>';
+  const visualVerdictPath = join(ctx.preview.videoAudit, 'verdict.json');
+  const visualReportPath = join(ctx.preview.videoAudit, 'report.html');
+  const visualVerdict = existsSync(visualVerdictPath) ? json(visualVerdictPath) : null;
+  const visualAudit = existsSync(visualReportPath) && visualAuditMatchesEpisode(episode, visualVerdict)
+    ? `<a href="video-audit/report.html">视觉审查报告</a><span> · ${escapeHtml(visualVerdict.verdict ?? '待核对')}</span>`
+    : existsSync(visualReportPath)
+      ? '<span class="empty">已有视觉审查与当前整片 SHA 不匹配，请重新生成。</span>'
+      : '<span class="empty">尚未抽帧审查</span>';
+  const html = `<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(EPISODE_ID)} · Draft Preview</title>
+<style>body{margin:0;background:#f4f0e8;color:#27231f;font:16px/1.55 system-ui,-apple-system,"Noto Sans CJK SC",sans-serif}.page{max-width:1120px;margin:auto;padding:48px 32px 80px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;border-bottom:1px solid #d8d0c3;padding-bottom:20px}h1{font-size:30px;margin:0}h2{font-size:18px;margin:34px 0 14px}.stage{color:#a44b31;font-weight:700;letter-spacing:.08em;text-transform:uppercase}video{width:100%;background:#1d1b19;border-radius:12px;box-shadow:0 18px 50px #3b30251f}dl{display:grid;grid-template-columns:72px 1fr;gap:6px 12px}dt{color:#756d63}dd{margin:0}code{font:13px ui-monospace,SFMono-Regular,monospace;word-break:break-all}ul{list-style:none;padding:0;margin:0;border-top:1px solid #d8d0c3}li{display:flex;justify-content:space-between;gap:24px;padding:12px 0;border-bottom:1px solid #d8d0c3}a{color:#8e3f2d;text-decoration:none;font-weight:650}li span,.empty{color:#756d63}.meta{font-size:13px;color:#756d63}</style></head>
+<body><main class="page"><header><div><div class="stage">Draft Preview</div><h1>${escapeHtml(ctx.episode.title)}</h1></div><div class="meta">${escapeHtml(manifest.updatedAt ?? '')}</div></header>
+<h2>整片</h2>${episodeSection}<h2>本轮分镜</h2>${sceneSection}<h2>音频审查</h2><p>${audit}</p><h2>视觉审查</h2><p>${visualAudit}</p>
+<p class="meta">此页面只用于 Draft 核对，不是 Candidate 审查 verdict。</p></main></body></html>`;
+  mkdirSync(dirname(ctx.preview.report), {recursive: true});
+  const partial = `${ctx.preview.report}.partial-${process.pid}`;
+  writeFileSync(partial, html, 'utf8');
+  renameSync(partial, ctx.preview.report);
+};
+
+const updatePreviewManifest = (ctx, patch) => {
+  const previous = currentPreviewManifest(ctx);
+  const next = {
+    ...previous,
+    ...patch,
+    scenes: patch.scenes ?? previous.scenes ?? {},
+    review: {...previous.review, ...patch.review, reportPath: rel(ctx.preview.report)},
+    updatedAt: new Date().toISOString(),
+  };
+  writeJson(ctx.preview.manifest, next);
+  writePreviewReport(ctx, next);
+  ctx.state.preview = {
+    episode: next.episode,
+    scenes: next.scenes,
+    audio: next.audio,
+  };
+  writeJson(ctx.statePath, ctx.state);
+  return next;
+};
+
+const materializeAudioPreview = async (ctx, tasks) => {
   const publicSegments = ctx.publicAudio;
-  const manifest = buildCaptionManifest(ctx, tasks);
+  const mixTask = await ensureMix(ctx, tasks);
+  const manifest = buildCaptionManifest(ctx, tasks, mixTask);
   const materializations = [];
   for (const task of tasks) {
     const segment = task.scene.narration.segmentId;
@@ -483,27 +807,49 @@ const materializePreview = (ctx, tasks) => {
       [task.text, `${segment}.txt`],
       [task.norm, `${segment}_norm.mp3`],
     ]) {
-      materializations.push({target: rel(join(previewSegments, name)), method: materialize(source, join(previewSegments, name))});
       materializations.push({target: rel(join(publicSegments, name)), method: materialize(source, join(publicSegments, name))});
     }
     const captionSrt = semanticSrt(task.scene, parseSrt(task.srt));
-    const previewSrt = join(previewSegments, `${segment}.srt`);
     const publicSrt = join(publicSegments, `${segment}.srt`);
-    writeFileSync(previewSrt, captionSrt, 'utf8');
     writeFileSync(publicSrt, captionSrt, 'utf8');
-    materializations.push({target: rel(previewSrt), method: 'derived-semantic-srt'});
     materializations.push({target: rel(publicSrt), method: 'derived-semantic-srt'});
   }
-  writeJson(join(ctx.preview, 'captions.json'), manifest);
+  for (const [source, name] of [[mixTask.mix, 'mix.m4a']]) {
+    materializations.push({target: rel(join(ctx.preview.audio, name)), method: materialize(source, join(ctx.preview.audio, name))});
+  }
+  for (const [source, name] of [
+    [mixTask.mix, 'mix.m4a'],
+    [mixTask.voiceover, 'voiceover-aligned.m4a'],
+    [mixTask.bgm.source, 'bgm.mp3'],
+  ]) {
+    materializations.push({target: rel(join(ctx.publicAudio, name)), method: materialize(source, join(ctx.publicAudio, name))});
+  }
+  writeJson(join(ctx.preview.audio, 'captions.json'), manifest);
   writeJson(join(ctx.publicAudio, 'captions.json'), manifest);
-  writeJson(join(ctx.preview, 'manifest.json'), {
+  writeJson(join(ctx.preview.audio, 'manifest.json'), {
     ...manifest,
-    ownership: 'Rebuildable preview view backed by tmp/cache/tts; not Candidate or Current.',
+    ownership: 'Rebuildable compact audio preview view backed by tmp/cache; not Candidate or Current.',
     materializations,
   });
   writeJson(join(ctx.publicAudio, 'manifest.json'), {
     ...manifest,
     ownership: 'Rebuildable Remotion public view backed by tmp/cache/tts; not Candidate or Current.',
+  });
+  const audio = {
+      captionManifestPath: rel(join(ctx.preview.audio, 'captions.json')),
+      mixPath: rel(join(ctx.preview.audio, 'mix.m4a')),
+      mixCachePath: rel(mixTask.mix),
+      mixSha256: shaFile(mixTask.mix),
+      mixFingerprint: mixTask.fingerprint,
+      cueCount: manifest.cues.length,
+      segmentCount: manifest.segments.length,
+  };
+  const previous = currentPreviewManifest(ctx);
+  const episode = episodePreviewMatchesAudio(previous.episode, audio) ? previous.episode : null;
+  if (previous.episode && !episode) rmSync(ctx.preview.episode, {force: true});
+  updatePreviewManifest(ctx, {
+    episode,
+    audio,
   });
   return manifest;
 };
@@ -548,9 +894,10 @@ const audioPreview = async (ctx) => {
     console.log(`PARTIAL audio preview: ${plan.tasks.length - missing.length}/${plan.tasks.length} segments cached; run without --scenes to complete the episode`);
     return;
   }
-  const manifest = materializePreview(ctx, plan.tasks);
+  const manifest = await materializeAudioPreview(ctx, plan.tasks);
   console.log(`PASS  captions: ${manifest.cues.length} cues across ${manifest.segments.length} segments`);
-  console.log(`READY ${rel(join(ctx.publicAudio, 'captions.json'))}`);
+  console.log(`READY ${rel(join(ctx.preview.audio, 'manifest.json'))}`);
+  console.log(`REVIEW ${rel(ctx.preview.report)}`);
   console.log('BLOCK candidate/current/release: audio preview is not a promotable artifact');
 };
 
@@ -560,9 +907,11 @@ const status = async (ctx) => {
   console.log(`Claude Code Course · ${EPISODE_ID}`);
   console.log(`content: ${ctx.episode.status}`);
   console.log(`tts cache: ${hits}/${plan.tasks.length}`);
-  console.log(`public preview: ${existsSync(join(ctx.publicAudio, 'captions.json')) ? 'ready' : 'missing'}`);
-  const auditPath = join(ctx.preview, 'audit.json');
+  console.log(`draft preview: ${existsSync(ctx.preview.episode) && existsSync(ctx.preview.manifest) ? rel(ctx.preview.episode) : 'missing'}`);
+  console.log(`public audio view: ${existsSync(join(ctx.publicAudio, 'captions.json')) && existsSync(join(ctx.publicAudio, 'mix.m4a')) ? 'ready' : 'missing'}`);
+  const auditPath = ctx.preview.audioAudit;
   console.log(`audio audit: ${existsSync(auditPath) ? json(auditPath).verdict : 'missing'}`);
+  console.log(`review: ${existsSync(ctx.preview.report) ? rel(ctx.preview.report) : 'missing'}`);
   console.log('candidate: blocked (adapter not implemented)');
   console.log('current: blocked (adapter not implemented)');
   console.log('release: blocked (adapter not implemented)');
@@ -574,13 +923,27 @@ const audioAudit = async (ctx) => {
   const publicManifestPath = join(ctx.publicAudio, 'captions.json');
   existsSync(publicManifestPath) || fail(`Public caption manifest is missing: ${rel(publicManifestPath)}`);
   const publicManifest = json(publicManifestPath);
-  const expectedManifest = buildCaptionManifest(ctx, plan.tasks);
+  const mixTask = mixTaskFor(ctx, plan.tasks);
+  mixCacheHit(mixTask) || fail('Audio mix cache is missing or stale');
+  const expectedManifest = buildCaptionManifest(ctx, plan.tasks, mixTask);
   JSON.stringify(publicManifest.segments) === JSON.stringify(expectedManifest.segments) || fail('Public narration segment manifest does not match cache');
   JSON.stringify(publicManifest.cues) === JSON.stringify(expectedManifest.cues) || fail('Public subtitle cues do not match cache SRT timing');
+  JSON.stringify(publicManifest.audio) === JSON.stringify(expectedManifest.audio) || fail('Public audio configuration does not match the episode and BGM source');
+  JSON.stringify(publicManifest.mix) === JSON.stringify(expectedManifest.mix) || fail('Public mix manifest does not match cache');
+  publicManifest.schemaVersion === 3 || fail('Public caption manifest must use schemaVersion 3');
+  const publicMix = join(ctx.publicAudio, 'mix.m4a');
+  const publicBgm = join(ctx.publicAudio, 'bgm.mp3');
+  existsSync(publicMix) && shaFile(publicMix) === shaFile(mixTask.mix) || fail('Public audio mix differs from cache');
+  existsSync(publicBgm) && shaFile(publicBgm) === mixTask.bgm.sha256 || fail('Public BGM differs from configured source');
+  for (const cue of publicManifest.cues) validateCaptionLines(cue);
   const loudness = await Promise.all(plan.tasks.map(async (task) => {
     const timing = validateArtifacts(task);
     const expectedDuration = Number(task.scene.narration.durationSeconds);
     Math.abs(timing.duration - expectedDuration) <= 0.02 || fail(`${task.scene.narration.segmentId}: episode duration ${expectedDuration}s differs from audio ${timing.duration}s`);
+    const leadingSilenceSeconds = task.scene.narration.voiceStart - task.scene.start;
+    const trailingSilenceSeconds = timing.sceneEnd - timing.voiceEnd;
+    leadingSilenceSeconds <= 2 || fail(`${task.scene.narration.segmentId}: actual leading whitespace ${leadingSilenceSeconds.toFixed(3)}s exceeds 2s`);
+    trailingSilenceSeconds <= 2 || fail(`${task.scene.narration.segmentId}: actual trailing whitespace ${trailingSilenceSeconds.toFixed(3)}s exceeds 2s`);
     const publicAudio = join(ctx.publicAudio, `${task.scene.narration.segmentId}_norm.mp3`);
     const publicSrt = join(ctx.publicAudio, `${task.scene.narration.segmentId}.srt`);
     const expectedSrt = semanticSrt(task.scene, timing.cues);
@@ -604,6 +967,8 @@ const audioAudit = async (ctx) => {
       durationSeconds: timing.duration,
       voiceStart: task.scene.narration.voiceStart,
       voiceEnd: timing.voiceEnd,
+      leadingSilenceSeconds,
+      trailingSilenceSeconds,
       cueCount: semanticCues.length,
       integratedLufs,
       truePeakDbtp,
@@ -616,6 +981,18 @@ const audioAudit = async (ctx) => {
     const current = publicManifest.cues[index];
     current.from >= previous.to || fail(`Subtitle cues overlap: ${previous.segmentId} -> ${current.segmentId}`);
   }
+  const mixOutput = await run('ffmpeg', [
+    '-hide_banner', '-nostats', '-i', publicMix,
+    '-af', 'loudnorm=I=-16:TP=-3:LRA=7:print_format=json',
+    '-f', 'null', '-',
+  ], {log: join(ctx.tmp, 'build/logs/audio-audit', 'mix.log')});
+  const mixMatch = mixOutput.match(/\{\s*"input_i"[\s\S]*?\}/);
+  mixMatch || fail('Cannot parse mix loudness analysis');
+  const mixStats = JSON.parse(mixMatch[0]);
+  const mixIntegratedLufs = Number(mixStats.input_i);
+  const mixTruePeakDbtp = Number(mixStats.input_tp);
+  Math.abs(mixIntegratedLufs - (-16)) <= 1.0 || fail(`Mix loudness ${mixIntegratedLufs} LUFS outside -16 +/- 1.0`);
+  mixTruePeakDbtp <= -1.4 || fail(`Mix true peak ${mixTruePeakDbtp} dBTP exceeds -1.4`);
   const audit = {
     schemaVersion: 1,
     episodeId: EPISODE_ID,
@@ -628,21 +1005,330 @@ const audioAudit = async (ctx) => {
       srtTiming: true,
       semanticBoundaries: true,
       protectedTechnicalTokensIntact: true,
+      captionLines: `1-${CAPTION_LAYOUT.maxLines}`,
+      captionLineWidthBudget: CAPTION_LAYOUT.hardLineUnits,
       sceneWindows: true,
+      narrationWhitespace: 'leading/trailing <= 2s for every scene',
       publicViewMatchesCache: true,
       loudness: '-20 LUFS +/- 1.0',
       truePeakCeiling: '-2.4 dBTP',
+      mix: 'content-addressed narration + approved course BGM',
+      mixLoudness: '-16 LUFS +/- 1.0',
+      mixTruePeakCeiling: '-1.4 dBTP',
+    },
+    mix: {
+      fingerprint: mixTask.fingerprint,
+      sha256: shaFile(publicMix),
+      bgmSha256: mixTask.bgm.sha256,
+      bgmVolume: mixTask.bgm.volume,
+      integratedLufs: mixIntegratedLufs,
+      truePeakDbtp: mixTruePeakDbtp,
     },
     segments: loudness,
     ownership: 'Audio preview audit only; not a Candidate approval verdict.',
   };
-  writeJson(join(ctx.preview, 'audit.json'), audit);
+  writeJson(ctx.preview.audioAudit, audit);
+  updatePreviewManifest(ctx, {review: {audioAuditPath: rel(ctx.preview.audioAudit)}});
   console.log(`PASS  audio audit: ${loudness.length} segments, ${publicManifest.cues.length} cues`);
-  console.log(`READY ${rel(join(ctx.preview, 'audit.json'))}`);
+  console.log(`READY ${rel(ctx.preview.audioAudit)}`);
+  console.log(`REVIEW ${rel(ctx.preview.report)}`);
   console.log('BLOCK candidate/current/release: preview audit is not a promotable verdict');
 };
 
-const blocked = new Set(['preview', 'build', 'approve', 'promote', 'release-build', 'release-audit', 'release-approve', 'publish']);
+const resolveEpisodeInputPath = (ctx, value, label) => {
+  const path = resolve(ROOT, value);
+  pathIsInside(ctx.root, path) || fail(`${label} must be inside ${rel(ctx.root)}`);
+  return path;
+};
+
+const probeMedia = async (ctx, path, logName) => JSON.parse(await run('ffprobe', [
+  '-v', 'error', '-show_entries',
+  'stream=index,codec_name,width,height,r_frame_rate,nb_frames,sample_rate,channels:format=duration,size',
+  '-of', 'json', path,
+], {log: join(ctx.tmp, 'build/logs/preview', logName)}));
+
+const frameRate = (stream) => {
+  const [numerator, denominator] = String(stream.r_frame_rate ?? '0/1').split('/').map(Number);
+  return denominator ? numerator / denominator : 0;
+};
+
+const previewEpisodeTask = (ctx, input, mixTask) => {
+  const sourceSha256 = shaFile(input);
+  const audioSha256 = shaFile(mixTask.mix);
+  const fingerprint = sha(JSON.stringify({
+    schema: 2,
+    episodeId: EPISODE_ID,
+    durationSeconds: ctx.episode.durationSeconds,
+    sourceSha256,
+    audioSha256,
+    mux: 'copy-video+audited-aac+faststart',
+  }));
+  const dir = join(ctx.cache, 'episodes', fingerprint);
+  return {
+    fingerprint,
+    sourceSha256,
+    audioSha256,
+    dir,
+    episode: join(dir, 'episode.mp4'),
+    metadata: join(dir, 'metadata.json'),
+  };
+};
+
+const previewEpisodeCacheHit = (task) => {
+  if (![task.episode, task.metadata].every(existsSync)) return false;
+  const metadata = json(task.metadata);
+  return metadata.fingerprint === task.fingerprint
+    && metadata.outputSha256 === shaFile(task.episode);
+};
+
+const validateAuditedMix = (ctx, mixTask) => {
+  existsSync(ctx.preview.audioAudit) || fail('Audio audit is missing; run audio-audit first');
+  const audit = json(ctx.preview.audioAudit);
+  audit.verdict === 'pass' && audit.mix?.sha256 === shaFile(mixTask.mix)
+    || fail('Audio audit does not match the active mix');
+};
+
+const ensureEpisodePreviewCache = async (ctx, input, mixTask) => {
+  const task = previewEpisodeTask(ctx, input, mixTask);
+  if (previewEpisodeCacheHit(task)) return task;
+  const inputProbe = await probeMedia(ctx, input, 'episode-input-ffprobe.log');
+  const inputVideo = inputProbe.streams?.find((stream) => Number.isFinite(stream.width));
+  inputVideo || fail('Input preview has no video stream');
+  Math.abs(Number(inputProbe.format?.duration) - ctx.episode.durationSeconds) <= 0.15
+    || fail(`Input preview duration ${inputProbe.format?.duration}s != episode ${ctx.episode.durationSeconds}s`);
+  const partialDir = `${task.dir}.partial-${process.pid}`;
+  rmSync(partialDir, {recursive: true, force: true});
+  mkdirSync(partialDir, {recursive: true});
+  const partialVideo = join(partialDir, 'episode.mp4');
+  await run('ffmpeg', [
+    '-y', '-hide_banner', '-nostats',
+    '-i', input,
+    '-i', mixTask.mix,
+    '-map', '0:v:0',
+    '-map', '1:a:0',
+    '-c:v', 'copy',
+    '-c:a', 'copy',
+    '-shortest',
+    '-movflags', '+faststart',
+    partialVideo,
+  ], {log: join(ctx.tmp, 'build/logs/preview', `${task.fingerprint}-mux.log`)});
+  const outputProbe = await probeMedia(ctx, partialVideo, 'episode-output-ffprobe.log');
+  const outputVideo = outputProbe.streams?.find((stream) => Number.isFinite(stream.width));
+  const outputAudio = outputProbe.streams?.find((stream) => Number.isFinite(Number(stream.sample_rate)));
+  outputVideo?.width === inputVideo.width && outputVideo?.height === inputVideo.height
+    || fail('Muxed preview dimensions differ from source video');
+  outputVideo?.nb_frames === inputVideo.nb_frames || fail('Muxed preview frame count differs from source video');
+  outputAudio?.codec_name === 'aac' && Number(outputAudio.sample_rate) === 48000 && outputAudio.channels === 2
+    || fail('Muxed preview does not contain the audited AAC 48kHz stereo mix');
+  Math.abs(Number(outputProbe.format?.duration) - Number(inputProbe.format?.duration)) <= 0.15
+    || fail('Muxed preview duration differs from source video');
+  writeJson(join(partialDir, 'metadata.json'), {
+    schemaVersion: 1,
+    episodeId: EPISODE_ID,
+    fingerprint: task.fingerprint,
+    sourceVideo: {path: rel(input), sha256: task.sourceSha256},
+    audioMix: {path: rel(mixTask.mix), sha256: task.audioSha256, fingerprint: mixTask.fingerprint},
+    outputSha256: shaFile(partialVideo),
+    durationSeconds: Number(outputProbe.format.duration),
+    width: outputVideo.width,
+    height: outputVideo.height,
+    fps: frameRate(outputVideo),
+    frames: Number(outputVideo.nb_frames),
+    createdAt: new Date().toISOString(),
+  });
+  mkdirSync(dirname(task.dir), {recursive: true});
+  if (existsSync(task.dir)) rmSync(task.dir, {recursive: true, force: true});
+  renameSync(partialDir, task.dir);
+  previewEpisodeCacheHit(task) || fail('Episode preview cache validation failed after mux');
+  return task;
+};
+
+const muxPreview = async (ctx) => {
+  FLAGS.has('output') && fail('Preview output is fixed at tmp/preview/episode.mp4; --output is not supported');
+  const videoFlag = FLAGS.get('video');
+  typeof videoFlag === 'string' && videoFlag !== 'true'
+    || fail('preview requires --video=<episode-local source mp4> the first time');
+  const input = resolveEpisodeInputPath(ctx, videoFlag, 'Input video');
+  existsSync(input) || fail(`Input video not found: ${rel(input)}`);
+  input !== ctx.preview.episode || fail('Use preview without --video to inspect the existing stable episode view');
+  const plan = await resolvePlan(ctx);
+  for (const task of plan.tasks) cacheHit(task) || fail(`${task.scene.narration.segmentId}: TTS cache is missing or stale`);
+  const mixTask = mixTaskFor(ctx, plan.tasks);
+  mixCacheHit(mixTask) || fail('Audio mix cache is missing or stale; run audio-preview first');
+  validateAuditedMix(ctx, mixTask);
+  const cacheTask = await ensureEpisodePreviewCache(ctx, input, mixTask);
+  const metadata = json(cacheTask.metadata);
+  const materialization = materializeAtomic(cacheTask.episode, ctx.preview.episode);
+  updatePreviewManifest(ctx, {
+    episode: {
+      path: rel(ctx.preview.episode),
+      cachePath: rel(cacheTask.episode),
+      fingerprint: cacheTask.fingerprint,
+      sha256: metadata.outputSha256,
+      durationSeconds: metadata.durationSeconds,
+      width: metadata.width,
+      height: metadata.height,
+      fps: metadata.fps,
+      frames: metadata.frames,
+      audioMixSha256: cacheTask.audioSha256,
+      audioMixFingerprint: mixTask.fingerprint,
+      materialization,
+    },
+  });
+  console.log(`READY ${rel(ctx.preview.episode)}`);
+  console.log(`REVIEW ${rel(ctx.preview.report)}`);
+  console.log(`MANIFEST ${rel(ctx.preview.manifest)}`);
+  console.log('BLOCK candidate/current/release: draft preview is not a promotable artifact');
+};
+
+const materializeScenePreview = async (ctx) => {
+  FLAGS.has('output') && fail('Scene preview paths are fixed; --output is not supported');
+  const sceneId = FLAGS.get('scene');
+  typeof sceneId === 'string' && sceneId !== 'true' || fail('Scene preview requires --scene=<scene-id>');
+  const sceneIndex = ctx.episode.scenes.findIndex((scene) => scene.id === sceneId);
+  sceneIndex >= 0 || fail(`Unknown scene: ${sceneId}`);
+  const videoFlag = FLAGS.get('video');
+  typeof videoFlag === 'string' && videoFlag !== 'true' || fail('Scene preview requires --video=<episode-local source mp4>');
+  const input = resolveEpisodeInputPath(ctx, videoFlag, 'Scene input video');
+  existsSync(input) || fail(`Scene input video not found: ${rel(input)}`);
+  const scene = ctx.episode.scenes[sceneIndex];
+  const probe = await probeMedia(ctx, input, `${scene.narration.segmentId}-ffprobe.log`);
+  const video = probe.streams?.find((stream) => Number.isFinite(stream.width));
+  video || fail('Scene preview has no video stream');
+  Math.abs(Number(probe.format?.duration) - scene.duration) <= 0.2
+    || fail(`${sceneId}: preview duration ${probe.format?.duration}s != scene ${scene.duration}s`);
+  const filename = orderedSceneFilename(sceneIndex, sceneId);
+  const sourceSha256 = shaFile(input);
+  const fingerprint = sha(JSON.stringify({
+    schema: 1,
+    episodeId: EPISODE_ID,
+    sceneId,
+    sourceSha256,
+    width: video.width,
+    height: video.height,
+    fps: frameRate(video),
+  }));
+  const cacheDir = join(ctx.cache, 'scenes', fingerprint);
+  const cachePath = join(cacheDir, filename);
+  if (!existsSync(cachePath) || shaFile(cachePath) !== sourceSha256) {
+    const partialDir = `${cacheDir}.partial-${process.pid}`;
+    rmSync(partialDir, {recursive: true, force: true});
+    mkdirSync(partialDir, {recursive: true});
+    materialize(input, join(partialDir, filename));
+    writeJson(join(partialDir, 'metadata.json'), {
+      schemaVersion: 1,
+      episodeId: EPISODE_ID,
+      sceneId,
+      fingerprint,
+      sourceSha256,
+      durationSeconds: Number(probe.format.duration),
+      width: video.width,
+      height: video.height,
+      fps: frameRate(video),
+      frames: Number(video.nb_frames),
+      createdAt: new Date().toISOString(),
+    });
+    if (existsSync(cacheDir)) rmSync(cacheDir, {recursive: true, force: true});
+    renameSync(partialDir, cacheDir);
+  }
+  const target = join(ctx.preview.scenes, filename);
+  const materialization = materializeAtomic(cachePath, target);
+  const previous = currentPreviewManifest(ctx);
+  updatePreviewManifest(ctx, {
+    scenes: {
+      ...(previous.scenes ?? {}),
+      [sceneId]: {
+        filename,
+        path: rel(target),
+        cachePath: rel(cachePath),
+        fingerprint,
+        sha256: sourceSha256,
+        durationSeconds: Number(probe.format.duration),
+        width: video.width,
+        height: video.height,
+        fps: frameRate(video),
+        materialization,
+      },
+    },
+  });
+  console.log(`READY ${rel(target)}`);
+  console.log(`REVIEW ${rel(ctx.preview.report)}`);
+};
+
+const restorePreviewViews = (ctx) => {
+  const recorded = ctx.state.preview ?? currentPreviewManifest(ctx);
+  const episode = episodePreviewMatchesAudio(recorded.episode, recorded.audio) ? recorded.episode : null;
+  const scenes = recorded.scenes ?? {};
+  const audio = recorded.audio;
+  const restoredScenes = {};
+  if (recorded.episode && !episode) rmSync(ctx.preview.episode, {force: true});
+  if (episode?.cachePath) {
+    const cachePath = resolve(ROOT, episode.cachePath);
+    existsSync(cachePath) || fail(`Recorded episode preview cache is missing: ${episode.cachePath}`);
+    const materialization = materializeAtomic(cachePath, ctx.preview.episode);
+    Object.assign(episode, {path: rel(ctx.preview.episode), materialization});
+  }
+  for (const [sceneId, scene] of Object.entries(scenes)) {
+    const cachePath = resolve(ROOT, scene.cachePath);
+    existsSync(cachePath) || fail(`Recorded scene preview cache is missing: ${scene.cachePath}`);
+    const target = join(ctx.preview.scenes, scene.filename);
+    restoredScenes[sceneId] = {
+      ...scene,
+      path: rel(target),
+      materialization: materializeAtomic(cachePath, target),
+    };
+  }
+  if (audio?.mixCachePath) {
+    const mixCachePath = resolve(ROOT, audio.mixCachePath);
+    existsSync(mixCachePath) || fail(`Recorded audio mix cache is missing: ${audio.mixCachePath}`);
+    materializeAtomic(mixCachePath, join(ctx.preview.audio, 'mix.m4a'));
+  }
+  updatePreviewManifest(ctx, {
+    episode: episode ?? null,
+    scenes: restoredScenes,
+    audio: audio ?? null,
+    review: {audioAuditPath: existsSync(ctx.preview.audioAudit) ? rel(ctx.preview.audioAudit) : null},
+  });
+};
+
+const preview = async (ctx) => {
+  FLAGS.has('output') && fail('Preview paths are fixed; --output is not supported');
+  if (FLAGS.has('scene')) return materializeScenePreview(ctx);
+  if (FLAGS.has('video')) return muxPreview(ctx);
+  restorePreviewViews(ctx);
+  existsSync(ctx.preview.episode)
+    || fail('Stable preview is missing; run preview with --video=<episode-local source mp4>');
+  console.log(`READY ${rel(ctx.preview.episode)}`);
+  console.log(`REVIEW ${rel(ctx.preview.report)}`);
+  console.log(`MANIFEST ${rel(ctx.preview.manifest)}`);
+};
+
+const previewCleanupTargets = (ctx) => {
+  const targets = [];
+  const collect = (directory, keep) => {
+    if (!existsSync(directory)) return;
+    for (const entry of readdirSync(directory, {withFileTypes: true})) {
+      if (!keep.has(entry.name)) targets.push(join(directory, entry.name));
+    }
+  };
+  collect(ctx.preview.previewRoot, stablePreviewRootEntries);
+  collect(ctx.preview.audio, stableAudioPreviewEntries);
+  collect(ctx.preview.review, stableReviewEntries);
+  return targets;
+};
+
+const clean = (ctx) => {
+  const apply = applyWasExplicitlyEnabled(FLAGS.get('apply'));
+  const targets = previewCleanupTargets(ctx);
+  console.log(`${apply ? 'APPLY' : 'DRY-RUN'} preview cleanup: ${targets.length} legacy entries`);
+  for (const target of targets) {
+    console.log(`${apply ? 'REMOVE' : 'WOULD REMOVE'} ${rel(target)}`);
+    if (apply) rmSync(target, {recursive: true, force: true});
+  }
+  if (!apply && targets.length > 0) console.log('Re-run with --apply=true after reviewing the exact paths.');
+};
+
+const blocked = new Set(['build', 'approve', 'promote', 'release-build', 'release-audit', 'release-approve', 'publish']);
 
 try {
   const ctx = context();
@@ -655,12 +1341,19 @@ try {
     await audioPreview(ctx);
   } else if (COMMAND === 'audio-audit') {
     await audioAudit(ctx);
+  } else if (COMMAND === 'preview') {
+    await preview(ctx);
+  } else if (COMMAND === 'mux-preview') {
+    console.warn('DEPRECATED mux-preview: use preview --video=<episode-local source mp4>');
+    await muxPreview(ctx);
+  } else if (COMMAND === 'clean') {
+    clean(ctx);
   } else if (COMMAND === 'status') {
     await status(ctx);
   } else if (blocked.has(COMMAND)) {
     fail(`BLOCKED ${COMMAND}: Claude Code Course unified Candidate/Current/Release adapter is not implemented`);
   } else {
-    fail('Usage: claude-code-course validate|plan|audio-preview|audio-audit|status <episode-id> [--scenes=scene-id] [--force]');
+    fail('Usage: claude-code-course validate|plan|audio-preview|audio-audit|preview|clean|status <episode-id> [--scenes=scene-id] [--scene=scene-id] [--force] [--video=episode-local.mp4] [--apply=true]');
   }
 } catch (error) {
   console.error(`claude-code-course: ${error instanceof Error ? error.message : String(error)}`);

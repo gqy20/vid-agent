@@ -209,6 +209,57 @@ class BuildTimelineTest(unittest.TestCase):
                 idle_time_limit=5.0,
             )
 
+    def test_snaps_sequential_segments_that_share_an_idle_capped_frame(self) -> None:
+        events = [
+            {"eventId": "000001", "phase": "start", "segmentId": "one", "rawElapsedSeconds": 6.0, "edit": {"mode": "normal"}},
+            {"eventId": "000002", "phase": "end", "segmentId": "one", "rawElapsedSeconds": 7.0, "edit": {"mode": "normal"}},
+            {"eventId": "000003", "phase": "start", "segmentId": "two", "rawElapsedSeconds": 7.1, "edit": {"mode": "normal"}},
+            {"eventId": "000004", "phase": "end", "segmentId": "two", "rawElapsedSeconds": 8.0, "edit": {"mode": "normal"}},
+        ]
+        manifest = build_timeline.build_manifest(
+            recording_id="ep-test",
+            cast_header={"version": 3, "term": {}},
+            clock_points=[build_timeline.ClockPoint(0, 0), build_timeline.ClockPoint(10, 5)],
+            events=events,
+            media={
+                "width": 1920,
+                "height": 1080,
+                "fps": 30,
+                "durationSeconds": 6,
+                "durationInFrames": 180,
+                "sha256": "abc",
+            },
+            idle_time_limit=5.0,
+        )
+
+        one, two = manifest["segments"]
+        self.assertEqual(one["source"]["endFrameExclusive"], two["source"]["startFrame"])
+        self.assertTrue(manifest["validation"]["segmentsNonOverlapping"])
+
+    def test_rejects_real_raw_time_overlap_even_when_media_frames_collapse(self) -> None:
+        events = [
+            {"eventId": "000001", "phase": "start", "segmentId": "one", "rawElapsedSeconds": 6.0, "edit": {"mode": "normal"}},
+            {"eventId": "000002", "phase": "start", "segmentId": "two", "rawElapsedSeconds": 6.5, "edit": {"mode": "normal"}},
+            {"eventId": "000003", "phase": "end", "segmentId": "one", "rawElapsedSeconds": 7.0, "edit": {"mode": "normal"}},
+            {"eventId": "000004", "phase": "end", "segmentId": "two", "rawElapsedSeconds": 8.0, "edit": {"mode": "normal"}},
+        ]
+        with self.assertRaisesRegex(ValueError, "overlapping segment"):
+            build_timeline.build_manifest(
+                recording_id="ep-test",
+                cast_header={"version": 3, "term": {}},
+                clock_points=[build_timeline.ClockPoint(0, 0), build_timeline.ClockPoint(10, 5)],
+                events=events,
+                media={
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 30,
+                    "durationSeconds": 6,
+                    "durationInFrames": 180,
+                    "sha256": "abc",
+                },
+                idle_time_limit=5.0,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

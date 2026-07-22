@@ -197,19 +197,42 @@ def build_manifest(
                 },
                 "edit": start.get("edit") or {"mode": "normal"},
                 "events": {"start": start["eventId"], "end": event["eventId"]},
+                "_rawStartSeconds": start["rawElapsedSeconds"],
+                "_rawEndSeconds": event["rawElapsedSeconds"],
             }
         )
 
     if open_segments:
         raise ValueError(f"unclosed segments: {', '.join(sorted(open_segments))}")
 
-    segments.sort(key=lambda item: (item["source"]["startFrame"], item["id"]))
+    segments.sort(key=lambda item: (item["source"]["startFrame"], item["_rawStartSeconds"], item["id"]))
     previous_end = 0
+    previous_raw_end = 0.0
     for segment in segments:
         start_frame = segment["source"]["startFrame"]
         if start_frame < previous_end:
-            raise ValueError(f"overlapping segment: {segment['id']}")
+            if segment["_rawStartSeconds"] < previous_raw_end:
+                raise ValueError(f"overlapping segment: {segment['id']}")
+            duration = max(1, segment["source"]["durationInFrames"])
+            start_frame = previous_end
+            end_frame = min(total_frames, start_frame + duration)
+            if end_frame <= start_frame:
+                raise ValueError(f"cannot snap sequential segment at media end: {segment['id']}")
+            segment["source"].update(
+                {
+                    "startFrame": start_frame,
+                    "endFrameExclusive": end_frame,
+                    "durationInFrames": end_frame - start_frame,
+                    "startSeconds": start_frame / fps,
+                    "endSeconds": end_frame / fps,
+                }
+            )
         previous_end = segment["source"]["endFrameExclusive"]
+        previous_raw_end = segment["_rawEndSeconds"]
+
+    for segment in segments:
+        del segment["_rawStartSeconds"]
+        del segment["_rawEndSeconds"]
 
     covered_frames = sum(segment["source"]["durationInFrames"] for segment in segments)
     return {
