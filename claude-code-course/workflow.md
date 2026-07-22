@@ -100,7 +100,7 @@ claude-code-course/episodes/<episode-id>.json
 - 账号、token、主目录、私有仓库、环境变量和历史命令中的敏感内容不进入公开素材；
 - 录制脚本、fixture、终端尺寸、字体、主题和 Claude Code 版本进入输入指纹。
 
-每次正式录制还必须在 `tmp/recordings/<run-id>/` 留下本地日志证据。容器 `~/.claude/projects`、`~/.claude/debug`、导演日志和事件进入权限受限的 `raw/`；认证配置、原始 cast 和中间视频不得归档。公开素材或课程代码只能读取白名单派生的 `sanitized/session-trace.jsonl`，不得直接读取 raw session。`manifest.json` 必须绑定 run 状态、Claude Code 版本、镜像身份和文件 SHA，`audit/sensitive-scan.json` 必须明确给出 `pass`、`warn` 或 `fail`。日志清理默认 dry-run，只有显式 `--apply=true` 才能删除旧 run。
+每次正式录制还必须在 `tmp/recordings/<run-id>/` 留下本地日志证据。容器 `~/.claude/projects`、`~/.claude/debug`、导演日志和事件进入权限受限的 `raw/`；认证配置、原始 cast 和中间视频不得归档。公开素材或课程代码只能读取白名单派生的 `sanitized/session-trace.jsonl` 与 `sanitized/session-architecture.json`，不得直接读取 raw session。派生层可以保留事件序号、父序号、消息序号、内容块类型、工具调用/结果配对、错误标记和 checkpoint 计数，但必须移除原始 ID、路径、提示词、回复正文、工具参数值和工具结果正文。JSONL 字段只作为与已核验 Claude Code 版本绑定的观察证据，不得宣称为稳定公共 API。`manifest.json` 必须绑定 run 状态、Claude Code 版本、镜像身份和文件 SHA，`audit/sensitive-scan.json` 必须明确给出 `pass`、`warn` 或 `fail`。日志清理默认 dry-run，只有显式 `--apply=true` 才能删除旧 run。
 
 官方文档截图属于来源证据，不属于产品实操录屏。当前 EP01 使用 `scripts/browser-recordings/claude-code-course-lab/capture_official_docs.py` 固定视口派生公开页面截图与 manifest；不得访问或截取账户、控制台、套餐详情和密钥页面。截图资产、关注区域、来源 URL 与核验日期必须回写 episode JSON。
 

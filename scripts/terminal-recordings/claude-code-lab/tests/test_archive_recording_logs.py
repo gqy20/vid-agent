@@ -109,13 +109,17 @@ class ArchiveRecordingLogsTest(unittest.TestCase):
                 {
                     "type": "user",
                     "timestamp": "2026-07-22T12:00:00Z",
+                    "uuid": "raw-user-uuid",
                     "cwd": "/home/cc/project",
                     "message": {"role": "user", "content": f"读取 /home/qy/private.txt {secret}"},
                 },
                 {
                     "type": "assistant",
                     "timestamp": "2026-07-22T12:00:01Z",
+                    "uuid": "raw-assistant-uuid",
+                    "parentUuid": "raw-user-uuid",
                     "message": {
+                        "id": "raw-message-id",
                         "role": "assistant",
                         "content": [
                             {
@@ -125,6 +129,32 @@ class ArchiveRecordingLogsTest(unittest.TestCase):
                                 "input": {"file_path": "/home/qy/private.txt"},
                             }
                         ],
+                    },
+                },
+                {
+                    "type": "user",
+                    "timestamp": "2026-07-22T12:00:02Z",
+                    "uuid": "raw-result-uuid",
+                    "parentUuid": "raw-assistant-uuid",
+                    "message": {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": "toolu_private_id",
+                                "is_error": False,
+                                "content": f"secret result {secret}",
+                            }
+                        ],
+                    },
+                },
+                {
+                    "type": "file-history-snapshot",
+                    "timestamp": "2026-07-22T12:00:03Z",
+                    "snapshot": {
+                        "trackedFileBackups": {
+                            "/home/qy/private.txt": {"backupFileName": f"{secret}.txt"}
+                        }
                     },
                 },
             ]
@@ -137,11 +167,45 @@ class ArchiveRecordingLogsTest(unittest.TestCase):
         self.assertNotIn(secret, trace_text)
         self.assertNotIn("private.txt", trace_text)
         self.assertNotIn("toolu_private_id", trace_text)
+        self.assertNotIn("raw-user-uuid", trace_text)
+        self.assertNotIn("raw-assistant-uuid", trace_text)
+        self.assertNotIn("raw-message-id", trace_text)
         self.assertEqual(trace_rows[0]["relativeSeconds"], 0.0)
         self.assertEqual(trace_rows[0]["type"], "user")
         self.assertEqual(trace_rows[1]["toolNames"], ["Read"])
+        self.assertEqual(trace_rows[1]["parentSequence"], 0)
+        self.assertEqual(trace_rows[1]["messageOrdinal"], 1)
+        self.assertEqual(trace_rows[1]["contentTypes"], ["tool_use"])
+        self.assertEqual(
+            trace_rows[1]["toolCalls"],
+            [{"ordinal": 1, "name": "Read", "inputKeys": ["file_path"]}],
+        )
+        self.assertEqual(trace_rows[2]["parentSequence"], 1)
+        self.assertEqual(
+            trace_rows[2]["toolResults"],
+            [{"ordinal": 1, "isError": False, "contentType": "string"}],
+        )
+        self.assertEqual(
+            trace_rows[3]["checkpoint"],
+            {"kind": "snapshot", "trackedFileCount": 1},
+        )
         self.assertNotIn("content", trace_rows[0])
         self.assertNotIn("cwd", trace_rows[0])
+
+        architecture_path = self.output / "sanitized" / "session-architecture.json"
+        architecture_text = architecture_path.read_text(encoding="utf-8")
+        architecture = json.loads(architecture_text)
+        self.assertNotIn(secret, architecture_text)
+        self.assertNotIn("private.txt", architecture_text)
+        self.assertEqual(architecture["events"]["session"], 4)
+        self.assertEqual(architecture["chain"]["linkedNodes"], 3)
+        self.assertEqual(architecture["chain"]["resolvedParents"], 2)
+        self.assertEqual(architecture["messages"]["assistantEntries"], 1)
+        self.assertEqual(architecture["messages"]["assistantMessages"], 1)
+        self.assertEqual(architecture["tools"]["calls"], 1)
+        self.assertEqual(architecture["tools"]["results"], 1)
+        self.assertEqual(architecture["tools"]["paired"], 1)
+        self.assertEqual(architecture["checkpoints"]["snapshots"], 1)
 
     def test_audit_reports_secret_counts_without_serializing_secret(self) -> None:
         secret = "sk-recording-secret-value"

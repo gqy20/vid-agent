@@ -150,6 +150,14 @@ export const LAYOUT = {
     top: 90,
     height: 810,
   },
+  terminalEvidence: {
+    left: 150,
+    top: 245,
+    width: 1320,
+    height: 650,
+    railLeft: 1520,
+    railWidth: 250,
+  },
   terminalPadding: '84px 250px 176px',
 } as const;
 

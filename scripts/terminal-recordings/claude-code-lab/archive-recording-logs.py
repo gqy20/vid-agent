@@ -107,7 +107,41 @@ def collect_tool_names(value: Any) -> list[str]:
     return sorted(names)
 
 
-def session_trace_rows(session_paths: list[Path]) -> list[dict[str, Any]]:
+def json_kind(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return "number"
+
+
+def safe_object_keys(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    return sorted(
+        key
+        for key in value
+        if isinstance(key, str) and len(key) <= 64 and SAFE_ID.fullmatch(key)
+    )
+
+
+def message_blocks(event: dict[str, Any]) -> list[dict[str, Any]]:
+    message = event.get("message")
+    if not isinstance(message, dict):
+        return []
+    content = message.get("content")
+    if not isinstance(content, list):
+        return []
+    return [block for block in content if isinstance(block, dict)]
+
+
+def session_trace_rows(session_paths: list[Path]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     parsed: list[tuple[datetime | None, int, dict[str, Any]]] = []
     sequence = 0
     for path in session_paths:
@@ -124,6 +158,25 @@ def session_trace_rows(session_paths: list[Path]) -> list[dict[str, Any]]:
 
     timestamps = [timestamp for timestamp, _, _ in parsed if timestamp is not None]
     origin = min(timestamps) if timestamps else None
+    uuid_sequences: dict[str, int] = {}
+    message_ordinals: dict[str, int] = {}
+    tool_ordinals: dict[str, int] = {}
+    for _, index, event in parsed:
+        uuid = event.get("uuid")
+        if isinstance(uuid, str) and uuid:
+            uuid_sequences[uuid] = index
+        message = event.get("message")
+        if isinstance(message, dict):
+            message_id = message.get("id")
+            if isinstance(message_id, str) and message_id and message_id not in message_ordinals:
+                message_ordinals[message_id] = len(message_ordinals) + 1
+        for block in message_blocks(event):
+            if block.get("type") != "tool_use":
+                continue
+            tool_id = block.get("id")
+            if isinstance(tool_id, str) and tool_id and tool_id not in tool_ordinals:
+                tool_ordinals[tool_id] = len(tool_ordinals) + 1
+
     rows: list[dict[str, Any]] = []
     for timestamp, index, event in parsed:
         row: dict[str, Any] = {
@@ -135,18 +188,147 @@ def session_trace_rows(session_paths: list[Path]) -> list[dict[str, Any]]:
         subtype = safe_label(event.get("subtype"))
         if subtype:
             row["subtype"] = subtype
+        parent_uuid = event.get("parentUuid")
+        if isinstance(parent_uuid, str) and parent_uuid in uuid_sequences:
+            row["parentSequence"] = uuid_sequences[parent_uuid]
         message = event.get("message")
         if isinstance(message, dict):
             role = safe_label(message.get("role"), maximum=32)
             if role:
                 row["role"] = role
+            message_id = message.get("id")
+            if isinstance(message_id, str) and message_id in message_ordinals:
+                row["messageOrdinal"] = message_ordinals[message_id]
+            content = message.get("content")
+            if isinstance(content, str):
+                row["contentTypes"] = ["text"]
+            elif isinstance(content, list):
+                content_types = []
+                for block in content:
+                    if not isinstance(block, dict):
+                        continue
+                    block_type = safe_label(block.get("type"), maximum=32)
+                    if block_type and SAFE_ID.fullmatch(block_type) and block_type not in content_types:
+                        content_types.append(block_type)
+                if content_types:
+                    row["contentTypes"] = content_types
         tool_names = collect_tool_names(event)
         if tool_names:
             row["toolNames"] = tool_names
+        tool_calls = []
+        tool_results = []
+        for block in message_blocks(event):
+            block_type = block.get("type")
+            if block_type == "tool_use":
+                tool_id = block.get("id")
+                name = safe_label(block.get("name"), maximum=64)
+                if not isinstance(tool_id, str) or tool_id not in tool_ordinals or not name or not SAFE_ID.fullmatch(name):
+                    continue
+                tool_calls.append(
+                    {
+                        "ordinal": tool_ordinals[tool_id],
+                        "name": name,
+                        "inputKeys": safe_object_keys(block.get("input")),
+                    }
+                )
+            elif block_type == "tool_result":
+                tool_id = block.get("tool_use_id")
+                if not isinstance(tool_id, str) or tool_id not in tool_ordinals:
+                    continue
+                tool_results.append(
+                    {
+                        "ordinal": tool_ordinals[tool_id],
+                        "isError": bool(block.get("is_error", False)),
+                        "contentType": json_kind(block.get("content")),
+                    }
+                )
+        if tool_calls:
+            row["toolCalls"] = tool_calls
+        if tool_results:
+            row["toolResults"] = tool_results
+        if event.get("type") == "file-history-snapshot":
+            snapshot = event.get("snapshot")
+            backups = snapshot.get("trackedFileBackups") if isinstance(snapshot, dict) else None
+            row["checkpoint"] = {
+                "kind": "snapshot",
+                "trackedFileCount": len(backups) if isinstance(backups, (dict, list)) else 0,
+            }
+        elif event.get("type") == "file-history-delta":
+            row["checkpoint"] = {
+                "kind": "delta",
+                "hasBackup": isinstance(event.get("backup"), dict),
+            }
+        if event.get("type") == "system" and subtype == "turn_duration":
+            duration = event.get("durationMs")
+            message_count = event.get("messageCount")
+            row["turn"] = {}
+            if isinstance(duration, (int, float)) and duration >= 0:
+                row["turn"]["durationMs"] = round(float(duration), 3)
+            if isinstance(message_count, int) and message_count >= 0:
+                row["turn"]["messageCount"] = message_count
+            if not row["turn"]:
+                del row["turn"]
         if timestamp is not None and origin is not None:
             row["relativeSeconds"] = round((timestamp - origin).total_seconds(), 3)
         rows.append(row)
-    return rows
+
+    linked_events = [event for _, _, event in parsed if isinstance(event.get("uuid"), str)]
+    parents = [event.get("parentUuid") for event in linked_events if isinstance(event.get("parentUuid"), str)]
+    child_counts: dict[str, int] = {}
+    for parent in parents:
+        child_counts[parent] = child_counts.get(parent, 0) + 1
+    assistant_entries = [event for _, _, event in parsed if event.get("type") == "assistant"]
+    assistant_message_ids = {
+        message.get("id")
+        for event in assistant_entries
+        if isinstance((message := event.get("message")), dict) and isinstance(message.get("id"), str)
+    }
+    calls = [call for row in rows for call in row.get("toolCalls", [])]
+    results = [result for row in rows for result in row.get("toolResults", [])]
+    result_ordinals = {result["ordinal"] for result in results}
+    snapshots = [row for row in rows if row.get("checkpoint", {}).get("kind") == "snapshot"]
+    architecture = {
+        "schemaVersion": 1,
+        "source": "claude-session-derived",
+        "events": {"session": len(rows), "director": 0},
+        "chain": {
+            "linkedNodes": len(linked_events),
+            "resolvedParents": sum(1 for parent in parents if parent in uuid_sequences),
+            "rootNodes": sum(1 for event in linked_events if not isinstance(event.get("parentUuid"), str)),
+            "branchingParents": sum(1 for count in child_counts.values() if count > 1),
+            "maxChildren": max(child_counts.values(), default=0),
+        },
+        "messages": {
+            "assistantEntries": len(assistant_entries),
+            "assistantMessages": len(assistant_message_ids),
+            "userEntries": sum(1 for _, _, event in parsed if event.get("type") == "user"),
+        },
+        "tools": {
+            "calls": len(calls),
+            "results": len(results),
+            "paired": sum(1 for call in calls if call["ordinal"] in result_ordinals),
+            "errors": sum(1 for result in results if result["isError"]),
+            "sequence": [call["name"] for call in calls],
+        },
+        "checkpoints": {
+            "snapshots": len(snapshots),
+            "deltas": sum(1 for row in rows if row.get("checkpoint", {}).get("kind") == "delta"),
+            "maxTrackedFiles": max(
+                (row["checkpoint"]["trackedFileCount"] for row in snapshots),
+                default=0,
+            ),
+        },
+        "privacy": {
+            "excluded": [
+                "message content",
+                "tool input values",
+                "tool result content",
+                "raw identifiers",
+                "paths",
+            ]
+        },
+    }
+    return rows, architecture
 
 
 def director_trace_rows(events_path: Path | None, start_sequence: int) -> list[dict[str, Any]]:
@@ -187,16 +369,19 @@ def director_trace_rows(events_path: Path | None, start_sequence: int) -> list[d
     return rows
 
 
-def write_trace(raw_root: Path, output: Path) -> int:
+def write_trace(raw_root: Path, output: Path, architecture_output: Path) -> tuple[int, dict[str, Any]]:
     session_paths = [path for path in iter_files(raw_root / "projects") if path.suffix == ".jsonl"]
-    rows = session_trace_rows(session_paths)
-    rows.extend(director_trace_rows(raw_root / "director" / "events.jsonl", len(rows)))
+    rows, architecture = session_trace_rows(session_paths)
+    director_rows = director_trace_rows(raw_root / "director" / "events.jsonl", len(rows))
+    rows.extend(director_rows)
+    architecture["events"]["director"] = len(director_rows)
     output.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     with output.open("w", encoding="utf-8") as target:
         for row in rows:
             target.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
     output.chmod(0o600)
-    return len(rows)
+    write_json(architecture_output, architecture)
+    return len(rows), architecture
 
 
 def scan_files(paths: list[Path], secrets: list[str], scanned_root: Path, now: str) -> dict[str, Any]:
@@ -306,7 +491,8 @@ def archive_recording_logs(
             copy_file(events, raw / "director" / "events.jsonl")
 
         trace = staging / "sanitized" / "session-trace.jsonl"
-        trace_entries = write_trace(raw, trace)
+        architecture_path = staging / "sanitized" / "session-architecture.json"
+        trace_entries, architecture = write_trace(raw, trace, architecture_path)
 
         raw_files = list(iter_files(raw))
         audit = scan_files(raw_files, secrets, staging, timestamp)
@@ -334,6 +520,13 @@ def archive_recording_logs(
             "claudeCodeVersion": normalized_version(version_file),
             "containerImage": image,
             "traceEntries": trace_entries,
+            "sessionArchitecture": {
+                "path": "sanitized/session-architecture.json",
+                "sessionEvents": architecture["events"]["session"],
+                "toolCalls": architecture["tools"]["calls"],
+                "toolResults": architecture["tools"]["results"],
+                "checkpoints": architecture["checkpoints"]["snapshots"],
+            },
             "sensitiveScan": {
                 "verdict": audit["verdict"],
                 "path": "audit/sensitive-scan.json",

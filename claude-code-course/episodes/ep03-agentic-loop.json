@@ -1,0 +1,285 @@
+{
+  "episodeId": "ep03-agentic-loop",
+  "title": "Claude Code 不是聊天框",
+  "subtitle": "从工具反馈到本地会话账本",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 323,
+  "goal": "用同一个真实 Bug 修复任务，读懂 Claude Code 的 agent loop、工具调用与结果配对、JSONL 会话账本、文件 checkpoint 和可观测性边界",
+  "content": {
+    "coreModel": "Claude Code 可以分成三层理解：模型在 gather context、take action 和 verify results 之间循环；tool_use 与 tool_result 把判断连接到真实环境；本地 JSONL 会话账本和 file history 分别保存因果记录与可恢复的文件状态。",
+    "alignmentMarkdown": "EP03 沿用 task-board 项目，但使用独立的 ep03 初始化状态。真实任务必须先复现空白 Token 测试失败，再读取源码和测试、修改实现、运行测试与 git diff --check。三阶段是教学模型，不得伪造为 Claude Code 固定且严格分隔的内部状态机。日志结构以 Claude Code 2.1.216 的本次真实录制为观察样本；字段属于实现数据，不作为稳定公共 API 教授。Ctrl+O 只展示终端中的交互视图；工程分析来自本次录制后归档的 ~/.claude/projects JSONL。公开视频只读取白名单派生结构，不读取 raw session。",
+    "loop": [
+      {
+        "id": "gather-context",
+        "label": "Gather context",
+        "short": "收集上下文",
+        "evidence": ["读取失败测试", "读取实现", "运行基线测试"],
+        "tone": "info"
+      },
+      {
+        "id": "take-action",
+        "label": "Take action",
+        "short": "执行动作",
+        "evidence": ["编辑 validate-token.js", "保持修改范围收敛"],
+        "tone": "brand"
+      },
+      {
+        "id": "verify-results",
+        "label": "Verify results",
+        "short": "验证结果",
+        "evidence": ["pnpm test", "git diff --check", "读取退出状态"],
+        "tone": "success"
+      }
+    ],
+    "toolFeedback": {
+      "principle": "工具不仅执行动作，也把文件内容、命令输出、错误和退出状态返回给模型；这些结果决定循环继续、纠偏还是结束。",
+      "categories": [
+        {"name": "Read", "role": "观察文件事实", "phase": "gather-context"},
+        {"name": "Edit", "role": "改变工作区状态", "phase": "take-action"},
+        {"name": "Bash", "role": "执行测试与检查", "phase": "verify-results"}
+      ]
+    },
+    "demoTask": {
+      "project": "task-board",
+      "source": "src/auth/validate-token.js",
+      "test": "test/validate-token.test.js",
+      "prompt": "修复 validateToken：空字符串或只含空白的字符串必须返回 false，非空 Token 返回 true。先运行测试复现，只修改必要文件；完成后运行 pnpm test 和 git diff --check，并用结果说明为什么可以结束。",
+      "initialState": "validateToken 对任意字符串都返回 true；非空测试通过，空字符串和全空白字符串测试失败",
+      "expectedChange": "字符串通过 trim 后必须仍有内容",
+      "verification": ["3 tests pass", "git diff --check exit 0"]
+    },
+    "sessionEvidence": {
+      "terminal": "Ctrl+O transcript viewer 用于在会话中展开详细工具使用，但单屏不等于完整记录",
+      "raw": "本地 tmp/recordings/<run-id>/raw/projects 中保存本次 session JSONL，仅供受控审查",
+      "public": "sanitized 派生层只保留事件序号、父序号、消息序号、内容块类型、工具配对、错误标记和 checkpoint 计数，供动画和审查使用",
+      "privacy": "提示词、回复正文、工具参数、工具结果、绝对路径、session id、tool id 与认证配置不得进入公开 trace",
+      "observedToolSequence": ["Bash", "Bash", "Read", "Read", "Bash", "Edit", "Bash"],
+      "observedArchitecture": {
+        "sessionEvents": 56,
+        "linkedNodes": 43,
+        "resolvedParents": 42,
+        "assistantEntries": 22,
+        "assistantMessages": 9,
+        "toolCalls": 7,
+        "toolResults": 7,
+        "pairedTools": 7,
+        "errorResults": 1,
+        "fileHistorySnapshots": 4,
+        "fileHistoryDeltas": 1,
+        "rawSessionSha256": "278833edecbb138840472084589b6f84221df8341d62cc08e5e9ce131a0a915e"
+      },
+      "engineeringBoundary": "JSONL 负责会话事件与工具因果；file-history 负责 Claude 编辑工具产生的本地文件 checkpoint；Bash 修改、远程副作用与长期协作历史不由 checkpoint 覆盖。"
+    }
+  },
+  "sourceOfTruth": {
+    "references": [
+      "https://code.claude.com/docs/en/how-claude-code-works",
+      "https://code.claude.com/docs/en/tools-reference",
+      "https://code.claude.com/docs/en/best-practices",
+      "https://code.claude.com/docs/en/interactive-mode",
+      "https://code.claude.com/docs/en/sessions",
+      "https://code.claude.com/docs/en/checkpointing",
+      "https://code.claude.com/docs/en/hooks",
+      "https://code.claude.com/docs/en/claude-directory"
+    ]
+  },
+  "verifiedWith": {
+    "date": "2026-07-23",
+    "claudeCodeVersion": "2.1.216"
+  },
+  "productionPolicy": {
+    "remotionOwns": [
+      "course shell",
+      "agentic loop model",
+      "tool-result feedback animation",
+      "recorded terminal evidence",
+      "sanitized session architecture",
+      "tool correlation and checkpoint animation",
+      "narration",
+      "subtitles"
+    ],
+    "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep03-agentic-loop/run.sh",
+    "terminalFixture": "scripts/terminal-recordings/claude-code-lab/fixtures/task-board with ep03 test override",
+    "terminalEvidence": "同一次真实 Claude Code 会话完成基线失败、Read/Edit/Bash 工具调用、源码修改、测试通过和 diff 检查；录制结束后必须产生 run manifest、敏感扫描与 sanitized trace",
+    "sensitiveValues": "raw session 只保存在 Git 忽略且权限受限的本地 run 目录；公开画面和派生 trace 不得出现 Token、账号、宿主路径、提示词正文或工具参数",
+    "versionBoundary": "三阶段 agentic loop 是跨版本心智模型；具体工具名、TUI 折叠方式和 transcript viewer 快捷键以 Claude Code 2.1.216 为准",
+    "recordingEvidence": {
+      "runId": "20260722T155336Z-1093667",
+      "claudeCodeVersion": "2.1.216",
+      "terminal": {
+        "width": 3514,
+        "height": 2018,
+        "fps": 30,
+        "durationSeconds": 96.866667,
+        "sha256": "466c470140e0ea9c5b2e9268560c4610dadd6b6f1d9d3b47f7b63445da4a95af"
+      },
+      "timelineSha256": "3153a3c02aeb1db70f4d4674b741a2aaad79c87ad0cb27a480aedde9eecd71c4",
+      "trace": {
+        "entries": 72,
+        "sha256": "049a5daec9ad05ae7cd9f0b4c75515d9e2337b5b58df50a6869d6f33d77d708a",
+        "sensitiveScan": "pass"
+      }
+    }
+  },
+  "audio": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25,
+    "bgm": {
+      "source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3",
+      "volume": 0.05
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "一句指令怎样变成工程结果",
+      "start": 0,
+      "duration": 10,
+      "goal": "只提出本集问题，不提前重复三阶段和具体工具链",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1,
+        "durationSeconds": 8.804,
+        "text": "一句修复指令，最后变成一处代码修改和两组验证。<#0.25#>真正值得理解的，不是最后那段回答，而是中间怎样把文字变成工程结果。"
+      }
+    },
+    {
+      "id": "loop-model",
+      "title": "三个阶段，一个循环",
+      "start": 10,
+      "duration": 26,
+      "goal": "第一次且只在这里完整定义 gather context、take action、verify results",
+      "narration": {
+        "segmentId": "02_loop_model",
+        "voiceStart": 11,
+        "durationSeconds": 24.931,
+        "text": "Claude Code 把模型放进一个可以读取项目、调用工具并接收结果的执行环境。<#0.25#>一次任务可以用三步理解：Gather context，收集上下文；Take action，执行动作；Verify results，验证结果。<#0.25#>关键不在三个名称，而在反馈：每个工具结果都会回到会话，改变下一次判断。失败就继续循环，需要时用户介入；达到明确的结束条件，任务才停止。"
+      }
+    },
+    {
+      "id": "task-contract",
+      "title": "先给循环一个终止条件",
+      "start": 36,
+      "duration": 23,
+      "goal": "用目标、范围和验收定义真实任务，不重复解释循环",
+      "narration": {
+        "segmentId": "03_task_contract",
+        "voiceStart": 37,
+        "durationSeconds": 21.043,
+        "text": "这次仍用 task-board：空字符串和全空白 Token 必须返回 false，非空 Token 保持通过。<#0.25#>范围只允许修改必要文件。结束条件也提前写清：先看到基线失败，修改后 pnpm test 三项通过，再用 git diff --check 确认补丁干净。目标、范围和验收，共同定义这次任务什么时候可以停。"
+      }
+    },
+    {
+      "id": "gather-context",
+      "title": "先观察，再形成判断",
+      "start": 59,
+      "duration": 26,
+      "goal": "用真实 Read 与基线测试证明上下文来自工具结果，而不是模型凭空知道项目状态",
+      "narration": {
+        "segmentId": "04_gather_context",
+        "voiceStart": 60,
+        "durationSeconds": 24.427,
+        "text": "Claude 先读取测试和实现，再运行基线测试。<#0.25#>Read 返回当前磁盘上的文件内容；Bash 返回命令输出和退出状态。非空用例通过，但空字符串和全空白用例失败，失败位置又与 token.length 大于等于零这条判断对应起来。<#0.25#>这里重要的是证据顺序：先确认失败，再定位实现。工具结果写回会话，下一次判断才有项目事实支撑。"
+      }
+    },
+    {
+      "id": "take-action",
+      "title": "动作必须改变可观察状态",
+      "start": 85,
+      "duration": 29,
+      "goal": "展示真实 Edit 和工作区 diff，区分文字建议与实际行动",
+      "narration": {
+        "segmentId": "05_take_action",
+        "voiceStart": 86,
+        "durationSeconds": 27.919,
+        "text": "原因确定后，Claude 调用 Edit 修改 validate-token.js：先 trim，再要求剩余长度大于零。<#0.25#>模型说要修改，不代表文件已经改变；真正的动作由工具执行。Edit 返回是否成功，随后看到的 diff 才是新的工作区状态。<#0.25#>如果匹配内容不存在、文件已经变化或权限拒绝，结果同样会回到会话，迫使 Claude 重新读取或请求用户处理。这里的修改只落在认证实现，不顺手重构无关代码。"
+      }
+    },
+    {
+      "id": "verify-results",
+      "title": "验证结果决定是否结束",
+      "start": 114,
+      "duration": 26,
+      "goal": "用测试和 diff 检查形成可验证终点，并说明验证失败会触发新一轮循环",
+      "narration": {
+        "segmentId": "06_verify_results",
+        "voiceStart": 115,
+        "durationSeconds": 24.931,
+        "text": "修改后重新运行 pnpm test，三个用例全部通过；再运行 git diff --check，退出状态也是零。<#0.25#>一组证据证明行为符合预期，另一组证据确认补丁没有空白错误。两者共同满足结束条件。<#0.25#>如果测试仍然失败，错误不会被最终回答遮住，而会成为下一轮 Gather context 的输入。最终回答只是汇总已经发生的修改和验证，不能替代这些结果。"
+      }
+    },
+    {
+      "id": "session-ledger",
+      "title": "JSONL 是事件账本，不是聊天导出",
+      "start": 140,
+      "duration": 36,
+      "goal": "从真实日志解释追加式事件、事件类型与 parentUuid 因果链",
+      "narration": {
+        "segmentId": "07_session_ledger",
+        "voiceStart": 141,
+        "durationSeconds": 34.219,
+        "text": "Control 加 O 只是同一份会话数据的交互视图。真正落盘的是当前项目对应的 JSONL：一行一个事件，按发生顺序追加。<#0.25#>这次录制有五十六条 session 事件，其中四十三条带 uuid，并由 parentUuid 连成一条完整因果链。类型也不只有 user 和 assistant，还包括 system、attachment、permission mode、turn duration 和 file history。<#0.25#>所以它更像事件账本，不是聊天记录导出。Claude Code 用这些本地记录支持恢复和继续会话，我们也能据此重建任务经过。"
+      }
+    },
+    {
+      "id": "tool-correlation",
+      "title": "一次工具调用，至少跨两条记录",
+      "start": 176,
+      "duration": 40,
+      "goal": "解释 tool_use、tool_result、关联 ID、错误反馈与流式消息组装",
+      "narration": {
+        "segmentId": "08_tool_correlation",
+        "voiceStart": 177,
+        "durationSeconds": 38.719,
+        "text": "每次工具调用先出现在 assistant 内容块中，类型是 tool_use，里面有工具标识、名称和输入。执行结果再以 user 角色的 tool_result 写回，并通过 tool_use_id 配成一对。<#0.25#>本次七次调用都有对应结果，基线测试那一次明确标记 is_error 为 true。这个错误没有结束任务，而是成为后续 Read、Edit 和再次 Bash 的上下文。<#0.25#>还有一个容易踩坑的细节：二十二条 assistant 事件实际只对应九个 message id。thinking、text 和 tool_use 会分段落盘。工程上必须按关联关系组装，不能把一行 JSON 当成一轮完整对话。"
+      }
+    },
+    {
+      "id": "checkpoint-architecture",
+      "title": "会话因果与文件恢复是两套数据",
+      "start": 216,
+      "duration": 38,
+      "goal": "解释 transcript 与 file-history 的职责分离，以及 checkpoint 的覆盖边界",
+      "narration": {
+        "segmentId": "09_checkpoint_architecture",
+        "voiceStart": 217,
+        "durationSeconds": 36.523,
+        "text": "JSONL 还不是全部。Claude Code 在修改前另外维护 file history。我们这次只有一次 Edit，记录里却能看到四个 snapshot 和一个 delta：snapshot 把会话检查点绑定到已跟踪文件，delta 指向修改前的备份。<#0.25#>这让会话历史和磁盘恢复分成两层：JSONL 负责消息与工具因果，file history 负责把 Edit、Write、NotebookEdit 造成的文件变化倒回。<#0.25#>Bash 直接改文件不在这个保障范围，远程 API、数据库和部署也无法靠本地 checkpoint 撤销。所以 checkpoint 是会话级安全网，不是 Git，也不是事务系统。"
+      }
+    },
+    {
+      "id": "observability",
+      "title": "可观测性来自结构，不等于公开原文",
+      "start": 254,
+      "duration": 39,
+      "goal": "解释 hooks 如何消费会话元数据，以及原始 transcript 的隐私和 schema 边界",
+      "narration": {
+        "segmentId": "10_observability",
+        "voiceStart": 255,
+        "durationSeconds": 37.387,
+        "text": "这套设计还给自动化留了入口。Hook 事件会收到 session_id、transcript_path、cwd、permission mode 和当前工具信息，可以做审计、统计、策略拦截，或者把失败送进外部观测系统。<#0.25#>但 transcript 是明文；工具读到的文件、命令输出和凭据都可能写进去，而且 JSONL 内部字段不该被当作稳定公共 API。<#0.25#>课程因此把原始日志留在权限受限的本地目录，再派生白名单结构：只公开事件序号、父序号、消息序号、工具配对、错误标记和 checkpoint 计数。保留工程关系，不公开工程正文。"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "把 Claude Code 看成三层系统",
+      "start": 293,
+      "duration": 30,
+      "goal": "收束模型判断、工具反馈和会话持久化三层工程结构",
+      "narration": {
+        "segmentId": "11_takeaway",
+        "voiceStart": 294,
+        "durationSeconds": 27.523,
+        "text": "现在可以把 Claude Code 看成三层：模型负责判断，工具观察或改变环境，session ledger 记录因果并支撑恢复；checkpoint 再单独保护可跟踪的文件编辑。<#0.25#>审查任务时，不只看最终回答，还要看 tool_use 与 tool_result 是否闭合，错误是否推动下一步，验证是否真正到达结束条件。<#0.25#>下一集，我们再展开第一步：Claude 怎样建立一个项目的上下文。"
+      }
+    }
+  ],
+  "release": {}
+}

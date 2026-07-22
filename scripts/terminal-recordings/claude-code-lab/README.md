@@ -19,13 +19,17 @@ remotion/renders/claude-code-course/<episode-id>/tmp/recordings/<run-id>/
 │   ├── projects/                 # 容器 ~/.claude/projects
 │   ├── debug/                    # 容器 ~/.claude/debug
 │   └── director/{run.log,events.jsonl}
-├── sanitized/session-trace.jsonl
+├── sanitized/
+│   ├── session-trace.jsonl
+│   └── session-architecture.json
 └── audit/sensitive-scan.json
 ```
 
 - run 目录和子目录固定为 `700`，文件固定为 `600`，并由 `remotion/.gitignore` 阻止提交。
 - 原始 `.cast`、GIF、中间视频和 `~/.claude/settings.json` 不进入归档；真实认证配置仍随临时目录销毁。
-- `session-trace.jsonl` 只保留事件类型、角色、相对时间、工具名和导演 segment 元数据，不保存提示词、回复正文、工具参数、工具结果、绝对路径、session id 或 tool id。
+- `session-trace.jsonl` 保留事件序号、父序号、消息序号、内容块类型、工具序号与结果配对、错误标记、checkpoint 计数和导演 segment 元数据；工具输入只保留字段名，不保留字段值。
+- `session-architecture.json` 汇总事件链、assistant event/message 数量、工具调用闭合率、错误结果和 file-history 计数，供课程动画与审查读取。
+- 两个 sanitized 文件都不保存提示词、回复正文、工具参数值、工具结果正文、绝对路径、session id、message id、uuid 或 tool id。它们是受版本约束的派生观察数据，不是 Claude Code JSONL 的稳定公共 API。
 - `sensitive-scan.json` 只保存分类、数量和相对文件名，不保存命中的敏感值。`fail` 表示本地 raw 中检测到凭据或私钥，需要人工处理；它不能替代公开视频的像素脱敏和 cast 泄漏阻断。
 - `manifest.json` 绑定 episode、run id、退出状态、Claude Code 版本、镜像身份以及归档文件 SHA。成功和失败录制使用同一结构，不再覆盖一个固定的 failure log。
 

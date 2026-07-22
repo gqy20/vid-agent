@@ -7,6 +7,10 @@ import {
   Ep02InteractiveGuide,
   EP02_INTERACTIVE_GUIDE_DURATION_IN_FRAMES,
 } from './episodes/Ep02InteractiveGuide';
+import {
+  Ep03AgenticLoop,
+  EP03_AGENTIC_LOOP_DURATION_IN_FRAMES,
+} from './episodes/Ep03AgenticLoop';
 import {LegacyEp01Install, LEGACY_EP01_DURATION_IN_FRAMES} from './episodes/LegacyEp01Install';
 import {FPS, HEIGHT, WIDTH} from './timeline';
 
@@ -33,6 +37,14 @@ export const registration: VideoRegistration = {
       id: 'ClaudeCodeCourseEp02InteractiveGuide',
       component: Ep02InteractiveGuide,
       durationInFrames: EP02_INTERACTIVE_GUIDE_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'ClaudeCodeCourseEp03AgenticLoop',
+      component: Ep03AgenticLoop,
+      durationInFrames: EP03_AGENTIC_LOOP_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,
