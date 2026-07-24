@@ -29,6 +29,7 @@
 - [ ] 连续 2fps、overview、边界 burst、关键帧和完整 metrics 已生成。
 - [ ] 字幕、音轨、响度、scene 窗口、敏感信息和平台状态检查通过。
 - [ ] 画面字幕逐句来自当前 TTS SRT，并按 `voiceStart` 与实际旁白同时进入、同时退出；没有手写延迟总结冒充字幕。
+- [ ] 画面模型没有额外复述当前或即将出现的字幕完整句；对象名、命令、状态和关系标签除外。
 - [ ] Git/GitHub 对比镜头使用各自 Logo，主模型、卡片组和字幕相对 1920×1080 画布保持视觉居中。
 - [ ] 课程解释层只使用 `palette.ts`、`typography.ts` 和 `spacing.ts` 的共享 token；真实浏览器 UI、品牌 Logo 与浏览器控制点之外没有硬编码颜色或相近字号。
 - [ ] 课程画布没有装饰性渐变、光斑或点阵；平台彩色只表示 action、open、approved、merged、pending、failed 等真实状态。
@@ -45,6 +46,7 @@
 - [ ] 4K browser profile、录制尺寸和 metadata 已进入指纹。
 - [ ] 正式浏览器资产以 3840×2160 重新录制，未使用 1080p upscale。
 - [ ] Remotion 以 3840×2160、30fps 重新渲染完整 Candidate。
+- [ ] 所有 4K Scene 使用一致的视频时间基，`assembly.scene-timebase` 通过且拼接日志没有 `Non-monotonic DTS`。
 - [ ] focus bounding box 已按 4K 录制重新采集。
 - [ ] 针对 4K Candidate 重新执行全部视觉、边界、音频和敏感信息审查。
 - [ ] 4K verdict 为 `pass` 且绑定实际 artifact SHA。

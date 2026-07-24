@@ -192,45 +192,108 @@ const CollaborationRail: React.FC<{progress: number; width?: number}> = ({progre
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleIn = enter(frame, 4, 18);
-  const rolesIn = enter(frame, 34, 28);
-  const modelsIn = enter(frame, 58, 54);
+  const gitIn = enter(frame, seconds(0.3), 16);
+  const githubIn = enter(frame, seconds(0.7), 16);
+  const assumedSameIn = enter(frame, seconds(1.45), 16);
+  const browserHypothesisIn = enter(frame, seconds(3.35), 20);
+  const offlineIn = enter(frame, seconds(5.45), 18);
+  const commitIn = enter(frame, seconds(6.65), 18);
+  const questionIn = enter(frame, seconds(7.65), 14);
 
   return (
-    <AbsoluteFill style={{padding: '126px 150px 154px', boxSizing: 'border-box'}}>
-      <div
-        data-audit-id="gh01-hook-comparison"
-        style={{
-          ...TYPE.display,
-          textAlign: 'center',
-          opacity: titleIn,
-          translate: `0 ${(1 - titleIn) * 18}px`,
-        }}
-      >
-        Git <span style={{color: COLOR.text.tertiary}}>≠</span> GitHub
-      </div>
-
-      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', marginTop: SPACE.huge, opacity: rolesIn}}>
-        <div style={{paddingRight: 78}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: SPACE.lg}}>
-            <GitMark size={58} />
-            <div style={TYPE.title}>本地版本历史</div>
+    <AbsoluteFill style={{padding: '142px 168px 154px', boxSizing: 'border-box'}}>
+      <div data-audit-id="gh01-hook-comparison" style={{position: 'relative', height: 710}}>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 180px 1fr', alignItems: 'center', height: 320}}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: SPACE.xl,
+              opacity: gitIn,
+              translate: `${(1 - gitIn) * -24}px 0`,
+            }}
+          >
+            <GitMark size={82} />
+            <div style={TYPE.display}>Git</div>
           </div>
-          <div style={{...TYPE.body, color: COLOR.text.secondary, marginTop: SPACE.lg}}>对象、提交与分支引用</div>
-          <div style={{marginTop: SPACE.xxl, opacity: modelsIn}}>
-            <GitHistoryRail progress={modelsIn} width={690} />
+
+          <div style={{position: 'relative', height: 130, display: 'grid', placeItems: 'center'}}>
+            <div style={{...TYPE.display, position: 'absolute', color: COLOR.text.tertiary, opacity: assumedSameIn * (1 - questionIn)}}>=</div>
+            <div style={{...TYPE.display, position: 'absolute', color: COLOR.text.primary, opacity: questionIn, scale: 0.94 + questionIn * 0.06}}>?</div>
+          </div>
+
+          <div
+            style={{
+              position: 'relative',
+              height: 248,
+              display: 'grid',
+              placeItems: 'center',
+              opacity: githubIn,
+              translate: `${(1 - githubIn) * 24}px 0`,
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                border: `1px solid ${COLOR.stroke.default}`,
+                borderRadius: RADIUS.panel,
+                background: COLOR.canvas.raised,
+                boxShadow: `0 16px 42px ${COLOR.effects.shadowSoft}`,
+                opacity: browserHypothesisIn,
+                scale: 0.97 + browserHypothesisIn * 0.03,
+              }}
+            >
+              <div style={{height: 42, borderBottom: `1px solid ${COLOR.stroke.soft}`, display: 'flex', alignItems: 'center', gap: SPACE.sm, padding: `0 ${SPACE.lg}px`}}>
+                {[0, 1, 2].map((dot) => <div key={dot} style={{width: 9, height: 9, borderRadius: 999, background: COLOR.stroke.strong}} />)}
+              </div>
+            </div>
+            <div style={{position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: SPACE.xl}}>
+              <GitHubMark size={82} />
+              <div style={TYPE.display}>GitHub</div>
+            </div>
           </div>
         </div>
 
-        <div style={{paddingLeft: 78, borderLeft: `1px solid ${COLOR.stroke.default}`}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: SPACE.lg}}>
-            <GitHubMark size={58} />
-            <div style={TYPE.title}>托管与协作</div>
-          </div>
-          <div style={{...TYPE.body, color: COLOR.text.secondary, marginTop: SPACE.lg}}>仓库、讨论、审查与自动化</div>
-          <div style={{marginTop: SPACE.xxl, opacity: modelsIn}}>
-            <CollaborationRail progress={modelsIn} width={690} />
-          </div>
+        <div
+          style={{
+            position: 'absolute',
+            left: 430,
+            right: 430,
+            top: 372,
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
+            alignItems: 'center',
+            gap: SPACE.lg,
+            opacity: offlineIn,
+          }}
+        >
+          <div style={{height: 2, background: COLOR.stroke.strong, transformOrigin: 'right center', scale: `${offlineIn} 1`}} />
+          <div style={{...TYPE.code, color: COLOR.text.secondary}}>offline</div>
+          <div style={{height: 2, background: COLOR.stroke.strong, transformOrigin: 'left center', scale: `${offlineIn} 1`}} />
+          <div style={{position: 'absolute', left: '50%', top: -4, width: 2, height: 50, background: COLOR.text.secondary, rotate: '38deg', opacity: offlineIn}} />
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            left: 214,
+            top: 492,
+            display: 'flex',
+            alignItems: 'center',
+            gap: SPACE.lg,
+            padding: `${SPACE.md}px ${SPACE.xl}px`,
+            border: `1px solid ${COLOR.stroke.default}`,
+            borderRadius: RADIUS.panel,
+            background: COLOR.canvas.raised,
+            boxShadow: `0 12px 32px ${COLOR.effects.shadowSoft}`,
+            opacity: commitIn,
+            translate: `0 ${(1 - commitIn) * 18}px`,
+          }}
+        >
+          <div style={{...TYPE.code, color: COLOR.text.primary}}>git commit</div>
+          <div style={{...TYPE.ui, color: COLOR.git.main}}>✓</div>
         </div>
       </div>
     </AbsoluteFill>
@@ -239,21 +302,28 @@ const HookScene: React.FC = () => {
 
 const LocalGitScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleIn = enter(frame, -18, 18);
-  const repositoryIn = enter(frame, 28, 24);
-  const graphIn = enter(frame, 70, 70);
-  const rowsIn = enter(frame, 142, 32);
-  const localCommandsIn = enter(frame, 266, 22);
-  const remoteCommandsIn = enter(frame, 430, 22);
+  const questionIn = enter(frame, seconds(2.8), 18);
+  const answerIn = enter(frame, seconds(17.35), 20);
+  const repositoryShellIn = enter(frame, seconds(1.3), 20);
+  const repositoryContentIn = enter(frame, seconds(4.95), 24);
+  const graphIn = enter(frame, seconds(9.15), 70);
+  const localCommandsIn = enter(frame, seconds(13.65), 22);
+  const remoteCommandsIn = enter(frame, seconds(18.7), 22);
 
   return (
     <AbsoluteFill style={{padding: '122px 154px 150px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, opacity: titleIn, translate: `${(1 - titleIn) * -20}px 0`}}>完整历史就在本地</div>
+      <div style={{position: 'relative', height: 74}}>
+        <div style={{...TYPE.hero, position: 'absolute', opacity: questionIn * (1 - answerIn), translate: `${(1 - questionIn) * -20}px 0`}}>
+          <span style={{fontFamily: FONT.mono}}>git commit</span> → ?
+        </div>
+        <div style={{...TYPE.hero, position: 'absolute', opacity: answerIn, translate: `${(1 - answerIn) * -20}px 0`}}>完整历史就在本地</div>
+      </div>
 
       <div style={{display: 'grid', gridTemplateColumns: '450px 1fr', gap: 80, alignItems: 'center', marginTop: 70}}>
         <div
           data-audit-id="gh01-local-repository"
           style={{
+            position: 'relative',
             minHeight: 390,
             padding: `${SPACE.xxl}px ${SPACE.xl}px`,
             boxSizing: 'border-box',
@@ -261,29 +331,40 @@ const LocalGitScene: React.FC = () => {
             borderRadius: RADIUS.panel,
             background: COLOR.canvas.raised,
             boxShadow: `0 16px 42px ${COLOR.effects.shadowSoft}`,
-            opacity: repositoryIn,
-            scale: 0.96 + repositoryIn * 0.04,
+            overflow: 'hidden',
+            opacity: repositoryShellIn,
+            scale: 0.96 + repositoryShellIn * 0.04,
           }}
         >
-          <div style={{...TYPE.title, fontFamily: FONT.mono, color: COLOR.git.main}}>.git/</div>
-          <div style={{marginTop: SPACE.xl, opacity: rowsIn}}>
+          <div style={{position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', opacity: repositoryShellIn * (1 - repositoryContentIn)}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: SPACE.lg}}>
+              <GitMark size={54} />
+              <div style={{...TYPE.title, color: COLOR.text.primary}}>本地仓库</div>
+            </div>
+          </div>
+          <div style={{opacity: repositoryContentIn}}>
+            <div style={{...TYPE.title, fontFamily: FONT.mono, color: COLOR.git.main}}>.git/</div>
+          </div>
+          <div style={{marginTop: SPACE.xl, opacity: repositoryContentIn}}>
             {[
               ['objects/', '内容与提交对象'],
               ['refs/', 'branch 与 tag 指针'],
               ['HEAD', '当前所在位置'],
               ['index', '下一次提交的内容'],
-            ].map(([name, detail]) => (
-              <div key={name} style={{display: 'grid', gridTemplateColumns: '118px 1fr', gap: SPACE.sm, padding: `${SPACE.md}px 0`, borderBottom: `1px solid ${COLOR.stroke.soft}`}}>
-                <div style={{...TYPE.code, color: COLOR.text.primary}}>{name}</div>
-                <div style={{...TYPE.ui, color: COLOR.text.secondary}}>{detail}</div>
-              </div>
-            ))}
+            ].map(([name, detail], index) => {
+              const rowIn = enter(frame, seconds(5.2) + index * 16, 14);
+              return (
+                <div key={name} style={{display: 'grid', gridTemplateColumns: '118px 1fr', gap: SPACE.sm, padding: `${SPACE.md}px 0`, borderBottom: `1px solid ${COLOR.stroke.soft}`, opacity: rowIn, translate: `${(1 - rowIn) * -12}px 0`}}>
+                  <div style={{...TYPE.code, color: COLOR.text.primary}}>{name}</div>
+                  <div style={{...TYPE.ui, color: COLOR.text.secondary}}>{detail}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div>
+        <div style={{opacity: graphIn}}>
           <GitHistoryRail progress={graphIn} width={1000} />
-          <div style={{...TYPE.body, color: COLOR.text.secondary, marginTop: SPACE.lg, opacity: graphIn}}>commit 在本地写入对象，并移动当前分支引用</div>
         </div>
       </div>
 
@@ -343,8 +424,7 @@ const PlatformLayerScene: React.FC = () => {
       </div>
 
       <AbsoluteFill style={{padding: '118px 150px 150px', boxSizing: 'border-box', opacity: modelIn}}>
-        <div style={{...TYPE.hero, translate: `${(1 - modelIn) * -20}px 0`}}>GitHub 在仓库周围保存什么</div>
-        <div style={{marginTop: SPACE.xxl}}>
+        <div style={{marginTop: 102}}>
           <PlatformStateLegend revealFromFrame={144} />
         </div>
       </AbsoluteFill>
@@ -354,7 +434,6 @@ const PlatformLayerScene: React.FC = () => {
 
 const StateBridgeScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleIn = enter(frame, -18, 18);
   const firstExampleIn = enter(frame, 24, 18);
   const firstExampleOut = interpolate(frame, [390, 420], [1, 0], {
     easing: Easing.in(Easing.cubic),
@@ -363,22 +442,21 @@ const StateBridgeScene: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill style={{padding: '122px 146px 150px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, opacity: titleIn, translate: `${(1 - titleIn) * -20}px 0`}}>每次操作，都问三层发生了什么</div>
-      <div style={{marginTop: 116, opacity: firstExampleIn * firstExampleOut}}>
+    <AbsoluteFill>
+      <div style={{position: 'absolute', left: 146, right: 146, top: 304, opacity: firstExampleIn * firstExampleOut}}>
         <GitHubStateBridge
-          browser={{title: '打开 Pull requests', detail: '一次只读的浏览器导航', accent: 'action'}}
-          platform={{title: '展示 Pull Request 列表', detail: '读取 GitHub 保存的协作信息'}}
-          git={{title: 'objects / refs 不变', detail: '没有创建 commit，也没有移动 branch'}}
+          browser={{title: '打开 Pull requests', accent: 'action'}}
+          platform={{title: '展示 Pull Request 列表'}}
+          git={{title: 'objects / refs 不变'}}
           auditId="gh01-state-bridge"
         />
       </div>
       <Sequence from={420} premountFor={seconds(1)}>
         <div style={{position: 'absolute', left: 146, right: 146, top: 304}}>
           <GitHubStateBridge
-            browser={{title: '点击 Merge', detail: '在浏览器中确认合并', accent: 'action'}}
-            platform={{title: 'Pull Request 已合并', detail: '讨论与审查记录继续保留', accent: 'merged'}}
-            git={{title: 'GitHub 上 main 前进', detail: '本地 main 仍要 fetch 或 pull', accent: 'git'}}
+            browser={{title: '点击 Merge', accent: 'action'}}
+            platform={{title: 'Pull Request 已合并', accent: 'merged'}}
+            git={{title: 'GitHub 上 main 前进', accent: 'git'}}
             auditId="gh01-merge-state-bridge"
           />
         </div>
@@ -389,19 +467,16 @@ const StateBridgeScene: React.FC = () => {
 
 const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleIn = enter(frame, -18, 18);
   const modelsIn = enter(frame, 34, 58);
   const connectionIn = enter(frame, 102, 26);
 
   return (
     <AbsoluteFill style={{padding: '126px 150px 150px', boxSizing: 'border-box'}}>
-      <div style={{...TYPE.hero, textAlign: 'center', opacity: titleIn}}>历史引擎，与协作平台</div>
-
-      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 92, marginTop: 88, opacity: modelsIn}}>
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 92, marginTop: 146, opacity: modelsIn}}>
         <div style={{textAlign: 'center'}}>
           <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: SPACE.lg}}>
             <GitMark size={52} />
-            <div style={TYPE.title}>Git 管理版本历史</div>
+            <div style={TYPE.title}>Git</div>
           </div>
           <div style={{marginTop: SPACE.xxl}}><GitHistoryRail progress={modelsIn} width={680} /></div>
         </div>
@@ -409,7 +484,7 @@ const TakeawayScene: React.FC = () => {
         <div style={{textAlign: 'center'}}>
           <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: SPACE.lg}}>
             <GitHubMark size={52} />
-            <div style={TYPE.title}>GitHub 组织托管与协作</div>
+            <div style={TYPE.title}>GitHub</div>
           </div>
           <div style={{marginTop: SPACE.xxl}}><CollaborationRail progress={modelsIn} width={680} /></div>
         </div>

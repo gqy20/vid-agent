@@ -7,7 +7,7 @@ type BridgeAccent = 'neutral' | 'action' | 'merged' | 'git';
 
 type BridgeState = {
   title: string;
-  detail: string;
+  detail?: string;
   accent?: BridgeAccent;
 };
 
@@ -115,7 +115,9 @@ export const GitHubStateBridge: React.FC<{
                 {index + 1}
               </div>
               <div style={{...TYPE.section, color: COLOR.text.primary}}>{state.title}</div>
-              <div style={{...TYPE.ui, margin: `${SPACE.md}px auto 0`, maxWidth: 420, color: COLOR.text.secondary}}>{state.detail}</div>
+              {state.detail ? (
+                <div style={{...TYPE.ui, margin: `${SPACE.md}px auto 0`, maxWidth: 420, color: COLOR.text.secondary}}>{state.detail}</div>
+              ) : null}
             </div>
           );
         })}

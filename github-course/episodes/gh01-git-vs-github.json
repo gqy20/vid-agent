@@ -23,7 +23,7 @@
     }
   },
   "content": {
-    "alignmentMarkdown": "# GH01 Audio Alignment\n\nTTS 固定为 `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`。分段人声规范化到约 `-20 LUFS`，复用 Git Course BGM，固定 `volume=0.05`，整集母带目标 `-16 LUFS`、`-3.0 dBTP`。\n\n| Segment | Scene window | Voice start | Alignment intent |\n|---|---:|---:|---|\n| `01_hook` | 0-10.5s | 0.3s | 问题说完后保留约 2.2s 静止思考时间 |\n| `02_local_git` | 10.5-37s | 10.8s | `commit` 写对象并移动引用后停顿约 0.9s |\n| `03_browser_repository` | 37-65s | 37.3s | 普通句间停顿保持 0.4-0.6s |\n| `04_platform_layer` | 65-95.5s | 65.3s | Git 对象与平台状态边界后停顿约 0.9s |\n| `05_state_bridge` | 95.5-128s | 95.8s | 三层判断问题后停顿约 0.95s，再进入示例 |\n| `06_takeaway` | 128-150s | 128.3s | 保留约 1s 片尾收束时间 |\n\n普通句间停顿继续使用 `<#0.25#>` 至 `<#0.45#>`，只有关键模型切换提升到 `<#0.9#>` 至 `<#0.95#>`。精确人声时长、voice end 与 end gap 由候选 audio manifest 和审查结果派生，不在本字段重复维护。SRT 时间码来自 MMX，文本由 episode JSON 的停顿段规范化，必须检查无 `<#...#>` 泄漏和 UTF-8 截断。Remotion 字幕直接使用这些 SRT cue，并按每段 `voiceStart` 映射到整集时间线；scene cache 指纹包含 SRT SHA，不使用手写 `captionIn` 模拟旁白字幕。"
+    "alignmentMarkdown": "# GH01 Audio Alignment\n\nTTS 固定为 `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`。分段人声规范化到约 `-20 LUFS`，复用 Git Course BGM，固定 `volume=0.05`，整集母带目标 `-16 LUFS`、`-3.0 dBTP`。\n\n| Segment | Scene window | Voice start | Alignment intent |\n|---|---:|---:|---|\n| `01_hook` | 0-10.5s | 0.3s | 问题说完后保留约 2.2s 静止思考时间 |\n| `02_local_git` | 10.5-37s | 10.8s | `commit` 写对象并移动引用后停顿约 0.9s |\n| `03_browser_repository` | 37-65s | 37.3s | 普通句间停顿保持 0.4-0.6s |\n| `04_platform_layer` | 65-95.5s | 65.3s | 询问对象库能否找到 PR 后停顿约 0.9s，再揭示平台状态边界 |\n| `05_state_bridge` | 95.5-128s | 95.8s | 询问本地 refs 是否变化后停顿约 0.95s，再对比 merge 示例 |\n| `06_takeaway` | 128-150s | 128.3s | 保留约 1s 片尾收束时间 |\n\n普通句间停顿继续使用 `<#0.25#>` 至 `<#0.45#>`，只有关键模型切换提升到 `<#0.9#>` 至 `<#0.95#>`。精确人声时长、voice end 与 end gap 由候选 audio manifest 和审查结果派生，不在本字段重复维护。SRT 时间码来自 MMX，文本由 episode JSON 的停顿段规范化，必须检查无 `<#...#>` 泄漏和 UTF-8 截断。Remotion 字幕直接使用这些 SRT cue，并按每段 `voiceStart` 映射到整集时间线；scene cache 指纹包含 SRT SHA，不使用手写 `captionIn` 模拟旁白字幕。"
   },
   "teachingIntent": {
     "question": "GitHub 是 Git 的网页版吗？",
@@ -158,7 +158,7 @@
       "narration": {
         "segmentId": "02_local_git",
         "voiceStart": 10.8,
-        "text": "Git 是分布式版本控制系统。<#0.35#>一份本地仓库里，就有项目文件和提交历史。<#0.3#>.git 目录保存 objects、refs、HEAD 和 index。<#0.35#>git commit 会在本地写入提交对象，并移动当前分支引用。<#0.9#>commit、branch、log、diff 主要读写本地数据。<#0.35#>fetch、pull、push 才需要连接远端。<#0.25#>断网也不影响本地历史。"
+        "text": "先不打开 GitHub，<#0.25#>只看电脑里的仓库。<#0.35#>一次 commit 究竟写到了哪里？<#0.35#>.git 目录保存 objects、refs、HEAD 和 index。<#0.35#>commit 写入新的提交对象，当前分支引用随之向前。<#0.9#>branch、log、diff 也主要在本地完成。<#0.35#>答案开始清楚：<#0.25#>fetch、pull、push 才连接远端；断网仍能继续本地历史。"
       }
     },
     {
@@ -178,7 +178,7 @@
       "narration": {
         "segmentId": "03_browser_repository",
         "voiceStart": 37.3,
-        "text": "GitHub 的第一层职责，是托管 Git 仓库。<#0.35#>浏览器里看到的，是 GitHub 服务器上这份仓库的内容，<#0.25#>不是你电脑里的 working tree 或 index。<#0.4#>Code 页面让其他人查看文件、branch 和 commit。<#0.3#>但页面上还出现了 Issues、Pull requests 和 Actions。<#0.35#>这些不是本地 Git 命令的另一种皮肤，<#0.25#>而是平台提供的协作入口。<#0.35#>页面状态可以继续变化，而你的本地仓库不会自动跟着变化。"
+        "text": "再打开浏览器。<#0.35#>这里看到的，是本地仓库，还是 GitHub 上的另一份仓库？<#0.4#>Code 页面展示 GitHub 服务器上的文件、branch 和 commit，<#0.25#>不是电脑里的 working tree 或 index。<#0.35#>不过页面上还有 Issues、Pull requests 和 Actions。<#0.35#>它们似乎超出了 Git 仓库本身，<#0.25#>更像围绕代码组织协作的平台状态。<#0.4#>所以网页状态可以变化，本地仓库却未必跟着变化。"
       }
     },
     {
@@ -198,7 +198,7 @@
       "narration": {
         "segmentId": "04_platform_layer",
         "voiceStart": 65.3,
-        "text": "GitHub 在 Git 仓库周围增加协作状态。<#0.3#>Issue 组织问题，Pull Request 提议、讨论和合并代码变化，Review 表达审查结论，Checks 展示自动化结果。<#0.4#>它们会引用 branch 和 commit，<#0.25#>但它们本身不是普通的 Git commit、tree 或 blob。<#0.9#>Pull Request 可以随着 head branch 的新 commit 更新，Review 和 Checks 也会围绕这些 commit 改变状态。<#0.35#>只 clone 仓库，不会把这些讨论与结论变成本地 Git 对象。"
+        "text": "这些协作入口究竟保存了什么？<#0.35#>Issue 记录问题，Pull Request 连接提议、讨论与合并，Review 表达审查结论，Checks 展示自动化结果。<#0.4#>它们会指向 branch 或 commit，<#0.25#>但在 Git 对象库里，能找到 Pull Request 吗？<#0.9#>找不到。它不是 commit、tree 或 blob，而是 GitHub 的平台状态。<#0.4#>head branch 加入新 commit 后，这些状态会继续变化；但只 clone 仓库，讨论和结论并不会变成本地对象。"
       }
     },
     {
@@ -216,7 +216,7 @@
       "narration": {
         "segmentId": "05_state_bridge",
         "voiceStart": 95.8,
-        "text": "以后看到一个 GitHub 操作，<#0.25#>先分三层判断。<#0.35#>浏览器做了什么？平台状态变成什么？底层 Git 的 refs 或 commits 有没有变化？<#0.95#>现在我们只是打开 Pull requests 页面。<#0.3#>平台展示了协作信息，<#0.25#>本地 objects 和 refs 没有因此改变。<#0.4#>如果网页上合并了 Pull Request，先变化的是 GitHub 端的目标分支。<#0.35#>你的本地分支仍要通过 fetch 或 pull，才会看到新的提交。<#0.4#>把三层分开，就不会把一次页面点击，误解成所有仓库同时改变。"
+        "text": "现在拿一个页面动作，<#0.25#>试试这条边界。<#0.35#>打开 Pull requests 页面：浏览器发生导航，GitHub 展示协作信息；<#0.25#>本地 objects 和 refs 变了吗？<#0.95#>没有。<#0.35#>再换成网页合并 Pull Request，变化先落在哪里？<#0.4#>GitHub 端的目标分支会前进，本地分支却停在原处，直到 fetch 或 pull。<#0.4#>于是，与其只问 Git 变了吗，不如分别追问：浏览器做了什么，平台记录了什么，refs 或 commits 又改变了什么？"
       }
     },
     {
@@ -234,7 +234,7 @@
       "narration": {
         "segmentId": "06_takeaway",
         "voiceStart": 128.3,
-        "text": "记住这条边界：<#0.3#>Git 管理版本历史，GitHub 围绕这段历史组织托管与协作。<#0.4#>Git 可以不依赖 GitHub 存在；GitHub 则以 Git 仓库为基础，再增加身份、权限和协作流程。<#0.45#>连接两边的是 remote、fetch 和 push。<#0.35#>下一集，我们先把 Git identity 和 GitHub account 分开。"
+        "text": "回到开头：<#0.25#>GitHub 是 Git 的网页版吗？<#0.4#>这个说法漏掉了关键区别。<#0.35#>Git 保存版本历史；GitHub 托管仓库，并组织协作。<#0.4#>Git 可以脱离 GitHub 工作，两边靠 remote、fetch 和 push 联系。<#0.35#>下一集继续追问：Git identity 和 GitHub account，为什么不是同一个身份？"
       }
     }
   ]

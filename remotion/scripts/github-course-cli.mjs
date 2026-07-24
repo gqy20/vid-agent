@@ -33,7 +33,7 @@ const RENDER_PROFILES = {
 };
 const AUDIT_POLICY_VERSION = 'github-course-visual-v3';
 const FULL_AUDIT_POLICY_VERSION = 'github-course-full-hd-v4';
-const UHD_AUDIT_POLICY_VERSION = 'github-course-visual-uhd-v2';
+const UHD_AUDIT_POLICY_VERSION = 'github-course-visual-uhd-v3';
 const UHD_FULL_AUDIT_POLICY_VERSION = 'github-course-full-uhd-v2';
 const COMMAND = process.argv[2] ?? 'status';
 const COMMAND_ARGS = process.argv.slice(3);
@@ -521,7 +521,7 @@ const plan = (ctx) => {
     const recording = scene.browserRecordingId ? recordings.get(scene.browserRecordingId) : null;
     const assetFingerprint = recording ? recordingAssetFingerprint(recording) : null;
     const nativeBrowserOverlay = ctx.profile.name === 'uhd30' && scene.id === 'browser-repository'
-      ? 'native-uhd-browser-overlay-v1:x320:y298:w3200:h1494:rate1.15:hold12'
+      ? 'native-uhd-browser-overlay-v2:x320:y298:w3200:h1494:rate1.15:hold12:timescale90000'
       : null;
     const fingerprintInput = {schema: 3, baseHash, sourceBlock: sourceParts(ctx).blocks.get(scene.id), scene: visualScene, subtitleFingerprint, assetFingerprint, profile: ctx.profile};
     if (nativeBrowserOverlay) fingerprintInput.nativeBrowserOverlay = nativeBrowserOverlay;
@@ -600,6 +600,7 @@ const compositeNativeUhdBrowserVideo = async (ctx, item) => {
       '-preset', 'medium',
       '-crf', '18',
       '-pix_fmt', 'yuv420p',
+      '-video_track_timescale', '90000',
       '-movflags', '+faststart',
       '-f', 'mp4',
       partial,
@@ -617,6 +618,7 @@ const compositeNativeUhdBrowserVideo = async (ctx, item) => {
         visibleHeight: 1494,
         playbackRate: 1.15,
         holdFromSeconds: 12,
+        videoTrackTimescale: 90000,
       },
     });
   } catch (error) {
@@ -823,6 +825,17 @@ const assembleVisual = async (ctx, buildPlan) => {
       return {candidate, artifact: previous};
     }
   }
+  const sceneTimeBases = ordered.map((item) => ({sceneId: item.sceneId, timeBase: execFileSync('ffprobe', [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-show_entries', 'stream=time_base',
+    '-of', 'default=nw=1:nk=1',
+    item.path,
+  ], {encoding: 'utf8'}).trim()}));
+  const expectedTimeBase = sceneTimeBases[0]?.timeBase;
+  expectedTimeBase || fail('Cannot determine scene video time base.');
+  const mismatchedTimeBases = sceneTimeBases.filter((item) => item.timeBase !== expectedTimeBase);
+  mismatchedTimeBases.length === 0 || fail(`Scene time bases must match before stream-copy assembly: ${sceneTimeBases.map((item) => `${item.sceneId}=${item.timeBase}`).join(', ')}`);
   const concat = join(candidateDir, 'scenes.ffconcat');
   writeFileSync(concat, ordered.map((item) => `file '${item.path.replaceAll("'", "'\\''")}'`).join('\n') + '\n');
   await run('ffmpeg', ['-nostdin', '-y', '-f', 'concat', '-safe', '0', '-i', concat, '-map', '0:v:0', '-c:v', 'copy', '-an', '-movflags', '+faststart', '-f', 'mp4', `${candidate}.partial`], {log: join(ctx.build, 'logs/assemble-visual.log')});
@@ -937,6 +950,18 @@ const auditVisual = async (ctx, candidate = join(ctx.build, `candidate/${ctx.epi
     {id: 'sampling.boundaries10fps', status: sampling.boundaries.count === planData.boundaryCount ? 'pass' : 'fail', details: `${sampling.boundaries.count}/${planData.boundaryCount}`},
     {id: 'sampling.keyframes', status: sampling.keyframes.count === planData.keyframeCount ? 'pass' : 'fail', details: `${sampling.keyframes.count}/${planData.keyframeCount}`},
   ];
+  const visualManifestPath = join(ctx.build, 'visual-artifact-manifest.json');
+  if (existsSync(visualManifestPath)) {
+    const sceneTimeBases = json(visualManifestPath).scenes.map((item) => {
+      const path = resolve(ROOT, item.path);
+      return execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=time_base', '-of', 'default=nw=1:nk=1', path], {encoding: 'utf8'}).trim();
+    });
+    checks.push({
+      id: 'assembly.scene-timebase',
+      status: new Set(sceneTimeBases).size === 1 ? 'pass' : 'fail',
+      details: sceneTimeBases.join(', '),
+    });
+  }
   for (const declaration of ctx.episode.browserRecordings ?? []) {
     const recording = recordingForProfile(declaration, ctx.profile);
     try {

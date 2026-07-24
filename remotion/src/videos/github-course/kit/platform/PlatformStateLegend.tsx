@@ -6,17 +6,16 @@ import {GitHubMark, GitHubPlatformGlyph, type GitHubPlatformGlyphName} from '../
 
 type PlatformStateItem = {
   title: string;
-  detailLines: readonly string[];
   glyph: GitHubPlatformGlyphName;
   side: 'left' | 'right';
   top: number;
 };
 
 const ITEMS: readonly PlatformStateItem[] = [
-  {title: 'Issue', detailLines: ['组织需求、缺陷与讨论'], glyph: 'issues', side: 'left', top: 44},
-  {title: 'Pull Request', detailLines: ['提议变化，比较', 'base 与 head'], glyph: 'pull-request', side: 'right', top: 44},
-  {title: 'Review', detailLines: ['记录 comment、', 'approve 与修改意见'], glyph: 'review', side: 'left', top: 318},
-  {title: 'Checks', detailLines: ['记录测试、构建', '与自动化状态'], glyph: 'actions', side: 'right', top: 318},
+  {title: 'Issue', glyph: 'issues', side: 'left', top: 44},
+  {title: 'Pull Request', glyph: 'pull-request', side: 'right', top: 44},
+  {title: 'Review', glyph: 'review', side: 'left', top: 318},
+  {title: 'Checks', glyph: 'actions', side: 'right', top: 318},
 ];
 
 const CONNECTIONS = [
@@ -131,14 +130,7 @@ export const PlatformStateLegend: React.FC<{revealFromFrame?: number}> = ({revea
             >
               <GitHubPlatformGlyph name={item.glyph} size={ORBIT_GLYPH_SIZE} />
             </div>
-            <div>
-              <div style={TYPE.section}>{item.title}</div>
-              <div style={{...TYPE.ui, color: COLOR.text.secondary, marginTop: SPACE.sm}}>
-                {item.detailLines.map((line) => (
-                  <div key={line} style={{whiteSpace: 'nowrap'}}>{line}</div>
-                ))}
-              </div>
-            </div>
+            <div style={TYPE.section}>{item.title}</div>
           </div>
         );
       })}
