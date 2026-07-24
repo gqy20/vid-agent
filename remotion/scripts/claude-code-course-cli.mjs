@@ -104,6 +104,71 @@ const loadEpisode = () => {
     cursor += scene.duration;
   }
   cursor === episode.durationSeconds || fail(`${EPISODE_ID}: scene duration sum ${cursor} != ${episode.durationSeconds}`);
+  const continuity = episode.continuity;
+  continuity && typeof continuity === 'object' || fail(`${EPISODE_ID}: continuity is required`);
+  Number.isInteger(continuity.chapterIndex) && continuity.chapterIndex > 0
+    || fail(`${EPISODE_ID}: continuity.chapterIndex must be a positive integer`);
+  typeof continuity.chapterLabel === 'string' && continuity.chapterLabel.trim()
+    || fail(`${EPISODE_ID}: continuity.chapterLabel is required`);
+  typeof continuity.entryState === 'string' && continuity.entryState.trim()
+    || fail(`${EPISODE_ID}: continuity.entryState is required`);
+  typeof continuity.exitState === 'string' && continuity.exitState.trim()
+    || fail(`${EPISODE_ID}: continuity.exitState is required`);
+  typeof continuity.incomingQuestion === 'string' && continuity.incomingQuestion.trim()
+    || fail(`${EPISODE_ID}: continuity.incomingQuestion is required`);
+  typeof continuity.outgoingQuestion === 'string' && continuity.outgoingQuestion.trim()
+    || fail(`${EPISODE_ID}: continuity.outgoingQuestion is required`);
+  typeof continuity.visualBaton === 'string' && continuity.visualBaton.trim()
+    || fail(`${EPISODE_ID}: continuity.visualBaton is required`);
+  Array.isArray(continuity.scenes) && continuity.scenes.length === episode.scenes.length
+    || fail(`${EPISODE_ID}: continuity.scenes must cover all ${episode.scenes.length} scenes`);
+  const handoffTypes = new Set([
+    'question-handoff',
+    'evidence-continuation',
+    'causal-handoff',
+    'zoom-in',
+    'synthesis',
+    'chapter-bridge',
+    'closure',
+  ]);
+  continuity.scenes.forEach((item, index) => {
+    const scene = episode.scenes[index];
+    item.sceneId === scene.id || fail(`${EPISODE_ID}: continuity scene ${index + 1} must be ${scene.id}`);
+    for (const field of ['entryState', 'change', 'exitState']) {
+      typeof item[field] === 'string' && item[field].trim()
+        || fail(`${scene.id}: continuity.${field} is required`);
+    }
+    index === 0
+      ? item.entryState === continuity.entryState || fail(`${scene.id}: entryState must match episode continuity.entryState`)
+      : item.entryState === continuity.scenes[index - 1].exitState || fail(`${scene.id}: entryState must match previous exitState`);
+    const expectedTarget = episode.scenes[index + 1]?.id ?? continuity.nextEpisodeId;
+    item.handoff && handoffTypes.has(item.handoff.type) || fail(`${scene.id}: invalid continuity handoff type`);
+    item.handoff.target === expectedTarget
+      || fail(`${scene.id}: continuity handoff target must be ${expectedTarget ?? 'null'}`);
+    typeof item.handoff.visualAnchor === 'string' && item.handoff.visualAnchor.trim()
+      || fail(`${scene.id}: continuity handoff visualAnchor is required`);
+  });
+  continuity.scenes.at(-1).exitState === continuity.exitState
+    || fail(`${EPISODE_ID}: final scene exitState must match continuity.exitState`);
+  const verifyNeighbor = (neighborId, direction) => {
+    if (neighborId === null) return;
+    typeof neighborId === 'string' && /^ep[0-9]{2}-[a-z0-9-]+$/.test(neighborId)
+      || fail(`${EPISODE_ID}: continuity.${direction}EpisodeId is invalid`);
+    const neighborPath = join(EPISODES, `${neighborId}.json`);
+    existsSync(neighborPath) || fail(`${EPISODE_ID}: continuity neighbor not found: ${neighborId}`);
+    const neighbor = json(neighborPath);
+    if (direction === 'previous') {
+      neighbor.continuity?.nextEpisodeId === EPISODE_ID || fail(`${EPISODE_ID}: previous episode does not link forward`);
+      neighbor.continuity?.exitState === continuity.entryState || fail(`${EPISODE_ID}: entryState does not match previous exitState`);
+      neighbor.continuity?.chapterIndex + 1 === continuity.chapterIndex || fail(`${EPISODE_ID}: chapterIndex does not follow previous episode`);
+    } else {
+      neighbor.continuity?.previousEpisodeId === EPISODE_ID || fail(`${EPISODE_ID}: next episode does not link backward`);
+      continuity.exitState === neighbor.continuity?.entryState || fail(`${EPISODE_ID}: exitState does not match next entryState`);
+      continuity.chapterIndex + 1 === neighbor.continuity?.chapterIndex || fail(`${EPISODE_ID}: next chapterIndex is not sequential`);
+    }
+  };
+  verifyNeighbor(continuity.previousEpisodeId, 'previous');
+  verifyNeighbor(continuity.nextEpisodeId, 'next');
   return {episode, path};
 };
 
@@ -863,6 +928,12 @@ const resolvePlan = async (ctx) => {
 
 const printPlan = (ctx, plan) => {
   console.log(`Claude Code Course · ${EPISODE_ID}`);
+  const continuity = ctx.episode.continuity;
+  console.log(`CHAPTER ${continuity.chapterIndex} · ${continuity.chapterLabel}`);
+  console.log(`STATE   ${continuity.entryState} -> ${continuity.exitState}`);
+  for (const item of continuity.scenes) {
+    console.log(`FLOW    ${item.sceneId}: ${item.entryState} -> ${item.exitState} -> ${item.handoff.target ?? 'END'}`);
+  }
   for (const task of plan.tasks) console.log(`${cacheHit(task) ? 'HIT  ' : 'BUILD'} tts ${task.scene.narration.segmentId}`);
   console.log('BLOCK candidate/current/release: Claude Code Course unified adapter is not implemented');
 };

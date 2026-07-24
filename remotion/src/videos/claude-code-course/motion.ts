@@ -10,6 +10,8 @@ export const MOTION = {
   expressive: 26,
   exit: 10,
   stagger: 7,
+  questionHold: 42,
+  evidenceHandoff: 16,
   distance: {
     small: 10,
     medium: 20,

@@ -12,6 +12,7 @@
     "fps",
     "resolution",
     "durationSeconds",
+    "continuity",
     "audio",
     "sourceOfTruth",
     "verifiedWith",
@@ -38,6 +39,68 @@
       }
     },
     "durationSeconds": {"type": "number", "exclusiveMinimum": 0},
+    "continuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chapterIndex",
+        "chapterLabel",
+        "previousEpisodeId",
+        "nextEpisodeId",
+        "entryState",
+        "exitState",
+        "incomingQuestion",
+        "outgoingQuestion",
+        "visualBaton",
+        "scenes"
+      ],
+      "properties": {
+        "chapterIndex": {"type": "integer", "minimum": 1},
+        "chapterLabel": {"type": "string", "minLength": 1},
+        "previousEpisodeId": {"type": ["string", "null"]},
+        "nextEpisodeId": {"type": ["string", "null"]},
+        "entryState": {"type": "string", "minLength": 1},
+        "exitState": {"type": "string", "minLength": 1},
+        "incomingQuestion": {"type": "string", "minLength": 1},
+        "outgoingQuestion": {"type": "string", "minLength": 1},
+        "visualBaton": {"type": "string", "minLength": 1},
+        "scenes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sceneId", "entryState", "change", "exitState", "handoff"],
+            "properties": {
+              "sceneId": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+              "entryState": {"type": "string", "minLength": 1},
+              "change": {"type": "string", "minLength": 1},
+              "exitState": {"type": "string", "minLength": 1},
+              "handoff": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "target", "visualAnchor"],
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "question-handoff",
+                      "evidence-continuation",
+                      "causal-handoff",
+                      "zoom-in",
+                      "synthesis",
+                      "chapter-bridge",
+                      "closure"
+                    ]
+                  },
+                  "target": {"type": ["string", "null"]},
+                  "visualAnchor": {"type": "string", "minLength": 1}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "audio": {
       "type": "object",
       "additionalProperties": true,

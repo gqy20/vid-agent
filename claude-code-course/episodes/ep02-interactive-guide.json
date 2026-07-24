@@ -8,7 +8,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 300,
+  "durationSeconds": 267,
   "goal": "在同一个真实项目会话中，学会用斜杠菜单发现能力、用 @ 精确提供文件、用 ! 执行确定性命令，并通过多行输入、过程展开、中断和权限模式控制会话",
   "content": {
     "coreModel": "Claude Code 的交互界面由输入入口和会话控制组成：/ 用于发现命令与扩展能力，@ 用于提供明确上下文，! 用于直接执行 Shell；Ctrl+O 用于观察详细过程，Esc 用于中断并重新定向，Shift+Tab 默认在 default、acceptEdits 与 plan 三种权限模式间切换。",
@@ -145,6 +145,82 @@
     "sensitiveValues": "录制运行时使用本地忽略的 ANTHROPIC_AUTH_TOKEN；公开素材不得显示 Token、宿主路径、账号或私有数据",
     "versionBoundary": "快捷键可能受平台、终端和用户 keybindings 影响；画面以课程记录的 Linux 终端和 Claude Code 2.1.216 为准"
   },
+  "continuity": {
+    "chapterIndex": 2,
+    "chapterLabel": "控制",
+    "previousEpisodeId": "ep01-install-first-start",
+    "nextEpisodeId": "ep03-agentic-loop",
+    "entryState": "已经接通的请求链，等待一个包含文件、命令和权限的真实任务",
+    "exitState": "对象、边界和验收条件明确的修复任务已经进入会话",
+    "incomingQuestion": "怎样把任务对象、现场证据和权限边界送进同一个会话？",
+    "outgoingQuestion": "这些输入进入运行以后，怎样变成文件修改和验证结果？",
+    "visualBaton": "EP01 的终端输入行承接真实任务，最终收束成 EP03 的任务契约",
+    "scenes": [
+      {
+        "sceneId": "hook",
+        "entryState": "已经接通的请求链，等待一个包含文件、命令和权限的真实任务",
+        "change": "把第一次回答后的输入框变成一个真实工程任务",
+        "exitState": "同一个任务需要同时表达文件、命令和权限边界",
+        "handoff": {"type": "question-handoff", "target": "interaction-model", "visualAnchor": "包含文件、命令和权限的输入行"}
+      },
+      {
+        "sceneId": "interaction-model",
+        "entryState": "同一个任务需要同时表达文件、命令和权限边界",
+        "change": "把交互分为输入对象与运行控制两组",
+        "exitState": "交互已经形成输入对象与运行控制两条路径",
+        "handoff": {"type": "zoom-in", "target": "slash-entry", "visualAnchor": "输入阶段的第一个斜杠入口"}
+      },
+      {
+        "sceneId": "slash-entry",
+        "entryState": "交互已经形成输入对象与运行控制两条路径",
+        "change": "从当前环境发现命令、Skill 和扩展入口",
+        "exitState": "已经知道怎样从当前环境找到可用入口",
+        "handoff": {"type": "causal-handoff", "target": "file-mention", "visualAnchor": "从菜单选择回到任务输入"}
+      },
+      {
+        "sceneId": "file-mention",
+        "entryState": "已经知道怎样从当前环境找到可用入口",
+        "change": "用 @ 把源文件和测试变成明确引用",
+        "exitState": "任务已经指向明确的源文件和测试",
+        "handoff": {"type": "evidence-continuation", "target": "shell-mode", "visualAnchor": "被引用的测试文件"}
+      },
+      {
+        "sceneId": "shell-mode",
+        "entryState": "任务已经指向明确的源文件和测试",
+        "change": "用真实 Shell 执行测试并把失败结果带回会话",
+        "exitState": "失败测试已经成为当前会话的现场证据",
+        "handoff": {"type": "causal-handoff", "target": "multiline-prompt", "visualAnchor": "失败测试输出与退出状态"}
+      },
+      {
+        "sceneId": "multiline-prompt",
+        "entryState": "失败测试已经成为当前会话的现场证据",
+        "change": "把目标、约束和验收条件组织成多行输入",
+        "exitState": "目标、约束和验收条件已经形成结构化任务",
+        "handoff": {"type": "evidence-continuation", "target": "observe-process", "visualAnchor": "结构化任务开始运行"}
+      },
+      {
+        "sceneId": "observe-process",
+        "entryState": "目标、约束和验收条件已经形成结构化任务",
+        "change": "展开 transcript，把结论重新连接到文件和命令结果",
+        "exitState": "最终结论已经可以回到真实文件和命令证据",
+        "handoff": {"type": "question-handoff", "target": "interrupt-and-mode", "visualAnchor": "transcript 中偏离范围的扫描"}
+      },
+      {
+        "sceneId": "interrupt-and-mode",
+        "entryState": "最终结论已经可以回到真实文件和命令证据",
+        "change": "中断过宽方向并切换默认权限模式",
+        "exitState": "任务方向与默认权限边界都能在运行中调整",
+        "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "输入对象与运行控制重新合并"}
+      },
+      {
+        "sceneId": "takeaway",
+        "entryState": "任务方向与默认权限边界都能在运行中调整",
+        "change": "把文件、命令、观察和权限收束成一份可执行输入",
+        "exitState": "对象、边界和验收条件明确的修复任务已经进入会话",
+        "handoff": {"type": "chapter-bridge", "target": "ep03-agentic-loop", "visualAnchor": "六个入口收束成任务契约"}
+      }
+    ]
+  },
   "audio": {
     "model": "speech-2.8-hd",
     "voice": "Chinese (Mandarin)_Gentleman",
@@ -158,120 +234,120 @@
   "scenes": [
     {
       "id": "hook",
-      "title": "能输入，不等于会控制",
+      "title": "接通以后，怎样开始任务？",
       "start": 0,
-      "duration": 15,
-      "goal": "用重复粘贴路径、来回切终端和失控搜索建立问题",
+      "duration": 14,
+      "goal": "承接第一次真实响应，把同一输入行变成包含文件、命令和权限边界的工程任务",
       "narration": {
         "segmentId": "01_hook",
         "voiceStart": 1,
-        "durationSeconds": 12.727483,
-        "text": "第一次进入 Claude Code，你可以直接输入。<#0.25#>但只会聊天，就会遇到三个问题：上下文给不准、命令来回切、执行方向不对却不知道怎样停。<#0.25#>先把六个动作连成一套操作顺序。"
+        "durationSeconds": 11.791,
+        "text": "链路已经接通。现在把一个真实任务放进输入框：它涉及具体文件、测试命令和执行权限，也需要在运行中观察和纠偏。<#0.25#>这些对象和边界，怎样在同一个界面里说清楚？"
       }
     },
     {
       "id": "interaction-model",
-      "title": "入口与控制",
-      "start": 15,
-      "duration": 30,
+      "title": "输入时和运行中有什么不同？",
+      "start": 14,
+      "duration": 23,
       "goal": "建立三个输入入口和三个控制动作的整体模型",
       "narration": {
         "segmentId": "02_interaction_model",
-        "voiceStart": 16,
-        "durationSeconds": 27.271474,
-        "text": "把交互界面分成两组就够了。<#0.25#>斜杠、艾特和感叹号决定你怎样输入；Control 加 O、Escape 和 Shift 加 Tab 决定你怎样观察、中断和切换模式。<#0.3#>入口解决送进会话的对象和动作，控制键解决运行中怎样看、怎样停、怎样决定可执行范围。<#0.25#>后面每一步都回到两个问题：我给了什么，以及我允许它做到哪里。看到结果后，也要知道下一步该按哪个控制键，并及时纠偏。"
+        "voiceStart": 15,
+        "durationSeconds": 20.107483,
+        "text": "这些符号和快捷键看起来有些零散，能不能找到一条更容易理解的线索？<#0.25#>画面上排的三个入口都发生在输入阶段；下排则影响任务运行时怎样观察、中断和切换模式。<#0.3#>前一组在回答“这次把什么送进会话”，后一组在回答“运行过程中允许它做到哪里”。<#0.25#>接下来的演示，就围绕这两个问题展开。"
       }
     },
     {
       "id": "slash-entry",
-      "title": "/：发现能力",
-      "start": 45,
-      "duration": 35,
+      "title": "/：当前环境里有什么？",
+      "start": 37,
+      "duration": 31,
       "goal": "说明 Slash 菜单是命令与扩展能力的统一发现入口",
       "narration": {
         "segmentId": "03_slash_entry",
-        "voiceStart": 46,
-        "durationSeconds": 33.895465,
-        "text": "输入斜杠，会打开统一能力入口。<#0.25#>这里既有 Claude Code 内置命令，也可能出现捆绑 Skill，以及项目、用户、插件或 MCP 提供的扩展。<#0.25#>菜单不是固定清单：版本、安装的 Skill 和项目配置都会改变它。内置命令处理会话、模型和设置；Skill 封装可复用流程；插件与 MCP 把外部能力接进来。<#0.25#>所以先看当前菜单，再逐项选择能力，不要凭记忆猜命令，也别把扩展误认成内置功能。出现什么以当前环境为准，完全不必把整张列表背下来。"
+        "voiceStart": 38,
+        "durationSeconds": 28.027483,
+        "text": "我们先输入一个斜杠，看看当前环境会出现什么。<#0.25#>菜单里既有 Claude Code 内置命令，也可能出现捆绑 Skill，以及项目、用户、插件或 MCP 提供的扩展。<#0.25#>换一个版本、安装不同的 Skill，或者进入另一个项目，这张菜单都可能变化。内置命令处理会话、模型和设置；Skill 封装可复用流程；插件与 MCP 则把外部能力接进来。<#0.25#>斜杠更像一个现场目录：需要时从当前环境发现即可。"
       }
     },
     {
       "id": "file-mention",
-      "title": "@：提供上下文",
-      "start": 80,
-      "duration": 35,
+      "title": "@：怎样指向具体文件？",
+      "start": 68,
+      "duration": 30,
       "goal": "用真实文件补全演示精确引用代码对象",
       "narration": {
         "segmentId": "04_file_mention",
-        "voiceStart": 81,
-        "durationSeconds": 33.463923,
-        "text": "输入艾特，再键入部分路径，Claude Code 会补全项目里的文件或目录。<#0.25#>这比在提示词里说那个认证文件更准确。补全成功后，路径会作为明确引用进入提示词，不必复制整段代码，也减少同名文件歧义。<#0.25#>路径只是第一层，任务还需要边界。像这次一样，把源文件、问题条件和不修改的要求放在同一段输入里，模型才不会自动扩大范围。如果还要关联测试，就继续艾特测试文件，而不是说顺便看看附近代码。<#0.25#>对象、范围和动作越清楚，Claude 越不需要扫描无关目录。"
+        "voiceStart": 69,
+        "durationSeconds": 27.343469,
+        "text": "如果提示词只说“那个认证文件”，Claude 会怎样判断我们指的是哪一个？输入艾特，再键入部分路径，界面会补全项目里的文件或目录。<#0.25#>补全后的路径作为明确引用进入提示词，不需要复制整段代码，也减少了同名文件带来的歧义。<#0.25#>这次我们把源文件、问题条件和不修改的范围放在同一段输入里，再补上对应测试。<#0.25#>从随后读取的文件可以看到，引用越具体，Claude 为了确认对象而进行的额外扫描就越少。"
       }
     },
     {
       "id": "shell-mode",
-      "title": "!：执行确定性命令",
-      "start": 115,
-      "duration": 35,
+      "title": "!：命令在哪里执行？",
+      "start": 98,
+      "duration": 36,
       "goal": "真实运行失败测试，并说明输出进入会话上下文",
       "narration": {
         "segmentId": "05_shell_mode",
-        "voiceStart": 116,
-        "durationSeconds": 32.383469,
-        "text": "需要一个确定结果时，不必先让模型转述命令。<#0.25#>在空输入行键入感叹号，直接运行 pnpm test。感叹号会把你写下的命令交给当前 Shell，所以工作目录、环境变量和退出码都是真实的。<#0.25#>它适合测试、格式化、查看 Git 状态这类结果确定的动作。测试真实失败，输出进入当前会话；从 2.1.186 开始，Claude 默认会自动回应这份证据。<#0.25#>命令执行前仍要像平时在终端里一样判断影响范围；再让它基于输出分析，高风险命令尤其要先核对。"
+        "voiceStart": 99,
+        "durationSeconds": 33.715465,
+        "text": "现在我们只想知道测试是否通过，还需要先让模型替我们组织一条命令吗？<#0.25#>在空输入行键入感叹号，可以直接运行 pnpm test。命令被交给当前 Shell，所以工作目录、环境变量和退出码都是真实的。<#0.25#>测试、格式化和查看 Git 状态这类确定性动作，都可以用这种方式得到现场结果。这次失败输出也进入了当前会话；从 2.1.186 开始，Claude 默认会回应这份证据。<#0.25#>它仍然是真实的 Shell，命令会产生什么影响，和我们平时使用终端时没有区别。"
       }
     },
     {
       "id": "multiline-prompt",
-      "title": "多行输入表达边界",
-      "start": 150,
-      "duration": 30,
+      "title": "一行为什么不够？",
+      "start": 134,
+      "duration": 29,
       "goal": "用多行提示组织目标、约束和验收条件",
       "narration": {
         "segmentId": "06_multiline_prompt",
-        "voiceStart": 151,
-        "durationSeconds": 28.027483,
-        "text": "任务稍微复杂，就不要把目标、约束和验收条件挤在一行。<#0.25#>常见终端可以用 Shift 加 Enter 换行；需要通用方式时用 Control 加 J。<#0.25#>目标告诉它要解决什么；约束说明不能改、不能扩展到哪里；证据规定回答必须落到哪一行代码、哪一条测试或哪一个命令结果。<#0.25#>这不是格式主义，它让中断、复查和验收更容易纠偏。沿用同样结构，先写验收再执行，并逐项核对结果。"
+        "voiceStart": 135,
+        "durationSeconds": 26.695465,
+        "text": "目标、约束和验收条件都挤在一行时，哪一部分最容易被忽略？<#0.25#>常见终端可以用 Shift 加 Enter 换行；需要通用方式时，也可以使用 Control 加 J。<#0.25#>这次输入被拆成三段：目标描述要解决的问题，约束标出不修改和不扩展的范围，证据说明最后希望看到哪一行代码、哪一条测试或哪一个命令结果。<#0.25#>拆开以后，任务运行到一半时也更容易看出它有没有偏离原来的问题。"
       }
     },
     {
       "id": "observe-process",
-      "title": "Ctrl+O：看清过程",
-      "start": 180,
-      "duration": 45,
+      "title": "Ctrl+O：结论从哪里来？",
+      "start": 163,
+      "duration": 34,
       "goal": "从折叠结果进入 transcript viewer，观察工具和结果",
       "narration": {
         "segmentId": "07_observe_process",
-        "voiceStart": 181,
-        "durationSeconds": 42.211474,
+        "voiceStart": 164,
+        "durationSeconds": 31.339478,
         "postGainDb": -0.4,
-        "text": "发送任务后，Claude 会读取被引用文件和对应测试。<#0.25#>默认界面会折叠一部分工具细节。按 Control 加 O 打开 transcript viewer，就能查看更完整的工具调用和结果。<#0.25#>重点核对三件事：它实际读了哪些文件，运行了哪些工具，工具结果怎样支撑最终判断。这里先看到 validate-token.js 的条件，再看到失败测试，最后才接受空字符串被错误放行这个结论。<#0.25#>如果答案和证据对不上，就从 transcript 找到第一处分叉，补充上下文或改写任务，而不是要求重做全部工作。需要时回看工具结果。<#0.25#>展开过程不是为了盯住每一行，而是为了让关键判断可以追溯，尤其在写文件、运行命令和访问网络之前。"
+        "text": "最终回答里说空字符串被错误放行，这个结论是怎样得到的？<#0.25#>默认界面会折叠一部分工具细节。按 Control 加 O 打开 transcript viewer，可以看到更完整的工具调用和结果。<#0.25#>这里先出现 validate-token.js 的判断条件，随后是失败测试，两个结果一起支撑了最终结论。<#0.25#>如果回答和证据对不上，transcript 还能帮助我们找到从哪一步开始偏离：是读错了文件，还是工具结果没有支持后面的判断。<#0.25#>它的价值不是展示每一行过程，而是让关键结论能够回到真实的文件和命令结果。"
       }
     },
     {
       "id": "interrupt-and-mode",
-      "title": "中断与模式切换",
-      "start": 225,
-      "duration": 50,
+      "title": "方向和权限怎样改变？",
+      "start": 197,
+      "duration": 52,
       "goal": "演示及时中断过宽任务，并区分重新定向与权限模式",
       "narration": {
         "segmentId": "08_interrupt_and_mode",
-        "voiceStart": 226,
-        "durationSeconds": 47.539478,
-        "text": "如果 Claude 开始扫描整个项目，但你只看认证模块，按 Escape 中断。<#0.25#>已经完成的工作会保留，接着把范围收窄到 src/auth 和对应测试。中断解决的是方向问题。<#0.3#>权限模式解决的是默认能做什么。Shift 加 Tab 在 default、acceptEdits 和 plan 之间循环。<#0.25#>default 直接读取，但文件修改、Shell 命令和网络请求通常先问。acceptEdits 自动接受工作区编辑和常见文件命令，其他命令仍问。plan 只做只读探索和方案，不修改源码。<#0.3#>还有 auto、只运行预批准工具的 dontAsk，以及跳过权限检查的 bypassPermissions；它只适合隔离容器或虚拟机。<#0.25#>模式定默认基线，工具再用 allow、ask、deny 规则细分，而且 deny 优先。"
+        "voiceStart": 198,
+        "durationSeconds": 49.807483,
+        "text": "如果 Claude 已经扫描整个项目，而问题只在认证模块，现在还能改变方向吗？按下 Escape，当前运行会中断，已有结果仍然保留；把范围收窄到 src/auth 和对应测试，任务可以继续。<#0.3#>另一个问题是默认允许它做什么。Shift 加 Tab 会在 default、acceptEdits 和 plan 之间循环。<#0.25#>default 直接读取，编辑、Shell 和网络通常先询问；acceptEdits 自动接受工作区编辑和常见文件命令，其他命令仍会询问；plan 只读探索，不修改源码。<#0.3#>此外还有 auto、只运行预批准工具的 dontAsk，以及跳过检查的 bypassPermissions；最后一种通常只用于隔离环境。<#0.25#>具体工具还可以由 allow、ask 和 deny 继续细分，其中 deny 优先。"
       }
     },
     {
       "id": "takeaway",
-      "title": "先控制，再委派",
-      "start": 275,
-      "duration": 25,
-      "goal": "收束交互入口和控制动作，并连接下一集 Agent Loop",
+      "title": "输入进入运行以后呢？",
+      "start": 249,
+      "duration": 18,
+      "goal": "把交互入口收束为一份边界明确的任务，并直接交给 Agent Loop",
       "narration": {
         "segmentId": "09_takeaway",
-        "voiceStart": 276,
-        "durationSeconds": 22.879478,
-        "text": "记住这套顺序：斜杠找入口，艾特给上下文，感叹号跑确定命令；看不清就展开，方向不对就中断，需要时再切换模式。<#0.25#>权限越宽，复核责任越大。先把对象、动作和边界讲清楚，再把任务交给 Claude。每一步都让下一步更可验证。<#0.25#>下一集，我们看这些输入怎样进入完整的 Agent Loop。"
+        "voiceStart": 251,
+        "durationSeconds": 14.203,
+        "text": "文件由艾特明确，命令留下现场结果，运行中还能观察、中断和切换模式。<#0.25#>对象、边界和验收条件已经进入会话。接下来沿着同一份输入，看它怎样变成一处文件修改和两组验证结果。"
       }
     }
   ],

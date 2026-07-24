@@ -1,11 +1,9 @@
 import {
   AbsoluteFill,
-  Img,
   interpolate,
-  staticFile,
   useCurrentFrame,
 } from 'remotion';
-import {CourseLayout, SceneSequence, SyncedNarrationTrack, TERMINAL_HEADER_HEIGHT, TerminalPanel} from '../kit';
+import {CourseLayout, EvidenceIcon, type EvidenceIconName, RecordedTerminal, SceneQuestion, SceneSequence, SemanticNode, SyncedNarrationTrack} from '../kit';
 import {
   EP01_INSTALL_FIRST_START_DURATION_IN_FRAMES,
   EP01_INSTALL_FIRST_START_EPISODE,
@@ -37,10 +35,10 @@ const SceneHeading: React.FC<{title: string; align?: 'left' | 'center'}> = ({tit
   </div>
 );
 
-const StepItem: React.FC<{index: string; title: string; detail: string; opacity: number}> = ({
+const StepItem: React.FC<{index: string; icon: EvidenceIconName; title: string; opacity: number}> = ({
   index,
+  icon,
   title,
-  detail,
   opacity,
 }) => (
   <div
@@ -55,9 +53,9 @@ const StepItem: React.FC<{index: string; title: string; detail: string; opacity:
     }}
   >
     <div style={{position: 'absolute', left: '50%', top: 10, width: 16, height: 16, translate: '-50% 0', borderRadius: 99, background: COLOR.canvas.paper, boxShadow: `inset 0 0 0 4px ${COLOR.brand.orange}`}} />
-    <div style={{...TYPE.labelSmall, fontFamily: FONT.mono, color: COLOR.text.brand}}>{index}</div>
-    <div style={{...TYPE.body, marginTop: 10, fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>{title}</div>
-    <div style={{...TYPE.labelSmall, marginTop: 8, color: COLOR.text.secondary}}>{detail}</div>
+    <EvidenceIcon name={icon} tone={COLOR.text.brand} size={38} />
+    <div style={{...TYPE.labelSmall, fontFamily: FONT.mono, color: COLOR.text.brand, marginTop: 14}}>{index}</div>
+    <div style={{...TYPE.body, marginTop: 8, fontWeight: WEIGHT.bold, color: COLOR.text.primary}}>{title}</div>
   </div>
 );
 
@@ -72,9 +70,9 @@ const HookScene: React.FC = () => {
   const titleIn = enterAt(frame, 94, MOTION.structural);
   const routeIn = motionProgress(frame, 174, MOTION.expressive, EASE.editorial);
   const steps = [
-    ['01', '安装', '命令入口与版本'],
-    ['02', '配置', '渠道、凭据、模型'],
-    ['03', '验证', '第一次真实请求'],
+    ['01', 'shell', '安装'],
+    ['02', 'route', '配置'],
+    ['03', 'check', '验证'],
   ] as const;
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 146}}>
@@ -90,18 +88,12 @@ const HookScene: React.FC = () => {
           scale: 0.985 + proofIn * 0.015,
         }}
       >
-        <TerminalPanel title="claude-code-lab · ep01-install-first-start">
-          <Img
-            src={staticFile('claude-code-course/terminal/ep01-install-first-start-first-start-clip-frames/f_00450.png')}
-            style={{
-              width: '100%',
-              height: `calc(100% - ${TERMINAL_HEADER_HEIGHT}px)`,
-              objectFit: 'contain',
-              objectPosition: 'center center',
-              display: 'block',
-            }}
-          />
-        </TerminalPanel>
+        <RecordedTerminal
+          src="claude-code-course/terminal/ep01-install-first-start-first-start-clip-frames/f_00450.png"
+          title="claude-code-lab · ep01-install-first-start"
+          zoom={1.2}
+          focus="50% 50%"
+        />
       </div>
       <div
         style={{
@@ -115,7 +107,6 @@ const HookScene: React.FC = () => {
         }}
       >
         <div style={{...TYPE.display}}>从安装到第一次启动</div>
-        <div style={{...TYPE.subheading, marginTop: 18, color: COLOR.text.secondary}}>装好命令，不等于已经可用</div>
       </div>
       <div
         style={{
@@ -140,12 +131,12 @@ const HookScene: React.FC = () => {
             scale: `${routeIn} 1`,
           }}
         />
-        {steps.map(([index, title, detail], itemIndex) => (
+        {steps.map(([index, icon, title], itemIndex) => (
           <StepItem
             key={index}
             index={index}
+            icon={icon}
             title={title}
-            detail={detail}
             opacity={enterAt(frame, 128 + itemIndex * 18)}
           />
         ))}
@@ -155,28 +146,24 @@ const HookScene: React.FC = () => {
 };
 
 const RoleNode: React.FC<{
+  icon: EvidenceIconName;
   label: string;
   title: string;
-  detail: string;
   tone: string;
   opacity: number;
-}> = ({label, title, detail, tone, opacity}) => (
+}> = ({icon, label, title, tone, opacity}) => (
   <div
     style={{
       ...SURFACE.editorial,
-      position: 'relative',
-      padding: '36px 20px 22px',
+      padding: '28px 20px 22px',
       minHeight: 210,
       opacity,
       translate: `0 ${(1 - opacity) * 18}px`,
     }}
   >
-    <div style={{position: 'absolute', left: 20, top: 0, width: 48, height: 4, background: tone}} />
-    <div style={{...TYPE.labelSmall, color: COLOR.text.secondary}}>{label}</div>
+    <EvidenceIcon name={icon} size={42} tone={tone} />
+    <div style={{...TYPE.labelSmall, color: COLOR.text.secondary, marginTop: 20}}>{label}</div>
     <div style={{...TYPE.subheading, marginTop: 18}}>{title}</div>
-    <div style={{...TYPE.label, fontWeight: WEIGHT.regular, color: COLOR.text.secondary, marginTop: 14}}>
-      {detail}
-    </div>
   </div>
 );
 
@@ -231,7 +218,7 @@ const ClientProviderModelScene: React.FC = () => {
   const model = enterAt(frame, 64);
   return (
     <AbsoluteFill style={scenePad}>
-      <SceneHeading title="先分清：客户端、服务渠道、模型" align="center" />
+      <SceneHeading title="客户端、渠道和模型分别做什么？" align="center" />
       <div
         style={{
           position: 'absolute',
@@ -244,26 +231,11 @@ const ClientProviderModelScene: React.FC = () => {
           gap: 18,
         }}
       >
-        <RoleNode label="本地客户端" title="Claude Code" detail="读取配置、组织工具调用、展示结果" tone={COLOR.semantic.client} opacity={client} />
+        <RoleNode icon="shell" label="本地客户端" title="Claude Code" tone={COLOR.semantic.client} opacity={client} />
         <HorizontalArrow opacity={provider} label="兼容协议" />
-        <RoleNode label="服务渠道" title="国内兼容服务" detail="接收 Anthropic 兼容请求并完成认证" tone={COLOR.semantic.provider} opacity={provider} />
+        <RoleNode icon="route" label="服务渠道" title="国内兼容服务" tone={COLOR.semantic.provider} opacity={provider} />
         <HorizontalArrow opacity={model} label="模型路由" />
-        <RoleNode label="推理模型" title="GLM / M3 / K3 / Qwen" detail="真正执行推理与代码任务" tone={COLOR.semantic.model} opacity={model} />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 184,
-          translate: '-50% 0',
-          padding: '14px 22px',
-          borderTop: FRAME.hairline,
-          ...TYPE.label,
-          color: COLOR.text.secondary,
-          opacity: enterAt(frame, 94),
-        }}
-      >
-        换渠道，不等于换客户端
+        <RoleNode icon="model" label="推理模型" title="GLM / M3 / K3 / Qwen" tone={COLOR.semantic.model} opacity={model} />
       </div>
     </AbsoluteFill>
   );
@@ -377,11 +349,10 @@ const DomesticOptionsScene: React.FC = () => {
 const VariableCard: React.FC<{
   name: string;
   value: string;
-  role: string;
   tone: string;
   opacity: number;
   active: number;
-}> = ({name, value, role, tone, opacity, active}) => (
+}> = ({name, value, tone, opacity, active}) => (
   <div
     style={{
       ...SURFACE.editorial,
@@ -402,7 +373,6 @@ const VariableCard: React.FC<{
     <div style={{position: 'absolute', left: 0, top: 22, bottom: 22, width: FRAME.focusRail, background: tone, opacity: active}} />
     <div>
       <div style={{...TYPE.label, fontFamily: FONT.mono, color: COLOR.text.primary}}>{name}</div>
-      <div style={{...TYPE.labelSmall, marginTop: 6, fontWeight: WEIGHT.regular, color: COLOR.text.secondary}}>{role}</div>
     </div>
     <div style={{...TYPE.codeSmall, color: COLOR.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{value}</div>
   </div>
@@ -431,13 +401,13 @@ const RequestField: React.FC<{label: string; value: string; tone: string; opacit
 const ConfigurationVariablesScene: React.FC = () => {
   const frame = useCurrentFrame();
   const rows = [
-    ['ANTHROPIC_BASE_URL', 'https://…/api/anthropic', '请求发到哪家服务', '请求地址', '…/v1/messages', COLOR.semantic.client],
-    ['ANTHROPIC_AUTH_TOKEN', 'sk-••••••••••••••••', '证明当前调用身份', '认证请求头', 'Authorization: Bearer •••', COLOR.semantic.auth],
-    ['ANTHROPIC_MODEL', 'glm-5.2[1m]', '选择模型与上下文模式', 'JSON 请求体', 'model: glm-5.2', COLOR.semantic.model],
+    ['ANTHROPIC_BASE_URL', 'https://…/api/anthropic', '请求地址', '…/v1/messages', COLOR.semantic.client],
+    ['ANTHROPIC_AUTH_TOKEN', 'sk-••••••••••••••••', '认证请求头', 'Authorization: Bearer •••', COLOR.semantic.auth],
+    ['ANTHROPIC_MODEL', 'glm-5.2[1m]', 'JSON 请求体', 'model: glm-5.2', COLOR.semantic.model],
   ] as const;
   return (
     <AbsoluteFill style={scenePad}>
-      <SceneHeading title="三个变量，各管一件事" align="center" />
+      <SceneHeading title="三个变量分别影响哪里？" align="center" />
       <div style={{position: 'absolute', left: 150, right: 150, top: 280}}>
         <div style={{display: 'grid', gridTemplateColumns: '760px 100px 1fr', alignItems: 'end', marginBottom: 18}}>
           <div style={{...TYPE.labelSmall, color: COLOR.text.tertiary}}>Claude Code 配置</div>
@@ -445,12 +415,12 @@ const ConfigurationVariablesScene: React.FC = () => {
           <div style={{...TYPE.labelSmall, color: COLOR.text.tertiary}}>组装后的请求</div>
         </div>
         <div style={{display: 'grid', gap: 0}}>
-          {rows.map(([name, value, role, target, targetValue, tone], index) => {
+          {rows.map(([name, value, target, targetValue, tone], index) => {
             const sourceIn = enterAt(frame, 24 + index * 54);
             const mapIn = motionProgress(frame, 58 + index * 54, MOTION.structural, EASE.editorial);
             return (
               <div key={name} style={{display: 'grid', gridTemplateColumns: '760px 100px 1fr', alignItems: 'center'}}>
-                <VariableCard name={name} value={value} role={role} tone={tone} opacity={sourceIn} active={focusWindow(frame, 24 + index * 54, 92 + index * 54)} />
+                <VariableCard name={name} value={value} tone={tone} opacity={sourceIn} active={focusWindow(frame, 24 + index * 54, 92 + index * 54)} />
                 <div style={{position: 'relative', height: 2, background: COLOR.stroke.soft, opacity: sourceIn}}>
                   <div style={{position: 'absolute', inset: 0, background: tone, transformOrigin: 'left center', scale: `${mapIn} 1`}} />
                   <div style={{position: 'absolute', right: -1, top: -5, width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: `9px solid ${tone}`, opacity: mapIn}} />
@@ -464,30 +434,6 @@ const ConfigurationVariablesScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
-
-const FlowNode: React.FC<{label: string; detail: string; tone: string; active: number}> = ({label, detail, tone, active}) => (
-  <div
-    style={{
-      ...SURFACE.editorial,
-      position: 'relative',
-      zIndex: 2,
-      width: 250,
-      minHeight: 122,
-      display: 'grid',
-      placeItems: 'center',
-      padding: '18px',
-      boxSizing: 'border-box',
-      opacity: 0.55 + active * 0.45,
-    }}
-  >
-    <div style={{position: 'absolute', left: '50%', top: 2, width: 10, height: 10, translate: '-50% 0', borderRadius: 99, background: active > 0.4 ? tone : COLOR.stroke.strong}} />
-    <div style={{position: 'absolute', left: '50%', bottom: 0, width: 54 * active, height: 3, translate: '-50% 0', background: tone}} />
-    <div style={{textAlign: 'center'}}>
-      <div style={{...TYPE.label, color: COLOR.text.primary}}>{label}</div>
-      <div style={{...TYPE.codeSmall, color: COLOR.text.secondary, marginTop: 10}}>{detail}</div>
-    </div>
-  </div>
-);
 
 const RequestFlowScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -523,10 +469,13 @@ const RequestFlowScene: React.FC = () => {
   const connectorProgress = [enterAt(frame, 84), enterAt(frame, 224), enterAt(frame, 354)];
   const outboundVisible = focusWindow(frame, 78, 440);
   const requestIn = motionProgress(frame, 190, MOTION.structural, EASE.enter);
+  const pathIn = motionProgress(frame, 190, MOTION.productive, EASE.enter);
+  const authIn = motionProgress(frame, 210, MOTION.productive, EASE.enter);
+  const modelIn = motionProgress(frame, 230, MOTION.productive, EASE.enter);
   const response = enterAt(frame, 610, MOTION.structural);
   return (
     <AbsoluteFill style={scenePad}>
-      <SceneHeading title="一次请求，怎样从终端走到模型再回来" align="center" />
+      <SceneQuestion title="一次请求，怎样从终端走到模型再回来" handoffAt={72} />
       <div
         style={{
           position: 'absolute',
@@ -539,13 +488,13 @@ const RequestFlowScene: React.FC = () => {
           gap: 16,
         }}
       >
-        <FlowNode label="提示词" detail="修复这个测试" tone={COLOR.semantic.client} active={nodeFocus[0]} />
+        <SemanticNode icon="edit" label="提示词" detail="修复这个测试" tone={COLOR.semantic.client} active={nodeFocus[0]} />
         <HorizontalArrow opacity={connectorProgress[0]} />
-        <FlowNode label="Claude Code" detail="读取 env / settings" tone={COLOR.semantic.client} active={Math.min(1, nodeFocus[1])} />
+        <SemanticNode icon="shell" label="Claude Code" detail="读取 env / settings" tone={COLOR.semantic.client} active={Math.min(1, nodeFocus[1])} />
         <HorizontalArrow opacity={connectorProgress[1]} label="POST /v1/messages" />
-        <FlowNode label="兼容服务" detail="认证 + 路由" tone={COLOR.semantic.provider} active={nodeFocus[2]} />
+        <SemanticNode icon="route" label="兼容服务" detail="认证 + 路由" tone={COLOR.semantic.provider} active={nodeFocus[2]} />
         <HorizontalArrow opacity={connectorProgress[2]} label="model 路由" />
-        <FlowNode label="国内模型" detail="glm-5.2" tone={COLOR.semantic.model} active={nodeFocus[3]} />
+        <SemanticNode icon="model" label="国内模型" detail="glm-5.2" tone={COLOR.semantic.model} active={nodeFocus[3]} />
       </div>
       <div
         style={{
@@ -576,9 +525,9 @@ const RequestFlowScene: React.FC = () => {
           translate: `0 ${(1 - requestIn) * 16}px`,
         }}
       >
-        <div style={{...TYPE.codeSmall, color: COLOR.text.brand}}>/v1/messages</div>
-        <div style={{...TYPE.codeSmall, color: COLOR.text.secondary}}>Authorization: •••</div>
-        <div style={{...TYPE.codeSmall, color: COLOR.text.primary}}>model: glm-5.2</div>
+        <div style={{...TYPE.codeSmall, color: COLOR.text.brand, opacity: pathIn, translate: `${(1 - pathIn) * -12}px 0`}}>/v1/messages</div>
+        <div style={{...TYPE.codeSmall, color: COLOR.text.secondary, opacity: authIn, translate: `${(1 - authIn) * -12}px 0`}}>Authorization: •••</div>
+        <div style={{...TYPE.codeSmall, color: COLOR.text.primary, opacity: modelIn, translate: `${(1 - modelIn) * -12}px 0`}}>model: glm-5.2</div>
       </div>
       {[0, 10, 20].map((offset) => (
         <div
@@ -598,7 +547,7 @@ const RequestFlowScene: React.FC = () => {
       ))}
       <div
         style={{
-          ...SURFACE.editorial,
+          ...SURFACE.code,
           position: 'absolute',
           left: 340,
           right: 340,
@@ -608,13 +557,11 @@ const RequestFlowScene: React.FC = () => {
           alignItems: 'center',
           gap: 24,
           padding: '22px 28px',
-          borderTop: FRAME.hairline,
-          borderBottom: FRAME.hairline,
           opacity: response,
           translate: `0 ${(1 - response) * 18}px`,
         }}
       >
-        <div style={{...TYPE.codeSmall, color: COLOR.text.brand}}>stream: content_block_delta</div>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}><EvidenceIcon name="check" size={30} tone={COLOR.text.success} /><span style={{...TYPE.codeSmall, color: COLOR.text.brand}}>content_block_delta</span></div>
         <div style={{color: COLOR.stroke.strong, fontSize: 28}}>→</div>
         <div style={{...TYPE.label, fontWeight: WEIGHT.regular, color: COLOR.text.primary}}>终端显示答案与工具调用</div>
       </div>
@@ -662,7 +609,7 @@ const OneMillionContextScene: React.FC = () => {
           alignContent: 'center',
         }}
       >
-        <SceneHeading title="Claude Code 识别后缀，服务商接收原始模型 ID" align="center" />
+      <SceneHeading title="中括号一 m 会被谁看到？" align="center" />
         <div
           style={{
             marginTop: 78,
@@ -673,8 +620,7 @@ const OneMillionContextScene: React.FC = () => {
             alignItems: 'center',
           }}
         >
-          <div style={{...SURFACE.editorial, position: 'relative', padding: '34px 26px', minHeight: 176, boxSizing: 'border-box', borderTop: FRAME.hairline}}>
-            <div style={{position: 'absolute', left: 26, top: -2, width: 52, height: 4, background: COLOR.semantic.provider}} />
+          <div style={{...SURFACE.editorial, position: 'relative', padding: '34px 26px', minHeight: 176, boxSizing: 'border-box'}}>
             <div style={{...TYPE.labelSmall, color: COLOR.text.secondary}}>Claude Code 配置</div>
             <div style={{...TYPE.subheading, fontFamily: FONT.mono, marginTop: 20, display: 'flex', alignItems: 'center'}}>
               <span>glm-5.2</span>
@@ -700,7 +646,6 @@ const OneMillionContextScene: React.FC = () => {
               minHeight: 176,
               display: 'grid',
               placeItems: 'center',
-              borderTop: FRAME.hairline,
             }}
           >
             <div
@@ -795,61 +740,57 @@ const TerminalEvidenceScene: React.FC<{
   const clipDuration = seconds(sourceDuration / playbackRate);
   const onHold = Boolean(holdImage) && frame >= clipDuration;
   const sourceFrame = Math.min(frameCount - 1, Math.floor(frame * playbackRate));
-  const frameSource = staticFile(`${frameDirectory}/f_${String(sourceFrame + 1).padStart(5, '0')}.png`);
+  const frameSource = `${frameDirectory}/f_${String(sourceFrame + 1).padStart(5, '0')}.png`;
   const calloutIn = enterAt(frame, clipDuration + 4, MOTION.structural);
-  const mediaStyle = {
-    width: '100%',
-    height: `calc(100% - ${TERMINAL_HEADER_HEIGHT}px)`,
-    objectFit: 'contain' as const,
-    objectPosition: 'center bottom' as const,
-    background: COLOR.terminal.bg,
-    display: 'block' as const,
-  };
+  const terminalOpacity = 1 - calloutIn * 0.68;
+  const calloutIcons: EvidenceIconName[] = ['check', 'route', 'permission'];
   return (
     <AbsoluteFill style={{padding: LAYOUT.terminalPadding, boxSizing: 'border-box'}}>
       <div style={{position: 'relative', width: '100%', height: '100%'}}>
         <div
           style={{
             position: 'absolute',
-            left: 0,
-            right: callouts.length > 0 ? calloutIn * 470 : 0,
-            top: callouts.length > 0 ? calloutIn * 60 : 0,
-            bottom: callouts.length > 0 ? calloutIn * 210 : 0,
+            inset: 0,
+            opacity: terminalOpacity,
           }}
         >
-          <TerminalPanel title="claude-code-lab · ep01-install-first-start">
-            {onHold && holdImage ? (
-              <Img src={staticFile(holdImage)} style={mediaStyle} />
-            ) : (
-              <Img src={frameSource} style={mediaStyle} />
-            )}
-          </TerminalPanel>
+          <RecordedTerminal
+            src={onHold && holdImage ? holdImage : frameSource}
+            title="claude-code-lab · ep01-install-first-start"
+            zoom={LAYOUT.terminalEvidence.focus.zoom}
+            focus="50% 50%"
+          />
         </div>
         {callouts.length > 0 ? (
           <div
             style={{
               position: 'absolute',
-              right: 0,
-              top: 104,
-              width: 420,
+              left: '50%',
+              top: '50%',
+              translate: '-50% -50%',
+              width: Math.min(1120, callouts.length * 340),
               display: 'grid',
-              gap: 10,
+              gridTemplateColumns: `repeat(${callouts.length}, 1fr)`,
+              gap: 32,
               opacity: calloutIn,
-              translate: `${(1 - calloutIn) * 18}px 0`,
             }}
           >
             {callouts.map((callout, index) => (
               <div
                 key={callout}
                 style={{
-                  ...SURFACE.editorial,
-                  padding: '10px 0 10px 18px',
-                  borderLeft: `${FRAME.focusRail}px solid ${index === 0 ? COLOR.semantic.client : index === 1 ? COLOR.semantic.provider : COLOR.semantic.model}`,
+                  display: 'grid',
+                  justifyItems: 'center',
+                  gap: 20,
+                  padding: '28px 20px',
+                  background: COLOR.canvas.overlay,
                   color: COLOR.text.primary,
-                  ...TYPE.codeSmall,
+                  ...TYPE.label,
                   fontWeight: WEIGHT.bold,
+                  textAlign: 'center',
                 }}
               >
+                <EvidenceIcon name={calloutIcons[index] ?? 'check'} size={42} tone={index === 0 ? COLOR.semantic.client : index === 1 ? COLOR.semantic.provider : COLOR.semantic.model} />
                 {callout}
               </div>
             ))}
@@ -901,11 +842,16 @@ const FirstStartScene: React.FC = () => (
 
 const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const steps = ['安装看版本', '分清渠道、凭据、模型', '用 [1m] 声明长上下文', '真实请求验证'];
-  const lineIn = motionProgress(frame, 16, 58, EASE.editorial);
+  const steps = [
+    ['check', 'RESPONSE', '链路接通'],
+    ['file', 'FILE', '明确对象'],
+    ['shell', 'COMMAND', '现场结果'],
+    ['permission', 'PERMISSION', '执行边界'],
+  ] as const;
+  const lineIn = motionProgress(frame, 20, 72, EASE.editorial);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 150}}>
-      <SceneHeading title="第一次可用，按四步验收" align="center" />
+      <SceneHeading title={getEp01Scene('takeaway').title} align="center" />
       <div
         style={{
           position: 'absolute',
@@ -914,34 +860,33 @@ const TakeawayScene: React.FC = () => {
           top: 440,
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 18,
+          gap: 36,
         }}
       >
-        <div style={{position: 'absolute', left: '10%', right: '10%', top: 74, height: 2, background: COLOR.stroke.soft, opacity: enterAt(frame, 12)}}>
-          <div style={{position: 'absolute', inset: 0, background: COLOR.brand.orange, transformOrigin: 'left center', scale: `${lineIn} 1`}} />
+        <div style={{position: 'absolute', left: '11%', right: '11%', top: 38, height: 2, background: COLOR.stroke.soft, opacity: enterAt(frame, 16)}}>
+          <div style={{position: 'absolute', inset: 0, background: COLOR.brand.blue, transformOrigin: 'left center', scale: `${lineIn} 1`}} />
         </div>
-        {steps.map((step, index) => {
-          const itemIn = enterAt(frame, 12 + index * 16);
+        {steps.map(([icon, label, detail], index) => {
+          const itemIn = enterAt(frame, 16 + index * 18);
+          const tone = index === 0 ? COLOR.text.success : COLOR.brand.blue;
           return (
             <div
-              key={step}
+              key={label}
               style={{
-                ...SURFACE.editorial,
                 position: 'relative',
-                minHeight: 150,
                 display: 'grid',
-                placeItems: 'center',
-                padding: '22px',
-                boxSizing: 'border-box',
+                justifyItems: 'center',
+                gap: 14,
                 opacity: itemIn,
                 translate: `0 ${(1 - itemIn) * 16}px`,
                 textAlign: 'center',
               }}
             >
-              <div>
-                <div style={{display: 'inline-block', padding: '0 12px', background: COLOR.canvas.paper, ...TYPE.labelSmall, fontFamily: FONT.mono, color: index === 3 && lineIn > 0.95 ? COLOR.text.brand : COLOR.text.info}}>0{index + 1}</div>
-                <div style={{...TYPE.body, fontWeight: WEIGHT.bold, marginTop: 12}}>{step}</div>
+              <div style={{position: 'relative', zIndex: 1, width: 76, height: 76, borderRadius: 76, background: COLOR.canvas.base, display: 'grid', placeItems: 'center'}}>
+                <EvidenceIcon name={icon} size={44} tone={tone} />
               </div>
+              <div style={{...TYPE.codeSmall, fontWeight: WEIGHT.bold, color: tone}}>{label}</div>
+              <div style={{...TYPE.labelSmall, color: COLOR.text.secondary}}>{detail}</div>
             </div>
           );
         })}

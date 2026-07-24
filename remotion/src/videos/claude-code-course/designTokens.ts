@@ -2,6 +2,7 @@
 // values here: both courses share production gates, not brand semantics.
 export const WEIGHT = {
   regular: 400,
+  medium: 500,
   bold: 700,
 } as const;
 
@@ -151,14 +152,43 @@ export const LAYOUT = {
     height: 810,
   },
   terminalEvidence: {
-    left: 150,
-    top: 245,
-    width: 1320,
-    height: 650,
-    railLeft: 1520,
-    railWidth: 250,
+    focus: {
+      frame: {left: 210, top: 92, width: 1500, height: 840},
+      zoom: 1.05,
+    },
+    split: {
+      frame: {left: 110, top: 245, width: 1320, height: 650},
+      zoom: 1.4,
+    },
   },
-  terminalPadding: '84px 250px 176px',
+  terminalPadding: '84px 210px 150px',
+} as const;
+
+export const CONTENT = {
+  maxShortLabels: 3,
+  maxEvidenceBadges: 1,
+  terminalMinEffectiveFontSize: 20,
+  questionHoldFrames: 42,
+} as const;
+
+// Shared scene grammar. Episode code chooses the protagonist; these tokens
+// keep question, evidence and model handoffs visually consistent.
+export const SCENE = {
+  question: {
+    top: 126,
+    maxWidth: 1500,
+    handoffOpacity: 0.56,
+    handoffScale: 0.965,
+  },
+  evidence: {
+    dimOpacity: 0.54,
+    spotlightRadius: 10,
+    spotlightStroke: 2,
+  },
+  node: {
+    inactiveOpacity: 0.38,
+    activeScale: 1.025,
+  },
 } as const;
 
 export const SUBTITLE = {

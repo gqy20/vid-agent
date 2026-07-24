@@ -11,6 +11,10 @@ import {
   Ep03AgenticLoop,
   EP03_AGENTIC_LOOP_DURATION_IN_FRAMES,
 } from './episodes/Ep03AgenticLoop';
+import {
+  Ep04UnderstandProject,
+  EP04_UNDERSTAND_PROJECT_DURATION_IN_FRAMES,
+} from './episodes/Ep04UnderstandProject';
 import {LegacyEp01Install, LEGACY_EP01_DURATION_IN_FRAMES} from './episodes/LegacyEp01Install';
 import {FPS, HEIGHT, WIDTH} from './timeline';
 
@@ -45,6 +49,14 @@ export const registration: VideoRegistration = {
       id: 'ClaudeCodeCourseEp03AgenticLoop',
       component: Ep03AgenticLoop,
       durationInFrames: EP03_AGENTIC_LOOP_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'ClaudeCodeCourseEp04UnderstandProject',
+      component: Ep04UnderstandProject,
+      durationInFrames: EP04_UNDERSTAND_PROJECT_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

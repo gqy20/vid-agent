@@ -160,6 +160,7 @@ thumbnail-*.png
 remotion/node_modules/
 remotion/node_modules.pnp
 remotion/out/
+remotion/build/
 remotion/.next/
 remotion/dist/
 tools/git-course-dashboard/node_modules/
@@ -201,6 +202,7 @@ ref/*
 *.bak
 *.tmp
 *.orig
+nohup.out
 
 # ── OS 垃圾 ──
 .DS_Store

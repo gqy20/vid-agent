@@ -1,0 +1,313 @@
+{
+  "episodeId": "ep04-understand-project",
+  "title": "先让它理解项目",
+  "subtitle": "可访问，不等于已读懂",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 243,
+  "goal": "用一次真实的只读代码库调查，区分项目可访问范围、当前上下文与基于证据的项目理解，并形成可核对的 route、service、store、test 调用链",
+  "content": {
+    "coreModel": "Access、Context 和 Understanding 是三个不同层次：项目文件可以被访问，不代表它们已经进入当前上下文；只有通过目标导向的搜索、读取与关系验证，才能形成支持下一步工程决策的证据图。",
+    "alignmentMarkdown": "EP04 展开 EP03 的 Gather context，但不重复 Agent Loop、日志结构或 checkpoint。演示只读调查 task-board 的创建任务链路，不修改代码，不进入 Plan Mode。所有架构判断必须来自本次真实录制读取到的文件与行号。CLAUDE.md 只承担录制环境约束，本集不教学其配置；项目规则留到 EP10。",
+    "investigation": {
+      "question": "新增任务从 HTTP 请求进入到保存，依次经过哪些文件？现有空标题校验在哪里，全空白标题会发生什么？",
+      "strategy": [
+        "先看项目边界、入口与测试布局",
+        "用领域词搜索相关文件",
+        "沿 import、函数调用和状态写入逐层读取",
+        "用测试与反事实问题验证理解"
+      ],
+      "stopRule": "能够回答入口、业务规则、状态写入、行为证据和未决问题时停止；不追求把整个仓库装进上下文。"
+    },
+    "evidenceGraph": [
+      {
+        "role": "入口",
+        "file": "src/http/create-task-route.js",
+        "claim": "从 request.body 取得输入并调用 createTask"
+      },
+      {
+        "role": "业务规则",
+        "file": "src/tasks/create-task.js",
+        "claim": "检查 title 类型与长度，构造任务数据"
+      },
+      {
+        "role": "状态写入",
+        "file": "src/tasks/task-store.js",
+        "claim": "分配 id，将任务写入内存集合"
+      },
+      {
+        "role": "行为证据",
+        "file": "test/create-task-route.test.js",
+        "claim": "证明正常、空字符串与全空白标题的当前行为"
+      }
+    ],
+    "verifiedFinding": {
+      "owner": "src/tasks/create-task.js",
+      "currentRule": "typeof title === 'string' 且 title.length > 0",
+      "whitespaceBehavior": "全空白字符串长度大于零，因此当前会创建并保存任务",
+      "workspace": "只读调查结束后 git diff 为空"
+    }
+  },
+  "sourceOfTruth": {
+    "references": [
+      "https://code.claude.com/docs/en/how-claude-code-works",
+      "https://code.claude.com/docs/en/common-workflows",
+      "https://code.claude.com/docs/en/best-practices",
+      "https://code.claude.com/docs/en/tools-reference"
+    ]
+  },
+  "verifiedWith": {
+    "date": "2026-07-23",
+    "claudeCodeVersion": "2.1.217"
+  },
+  "productionPolicy": {
+    "remotionOwns": [
+      "course shell",
+      "Access Context Understanding model",
+      "evidence graph animation",
+      "recorded terminal evidence",
+      "code and behavior comparison",
+      "narration",
+      "subtitles"
+    ],
+    "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep04-understand-project/run.sh",
+    "terminalFixture": "task-board base fixture plus envs/ep04-understand-project/project overlay",
+    "terminalEvidence": "同一次真实只读 Claude Code 会话先宽后窄探索项目，读取 route、service、store 与测试，输出带路径的证据图，并以 git diff 为空证明没有修改工作区",
+    "sensitiveValues": "raw session 只保存在 Git 忽略且权限受限的本地 run 目录；公开视频不得出现 Token、服务端点、宿主路径或原始 session 标识",
+    "versionBoundary": "Access、Context 与基于证据的理解是跨版本心智模型；具体工具名称与 TUI 展示以 Claude Code 2.1.217 为准",
+    "recordingEvidence": {
+      "runId": "20260722T174901Z-1395560",
+      "claudeCodeVersion": "2.1.217",
+      "terminal": {
+        "width": 3514,
+        "height": 2018,
+        "fps": 30,
+        "durationSeconds": 144.533333,
+        "sha256": "0db1b3844d87fc2893ebf831c97207fa2c4660d4196beb0afcd717d7280bd674"
+      },
+      "timelineSha256": "b7ab1788fcea9f1b4c7ac471920aa34742aac1fda4777a29c7c1b229d6889135",
+      "trace": {
+        "entries": 65,
+        "sha256": "17079b24c723fc7d1184aba1b3731accfef08b000e6d027aaee4ab059b6f3575",
+        "sessionEvents": 49,
+        "toolCalls": 9,
+        "toolResults": 9,
+        "pairedTools": 9,
+        "errorResults": 0,
+        "sensitiveScan": "pass"
+      },
+      "workspaceCheck": "git diff --exit-code -- . returned zero and printed workspace unchanged"
+    }
+  },
+  "continuity": {
+    "chapterIndex": 4,
+    "chapterLabel": "理解",
+    "previousEpisodeId": "ep03-agentic-loop",
+    "nextEpisodeId": null,
+    "entryState": "Agent Loop 的第一步 gather context 成为下一章的待展开问题",
+    "exitState": "连接、交互、执行和理解共同形成一条可复查的工程链路",
+    "incomingQuestion": "Gather context 怎样决定先读什么，并形成项目关系？",
+    "outgoingQuestion": "连接、控制、执行和理解怎样共同构成可复查的工程链路？",
+    "visualBaton": "Gather context 节点展开为 Access、Context、Understanding，结尾再回收到四章总链路",
+    "scenes": [
+      {
+        "sceneId": "hook",
+        "entryState": "Agent Loop 的第一步 gather context 成为下一章的待展开问题",
+        "change": "把循环中的抽象节点落到陌生模块的真实调查",
+        "exitState": "需要观察 gather context 怎样从可访问仓库中选择证据",
+        "handoff": {"type": "zoom-in", "target": "three-layers", "visualAnchor": "单独高亮的 gather context 节点"}
+      },
+      {
+        "sceneId": "three-layers",
+        "entryState": "需要观察 gather context 怎样从可访问仓库中选择证据",
+        "change": "暂时区分可访问范围、当前上下文和证据关系",
+        "exitState": "Access、Context 和 Understanding 已经成为三个待验证的观察角度",
+        "handoff": {"type": "question-handoff", "target": "investigation-question", "visualAnchor": "尚未填充的三层关系"}
+      },
+      {
+        "sceneId": "investigation-question",
+        "entryState": "Access、Context 和 Understanding 已经成为三个待验证的观察角度",
+        "change": "把宽泛项目概述收窄成一条只读、可引用文件的业务问题",
+        "exitState": "调查已经被约束为一条只读且可引用文件的业务问题",
+        "handoff": {"type": "causal-handoff", "target": "broad-scan", "visualAnchor": "HTTP 到 store 的调查问题"}
+      },
+      {
+        "sceneId": "broad-scan",
+        "entryState": "调查已经被约束为一条只读且可引用文件的业务问题",
+        "change": "从项目结构和领域词搜索逐步收敛候选文件",
+        "exitState": "搜索范围已经从项目结构收敛到相关文件",
+        "handoff": {"type": "evidence-continuation", "target": "trace-flow", "visualAnchor": "被 Read 打开的候选文件"}
+      },
+      {
+        "sceneId": "trace-flow",
+        "entryState": "搜索范围已经从项目结构收敛到相关文件",
+        "change": "沿 import、调用和断言连接 route、service、store 与 test",
+        "exitState": "入口、规则、状态和测试已经连接成实际调用路径",
+        "handoff": {"type": "synthesis", "target": "evidence-graph", "visualAnchor": "四个文件之间的调用链"}
+      },
+      {
+        "sceneId": "evidence-graph",
+        "entryState": "入口、规则、状态和测试已经连接成实际调用路径",
+        "change": "把文件职责整理成事实、推断和未知问题",
+        "exitState": "文件职责已经被整理为事实、推断和未知问题",
+        "handoff": {"type": "question-handoff", "target": "verify-understanding", "visualAnchor": "证据图中仍未回答的空白标题行为"}
+      },
+      {
+        "sceneId": "verify-understanding",
+        "entryState": "文件职责已经被整理为事实、推断和未知问题",
+        "change": "用全空白标题行为同时检验规则、状态和测试边界",
+        "exitState": "空白标题行为已经验证规则归属、状态结果和测试边界",
+        "handoff": {"type": "causal-handoff", "target": "stop-rule", "visualAnchor": "闭合的行为证据链与空 git diff"}
+      },
+      {
+        "sceneId": "stop-rule",
+        "entryState": "空白标题行为已经验证规则归属、状态结果和测试边界",
+        "change": "判断继续扩读是否还会改变当前问题的结论",
+        "exitState": "当前问题的证据链完整，继续扩读不会改变结论",
+        "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "入口、规则、状态和测试四个锚点"}
+      },
+      {
+        "sceneId": "takeaway",
+        "entryState": "当前问题的证据链完整，继续扩读不会改变结论",
+        "change": "把三层理解模型与前面三章收束成完整工程链路",
+        "exitState": "连接、交互、执行和理解共同形成一条可复查的工程链路",
+        "handoff": {"type": "closure", "target": null, "visualAnchor": "接通、控制、执行、理解四个节点归位"}
+      }
+    ]
+  },
+  "audio": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25,
+    "bgm": {
+      "source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3",
+      "volume": 0.05
+    }
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Gather context 先读什么？",
+      "start": 0,
+      "duration": 14,
+      "goal": "承接 Agent Loop 的 gather context 节点，用陌生模块建立选择证据的问题",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1,
+        "durationSeconds": 11.719,
+        "text": "Agent Loop 的第一步是 gather context，但它不会一次读完整个仓库。<#0.25#>面对陌生模块，它怎样决定先读什么，又怎样把文件连成关系？我们沿一条真实业务链路继续看。"
+      }
+    },
+    {
+      "id": "three-layers",
+      "title": "访问、上下文和理解一样吗？",
+      "start": 14,
+      "duration": 25,
+      "goal": "建立本集唯一核心模型，区分可访问空间、当前上下文与证据关系",
+      "narration": {
+        "segmentId": "02_three_layers",
+        "voiceStart": 15,
+        "durationSeconds": 22.663469,
+        "text": "开头的问题里，可能混在了一起的其实有三件事。项目文件位于 Claude 可以读取的范围，这是 Access；这次会话实际带回了哪些提示、文件片段和工具结果，这是 Context；这些证据能否连接成入口、调用关系、状态变化和测试边界，则更接近 Understanding。<#0.25#>我们暂时把它们当作三个观察角度，接下来用同一次调查看看，它们是否真的有所不同。"
+      }
+    },
+    {
+      "id": "investigation-question",
+      "title": "怎样问，才能得到具体路径？",
+      "start": 39,
+      "duration": 23,
+      "goal": "用一个行为问题约束探索范围，但不教学完整任务提示模板",
+      "narration": {
+        "segmentId": "03_investigation_question",
+        "voiceStart": 40,
+        "durationSeconds": 20.215465,
+        "text": "如果直接问“介绍一下这个仓库”，Claude 可能会给出一段很宽泛的概述。我们换一个更具体的问题试试：新增任务从 HTTP 请求进入以后，最后在哪里被保存？空标题校验在哪里，传入全空白标题又会发生什么？<#0.25#>这次调查保持只读，请它引用实际文件，区分已经看到的事实和仍然没有答案的问题。"
+      }
+    },
+    {
+      "id": "broad-scan",
+      "title": "Claude 先看了什么？",
+      "start": 62,
+      "duration": 29,
+      "goal": "用真实终端证明探索先识别边界与入口，再收敛到领域词和相关文件",
+      "narration": {
+        "segmentId": "04_broad_scan",
+        "voiceStart": 63,
+        "durationSeconds": 26.911474,
+        "text": "Claude 的第一步并不是打开所有文件。它先查看 README、package.json、源码目录和测试布局，确认这是一个 Node 项目，也注意到 auth 与 tasks 属于不同区域。<#0.25#>接着，它围绕 create task、request body 和 store 搜索候选文件：Glob 带回路径，Grep 找到符号与调用位置，Read 再打开相关局部。<#0.25#>从这个过程看，它先画出了搜索范围，再逐渐把真正相关的代码带进会话。"
+      }
+    },
+    {
+      "id": "trace-flow",
+      "title": "几个文件怎样连起来？",
+      "start": 91,
+      "duration": 32,
+      "goal": "从真实代码关系建立 route、service、store 和 test 的调用链",
+      "narration": {
+        "segmentId": "05_trace_flow",
+        "voiceStart": 92,
+        "durationSeconds": 29.287483,
+        "text": "候选文件已经找到，下一步为什么还要继续读？create-task-route 从 request.body 取得输入，却把真正的创建动作交给 createTask；顺着这个调用进去，才看到 title 校验、completed 为 false 的任务，以及后面的 store.save。<#0.25#>store 分配 id 并写入内存集合，测试则从 HTTP 入口出发，同时检查二零一响应和 store 的最终状态。<#0.25#>几处 import、函数调用和断言，把原本分散的四个文件连接成了一条实际运行的路径。"
+      }
+    },
+    {
+      "id": "evidence-graph",
+      "title": "怎样整理成可复查的结果？",
+      "start": 123,
+      "duration": 26,
+      "goal": "展示结构化项目理解的最小产物，以及事实与推断的区别",
+      "narration": {
+        "segmentId": "06_evidence_graph",
+        "voiceStart": 124,
+        "durationSeconds": 23.599478,
+        "text": "到这里，Claude 已经给出了不少细节。怎样把它们整理成一眼能复查的结果？<#0.25#>画面把入口、业务规则、状态写入和行为证据压缩成四个文件锚点。它们能直接说明职责分布，却还不能告诉我们团队当初为什么这样设计。<#0.25#>于是信息自然分成三类：代码直接显示的事实，几处关系支持的推断，以及仍然需要询问或实验的问题。"
+      }
+    },
+    {
+      "id": "verify-understanding",
+      "title": "它真的理解了吗？",
+      "start": 149,
+      "duration": 33,
+      "goal": "用空白标题行为检验 Claude 是否真的理解规则归属和状态结果",
+      "narration": {
+        "segmentId": "07_verify_understanding",
+        "voiceStart": 150,
+        "durationSeconds": 30.763469,
+        "text": "不过还有一个疑问：Claude 是真的理解了这条路径，还是只整理了几个文件名？我们换一个代码里没有直接写出完整答案的问题：传入三个空格会怎样？<#0.25#>业务函数只检查 title.length 是否大于零，没有 trim，因此全空白字符串会通过校验；route 返回二零一，store 也会保存它。测试里还记录了这个当前缺口。<#0.25#>这个回答同时用到了规则、调用关系、状态变化和测试。最后查看 git diff 仍然为空，也确认这次会话只做了调查。"
+      }
+    },
+    {
+      "id": "stop-rule",
+      "title": "还需要继续读吗？",
+      "start": 182,
+      "duration": 27,
+      "goal": "给出目标导向探索的停止条件，避免无限读取和上下文噪声",
+      "narration": {
+        "segmentId": "08_stop_rule",
+        "voiceStart": 183,
+        "durationSeconds": 24.571474,
+        "postGainDb": -0.2,
+        "text": "现在还需要继续读取整个仓库吗？对这次问题，我们已经知道输入从哪里进入、规则在哪里执行、状态在哪里改变、哪个测试记录当前行为，也知道哪些设计原因仍然无法从代码确认。<#0.25#>继续读取 auth 模块、所有配置和每段历史，并不会改变眼前这条调用链。于是这次调查可以先停在这里；如果出现新的问题，再从已有关系向外寻找新的证据。"
+      }
+    },
+    {
+      "id": "takeaway",
+      "title": "这条工程链路怎样闭合？",
+      "start": 209,
+      "duration": 34,
+      "goal": "用 Access、Context、Understanding 回收本章，并闭合接通、控制、执行和理解四章主线",
+      "narration": {
+        "segmentId": "09_takeaway",
+        "voiceStart": 210,
+        "durationSeconds": 32.815465,
+        "text": "回到整条路径：模型链路让请求可用；交互入口明确对象和边界；工具结果推动修改与验证；项目调查把行动落到真实文件关系。<#0.25#>最后一层里，Access 是可找到的文件，Context 是实际带回的片段，Understanding 出现在入口、规则、状态和测试被证据连接之后。<#0.25#>当这些判断都能回到文件、工具结果和测试复查，接通、控制、执行和理解才共同闭合成一条工程链路。"
+      }
+    }
+  ],
+  "release": {}
+}

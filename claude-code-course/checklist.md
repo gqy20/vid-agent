@@ -8,6 +8,19 @@
 - [ ] episode id、Composition、源码目录和产物根使用同一身份。
 - [ ] 每集只建立一个心智模型或可验证工作流。
 - [ ] 每个 scene 只有一个主角和一个明确状态变化。
+- [ ] episode JSON 含完整 `continuity`；章节输入/输出状态与前后 episode 双向匹配。
+- [ ] `continuity.scenes[]` 与 `scenes[]` 数量、顺序和 ID 一致；相邻 scene 的 `exitState` 与 `entryState` 逐字相同。
+- [ ] 每个 handoff 指向实际下一 scene 或 episode，并保留一个可见的 `visualAnchor`，没有用泛化淡入淡出代替叙事接力。
+- [ ] 独立集的 hook 能承接上一章状态，takeaway 把未解决问题交给下一章；合集不会重复播放总结、预告和重新开场。
+- [ ] EP01 响应输入行、EP02 任务契约、EP03 gather context 与 EP04 三层关系形成连续视觉接力。
+- [ ] 旁白以问题、观察和验证推进，不连续宣布“必须、不要、记住”的正确方法。
+- [ ] 抽象模型在具体演示之后归纳，结尾回到开头的问题，而不是输出训诫清单。
+- [ ] 真实命令、安全警告和产品边界保持明确，但没有借安全说明评价或责备观众。
+- [ ] 字幕、终端、图示、标题和顶部横栏各自承担不同信息，没有两层完整复述同一结论。
+- [ ] 一帧最多一个短问题、一个主证据、三个短标签和一个状态强调；终端场景没有解释性副标题加多段文字 rail。
+- [ ] 可视关系优先由图像、语义图标、连线和状态变化表达，图标没有附带与字幕同义的解释句。
+- [ ] 问题、终端证据、语义节点和因果连接复用课程 kit；装饰性顶栏横线没有重新成为默认分组方式。
+- [ ] 颜色主要用于图标、关键词和当前状态；没有用大面积语义色块代替对象关系。
 - [ ] 官方来源、核验日期和 Claude Code 版本完整。
 - [ ] 启动参数、内置命令、skill、plugin 和第三方能力没有混淆。
 - [ ] preview、套餐或平台限制已明确标注。
@@ -22,6 +35,11 @@
 - [ ] 文件修改、diff、测试、权限和错误结果真实发生。
 - [ ] prompt、工具调用、结果和结论按因果顺序出现。
 - [ ] sidecar 包含输入、输出、等待区间、关键帧和剪辑边界。
+- [ ] 正式终端源、逻辑列行数和录制字体进入 metadata；1080p 逻辑画布中的有效正文不低于 20px。
+- [ ] 终端窗口比例在镜头内保持固定，没有分别动画化宽高或四条边；录屏内容始终等比缩放。
+- [ ] 小尺寸终端使用语义裁切保留命令、结果和必要上下文，没有把完整 120 列录屏缩成小字墙。
+- [ ] `RecordedTerminal` 统一裁掉源素材底部 107px 的 tmux 状态栏，同时保留 Claude Code 输入区和自身状态信息。
+- [ ] 每个终端镜头最多一个语义高亮区域，高亮同时覆盖对象名、命令和相关结果，没有圈住孤立数字或空白。
 - [ ] 没有账号、token、主目录、私有路径或真实业务数据泄漏。
 - [ ] 本次 run 的 `manifest.json` 绑定 Claude Code 版本、镜像身份、退出状态和日志 SHA。
 - [ ] 原始 session/debug 日志只位于权限受限且 Git 忽略的 `tmp/recordings/<run-id>/raw/`，没有归档 `settings.json`。
@@ -48,6 +66,7 @@
 - [ ] 换轨前后视频流哈希一致，分辨率、帧率、帧数与时长没有变化。
 - [ ] 分镜预览只使用 `tmp/preview/scenes/01_scene_id.mp4` 形式，并由根 manifest 记录 cache path、fingerprint、SHA 和物化方式。
 - [ ] Draft 核对入口固定为 `tmp/preview/episode.mp4` 与 `tmp/preview/review/report.html`，没有 `v2`、`v3`、`4k-preview` 或临时审查目录。
+- [ ] 四集 Draft Preview 的实际输出规格一致；4K 输出仍在 1080p 逻辑尺寸下通过终端与字幕可读性检查。
 - [ ] `clean` 默认 dry-run，只有显式 `--apply=true` 才清理旧 Preview 视图，且不触碰 CAS、Candidate 或 Current。
 - [ ] Preview 没有被命名、复制或描述为 Candidate、Current、Release 或 Published。
 
@@ -59,6 +78,7 @@
 - [ ] release approval 绑定当前 release candidate SHA。
 - [ ] publish 重新核对磁盘 SHA，再写 `current/release/`。
 - [ ] Current 更新后旧 release verdict 与 Published 自动失效。
+- [ ] 四章 Master Composition 从 scene 层读取 episode JSON continuity，不直接拼接四个独立 MP4；adapter 未实现前保持 blocked。
 
 ## EP01 迁移完成条件
 

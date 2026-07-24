@@ -63,8 +63,6 @@ export const CourseLayout: React.FC<{
   const shouldShowHeader = typeof showHeader === 'function' ? showHeader(currentFrame) : showHeader;
   const shouldShowEpisodeTitle = typeof showEpisodeTitle === 'function' ? showEpisodeTitle(currentFrame) : showEpisodeTitle;
   const activeIndex = scenes ? getActiveIndex(scenes, currentFrame) : 0;
-  const activeScene = scenes?.[activeIndex];
-
   return (
     <AbsoluteFill style={{background: COLOR.canvas.paper, color: COLOR.text.primary, fontFamily: FONT.sans}}>
       <header
@@ -88,7 +86,6 @@ export const CourseLayout: React.FC<{
             <span style={{...TYPE.chromeIndex, color: COLOR.text.tertiary, fontVariantNumeric: 'tabular-nums'}}>
               {String(activeIndex + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}
             </span>
-            <span style={{...TYPE.chrome, color: COLOR.text.secondary}}>{activeScene?.title}</span>
           </div>
         ) : null}
         <div
