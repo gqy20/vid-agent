@@ -30,6 +30,7 @@ import {EP05_DURATION_IN_FRAMES, Ep05Head} from './episodes/Ep05Head';
 import {EP06_DURATION_IN_FRAMES, Ep06Merge} from './episodes/Ep06Merge';
 import {EP07_DURATION_IN_FRAMES, Ep07Rebase} from './episodes/Ep07Rebase';
 import {EP08_DURATION_IN_FRAMES, Ep08ResetRevertRestore} from './episodes/Ep08ResetRevertRestore';
+import {EP09_DURATION_IN_FRAMES, Ep09DiffComparesStates} from './episodes/Ep09DiffComparesStates';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -176,6 +177,14 @@ export const registration: VideoRegistration = {
       id: 'GitCourseEp08ResetRevertRestore',
       component: Ep08ResetRevertRestore,
       durationInFrames: EP08_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp09DiffComparesStates',
+      component: Ep09DiffComparesStates,
+      durationInFrames: EP09_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

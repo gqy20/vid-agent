@@ -17,4 +17,6 @@ export const TERMINAL_RECORDINGS = {
   "ep08-reset-soft": {"id":"ep08-reset-soft","durationInFrames":137,"holdFromFrame":76,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep08-restore-flow": {"id":"ep08-restore-flow","durationInFrames":500,"holdFromFrame":439,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep08-revert": {"id":"ep08-revert","durationInFrames":278,"holdFromFrame":217,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-commit-diff": {"id":"ep09-commit-diff","durationInFrames":173,"holdFromFrame":112,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-working-diffs": {"id":"ep09-working-diffs","durationInFrames":235,"holdFromFrame":174,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
 } as const;

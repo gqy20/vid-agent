@@ -31,6 +31,16 @@ git-course/episodes/<episode-id>.json
 
 不得再为单集新增同名目录、`script.md`、`scenes.json`、`beats.md`、旁白 `.txt` 源或独立 publishing 源目录。
 
+## 旁白语气
+
+Git Course 的解说采用共同探讨问题的语气，而不是居高临下地说教。每个概念优先从一个可验证的问题、一个容易误判的现象或一次真实状态变化进入，再和观众一起比较证据、解释原因并收束结论。
+
+- 可以明确判断 Git 事实和风险，但不要连续使用“你要记住”“你必须”“正确做法就是”一类命令式句型。
+- 优先使用“我们先看”“如果把两端写出来”“这里真正变化的是谁”“这样是否更容易判断”等共同推演表达。
+- 提问必须推动教学，不使用空泛反问制造悬念；提出问题后应在同一 scene 或紧邻 scene 给出可见证据。
+- 旁白负责提出问题、连接因果和解释判断，画面负责展示命令、对象与状态变化；不要让旁白只是逐字朗读画面标签。
+- 结尾可以给出简洁模型，但应收束为以后可重复使用的判断问题，而不是要求观众背诵命令清单。
+
 ## 派生关系
 
 ```text
@@ -58,6 +68,8 @@ pnpm --dir remotion git-course status <episode-id>
 pnpm --dir remotion git-course preview <episode-id> --scenes=<scene-id>
 pnpm --dir remotion git-course build <episode-id>
 ```
+
+音频预览如果已经完成 TTS 与规范化，只因 scene 时间窗校验失败，可在修正 episode JSON 后使用 `preview-audio <episode-id> --scenes=<scene-id> --reuse-existing` 重新执行校验、对齐和混音。该选项只接受当前 `tmp/preview/audio/segments/` 中四类产物齐全的 segment；缺少任一 raw、SRT、文本或规范化音频都会阻断，不能借此跳过首次生成。
 
 `plan` 只计算 scene/TTS 指纹并显示 `HIT` 或 `BUILD`；`fingerprints` 输出完整 hash，用于验证 Scene 级失效边界。`build` 执行统一 DAG：
 

@@ -16,6 +16,7 @@ const EPISODES = [
   ['ep06-merge', 'GitCourseEp06Merge', 'EP06'],
   ['ep07-rebase', 'GitCourseEp07Rebase', 'EP07'],
   ['ep08-reset-revert-restore', 'GitCourseEp08ResetRevertRestore', 'EP08'],
+  ['ep09-diff-compares-states', 'GitCourseEp09DiffComparesStates', 'EP09'],
 ];
 
 const fail = (message) => {

@@ -54,6 +54,17 @@ export const EP08 = {
   ],
 };
 
+export const EP09 = {
+  id: 'ep09-diff-compares-states',
+  title: 'Diff 到底在比较什么',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp09DiffComparesStates',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc',
+    'https://git-scm.com/docs/git-diff',
+  ],
+};
+
 export const COMMAND_STEPS = [
   {
     command: 'git log --oneline --graph',

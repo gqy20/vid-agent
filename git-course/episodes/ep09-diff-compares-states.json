@@ -1,0 +1,213 @@
+{
+  "episodeId": "ep09-diff-compares-states",
+  "title": "Diff 到底在比较什么",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 198,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/02-git-basics/sections/recording-changes.asc",
+      "https://git-scm.com/docs/git-diff",
+      "https://git-scm.com/book/zh/v2/Git-基础-记录每次更新到仓库"
+    ]
+  },
+  "states": {
+    "working": {"head": "app.js v1", "index": "app.js v2 staged", "workingTree": "app.js v3 working"},
+    "commits": {"left": "C1", "right": "C2", "branch": "main"}
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 16,
+      "primaryTechnique": "Question scene + three-state comparison",
+      "components": ["CourseLayout", "EpisodeTitleCard", "GitStateFlow", "NarrationSubtitle"],
+      "goal": "提出 diff 必须先识别比较两端。",
+      "beats": [{"time": [0, 16], "visual": "标题退场后出现 HEAD、Index、Working Tree 与问题句", "motion": "三个状态依次出现，最后只强调两端", "state": "working", "narration": "一段 diff 到底来自哪两个版本？", "audit": ["问题句不与三栏和字幕争夺注意力"]}],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "当 git diff 显示一段修改时，<#0.25#>我们到底在比较哪两个版本？<#0.35#>\n文件明明改了，命令有时却没有输出，问题也许不在修改，而在我们选错了比较的两端。<#0.35#>\n这一集先不急着记参数，我们沿着状态把两端找出来。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 2.354, "text": "当 git diff 显示一段修改时，"},
+        {"from": 2.862, "to": 4.143, "text": "我们到底在比较哪两个版本？"},
+        {"from": 4.842, "to": 10.938, "text": "文件明明改了，命令有时却没有输出，问题也许不在修改，而在我们选错了比较的两端"},
+        {"from": 11.571, "to": 14.648, "text": "这一集先不急着记参数，我们沿着状态把两端找出来"}
+      ]
+    },
+    {
+      "id": "state-map",
+      "title": "状态地图",
+      "start": 16,
+      "duration": 27,
+      "primaryTechnique": "GitStateFlow comparison map",
+      "components": ["GitStateFlow", "CourseCommitNode", "NarrationSubtitle"],
+      "goal": "建立 HEAD、Index、Working Tree 和历史 commit 的比较坐标。",
+      "beats": [{"time": [16, 43], "visual": "三层状态板上方补充任意 commit 入口", "motion": "HEAD、Index、Working Tree 依次进入，再显示选择两端", "state": "working", "narration": "先把可比较的状态放在一张地图上。", "audit": ["HEAD 作为 Repository 当前快照，不画成第四个文件层"]}],
+      "narration": {
+        "segmentId": "02_state_map",
+        "voiceStart": 16.35,
+        "text": "先把可能参与比较的状态放在一张地图上。<#0.35#>\nWorking Tree 是正在编辑的内容，Index 是已经暂存、准备进入下一次提交的内容。<#0.35#>\nHEAD 指向当前提交，它给出仓库里的当前快照。<#0.35#>\n历史中的其他 commit，也各自代表一个可读取的快照。<#0.35#>\n所以 diff 并不是一种固定答案，它更像一个问题：左边选谁，右边又选谁？<#0.35#>\n命令的差别，主要是在替我们选择这两个端点。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 2.984, "text": "先把可能参与比较的状态放在一张地图上"},
+        {"from": 3.52, "to": 8.645, "text": "Working Tree 是正在编辑的内容，Index 是已经暂存、准备进入下一次提交的内容"},
+        {"from": 9.257, "to": 12.288, "text": "HEAD 指向当前提交，它给出仓库里的当前快照"},
+        {"from": 12.963, "to": 16.082, "text": "历史中的其他 commit，也各自代表一个可读取的快照"},
+        {"from": 16.731, "to": 22.288, "text": "所以 diff 并不是一种固定答案，它更像一个问题：左边选谁，右边又选谁？"},
+        {"from": 22.849, "to": 25.637, "text": "命令的差别，主要是在替我们选择这两个端点"}
+      ]
+    },
+    {
+      "id": "terminal-working",
+      "title": "真实状态",
+      "start": 43,
+      "duration": 21,
+      "primaryTechnique": "Recorded git-course-lab terminal",
+      "components": ["RecordedTerminalStage", "NarrationSubtitle"],
+      "goal": "用真实仓库展示同一文件同时存在 staged 与 unstaged 修改。",
+      "beats": [{"time": [43, 64], "visual": "真实终端依次执行 status、diff、diff --staged", "motion": "保留真实输入和输出节奏", "state": "working", "narration": "先看同一个文件的两层修改。", "audit": ["MM app.js 与两段不同 patch 均可读", "不叠加仿终端光标"]}],
+      "narration": {
+        "segmentId": "03_terminal_working",
+        "voiceStart": 43.35,
+        "text": "我们先造一个容易混淆、却很常见的状态。<#0.35#>\napp.js 的 theme 已经 add 到 Index，随后又在 Working Tree 里修改了 retries。<#0.35#>\nstatus 显示两个 M，说明暂存区和工作区都存在变化。<#0.35#>\n接着运行两个 diff，输出并不相同。<#0.35#>\n与其先背它们，不如看看每条命令实际选中了哪两个状态。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 3.059, "text": "我们先造一个容易混淆、却很常见的状态"},
+        {"from": 3.587, "to": 7.913, "text": "app.js 的 theme 已经 add 到 Index，随后又在 Working Tree 里修改了 retries"},
+        {"from": 8.479, "to": 13.142, "text": "status 显示两个 M，说明暂存区和工作区都存在变化"},
+        {"from": 13.737, "to": 15.816, "text": "接着运行两个 diff，输出并不相同"},
+        {"from": 16.396, "to": 19.507, "text": "与其先背它们，不如看看每条命令实际选中了哪两个状态"}
+      ]
+    },
+    {
+      "id": "unstaged-diff",
+      "title": "未暂存变化",
+      "start": 64,
+      "duration": 24,
+      "primaryTechnique": "GitStateFlow + CodeDiff",
+      "components": ["CommandPill", "GitStateFlow", "CodeDiff", "NarrationSubtitle"],
+      "goal": "说明无参数 git diff 比较 Index 与 Working Tree。",
+      "beats": [{"time": [64, 88], "visual": "Index 到 Working Tree 的比较箭头与 retries patch", "motion": "先出现命令，再点亮两端，最后展开 patch", "state": "working", "narration": "无参数 diff 关注还没暂存的部分。", "audit": ["箭头由 Index 指向 Working Tree", "theme staged 修改不出现在 patch"]}],
+      "narration": {
+        "segmentId": "04_unstaged_diff",
+        "voiceStart": 64.35,
+        "text": "先看不带参数的 git diff。<#0.35#>\n如果把两端写出来，它比较的是 Index 和 Working Tree。<#0.35#>\n左边可以理解为已经暂存的版本，右边是此刻正在编辑的版本。<#0.35#>\n因此输出里只有 retries 从 2 变成 3。<#0.35#>\ntheme 虽然相对 HEAD 已经改变，但它在 Index 和 Working Tree 中相同，所以这里看不到。<#0.35#>\n这也解释了为什么全部 add 以后，git diff 可能突然变空。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 1.779, "text": "先看不带参数的 git diff"},
+        {"from": 2.376, "to": 5.564, "text": "如果把两端写出来，它比较的是 Index 和 Working Tree"},
+        {"from": 6.142, "to": 9.643, "text": "左边可以理解为已经暂存的版本，右边是此刻正在编辑的版本"},
+        {"from": 10.245, "to": 12.88, "text": "因此输出里只有 retries 从 2 变成 3"},
+        {"from": 13.55, "to": 18.376, "text": "theme 虽然相对 HEAD 已经改变，但它在 Index 和 Working Tree 中相同，所以这里看不到"},
+        {"from": 18.996, "to": 22.263, "text": "这也解释了为什么全部 add 以后，git diff 可能突然变空"}
+      ]
+    },
+    {
+      "id": "staged-diff",
+      "title": "已暂存变化",
+      "start": 88,
+      "duration": 26,
+      "primaryTechnique": "GitStateFlow + CodeDiff",
+      "components": ["CommandPill", "GitStateFlow", "CodeDiff", "NarrationSubtitle"],
+      "goal": "说明 git diff --staged 比较 HEAD 与 Index。",
+      "beats": [{"time": [88, 114], "visual": "HEAD 到 Index 的比较箭头与 theme patch", "motion": "比较箭头切换到 HEAD 和 Index，patch 随之替换", "state": "working", "narration": "staged diff 关注下一次提交。", "audit": ["箭头由 Repository/HEAD 指向 Index", "retries 工作区修改不出现在 patch"]}],
+      "narration": {
+        "segmentId": "05_staged_diff",
+        "voiceStart": 88.35,
+        "text": "再把参数换成 git diff --staged。<#0.35#>\n这次左端回到 HEAD，右端停在 Index。<#0.35#>\n问题也随之改变：下一次 commit 准备加入哪些变化？<#0.35#>\n所以输出里出现 theme 从 light 变成 dark。<#0.35#>\nretries 的修改还只在 Working Tree，它没有进入这次比较。<#0.35#>\n--cached 与 --staged 在这里是同义写法；理解两端以后，选哪种名字只是习惯。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 3.286, "text": "再把参数换成 git diff --staged"},
+        {"from": 3.879, "to": 6.548, "text": "这次左端回到 HEAD，右端停在 Index"},
+        {"from": 7.134, "to": 10.92, "text": "问题也随之改变：下一次 commit 准备加入哪些变化？"},
+        {"from": 11.554, "to": 13.991, "text": "所以输出里出现 theme 从 light 变成 dark"},
+        {"from": 14.851, "to": 18.076, "text": "retries 的修改还只在 Working Tree，它没有进入这次比较"},
+        {"from": 18.75, "to": 24.807, "text": "--cached 与 --staged 在这里是同义写法；理解两端以后，选哪种名字只是习惯"}
+      ]
+    },
+    {
+      "id": "commit-diff",
+      "title": "提交之间",
+      "start": 114,
+      "duration": 37,
+      "primaryTechnique": "Recorded terminal + commit graph + CodeDiff",
+      "components": ["RecordedTerminalStage", "CourseCommitNode", "CourseGraphEdge", "CodeDiff", "NarrationSubtitle"],
+      "goal": "说明显式提供两个 commit 时比较两个历史快照。",
+      "beats": [{"time": [114, 151], "visual": "真实终端执行 HEAD~1 与 HEAD 比较，随后由 C1、C2 图接管", "motion": "终端退场后两个提交成为比较端点", "state": "commits", "narration": "diff 也可以离开三层工作状态，比较历史快照。", "audit": ["终端先作为证据，提交图后接管主视觉", "比较方向 C1 → C2 清楚"]}],
+      "narration": {
+        "segmentId": "06_commit_diff",
+        "voiceStart": 114.35,
+        "text": "diff 也可以离开当前工作状态，直接比较历史里的两个快照。<#0.35#>\n这里先列出 C0、C1、C2，再运行 git diff HEAD~1 HEAD。<#0.35#>\nHEAD~1 选中 C1，HEAD 选中 C2，于是左端是 C1，右端是 C2。<#0.35#>\n输出描述的是从 C1 走到 C2，需要删除什么、加入什么。<#0.35#>\n把顺序反过来，patch 的加减方向也会反过来。<#0.35#>\n同样的写法可以换成 branch、tag 或完整 commit ID，只要它们最终能解析到两个历史位置。<#0.35#>\n这为下一集讨论如何选择 revision 留下了入口。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 3.837, "text": "diff 也可以离开当前工作状态，直接比较历史里的两个快照"},
+        {"from": 4.454, "to": 9.345, "text": "这里先列出 C0、C1、C2，再运行 git diff HEAD~1 HEAD"},
+        {"from": 10.007, "to": 16.122, "text": "HEAD~1 选中 C1，HEAD 选中 C2，于是左端是 C1，右端是 C2"},
+        {"from": 16.861, "to": 21.656, "text": "输出描述的是从 C1 走到 C2，需要删除什么、加入什么"},
+        {"from": 22.352, "to": 25.042, "text": "把顺序反过来，patch 的加减方向也会反过来"},
+        {"from": 25.621, "to": 31.74, "text": "同样的写法可以换成 branch、tag 或完整 commit ID，只要它们最终能解析到两个历史位置"},
+        {"from": 32.344, "to": 35.595, "text": "这为下一集讨论如何选择 revision 留下了入口"}
+      ]
+    },
+    {
+      "id": "read-patch",
+      "title": "读懂 patch",
+      "start": 151,
+      "duration": 28,
+      "primaryTechnique": "Annotated CodeDiff",
+      "components": ["CodeDiff", "NarrationSubtitle"],
+      "goal": "把 patch 的加减行解释为从左端到右端的变化方向。",
+      "beats": [{"time": [151, 179], "visual": "patch 逐层标出文件、hunk、删除行和新增行", "motion": "一次只强调一个语义区域", "state": "commits", "narration": "patch 是从左端变到右端的说明。", "audit": ["红绿只表达删除与新增", "不把减号解释为文件中的负数"]}],
+      "narration": {
+        "segmentId": "07_read_patch",
+        "voiceStart": 151.35,
+        "text": "找到两端以后，patch 本身也更容易读。<#0.35#>\n文件头先说明比较的是哪条路径，@@ 行标出变化所在的代码区间。<#0.35#>\n减号行表示左端存在、右端不再保留的内容。<#0.35#>\n加号行表示右端新增或替换后的内容。<#0.35#>\n它不是在宣布哪一边更正确，只是在描述从左端变到右端发生了什么。<#0.35#>\n如果输出让人意外，我们可以先回到状态地图核对两端，而不是立刻怀疑 Git 漏掉了修改。"
+      },
+      "captions": [
+        {"from": 0.35, "to": 2.799, "text": "找到两端以后，patch 本身也更容易读"},
+        {"from": 3.511, "to": 8.269, "text": "文件头先说明比较的是哪条路径，@@ 行标出变化所在的代码区间"},
+        {"from": 8.788, "to": 12.045, "text": "减号行表示左端存在、右端不再保留的内容"},
+        {"from": 12.694, "to": 15.195, "text": "加号行表示右端新增或替换后的内容"},
+        {"from": 15.721, "to": 20.29, "text": "它不是在宣布哪一边更正确，只是在描述从左端变到右端发生了什么"},
+        {"from": 20.952, "to": 26.597, "text": "如果输出让人意外，我们可以先回到状态地图核对两端，而不是立刻怀疑 Git 漏掉了修改"}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 179,
+      "duration": 19,
+      "primaryTechnique": "Minimal comparison summary",
+      "components": ["GitStateFlow", "NarrationSubtitle"],
+      "goal": "用三个比较问题收束 diff 模型。",
+      "beats": [{"time": [179, 198], "visual": "三条比较关系依次出现并回到左端/右端问题", "motion": "一次出现一条，最后保持状态地图", "state": "working", "narration": "先问左右两端，再读 patch。", "audit": ["总结不重复完整命令输出", "最后保留 1–2 秒观察时间"]}],
+      "narration": {
+        "segmentId": "08_takeaway",
+        "voiceStart": 179.35,
+        "text": "最后把今天的比较关系放回同一张地图。<#0.25#>\n无参数 diff 看 Index 到 Working Tree。<#0.35#>\ndiff --staged 看 HEAD 到 Index。<#0.35#>\n显式写两个 revision，就比较两个提交快照。<#0.35#>\n以后遇到空输出或意外 patch，我们可以先问：左边是谁，右边又是谁？"
+      },
+      "captions": [
+        {"from": 0.35, "to": 2.742, "text": "最后把今天的比较关系放回同一张地图"},
+        {"from": 3.335, "to": 6.058, "text": "无参数 diff 看 Index 到 Working Tree"},
+        {"from": 6.643, "to": 9.102, "text": "diff --staged 看 HEAD 到 Index"},
+        {"from": 9.676, "to": 12.483, "text": "显式写两个 revision，就比较两个提交快照"},
+        {"from": 13.071, "to": 17.762, "text": "以后遇到空输出或意外 patch，我们可以先问：左边是谁，右边又是谁？"}
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP09：Diff 到底在比较什么\n\n## 核心问题\n\n一段 diff 不是笼统的‘所有修改’，而是两个状态之间的差异。理解命令前，先确认左端和右端。\n\n## 观众要带走的理解\n\n- `git diff` 比较 Index 与 Working Tree。\n- `git diff --staged` 比较 HEAD 与 Index。\n- 显式给出两个 revision 时，比较两个提交快照。\n- patch 的加减方向描述从左端到右端的变化。\n\n## 镜头结构\n\n1. 从‘文件改了却没有输出’提出比较两端的问题。\n2. 建立 Working Tree、Index、HEAD 与历史 commit 的状态地图。\n3. 用真实仓库展示 staged 与 unstaged 同时存在。\n4. 分别解释无参数 diff、staged diff 与两个 commit 的比较。\n5. 阅读 patch，最后回到左端和右端。\n",
+    "scriptMarkdown": "# EP09 当前脚本（198s）\n\n本集不做 diff 参数清单，而是围绕‘左端是谁，右端是谁’共同推演。真实终端先展示同一文件同时存在 staged 与 unstaged 修改，再由 Remotion 状态地图解释 Index → Working Tree、HEAD → Index 和 commit → commit 三种比较。旁白始终从问题、观察和证据进入，不使用要求观众背诵命令的说教语气。逐 scene 旁白、字幕与进入时间以 scenes[] 为准。\n",
+    "beatsMarkdown": "# EP09 Beats（198s）\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0–16s | hook | 提出 diff 比较哪两个版本 |\n| 16–43s | state-map | 建立四类可比较状态 |\n| 43–64s | terminal-working | 真实展示 staged 与 unstaged 共存 |\n| 64–88s | unstaged-diff | Index → Working Tree |\n| 88–114s | staged-diff | HEAD → Index |\n| 114–151s | commit-diff | C1 → C2 |\n| 151–179s | read-patch | 解释 patch 的方向与符号 |\n| 179–198s | takeaway | 回到左端与右端问题 |\n",
+    "qualityMarkdown": "# EP09 Diff 到底在比较什么 - 审查记录\n\n## 当前状态\n\n- 新体系首集，统一使用 Remotion runtime、确定性布局、共享状态流、真实终端和 CaptionLayer。\n- 两段终端素材来自 git-course-lab 隔离仓库，不在 episode 中仿造命令输出。\n- 旁白采用共同探讨问题的语气，从现象和比较端点推进，不写成参数清单。\n- 真实 TTS、规范化音频与 SRT 已生成；episode captions 已逐条回写并通过一致性校验。\n\n## 候选审查重点\n\n- 核对三种比较方向、patch 内容和真实终端输出一致。\n- 核对状态板、CodeDiff、终端和字幕在编码后画面中无重叠。\n- 核对每个结论都由可见状态变化或真实命令输出支撑。\n",
+    "alignmentMarkdown": "# EP09 字幕与画面对齐记录\n\nEpisode: `ep09-diff-compares-states`\n\n- TTS 固定为 `speech-2.8-hd` / `Chinese (Mandarin)_Gentleman` / `zh` / speed `1.25`。\n- 8 段旁白总时长 `185.417s`，占正片 `93.65%`。\n- episode captions 已按规范化音频对应的最终 SRT cue 逐条回写，文本、起止时间和条目数一致。\n\n| Scene | 旁白时长 | 到下一段旁白的留白 |\n|---|---:|---:|\n| hook | 14.446s | 1.554s |\n| state-map | 25.469s | 1.531s |\n| terminal-working | 19.331s | 1.669s |\n| unstaged-diff | 22.100s | 1.900s |\n| staged-diff | 24.660s | 1.340s |\n| commit-diff | 35.422s | 1.578s |\n| read-patch | 26.410s | 1.590s |\n| takeaway | 17.580s | 1.070s（成片尾部） |\n\n所有段落衔接留白均位于 1–2 秒目标范围内。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP09 B 站发布物料\n\n## 标题\n\nGit diff 到底在比较什么？一次看懂工作区、暂存区和 HEAD\n\n## 封面文字\n\n主标题：\n\n```text\ndiff 比较谁\n```\n\n副标题：\n\n```text\n先找左端和右端\n```\n\n1. 简介\n\n为什么文件明明改了，`git diff` 有时却没有输出？因为 diff 展示的不是笼统的全部修改，而是两个状态之间的差异。\n\n这一集把 Working Tree、Index、HEAD 和历史 commit 放进同一张比较地图，用真实终端分别解释 `git diff`、`git diff --staged` 和两个 revision 之间的 diff。\n\n2. 你会看到\n\n- 无参数 diff 的两个端点\n- staged diff 为什么只显示下一次提交的内容\n- 同一文件如何同时存在 staged 与 unstaged 变化\n- 两个 commit 的比较方向如何影响 patch\n- 加号、减号和 @@ 行分别表达什么\n\n3. 时间轴\n\n00:00 看得见的 Git\n00:07 diff 比较的是谁\n00:20 状态地图\n00:48 真实 staged / unstaged 状态\n01:12 Index 与 Working Tree\n01:39 HEAD 与 Index\n02:06 两个 commit 的比较\n02:38 读懂 patch\n03:05 左端是谁，右端是谁\n03:25 片尾\n\n## 官方参考\n\n- [git-diff 官方手册](https://git-scm.com/docs/git-diff)\n- [Pro Git：记录每次更新到仓库](https://git-scm.com/book/zh/v2/Git-基础-记录每次更新到仓库)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Diff\n版本控制\n编程基础\n程序员\n开发工具\n源码管理\n```\n\n## 动态文案\n\n一段 diff 从来不是‘所有修改’，而是两个状态之间的距离。\n\n当输出为空或内容意外时，先问两个问题：左边是谁，右边是谁？\n\n## 置顶评论\n\n你最常在哪个场景里使用 diff：提交前检查、代码审查，还是定位历史变化？\n",
+    "coverBriefMarkdown": "# EP09 封面 Brief\n\n- 保持 EP02–EP08 的纸白底、粗黑线、番茄红、芥末黄与青绿色系统。\n- 左侧大字 `diff`，右侧大字 `比较谁`，小尺寸下仍能一眼识别。\n- 底部只保留 `HEAD → Index → Working Tree` 三个大状态块与两条明确箭头，不放终端和长代码。\n- 不使用渐变、霓虹、装饰粒子或小字说明。\n",
+    "checklistMarkdown": "# EP09 发布检查\n\n- [ ] 标题、简介、时间轴与最终 release 时长一致。\n- [ ] 封面小尺寸下 `diff` 和 `比较谁` 清楚，无文字重叠。\n- [ ] 官方参考紧邻标签区之前。\n- [ ] 视频为 3840×2160、30fps，片头、正片、片尾和音轨完整。\n- [ ] 发布 SHA 与 release verdict 一致。\n"
+  }
+}

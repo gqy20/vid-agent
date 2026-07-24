@@ -249,6 +249,7 @@ const getComposition = (episode) => {
     'ep06-merge': 'GitCourseEp06Merge',
     'ep07-rebase': 'GitCourseEp07Rebase',
     'ep08-reset-revert-restore': 'GitCourseEp08ResetRevertRestore',
+    'ep09-diff-compares-states': 'GitCourseEp09DiffComparesStates',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -262,6 +263,7 @@ const episodeSourceName = (episodeId) => ({
   'ep06-merge': 'Ep06Merge.tsx',
   'ep07-rebase': 'Ep07Rebase.tsx',
   'ep08-reset-revert-restore': 'Ep08ResetRevertRestore.tsx',
+  'ep09-diff-compares-states': 'Ep09DiffComparesStates.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {
@@ -1564,6 +1566,7 @@ const previewAudio = async (ctx) => {
   for (const sceneId of requested) known.has(sceneId) || fail(`Unknown scene for audio preview: ${sceneId}`);
   const selected = requested.length > 0 ? buildPlan.tts.filter((task) => requested.includes(task.scene.id)) : buildPlan.tts.filter((task) => !task.hit);
   selected.length > 0 || fail('No dirty narration segments to preview. Use --scenes=scene-id to select one explicitly.');
+  const reuseExisting = flagEnabled('reuse-existing');
   const previewAudioDir = join(ctx.tmp, 'preview/audio');
   const previewSegmentsDir = join(previewAudioDir, 'segments');
   mkdirSync(previewSegmentsDir, {recursive: true});
@@ -1578,7 +1581,7 @@ const previewAudio = async (ctx) => {
       norm: join(previewSegmentsDir, `${segment}_norm.mp3`),
     };
     if (selectedSegments.has(segment)) {
-      for (const target of Object.values(targets)) rmSync(target, {force: true});
+      if (!reuseExisting) for (const target of Object.values(targets)) rmSync(target, {force: true});
       continue;
     }
     const sources = task.hit
@@ -1595,6 +1598,13 @@ const previewAudio = async (ctx) => {
   const segmentIds = selected.map((task) => task.scene.narration.segmentId);
   const bgm = bgmPath(ctx);
   bgm || fail('Audio preview requires the current course BGM.');
+  if (reuseExisting) {
+    for (const segment of segmentIds) {
+      for (const name of [`${segment}.mp3`, `${segment}.srt`, `${segment}.txt`, `${segment}_norm.mp3`]) {
+        existsSync(join(previewSegmentsDir, name)) || fail(`Cannot reuse missing audio preview artifact: ${name}`);
+      }
+    }
+  }
   console.log(`PREVIEW AUDIO ${segmentIds.join(', ')}`);
   await run(join(REMOTION, 'scripts/git-course-build-voiceover.sh'), [ctx.episode.episodeId], {
     env: {
@@ -1605,8 +1615,8 @@ const previewAudio = async (ctx) => {
       NORMALIZE_SEGMENTS: segmentIds.join(','),
       TTS_JOBS: 'all',
       NORMALIZE_JOBS: 'all',
-      SKIP_TTS: '0',
-      SKIP_NORM: '0',
+      SKIP_TTS: reuseExisting ? '1' : '0',
+      SKIP_NORM: reuseExisting ? '1' : '0',
       SKIP_REMUX: '1',
     },
     log: join(ctx.tmp, 'preview/audio.log'),
