@@ -18,6 +18,12 @@ pnpm --dir remotion claude-code-course preview <episode-id> --scene=<scene-id> -
 pnpm --dir remotion claude-code-course preview <episode-id>
 pnpm --dir remotion claude-code-course clean <episode-id> [--apply=true]
 pnpm --dir remotion claude-code-course status <episode-id>
+pnpm --dir remotion claude-code-course:volume validate [volume-id]
+pnpm --dir remotion claude-code-course:volume plan [volume-id]
+pnpm --dir remotion claude-code-course:volume status [volume-id]
+pnpm --dir remotion claude-code-course:volume draft <volume-id>
+pnpm --dir remotion claude-code-course:review-stills <episode-id>:<second>[,<second>...]
+pnpm --dir remotion claude-code-course:render-chapters <episode-id>... [--scale=1|2] [--jobs=N] [--force]
 ```
 
 因此目前只能编辑和迁移内容，不能宣称完成正式生产。以下目标命令在真正实现前必须保持不可用：
@@ -43,7 +49,9 @@ tmp/cache/episodes/<fingerprint>/episode.mp4    # 整片 CAS
 tmp/cache/scenes/<fingerprint>/                 # 分镜 CAS
 tmp/cache/tts/                                  # TTS CAS
 tmp/cache/audio-mix/                            # 混音 CAS
+tmp/cache/chapter-visual/<fingerprint>/          # 章节静音视觉 CAS
 tmp/preview/episode.mp4                         # 唯一整片核对入口
+tmp/preview/visual/chapter.mp4                  # 未配音章节视觉核对入口
 tmp/preview/scenes/01_scene_id.mp4              # 稳定分镜入口
 tmp/preview/review/report.html                  # Draft 核对首页
 tmp/preview/review/audio-audit.json             # Draft 音频证据
@@ -51,6 +59,10 @@ tmp/preview/manifest.json                       # 当前视图的 SHA / 指纹 /
 ```
 
 - Preview 文件优先从 CAS hardlink 物化，失败时才复制；更新使用临时路径原子替换。
+- `render-chapters` 对所有选中章节只 bundle 一次；每章使用独立浏览器和独立 CAS，成功章节立即提交 cache，其他章节失败不回滚已完成结果。
+- 多章任务默认根据逻辑 CPU 自动分配章节 worker 与每章渲染并发，也可用 `--jobs` 调整；失败章节会在更低 Remotion concurrency 下重试。
+- `--scale=1` 生成 1920×1080 视觉预览，`--scale=2` 生成 3840×2160 视觉预览；两者指纹不同，不通过文件名制造 `4k-v2` 一类入口。
+- `tmp/preview/visual/chapter.mp4` 是无音频、未完成字幕同步的视觉核对文件，不能当作完整 episode、Volume、Candidate 或 Current。
 - 分辨率、版本和 SHA 写入 manifest，不进入文件名。禁止新建 `v2`、`v3`、`4k-preview`、`final-check` 等平行入口。
 - `preview --video` 的输入必须位于本集产物根内，输出固定为 `tmp/preview/episode.mp4`；不接受 `--output`。
 - `preview --scene` 根据 episode JSON 顺序生成 `01_scene_id.mp4`，并验证分镜时长。
@@ -87,29 +99,34 @@ claude-code-course/episodes/<episode-id>.json
 4. 验证：用文件、diff、测试、Git 状态、权限或会话状态检验暂定解释，终端退为证据。
 5. 回看：回到开头的问题，说明这次证据回答了什么、还有什么未知；不把结尾写成训诫清单。
 
-### 四章连续性与合集边界
+### 十章连续性与双卷边界
 
-当前四集同时按一条连续主线设计，独立观看时仍能理解，最终合集时不能重新播放四套开场、总结和下集预告：
+前十章按一条连续工程主线设计，并最终组成两个长视频。章节是最小生产、缓存和审查单元；长视频只在章节稳定后装配：
 
 ```text
-EP01 接通：命令与真实模型请求形成可用链路
-  -> EP02 控制：文件、命令和权限边界形成任务输入
-    -> EP03 执行：任务输入经过工具反馈形成修改与验证
-      -> EP04 理解：gather context 把可访问文件连接成可复查关系
+Volume 01 · EP01–EP05
+接通环境 -> 完成第一次真实修复 -> 理解 agentic loop
+  -> 形成项目证据图 -> 把需求整理成可验证任务
+
+Volume 02 · EP06–EP10
+审查计划 -> 受控执行与恢复 -> 建立验证证据
+  -> 分配规则、记忆、Hooks 与 Agent -> 从 Issue 交付到 PR
 ```
 
-连续性只维护在各集 episode JSON 的 `continuity` 中，不另建手工同步的第二份内容源：
+教学内容与 scene 连续性只维护在各集 episode JSON 的 `continuity` 中；`program.json` 只声明章节顺序、合集身份与装配策略，不复制旁白或 scene 内容：
 
 - episode 级记录 `chapterIndex`、章节标签、前后 episode、输入状态、输出状态、承接问题和统一视觉接力物；
 - `continuity.scenes[]` 必须与 `scenes[]` 数量、顺序和 `sceneId` 完全一致；
 - 每个 scene 记录 `entryState -> change -> exitState`，并通过 `handoff` 声明下一个 scene 或 episode；
 - 相邻 scene 的前一项 `exitState` 必须逐字等于后一项 `entryState`；相邻 episode 也遵守同一约束；
-- 结尾 scene 的 handoff 只能指向下一 episode，最后一章使用 `closure` 和 `target: null`；
+- 结尾 scene 的 handoff 只能指向下一 episode，EP10 使用 `closure` 和 `target: null`；
 - `visualAnchor` 是跨镜头保持的真实对象或关系，例如终端输入行、失败测试、diff、`tool_use` 或 gather context 节点，不能写成泛化的淡入淡出。
 
-三个章间接缝固定为：EP01 的流式响应回到输入行；EP02 的六个入口收束成任务契约；EP03 只留下 gather context 节点并展开为 EP04 的 Access、Context、Understanding。合集结尾由 EP04 回收“接通、控制、执行、理解”四个节点，不再预告下一集。
+卷内接缝采用硬切和视觉接力物，不使用跨章节持续动画。这样每章可以独立渲染、失败重试和命中内容寻址 cache。EP05 的输出状态同时作为 Volume 01 结尾与 Volume 02 输入；Volume 02 不重新讲前五章，只用一句状态确认进入计划阶段。
 
-最终合集应从 scene 层构建统一 Master Composition，使用一次课程开场、一次全局进度和一次结尾 lockup。不得直接拼接四个已经带独立横栏、hook 和 takeaway 的 MP4。Master Composition 及其 Candidate/Audit/Current adapter 尚未实现，当前必须保持 blocked；本节只固定内容关系和未来实现契约。
+章节渲染输出的是无重复品牌片头、片尾和下集预告的 clean segment。合集按 manifest 中记录的顺序和 SHA 装配这些 clean segment，不得直接拼接已经完成单集包装的 MP4。每卷只使用一次课程开场、一次全局章节进度和一次结尾 lockup；人声按章复用，BGM 在整卷层重新铺设为一条连续音轨，不能在每章边界重新起音。
+
+`pnpm --dir remotion claude-code-course:volume draft <volume-id>` 只接受章节完整 Preview、匹配的 `pass` 音频审查、aligned voiceover 与统一 BGM SHA。产物进入 `renders/claude-code-course/volumes/<volume-id>/tmp/cache/volume-draft/<fingerprint>/`，固定审查视图位于相邻 `tmp/preview/`。它仍是可重建 Draft；Volume Candidate/Audit/Current adapter 尚未实现，继续保持 blocked。
 
 ### 探讨式旁白
 
@@ -171,7 +188,7 @@ Claude Code Course 的共享 kit 固定四种表达职责，episode 只组合它
 - 终端窗口宽高比在一个镜头内固定。只允许整体位移、透明度和等比缩放，不得分别动画化 `left/right/top/bottom` 或在固定高度下改变宽度。
 - `focus` 终端用于命令、工具结果和 transcript 主证据；`split` 终端只在旁边确有另一种不可由字幕承担的证据时使用。
 - 语义裁切必须保留命令或工具名、相关结果、必要上下文和 Claude Code 自身状态；tmux session 名称与状态栏属于录制基础设施，公开画面统一从源素材底部裁掉 107px。不能只放大孤立数字，也不能把命令与结果拆到无法建立因果的两个画面。
-- 4K 输出用于提高栅格清晰度，不能替代 1080p 逻辑尺寸下的可读性审查。四集的 Draft Preview 输出规格必须一致，manifest 继续记录实际分辨率。
+- 4K 输出用于提高栅格清晰度，不能替代 1080p 逻辑尺寸下的可读性审查。十章的 Draft Preview 输出规格必须一致，manifest 继续记录实际分辨率。
 
 ## 终端与 Agent 证据
 
@@ -183,6 +200,8 @@ Claude Code Course 的共享 kit 固定四种表达职责，episode 只组合它
 - 终端输入、源码变化、测试结果和 Git 状态在时间上相互对应；
 - 账号、token、主目录、私有仓库、环境变量和历史命令中的敏感内容不进入公开素材；
 - 录制脚本、fixture、终端尺寸、字体、主题和 Claude Code 版本进入输入指纹。
+- 长 4K H.264 录屏接入 Remotion 前，应按 timeline 派生本章实际使用的短剪辑；如果并发随机寻帧仍成为瓶颈，再从短剪辑预抽 4K PNG 帧序列。episode 只读取确定帧，不在每次渲染中重复随机解码完整录屏。
+- 原始录屏仍是权威证据；短剪辑和帧序列只是可重建素材视图。章节视觉指纹必须覆盖引用的公开素材文件或帧目录，不能因为派生素材变化误命中旧 cache。
 
 每次正式录制还必须在 `tmp/recordings/<run-id>/` 留下本地日志证据。容器 `~/.claude/projects`、`~/.claude/debug`、导演日志和事件进入权限受限的 `raw/`；认证配置、原始 cast 和中间视频不得归档。公开素材或课程代码只能读取白名单派生的 `sanitized/session-trace.jsonl` 与 `sanitized/session-architecture.json`，不得直接读取 raw session。派生层可以保留事件序号、父序号、消息序号、内容块类型、工具调用/结果配对、错误标记和 checkpoint 计数，但必须移除原始 ID、路径、提示词、回复正文、工具参数值和工具结果正文。JSONL 字段只作为与已核验 Claude Code 版本绑定的观察证据，不得宣称为稳定公共 API。`manifest.json` 必须绑定 run 状态、Claude Code 版本、镜像身份和文件 SHA，`audit/sensitive-scan.json` 必须明确给出 `pass`、`warn` 或 `fail`。日志清理默认 dry-run，只有显式 `--apply=true` 才能删除旧 run。
 

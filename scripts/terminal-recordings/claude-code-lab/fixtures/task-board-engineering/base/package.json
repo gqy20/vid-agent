@@ -1,0 +1,10 @@
+{
+  "name": "task-board-engineering",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "node --check src/**/*.js test/*.test.js",
+    "build": "node scripts/build.mjs"
+  }
+}

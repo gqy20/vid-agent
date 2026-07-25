@@ -16,59 +16,56 @@
 
 | 阶段 | 目标 | 学完后的能力 |
 |---|---|---|
-| 第一季：核心工作流 | 从第一次启动到完成一个可审查的 PR | 能正确委派任务、控制风险、验证结果和管理会话 |
+| 前十章：核心工作流 | 从第一次启动到完成一个可审查的 PR | 能正确委派任务、控制风险、验证结果并沉淀项目能力 |
 | 第二季：扩展与自动化 | 把个人用法沉淀成项目能力 | 能配置 Skills、MCP、Hooks、Subagents、Plugins 和 CI 流程 |
 | 第三季：Agent SDK | 把 Claude Code 的能力嵌入应用 | 能实现带工具、权限、会话和可观测性的编码智能体 |
 
-## 第一季：把 Claude Code 用进真实项目
+## 前十章：两个长视频
 
-第一季采用一个持续演进的示例仓库，例如带登录与任务列表的 Web 应用。观众从一次小修复开始，逐步完成探索、计划、修改、验证、审查和提交 PR 的完整闭环。
+前十章使用同一个 task-board 示例仓库。章节独立制作、渲染和缓存，最终只包装成两个长视频；每卷使用一次片头、一次章节进度和一次片尾，不重复拼接十套单集包装。
 
-| 集 | 标题 | 核心问题 | 主要演示与命令 | 可验证产出 |
+| 卷 | 章 | 标题 | 核心问题 | 可验证产出 |
 |---|---|---|---|---|
-| ep01 | 从安装到第一次启动 | 安装成功为什么还不算可用？ | 官方安装、Token / 模型配置、用户级 settings、首次真实请求 | 命令可执行，认证与模型配置能返回真实回答 |
-| ep02 | 交互界面生存指南 | 除了输入自然语言，还能怎样高效操作？ | `/`、`@`、`!`、Esc、Shift+Tab、Ctrl+O、多行输入 | 能引用文件、执行命令、切换模式和中断操作 |
-| ep03 | Claude Code 不是聊天框 | 它为什么能读代码、改文件并运行测试？ | `gather context → take action → verify`；工具调用与结果回传 | 能读懂一次完整 agentic loop |
-| ep04 | 先让它理解项目 | 怎样减少“没看代码就开始改”的错误？ | 代码库探索、文件引用、搜索、依赖与调用链 | 形成一份基于证据的项目理解 |
-| ep05 | 怎样交代一个好任务 | Prompt 中哪些信息真正影响结果？ | 目标、上下文、约束、边界、验收标准 | 得到可执行且歧义较少的任务说明 |
-| ep06 | 先计划，再编辑 | 哪些任务不应该直接开改？ | Plan Mode、`/plan`、探索与实现分离 | 得到可审查的修改计划和影响范围 |
-| ep07 | 修改不是完成，验证才是 | 如何让 Claude 证明改动有效？ | 测试、lint、构建；`/diff`、`/run`、`/verify` | 产出 diff 与验证证据，而不只是“已经修好” |
-| ep08 | 权限、沙箱与撤销 | 怎样既让智能体行动，又不失去控制？ | 权限决策、`/permissions`、`/sandbox`、checkpoint、`/rewind` | 能识别高风险操作并恢复错误改动 |
-| ep09 | 管理上下文和长会话 | 会话变长后为什么会变慢、变笨？ | `/context`、`/compact`、`/clear`、`/resume`、`/rename`、`/branch`、`/btw` | 能判断该压缩、清空、恢复还是分支会话 |
-| ep10 | 把项目规则写进 CLAUDE.md | 哪些信息不该每次重复告诉 Claude？ | `/init`、`/memory`；用户、项目、目录级指令 | 建立简短、可维护、可验证的项目指令 |
-| ep11 | 从 Bug 到 PR | 如何把前面的能力串成稳定交付流程？ | 复现 → 探索 → 计划 → 修改 → 验证 → `/simplify` → `/code-review` → `/security-review` → PR | 完成一个有证据、可审查、可回退的 PR |
+| 01 | ep01 | 从安装到第一次启动 | 安装成功为什么还不算可用？ | 真实模型返回真实回答 |
+| 01 | ep02 | 先完成一次真实修复 | Claude Code 最小可用工作流是什么？ | 一个真实问题被复现、修改并验证 |
+| 01 | ep03 | 它为什么这样行动 | 一次修复背后的 agentic loop 怎样工作？ | 工具调用、结果回传和日志结构可以解释 |
+| 01 | ep04 | 先让它理解项目 | 它怎样从文件访问形成项目理解？ | 一张可复查的路径与行为证据图 |
+| 01 | ep05 | 怎样把需求变成可验证任务 | 哪些输入会真正改变实现？ | 一页有证据、边界和验收方式的任务说明 |
+| 02 | ep06 | 哪些任务值得先做计划 | 什么时候应该先审查修改路径？ | 一份跨层且可审查的执行计划 |
+| 02 | ep07 | 怎样让它行动又不失去控制 | 权限、沙箱和恢复分别解决什么问题？ | 受控工作区改动与一次可解释恢复 |
+| 02 | ep08 | 测试通过为什么还不够 | 哪些证据共同支持“完成”？ | 测试、构建、运行时行为和 diff 证据包 |
+| 02 | ep09 | 项目怎样持续约束和帮助 Claude | CLAUDE.md、Rules、Memory、Hooks 和 Agent 怎样分工？ | 项目级指令、路径规则、记忆、门禁和 reviewer agent |
+| 02 | ep10 | 从 Issue 到可审查 PR | 前面的能力能否在干净会话中闭环？ | 有证据、可审查且可回退的 PR |
 
-### 第一季的教学顺序
+### 前十章的教学顺序
 
 ```text
 进入项目
-  → 掌握交互
-  → 理解 agentic loop
+  → 完成一次真实修复
+  → 回看 agentic loop
   → 探索代码
   → 明确任务
   → 制订计划
-  → 修改并验证
-  → 控制权限与恢复
-  → 管理上下文
-  → 固化项目规则
+  → 在权限边界内修改与恢复
+  → 用多层证据验证
+  → 固化规则、记忆、Hooks 与 Agent
   → 完成交付
 ```
 
-## 第二季：扩展、复用与自动化
+## 后续：扩展、复用与自动化
 
-第二季不再介绍基础操作，重点是把一次成功的个人会话变成团队可复用、可自动执行的工程能力。
+前十章完成以后，再把其中已经出现的上下文、Hooks 和 Subagents 展开为专题，并补齐 Skills、MCP、Plugins、并行开发与 CI。
 
 | 集 | 标题 | 核心心智模型 | 主要能力 |
 |---|---|---|---|
-| ep12 | 上下文工程进阶 | 上下文是稀缺预算，不是无限记忆 | 上下文来源、工具结果膨胀、压缩策略、长任务拆分 |
-| ep13 | Skills：按需加载的工作流 | 把领域知识与步骤封装成可发现能力 | `SKILL.md`、触发条件、脚本与资源、`/skills`、`/reload-skills` |
-| ep14 | MCP：连接外部系统 | Claude Code 通过受控接口获得外部能力 | MCP server、资源与工具、认证、`/mcp` |
-| ep15 | Hooks：确定性的生命周期自动化 | 需要保证发生的事，不交给模型临场决定 | hook 事件、输入输出、失败策略、`/hooks` |
-| ep16 | Subagents：隔离上下文与专业分工 | 委派的价值首先是隔离，其次才是并行 | agent 定义、工具边界、结果回传、任务拆分 |
-| ep17 | 并行开发与 Worktrees | 并行任务必须隔离文件状态与责任边界 | 后台任务、`/background`、`/tasks`、worktree、分支策略 |
-| ep18 | Plugins：分发整套扩展 | 把 Skills、Hooks、MCP 与配置打包交付 | 插件结构、安装、更新、`/plugin`、`/reload-plugins` |
-| ep19 | Headless 与 CI | 交互式助手如何变成自动化步骤？ | 非交互 CLI、结构化输出、GitHub Actions、权限与密钥 |
-| ep20 | 从 Issue 到 PR 的自动化流水线 | 扩展能力最终要形成可审计闭环 | Issue 获取、子任务、实现、验证、审查、PR 汇总 |
+| ep11 | 上下文工程进阶 | 上下文是稀缺预算，不是无限记忆 | 上下文来源、工具结果膨胀、压缩策略、长任务拆分 |
+| ep12 | Skills：按需加载的工作流 | 把领域知识与步骤封装成可发现能力 | `SKILL.md`、触发条件、脚本与资源、`/skills` |
+| ep13 | MCP：连接外部系统 | Claude Code 通过受控接口获得外部能力 | MCP server、资源与工具、认证、`/mcp` |
+| ep14 | Hooks 深入 | 确定性自动化怎样可靠运行？ | hook 事件、输入输出、失败策略、`/hooks` |
+| ep15 | Subagents 深入 | 委派怎样隔离上下文与专业分工？ | agent 定义、工具边界、结果回传、任务拆分 |
+| ep16 | 并行开发与 Worktrees | 并行任务必须隔离文件状态与责任边界 | 后台任务、worktree、分支策略 |
+| ep17 | Plugins：分发整套扩展 | 把 Skills、Hooks、MCP 与配置打包交付 | 插件结构、安装、更新与分发 |
+| ep18 | Headless 与 CI | 交互式助手如何变成自动化步骤？ | 非交互 CLI、结构化输出、CI 权限与密钥 |
 
 ## 第三季：用 Claude Agent SDK 构建智能体
 
@@ -218,19 +215,23 @@ python3 scripts/browser-recordings/claude-code-course-lab/capture_official_docs.
 EP01 的分段旁白、SRT、规范化音频和全局字幕 manifest 统一从受限课程入口生成：
 
 ```bash
+pnpm --dir remotion claude-code-course tts ep05-verifiable-task
 pnpm --dir remotion claude-code-course audio-preview ep01-install-first-start
 pnpm --dir remotion claude-code-course audio-audit ep01-install-first-start
 ```
 
-该命令只写 `tmp/cache`、`tmp/preview` 和可重建的 Remotion public 预览视图，不生成或晋升 Candidate。画面字幕以 MMX SRT 时间戳为锚点，并用 episode JSON 的旁白正文重新切成完整语义句；模型名、版本号和环境变量不会从中间拆开。字幕和音频从同一个 manifest 读取，缺失时渲染会明确失败。
+`tts` 允许 outline 先生成本章内容寻址 TTS cache 和 `tmp/narration-source/timing-proposal.json`，但不改 episode JSON、不混音。人工应用真实时长并将内容改为 `draft` 后，`audio-preview` 和 `audio-audit` 才生成完整音频视图。所有命令只写 `tmp/cache`、`tmp/preview` 和可重建的 Remotion public 预览视图，不生成或晋升 Candidate。画面字幕以 MMX SRT 时间戳为锚点，并用 episode JSON 的旁白正文重新切成完整语义句；模型名、版本号和环境变量不会从中间拆开。字幕和音频从同一个 manifest 读取，缺失时渲染会明确失败。
 
 ## 当前状态
 
-- 课程大纲已升级为三季结构，第一季 11 集、第二季 9 集、第三季 10 集。
+- 前十章已经固定为两个长视频：Volume 01 为 EP01–EP05，Volume 02 为 EP06–EP10；`program.json` 是卷与章节顺序的唯一装配清单。
+- 每章独立渲染、缓存和核对，合集只装配 SHA 绑定的 clean chapter segment，并在整卷层连续铺设 BGM。
 - EP01 已在新 id 下复用原导演与后处理流程，终端素材、metadata 和 timeline 已重新生成。
 - 正式 EP01 内容身份已确定为 `ep01-install-first-start`；旧 `ep01-agentic-loop` JSON 和 Composition 已移入或标记为 legacy，`ep01-install/current` 仍是不可晋升的旧产物。
 - 新 EP01 已扩展为 300 秒：客户端 / 渠道 / 模型关系、国内模型选择、变量与请求流、`[1m]` 通用上下文动画和官方文档截图已接入新的 `ClaudeCodeCourseEp01InstallFirstStart` Composition。
 - 安装与配置使用新 id 录屏；该录屏最后一次请求遇到 429，首次成功回答因此复用同版本、同导演流程的旧录屏片段，并在 episode JSON 记录来源。
 - 11 段 TTS、33 条完整语义句字幕 cue、响度规范化、全局字幕 manifest 和受限课程 adapter 已接入并通过 preview audio audit；内容仍是 `draft`，该审计不是可晋升 verdict。
-- episode schema、workflow 和 checklist 已建立；完整 Candidate/Audit、Current 晋升与 Release/Publish adapter 仍待实现。
-- 下一步先迁移 EP01 并验证完整生产链，再把第一季其余集数逐集落成 episode JSON。
+- EP01–EP10 都已经具备独立 episode JSON、Remotion Composition、真实 TTS 时长、语义完整字幕、规范化音频与可单章复用的 1080p Draft Preview；章节渲染器只重建内容指纹变化的章节，并在缓存前核验实际时长、分辨率和帧率。
+- EP06 已接入 Claude Code 2.1.218 的真实 Plan Mode 终端证据：只调用 `Read` / `Bash`，保存只读探索、计划复核与修改后计划三个 4K 短片及帧序列，并通过敏感信息扫描和零工作区修改核验。EP07–EP10 当前仍是教学结构、旁白和语义动画 Draft，真实权限交互、验证输出、指令加载和 GitHub PR 浏览器证据尚待逐章录制替换。
+- 两条长视频 Draft 已生成：Volume 01 为 EP01–EP05，共 1073.9 秒；Volume 02 为 EP06–EP10，共 518.5 秒。两者都由独立章节 Preview 装配，章节人声按 manifest 对齐，整卷只铺设一条连续 BGM；章节边界保留不超过 0.5 秒的视觉换气。
+- chapter Draft adapter 已有基础能力；Volume 已实现 `validate/plan/status/draft`。`draft` 只接受带 `pass` 音频审查且 SHA 匹配的章节 Preview。Volume Candidate/Audit、Current 晋升与 Release/Publish adapter 仍待实现，因此这些成片只能作为可重建审片稿，不能晋升或发布。

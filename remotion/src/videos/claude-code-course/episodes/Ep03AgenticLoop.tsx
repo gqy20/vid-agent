@@ -3,6 +3,7 @@ import {
   interpolate,
   useCurrentFrame,
 } from 'remotion';
+import {Fragment} from 'react';
 import {
   EP03_AGENTIC_LOOP_DURATION_IN_FRAMES,
   EP03_AGENTIC_LOOP_EPISODE,
@@ -45,23 +46,26 @@ const TerminalStill: React.FC<{
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const reveal = enter(frame, 54, MOTION.structural);
+  const rewind = enter(frame, 54, MOTION.structural);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 148}}>
       <div style={{textAlign: 'center', opacity: enter(frame, 30), translate: `0 ${(1 - enter(frame, 30)) * 22}px`}}>
-        <div style={{...TYPE.display}}>一句指令，怎样变成工程结果？</div>
+        <div style={{...TYPE.display}}>{getEp03Scene('hook').title}</div>
       </div>
-      <div style={{position: 'absolute', left: 270, right: 270, top: 560, display: 'grid', gridTemplateColumns: '1fr 220px 1fr', alignItems: 'center'}}>
-        <div style={{paddingTop: 20}}>
-          <div style={{...TYPE.label, color: COLOR.text.brand}}>输入</div>
-          <div style={{...TYPE.subheading, marginTop: 10}}>修复空白 Token</div>
-          <div style={{...TYPE.codeSmall, color: COLOR.text.secondary, marginTop: 14}}>@ src/auth/validate-token.js</div>
-          <div style={{...TYPE.codeSmall, color: COLOR.text.secondary, marginTop: 6}}>pnpm test · default</div>
+      <div style={{position: 'absolute', left: 260, right: 260, top: 520, display: 'grid', gridTemplateColumns: '1fr 220px 1fr', alignItems: 'center'}}>
+        <div style={{paddingTop: 20, opacity: 1 - rewind * 0.55}}>
+          <div style={{...TYPE.label, color: COLOR.text.success}}>已完成</div>
+          <div style={{...TYPE.subheading, marginTop: 10}}>3 tests pass</div>
+          <div style={{...TYPE.codeSmall, color: COLOR.text.secondary, marginTop: 14}}>diff check · exit 0</div>
         </div>
-        <div style={{position: 'relative', height: 1, background: COLOR.stroke.default, scale: `${reveal} 1`}} />
-        <div style={{paddingTop: 20, opacity: reveal, translate: `${(1 - reveal) * 22}px 0`}}>
-          <div style={{...TYPE.label, color: COLOR.text.success}}>结果</div>
-          <div style={{...TYPE.subheading, marginTop: 10}}>修改 + 验证证据</div>
+        <div style={{display: 'grid', placeItems: 'center', opacity: rewind}}>
+          <EvidenceIcon name="route" size={48} tone={COLOR.text.brand} />
+          <div style={{...TYPE.codeSmall, color: COLOR.text.brand, marginTop: 12}}>REWIND</div>
+        </div>
+        <div style={{paddingTop: 20, opacity: rewind, translate: `${(1 - rewind) * 22}px 0`}}>
+          <div style={{...TYPE.label, color: COLOR.text.brand}}>运行回放</div>
+          <div style={{...TYPE.subheading, marginTop: 10}}>7 tool calls</div>
+          <div style={{...TYPE.codeSmall, color: COLOR.text.secondary, marginTop: 14}}>tool_use ↔ tool_result</div>
         </div>
       </div>
     </AbsoluteFill>
@@ -117,7 +121,7 @@ const TaskContractScene: React.FC = () => {
   ] as const;
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 122}}>
-      <SceneHeading title="任务什么时候算完成？" align="center" />
+      <SceneHeading title={getEp03Scene('task-contract').title} align="center" />
       <div style={{position: 'absolute', left: 330, right: 330, top: 330, borderTop: `1px solid ${COLOR.stroke.default}`}}>
         {rows.map(([label, value], index) => {
           const itemIn = enter(frame, 26 + index * 18);
@@ -133,41 +137,54 @@ const TaskContractScene: React.FC = () => {
   );
 };
 
-const GatherContextScene: React.FC = () => {
-  return (
-    <AbsoluteFill style={{...scenePad, paddingTop: 122}}>
-      <TerminalFocus title="先确认失败">
-        <TerminalStill file="baseline-fail.png" title="claude-code-lab · baseline" focus="50% 40%" />
-      </TerminalFocus>
-    </AbsoluteFill>
-  );
-};
-
-const TakeActionScene: React.FC = () => {
-  return (
-    <AbsoluteFill style={{...scenePad, paddingTop: 122}}>
-      <TerminalFocus title="文件何时真正改变？">
-        <TerminalStill file="edit.png" title="claude-code-lab · Edit" focus="50% 49%" />
-      </TerminalFocus>
-    </AbsoluteFill>
-  );
-};
-
-const VerifyResultsScene: React.FC = () => {
+const ReplayFeedbackScene: React.FC<{
+  sceneId: 'gather-context' | 'take-action' | 'verify-results';
+  phase: string;
+  request: string;
+  result: string;
+  next: string;
+  tone: string;
+  icon: EvidenceIconName;
+}> = ({sceneId, phase, request, result, next, tone, icon}) => {
   const frame = useCurrentFrame();
-  const showDiffCheck = frame >= seconds(16);
+  const requestIn = enter(frame, 24, MOTION.structural);
+  const resultIn = enter(frame, 62, MOTION.structural);
+  const nextIn = enter(frame, 102, MOTION.structural);
+  const line = enter(frame, 48, MOTION.expressive);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 122}}>
-      <TerminalFocus title={showDiffCheck ? '补丁检查通过' : '测试结果改变了吗？'}>
-        {showDiffCheck ? (
-          <TerminalStill file="diff-check.png" title="claude-code-lab · diff check" focus="50% 55%" />
-        ) : (
-          <TerminalStill file="tests-pass.png" title="claude-code-lab · tests pass" focus="50% 40%" />
-        )}
-      </TerminalFocus>
+      <SceneHeading title={getEp03Scene(sceneId).title} align="center" />
+      <div style={{position: 'absolute', left: 220, right: 220, top: 385, display: 'grid', gridTemplateColumns: '1fr 120px 1fr 120px 1fr', alignItems: 'center'}}>
+        {[
+          {label: phase, value: request, progress: requestIn, icon},
+          {label: 'TOOL RESULT', value: result, progress: resultIn, icon: result.includes('fail') ? 'stop' as const : 'check' as const},
+          {label: 'NEXT DECISION', value: next, progress: nextIn, icon: 'route' as const},
+        ].map((item, index) => (
+          <Fragment key={item.label}>
+            <div style={{minHeight: 250, display: 'grid', alignContent: 'start', justifyItems: 'center', textAlign: 'center', opacity: item.progress, translate: `0 ${(1 - item.progress) * 18}px`}}>
+              <EvidenceIcon name={item.icon} size={48} tone={index === 1 && result.includes('fail') ? COLOR.text.danger : tone} />
+              <div style={{...TYPE.codeSmall, color: index === 1 && result.includes('fail') ? COLOR.text.danger : tone, marginTop: 24}}>{item.label}</div>
+              <div style={{...TYPE.subheading, marginTop: 14}}>{item.value}</div>
+            </div>
+            {index < 2 ? <div style={{height: 2, background: COLOR.stroke.default, scale: `${line} 1`, transformOrigin: 'left center'}} /> : null}
+          </Fragment>
+        ))}
+      </div>
     </AbsoluteFill>
   );
 };
+
+const GatherContextScene: React.FC = () => (
+  <ReplayFeedbackScene sceneId="gather-context" phase="READ + BASH" request="测试与实现" result="2 tests fail" next="定位判断条件" tone={COLOR.brand.blue} icon="read" />
+);
+
+const TakeActionScene: React.FC = () => (
+  <ReplayFeedbackScene sceneId="take-action" phase="EDIT" request="替换判断条件" result="workspace changed" next="运行验证" tone={COLOR.brand.orange} icon="edit" />
+);
+
+const VerifyResultsScene: React.FC = () => (
+  <ReplayFeedbackScene sceneId="verify-results" phase="BASH" request="test + diff check" result="3 pass · exit 0" next="汇总并停止" tone={COLOR.brand.green} icon="shell" />
+);
 
 const SessionLedgerScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -446,10 +463,12 @@ export const Ep03AgenticLoop: React.FC = () => {
         if (!Scene) throw new Error(`Missing EP03 scene component: ${scene.id}`);
         return <SceneSequence key={scene.id} from={timing.start} durationInFrames={timing.duration}><Scene /></SceneSequence>;
       })}
-      <SyncedNarrationTrack
-        manifest="claude-code-course/audio/ep03-agentic-loop/captions.json"
-        auditPrefix="ep03-synced-caption"
-      />
+      {episode.status === 'draft' ? (
+        <SyncedNarrationTrack
+          manifest="claude-code-course/audio/ep03-agentic-loop/captions.json"
+          auditPrefix="ep03-synced-caption"
+        />
+      ) : null}
     </CourseLayout>
   );
 };

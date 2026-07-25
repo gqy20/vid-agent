@@ -366,25 +366,33 @@ const StopRuleScene: React.FC = () => {
 
 const TakeawayScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const steps = [
-    ['route', '接通', COLOR.brand.orange],
-    ['permission', '控制', COLOR.brand.blue],
-    ['shell', '执行', COLOR.text.info],
-    ['graph', '理解', COLOR.brand.green],
+  const evidence = [
+    ['route', 'HTTP 入口', COLOR.brand.orange],
+    ['file', '业务规则', COLOR.brand.blue],
+    ['edit', '状态写入', COLOR.brand.green],
+    ['test', '行为证据', COLOR.text.warning],
   ] as const;
+  const taskIn = enter(frame, 220, MOTION.structural);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
       <SceneHeading title={getEp04Scene('takeaway').title} align="center" />
-      <div style={{position: 'absolute', left: 180, right: 180, top: 430, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 62}}>
-        {steps.map(([icon, label, tone], index) => {
+      <div style={{position: 'absolute', left: 155, right: 655, top: 430, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 42, opacity: 1 - taskIn * 0.55}}>
+        {evidence.map(([icon, label, tone], index) => {
           const progress = enter(frame, 20 + index * 16);
           return (
-            <div key={label} style={{display: 'grid', justifyItems: 'center', gap: 24, paddingTop: 34, opacity: progress, translate: `0 ${(1 - progress) * 16}px`}}>
-              <EvidenceIcon name={icon} size={58} tone={tone} />
-              <div style={{...TYPE.code, color: tone, fontWeight: WEIGHT.bold}}>{label}</div>
+            <div key={label} style={{display: 'grid', justifyItems: 'center', gap: 20, paddingTop: 34, opacity: progress, translate: `0 ${(1 - progress) * 16}px`}}>
+              <EvidenceIcon name={icon} size={46} tone={tone} />
+              <div style={{...TYPE.label, color: tone, fontWeight: WEIGHT.bold}}>{label}</div>
             </div>
           );
         })}
+      </div>
+      <FlowArrow x1={1260} x2={1390} y={650} progress={taskIn} tone={COLOR.text.brand} />
+      <div style={{position: 'absolute', right: 170, top: 365, width: 320, opacity: taskIn, translate: `${(1 - taskIn) * 22}px 0`}}>
+        <EvidenceIcon name="file" size={48} tone={COLOR.text.brand} />
+        <div style={{...TYPE.codeSmall, color: COLOR.text.brand, marginTop: 22}}>NEXT CHAPTER</div>
+        <div style={{...TYPE.subheading, marginTop: 10}}>任务说明</div>
+        <div style={{...TYPE.labelSmall, color: COLOR.text.secondary, marginTop: 18}}>证据怎样变成边界与验收？</div>
       </div>
     </AbsoluteFill>
   );
@@ -422,10 +430,12 @@ export const Ep04UnderstandProject: React.FC = () => {
           </SceneSequence>
         );
       })}
-      <SyncedNarrationTrack
-        manifest="claude-code-course/audio/ep04-understand-project/captions.json"
-        auditPrefix="ep04-synced-caption"
-      />
+      {episode.status === 'draft' ? (
+        <SyncedNarrationTrack
+          manifest="claude-code-course/audio/ep04-understand-project/captions.json"
+          auditPrefix="ep04-synced-caption"
+        />
+      ) : null}
     </CourseLayout>
   );
 };

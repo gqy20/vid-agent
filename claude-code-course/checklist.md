@@ -9,10 +9,12 @@
 - [ ] 每集只建立一个心智模型或可验证工作流。
 - [ ] 每个 scene 只有一个主角和一个明确状态变化。
 - [ ] episode JSON 含完整 `continuity`；章节输入/输出状态与前后 episode 双向匹配。
+- [ ] `program.json` 只维护两卷身份、章节顺序和装配策略，没有复制 episode 教学内容。
+- [ ] 前十章按 `chapterIndex=1..10` 连续且无重复归属；Volume 01 输出状态逐字等于 Volume 02 输入状态。
 - [ ] `continuity.scenes[]` 与 `scenes[]` 数量、顺序和 ID 一致；相邻 scene 的 `exitState` 与 `entryState` 逐字相同。
 - [ ] 每个 handoff 指向实际下一 scene 或 episode，并保留一个可见的 `visualAnchor`，没有用泛化淡入淡出代替叙事接力。
 - [ ] 独立集的 hook 能承接上一章状态，takeaway 把未解决问题交给下一章；合集不会重复播放总结、预告和重新开场。
-- [ ] EP01 响应输入行、EP02 任务契约、EP03 gather context 与 EP04 三层关系形成连续视觉接力。
+- [ ] EP01–EP10 的章间接缝使用真实对象或状态作为视觉接力，不依赖跨章持续动画。
 - [ ] 旁白以问题、观察和验证推进，不连续宣布“必须、不要、记住”的正确方法。
 - [ ] 抽象模型在具体演示之后归纳，结尾回到开头的问题，而不是输出训诫清单。
 - [ ] 真实命令、安全警告和产品边界保持明确，但没有借安全说明评价或责备观众。
@@ -36,6 +38,7 @@
 - [ ] prompt、工具调用、结果和结论按因果顺序出现。
 - [ ] sidecar 包含输入、输出、等待区间、关键帧和剪辑边界。
 - [ ] 正式终端源、逻辑列行数和录制字体进入 metadata；1080p 逻辑画布中的有效正文不低于 20px。
+- [ ] 长 4K 录屏只按 timeline 派生所需短剪辑；需要逐帧素材时从短剪辑生成，章节指纹覆盖实际引用的帧目录。
 - [ ] 终端窗口比例在镜头内保持固定，没有分别动画化宽高或四条边；录屏内容始终等比缩放。
 - [ ] 小尺寸终端使用语义裁切保留命令、结果和必要上下文，没有把完整 120 列录屏缩成小字墙。
 - [ ] `RecordedTerminal` 统一裁掉源素材底部 107px 的 tmux 状态栏，同时保留 Claude Code 输入区和自身状态信息。
@@ -57,6 +60,7 @@
 
 ## Draft Preview（已实现）
 
+- [ ] outline 先通过 `tts` 生成 cache 与 timing proposal；人工核对并写回 episode JSON 后才进入 `draft`，没有让派生产物反向成为内容源。
 - [ ] episode JSON 显式固定 TTS model、voice、language、speed，以及 BGM source 与 `volume=0.05`。
 - [ ] 每个 scene 的旁白头部和尾部留白均不超过 2 秒，且由 `validate` 根据真实 TTS 时长硬校验。
 - [ ] `audio-preview` 的全部 narration 段均命中或写入内容寻址 cache。
@@ -66,7 +70,10 @@
 - [ ] 换轨前后视频流哈希一致，分辨率、帧率、帧数与时长没有变化。
 - [ ] 分镜预览只使用 `tmp/preview/scenes/01_scene_id.mp4` 形式，并由根 manifest 记录 cache path、fingerprint、SHA 和物化方式。
 - [ ] Draft 核对入口固定为 `tmp/preview/episode.mp4` 与 `tmp/preview/review/report.html`，没有 `v2`、`v3`、`4k-preview` 或临时审查目录。
-- [ ] 四集 Draft Preview 的实际输出规格一致；4K 输出仍在 1080p 逻辑尺寸下通过终端与字幕可读性检查。
+- [ ] 十章 Draft Preview 的实际输出规格一致；4K 输出仍在 1080p 逻辑尺寸下通过终端与字幕可读性检查。
+- [ ] 每章先独立渲染并进入内容寻址 cache；单章失败不会丢弃其他已完成章节。
+- [ ] 同一批章节只生成一次 Remotion bundle；章节各用独立浏览器，章节 worker 与帧并发由逻辑 CPU 或稳定 profile 分配。
+- [ ] `tmp/preview/visual/chapter.mp4` 只作为静音视觉核对，不被描述为完整 episode 或 Volume。
 - [ ] `clean` 默认 dry-run，只有显式 `--apply=true` 才清理旧 Preview 视图，且不触碰 CAS、Candidate 或 Current。
 - [ ] Preview 没有被命名、复制或描述为 Candidate、Current、Release 或 Published。
 
@@ -78,7 +85,10 @@
 - [ ] release approval 绑定当前 release candidate SHA。
 - [ ] publish 重新核对磁盘 SHA，再写 `current/release/`。
 - [ ] Current 更新后旧 release verdict 与 Published 自动失效。
-- [ ] 四章 Master Composition 从 scene 层读取 episode JSON continuity，不直接拼接四个独立 MP4；adapter 未实现前保持 blocked。
+- [ ] 两个 Volume 只装配 manifest 绑定 SHA 的 clean chapter segment，不拼接带重复片头片尾的单集 MP4。
+- [ ] 每个 Volume 只有一次品牌包装；章节人声可复用，BGM 在整卷层连续重建，接缝处没有重启。
+- [x] Volume Draft 只使用 SHA 匹配、音频审查为 `pass` 的章节 Preview，并为整卷重建连续 BGM。
+- [ ] Volume Candidate/Audit adapter 未实现前，Current、Release 和 Published 全部保持 blocked。
 
 ## EP01 迁移完成条件
 

@@ -1,5 +1,6 @@
 {
   "episodeId": "ep01-install-first-start",
+  "compositionId": "ClaudeCodeCourseEp01InstallFirstStart",
   "title": "从安装到第一次启动",
   "subtitle": "官方安装、国内模型配置与首次请求",
   "status": "draft",
@@ -177,8 +178,8 @@
     "entryState": "只有一个可以运行但尚未验证的 claude 命令",
     "exitState": "已经接通的请求链，等待一个包含文件、命令和权限的真实任务",
     "incomingQuestion": "命令能运行，是否已经真正可用？",
-    "outgoingQuestion": "链路接通以后，怎样把文件、命令和权限边界交给它？",
-    "visualBaton": "第一次流式响应回到终端输入行，并成为下一章的任务入口",
+    "outgoingQuestion": "链路接通以后，它能否在真实项目里完成一次可验证的修复？",
+    "visualBaton": "第一次流式响应回到终端输入行，并承接下一章的空 Token Bug",
     "scenes": [
       {
         "sceneId": "hook",

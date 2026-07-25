@@ -5,7 +5,7 @@ export {TERMINAL_HEADER_HEIGHT, TerminalPanel} from './TerminalPanel';
 export {SyncedNarrationTrack} from './SyncedNarrationTrack';
 export {EvidenceIcon} from './EvidenceIcon';
 export type {EvidenceIconName} from './EvidenceIcon';
-export {RECORDED_TERMINAL_SOURCE, RecordedTerminal} from './RecordedTerminal';
+export {RECORDED_TERMINAL_SOURCE, RecordedTerminal, RecordedTerminalClip, RecordedTerminalFrames} from './RecordedTerminal';
 export {TerminalFocus} from './TerminalFocus';
 export {SceneQuestion} from './SceneQuestion';
 export {SemanticNode} from './SemanticNode';

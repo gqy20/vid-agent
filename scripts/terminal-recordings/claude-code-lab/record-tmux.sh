@@ -41,7 +41,7 @@ CANDIDATE_SCENE_CLIP_DIR="$TMP_ROOT/scene-clips"
 IDLE_TIME_LIMIT="${CC_IDLE_TIME_LIMIT:-5}"
 TERMINAL_COLS="${CC_TERMINAL_COLS:-120}"
 TERMINAL_ROWS="${CC_TERMINAL_ROWS:-28}"
-TERMINAL_FONT_SIZE="${CC_TERMINAL_FONT_SIZE:-24}"
+TERMINAL_FONT_SIZE="${CC_TERMINAL_FONT_SIZE:-48}"
 
 [[ "$MODE" == "install" || "$MODE" == "run" ]] || { echo "recording mode must be install or run" >&2; exit 1; }
 [[ "$RUN_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "invalid CC_RECORDING_RUN_ID: $RUN_ID" >&2; exit 1; }

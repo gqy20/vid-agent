@@ -74,7 +74,9 @@ remotion/renders/*/renders/mix.mp3
 # 扁平 series 布局：remotion/renders/<series>/<episode>/{current,tmp}
 # 可由脚本重新生成的音视频产物默认不入库。
 # 保留 .txt/.md 等文稿和对齐说明。
+remotion/renders/*/tmp/
 remotion/renders/*/*/tmp/
+remotion/renders/*/volumes/*/tmp/
 remotion/renders/github-course/tmp/
 # 审查正文已整合进 episode JSON；renders 下的副本属于本地报告。
 remotion/renders/*/*/quality-audit.md

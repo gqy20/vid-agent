@@ -1,0 +1,45 @@
+{
+  "$schema": "./program.schema.json",
+  "schemaVersion": 1,
+  "courseId": "claude-code-course",
+  "title": "Claude Code 工程实践",
+  "renderPolicy": {
+    "unit": "chapter",
+    "masterAssembly": "sha-bound-chapter-segments",
+    "chapterBoundary": "hard-cut-with-visual-baton",
+    "packaging": "volume-only",
+    "volumeAudio": "chapter-voice-continuous-bgm"
+  },
+  "volumes": [
+    {
+      "volumeId": "vol01-start-to-task",
+      "title": "Claude Code 实战上手：从环境配置到可执行任务",
+      "promise": "接通真实模型，完成第一次修复，理解执行过程，并把下一项需求整理成可执行且可验证的任务。",
+      "compositionId": "ClaudeCodeCourseVolume01StartToTask",
+      "chapters": [
+        "ep01-install-first-start",
+        "ep02-interactive-guide",
+        "ep03-agentic-loop",
+        "ep04-understand-project",
+        "ep05-verifiable-task"
+      ],
+      "entryState": "只有一个可以运行但尚未验证的 claude 命令",
+      "exitState": "一项跨层需求已经被整理成有证据、边界和验收方式的任务"
+    },
+    {
+      "volumeId": "vol02-plan-to-pr",
+      "title": "Claude Code 工程交付：从 Plan Mode 到可审查 PR",
+      "promise": "审查复杂任务的计划，在受控边界内执行，用运行证据验证结果，并把团队规则与最终 PR 一起交付。",
+      "compositionId": "ClaudeCodeCourseVolume02PlanToPr",
+      "chapters": [
+        "ep06-plan-before-edit",
+        "ep07-permissions-recovery",
+        "ep08-verification-evidence",
+        "ep09-project-instructions-memory",
+        "ep10-issue-to-pr"
+      ],
+      "entryState": "一项跨层需求已经被整理成有证据、边界和验收方式的任务",
+      "exitState": "任务从 Issue 进入项目，最终形成有证据、可审查且可回退的 PR"
+    }
+  ]
+}

@@ -1,120 +1,26 @@
 {
   "episodeId": "ep02-interactive-guide",
-  "title": "交互界面生存指南",
-  "subtitle": "三个入口，三个控制键",
+  "compositionId": "ClaudeCodeCourseEp02InteractiveGuide",
+  "title": "先完成一次真实修复",
+  "subtitle": "界面能力只在任务需要时出现",
   "status": "draft",
   "fps": 30,
   "resolution": {
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 267,
-  "goal": "在同一个真实项目会话中，学会用斜杠菜单发现能力、用 @ 精确提供文件、用 ! 执行确定性命令，并通过多行输入、过程展开、中断和权限模式控制会话",
+  "durationSeconds": 151.1,
+  "goal": "在已经接通的环境里完成第一次真实 Bug 修复，让文件引用、测试命令、工具过程和权限提示只在解决问题时自然出现",
   "content": {
-    "coreModel": "Claude Code 的交互界面由输入入口和会话控制组成：/ 用于发现命令与扩展能力，@ 用于提供明确上下文，! 用于直接执行 Shell；Ctrl+O 用于观察详细过程，Esc 用于中断并重新定向，Shift+Tab 默认在 default、acceptEdits 与 plan 三种权限模式间切换。",
-    "alignmentMarkdown": "EP02 使用同一个 task-board 示例项目完成全部演示。测试失败、文件内容和 Git 状态必须真实；模型回复可以受提示词影响，但不得把非确定性措辞写成固定产品行为。Slash 菜单、文件补全、Shell 模式、transcript viewer、interrupt 和 permission mode 必须来自同一次真实 Claude Code 2.1.216 终端录制。",
-    "interactionGrammar": [
-      {
-        "token": "/",
-        "role": "发现",
-        "meaning": "打开统一能力入口，展示内置命令、捆绑 Skill，以及项目、用户、插件或 MCP 提供的扩展"
-      },
-      {
-        "token": "@",
-        "role": "上下文",
-        "meaning": "触发文件或目录路径补全，把明确对象交给 Claude"
-      },
-      {
-        "token": "!",
-        "role": "确定性动作",
-        "meaning": "直接运行 Shell 命令，把真实输出加入当前会话；2.1.186 及以后默认由 Claude 自动回应输出"
-      }
-    ],
-    "controlKeys": [
-      {
-        "key": "Ctrl+O",
-        "role": "观察",
-        "meaning": "打开 transcript viewer，查看详细工具调用和结果"
-      },
-      {
-        "key": "Esc",
-        "role": "中断",
-        "meaning": "停止当前响应或工具调用，保留已完成工作并允许重新定向"
-      },
-      {
-        "key": "Shift+Tab",
-        "role": "切换模式",
-        "meaning": "默认循环切换 default、acceptEdits 与 plan；auto 和 bypassPermissions 只有满足条件并启用后才加入，dontAsk 不进入默认循环"
-      }
-    ],
-    "permissionModel": {
-      "baselineModes": [
-        {
-          "mode": "default",
-          "label": "默认",
-          "read": "直接运行",
-          "edit": "先询问",
-          "shell": "Shell / 网络通常先询问",
-          "display": {
-            "read": "直接",
-            "edit": "先问",
-            "run": "先问"
-          },
-          "bestFor": "初次使用与敏感项目"
-        },
-        {
-          "mode": "acceptEdits",
-          "label": "自动接受编辑",
-          "read": "直接运行",
-          "edit": "工作区编辑自动接受",
-          "shell": "文件命令自动，其他 Shell / 网络仍询问",
-          "display": {
-            "read": "直接",
-            "edit": "自动",
-            "run": "部分自动"
-          },
-          "bestFor": "持续迭代并在 diff 中复核"
-        },
-        {
-          "mode": "plan",
-          "label": "计划模式",
-          "read": "只读探索",
-          "edit": "不修改源码",
-          "shell": "只读探索命令，网络仍受权限控制",
-          "display": {
-            "read": "只读",
-            "edit": "禁止",
-            "run": "只读探索"
-          },
-          "bestFor": "复杂任务先研究方案"
-        }
-      ],
-      "optionalModes": [
-        {
-          "mode": "auto",
-          "short": "后台安全检查",
-          "meaning": "不弹出权限询问，由后台安全检查判断动作；可用性受账户、模型与服务商限制"
-        },
-        {
-          "mode": "dontAsk",
-          "short": "仅运行预批准工具",
-          "meaning": "只运行预批准工具，其余原本需要询问的动作直接拒绝"
-        },
-        {
-          "mode": "bypassPermissions",
-          "short": "跳过检查，仅限隔离环境",
-          "meaning": "跳过权限询问和安全检查，只适合隔离容器或虚拟机"
-        }
-      ],
-      "rules": "模式定义默认基线，allow、ask、deny 规则再按工具和参数细分；deny 优先于 ask，ask 优先于 allow"
-    },
+    "coreModel": "第一次使用先建立最小闭环：观察失败，给出目标和范围，让 Claude 读取、编辑并运行验证，再用测试与 diff 决定是否完成。交互入口不是本章目录，而是在闭环需要时出现的工具。",
+    "alignmentMarkdown": "EP02 直接复用 task-board 的真实空 Token Bug 录制：基线失败、源码读取、Edit、测试通过和 diff check 必须真实发生。斜杠菜单只用一句说明它同时是官方命令与 Skills 等扩展的发现入口；权限模式只展示本次实际遇到的询问，完整差异留到 EP07。EP03 不再重复执行修复，而是分析本次运行的 agentic loop、JSONL 与 checkpoint。",
     "demoTask": {
       "project": "task-board",
       "file": "src/auth/validate-token.js",
       "test": "test/validate-token.test.js",
       "command": "pnpm test",
-      "prompt": "解释空 Token 为什么没有被拒绝，先不要修改代码，并指出对应测试位置",
-      "expectedEvidence": "真实失败测试、被引用源码、Claude Code 工具详情和被中断后的重新定向"
+      "prompt": "修复 validateToken：空字符串或只含空白的字符串必须返回 false，非空 Token 返回 true。先运行测试复现，只修改必要文件；完成后运行 pnpm test 和 git diff --check。",
+      "expectedEvidence": "基线 2 项失败，必要源码被修改，3 项测试通过，git diff --check 返回 0"
     }
   },
   "sourceOfTruth": {
@@ -127,59 +33,59 @@
     ]
   },
   "verifiedWith": {
-    "date": "2026-07-22",
-    "claudeCodeVersion": "2.1.216"
+    "date": "2026-07-25",
+    "claudeCodeVersion": "2.1.217"
   },
   "productionPolicy": {
     "remotionOwns": [
       "course shell",
-      "interaction grammar animation",
+      "first-fix causal animation",
       "recorded terminal evidence",
-      "keyboard focus overlays",
+      "evidence focus overlays",
       "narration",
       "subtitles"
     ],
     "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep02-interactive-guide/run.sh",
     "terminalFixture": "scripts/terminal-recordings/claude-code-lab/fixtures/task-board",
-    "terminalEvidence": "同一次真实终端录制覆盖 Slash 菜单、@ 文件补全、! Shell 模式、多行输入、Ctrl+O、Esc 与 Shift+Tab；pnpm test 必须在 fixture 中真实失败",
+    "terminalEvidence": "真实终端素材必须连续支持 Slash 发现入口、@ 文件引用、基线失败、Edit、测试通过与 diff check；EP03 的录制证据可以迁入本章，但必须由 manifest 记录来源 SHA",
     "sensitiveValues": "录制运行时使用本地忽略的 ANTHROPIC_AUTH_TOKEN；公开素材不得显示 Token、宿主路径、账号或私有数据",
-    "versionBoundary": "快捷键可能受平台、终端和用户 keybindings 影响；画面以课程记录的 Linux 终端和 Claude Code 2.1.216 为准"
+    "versionBoundary": "交互入口可能随版本、终端和项目扩展变化；画面以课程记录的 Linux 终端和 Claude Code 2.1.217 为准"
   },
   "continuity": {
     "chapterIndex": 2,
-    "chapterLabel": "控制",
+    "chapterLabel": "修复",
     "previousEpisodeId": "ep01-install-first-start",
     "nextEpisodeId": "ep03-agentic-loop",
     "entryState": "已经接通的请求链，等待一个包含文件、命令和权限的真实任务",
-    "exitState": "对象、边界和验收条件明确的修复任务已经进入会话",
-    "incomingQuestion": "怎样把任务对象、现场证据和权限边界送进同一个会话？",
-    "outgoingQuestion": "这些输入进入运行以后，怎样变成文件修改和验证结果？",
-    "visualBaton": "EP01 的终端输入行承接真实任务，最终收束成 EP03 的任务契约",
+    "exitState": "空 Token 修复已经由真实测试和 diff 验证",
+    "incomingQuestion": "链路接通以后，它能否在真实项目里完成一次可验证的修复？",
+    "outgoingQuestion": "刚才看到的是一次完成的修复，它内部为什么会选择这些工具并在这里停止？",
+    "visualBaton": "EP01 的终端输入行承接空 Token Bug，最终把通过的测试和 diff 交给 EP03 回放",
     "scenes": [
       {
         "sceneId": "hook",
         "entryState": "已经接通的请求链，等待一个包含文件、命令和权限的真实任务",
-        "change": "把第一次回答后的输入框变成一个真实工程任务",
-        "exitState": "同一个任务需要同时表达文件、命令和权限边界",
-        "handoff": {"type": "question-handoff", "target": "interaction-model", "visualAnchor": "包含文件、命令和权限的输入行"}
+        "change": "把第一次回答后的输入框变成一个真实 Bug",
+        "exitState": "空 Token 行为等待被现场复现",
+        "handoff": {"type": "question-handoff", "target": "interaction-model", "visualAnchor": "空 Token 修复输入行"}
       },
       {
         "sceneId": "interaction-model",
-        "entryState": "同一个任务需要同时表达文件、命令和权限边界",
-        "change": "把交互分为输入对象与运行控制两组",
-        "exitState": "交互已经形成输入对象与运行控制两条路径",
-        "handoff": {"type": "zoom-in", "target": "slash-entry", "visualAnchor": "输入阶段的第一个斜杠入口"}
+        "entryState": "空 Token 行为等待被现场复现",
+        "change": "把第一次修复整理成复现、修改和验证三个可观察阶段",
+        "exitState": "任务已经拥有一个最小工程闭环",
+        "handoff": {"type": "zoom-in", "target": "slash-entry", "visualAnchor": "复现阶段的终端输入行"}
       },
       {
         "sceneId": "slash-entry",
-        "entryState": "交互已经形成输入对象与运行控制两条路径",
-        "change": "从当前环境发现命令、Skill 和扩展入口",
-        "exitState": "已经知道怎样从当前环境找到可用入口",
-        "handoff": {"type": "causal-handoff", "target": "file-mention", "visualAnchor": "从菜单选择回到任务输入"}
+        "entryState": "任务已经拥有一个最小工程闭环",
+        "change": "用斜杠菜单确认当前环境的官方命令与 Skills 入口",
+        "exitState": "环境入口已经确认，注意力回到本次 Bug",
+        "handoff": {"type": "causal-handoff", "target": "file-mention", "visualAnchor": "从菜单回到具体文件引用"}
       },
       {
         "sceneId": "file-mention",
-        "entryState": "已经知道怎样从当前环境找到可用入口",
+        "entryState": "环境入口已经确认，注意力回到本次 Bug",
         "change": "用 @ 把源文件和测试变成明确引用",
         "exitState": "任务已经指向明确的源文件和测试",
         "handoff": {"type": "evidence-continuation", "target": "shell-mode", "visualAnchor": "被引用的测试文件"}
@@ -187,7 +93,7 @@
       {
         "sceneId": "shell-mode",
         "entryState": "任务已经指向明确的源文件和测试",
-        "change": "用真实 Shell 执行测试并把失败结果带回会话",
+        "change": "运行真实测试复现空字符串与全空白字符串失败",
         "exitState": "失败测试已经成为当前会话的现场证据",
         "handoff": {"type": "causal-handoff", "target": "multiline-prompt", "visualAnchor": "失败测试输出与退出状态"}
       },
@@ -201,23 +107,23 @@
       {
         "sceneId": "observe-process",
         "entryState": "目标、约束和验收条件已经形成结构化任务",
-        "change": "展开 transcript，把结论重新连接到文件和命令结果",
-        "exitState": "最终结论已经可以回到真实文件和命令证据",
-        "handoff": {"type": "question-handoff", "target": "interrupt-and-mode", "visualAnchor": "transcript 中偏离范围的扫描"}
+        "change": "让 Claude 读取证据并执行一处必要修改",
+        "exitState": "工作区出现可观察的真实 diff",
+        "handoff": {"type": "evidence-continuation", "target": "interrupt-and-mode", "visualAnchor": "validate-token.js 的一处 Edit"}
       },
       {
         "sceneId": "interrupt-and-mode",
-        "entryState": "最终结论已经可以回到真实文件和命令证据",
-        "change": "中断过宽方向并切换默认权限模式",
-        "exitState": "任务方向与默认权限边界都能在运行中调整",
-        "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "输入对象与运行控制重新合并"}
+        "entryState": "工作区出现可观察的真实 diff",
+        "change": "运行测试和 diff check，并用 Ctrl+O 回看工具证据",
+        "exitState": "修复已经由测试、退出状态和 diff 共同支持",
+        "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "3 tests pass 与 diff check exit 0"}
       },
       {
         "sceneId": "takeaway",
-        "entryState": "任务方向与默认权限边界都能在运行中调整",
-        "change": "把文件、命令、观察和权限收束成一份可执行输入",
-        "exitState": "对象、边界和验收条件明确的修复任务已经进入会话",
-        "handoff": {"type": "chapter-bridge", "target": "ep03-agentic-loop", "visualAnchor": "六个入口收束成任务契约"}
+        "entryState": "修复已经由测试、退出状态和 diff 共同支持",
+        "change": "把完成结果冻结为下一章的运行回放",
+        "exitState": "空 Token 修复已经由真实测试和 diff 验证",
+        "handoff": {"type": "chapter-bridge", "target": "ep03-agentic-loop", "visualAnchor": "通过的测试与对应工具序列"}
       }
     ]
   },
@@ -234,120 +140,119 @@
   "scenes": [
     {
       "id": "hook",
-      "title": "接通以后，怎样开始任务？",
+      "title": "接通以后，能修好一个真问题吗？",
       "start": 0,
-      "duration": 14,
-      "goal": "承接第一次真实响应，把同一输入行变成包含文件、命令和权限边界的工程任务",
+      "duration": 15.3,
+      "goal": "承接第一次真实响应，把输入行变成空 Token Bug",
       "narration": {
         "segmentId": "01_hook",
-        "voiceStart": 1,
-        "durationSeconds": 11.791,
-        "text": "链路已经接通。现在把一个真实任务放进输入框：它涉及具体文件、测试命令和执行权限，也需要在运行中观察和纠偏。<#0.25#>这些对象和边界，怎样在同一个界面里说清楚？"
+        "voiceStart": 1.5,
+        "durationSeconds": 12.933537,
+        "text": "链路已经接通，但一次回答还不能说明它会做工程任务。task-board 里有个很小却真实的问题：空 Token 也能通过校验。我们先不背界面和命令，直接看它能否复现、修改并证明结果。"
       }
     },
     {
       "id": "interaction-model",
-      "title": "输入时和运行中有什么不同？",
-      "start": 14,
-      "duration": 23,
-      "goal": "建立三个输入入口和三个控制动作的整体模型",
+      "title": "第一次修复需要看到什么？",
+      "start": 15.3,
+      "duration": 16.7,
+      "goal": "建立复现、修改、验证的最小闭环",
       "narration": {
         "segmentId": "02_interaction_model",
-        "voiceStart": 15,
-        "durationSeconds": 20.107483,
-        "text": "这些符号和快捷键看起来有些零散，能不能找到一条更容易理解的线索？<#0.25#>画面上排的三个入口都发生在输入阶段；下排则影响任务运行时怎样观察、中断和切换模式。<#0.3#>前一组在回答“这次把什么送进会话”，后一组在回答“运行过程中允许它做到哪里”。<#0.25#>接下来的演示，就围绕这两个问题展开。"
+        "voiceStart": 15.8,
+        "durationSeconds": 15.309093,
+        "text": "这次只观察三个状态。先让测试把问题复现出来，再看工作区何时出现修改，最后由测试和 diff 决定能不能结束。界面能力会在这条路径需要时出现，因此每一个入口都有当前任务，而不是单独演示一遍功能。"
       }
     },
     {
       "id": "slash-entry",
-      "title": "/：当前环境里有什么？",
-      "start": 37,
-      "duration": 31,
-      "goal": "说明 Slash 菜单是命令与扩展能力的统一发现入口",
+      "title": "需要入口时，从哪里找？",
+      "start": 32,
+      "duration": 16.8,
+      "goal": "只用一句介绍官方命令与 Skills 的发现入口",
       "narration": {
         "segmentId": "03_slash_entry",
-        "voiceStart": 38,
-        "durationSeconds": 28.027483,
-        "text": "我们先输入一个斜杠，看看当前环境会出现什么。<#0.25#>菜单里既有 Claude Code 内置命令，也可能出现捆绑 Skill，以及项目、用户、插件或 MCP 提供的扩展。<#0.25#>换一个版本、安装不同的 Skill，或者进入另一个项目，这张菜单都可能变化。内置命令处理会话、模型和设置；Skill 封装可复用流程；插件与 MCP 则把外部能力接进来。<#0.25#>斜杠更像一个现场目录：需要时从当前环境发现即可。"
+        "voiceStart": 32.5,
+        "durationSeconds": 15.427483,
+        "text": "输入斜杠可以打开当前环境的能力目录。这里既有 Claude Code 官方提供的命令入口，也可能出现 Skills 和项目扩展。课程后面会在真实任务里分别遇到它们；现在只确认一个习惯：不确定入口时从现场菜单找，然后回到要解决的问题。"
       }
     },
     {
       "id": "file-mention",
-      "title": "@：怎样指向具体文件？",
-      "start": 68,
-      "duration": 30,
-      "goal": "用真实文件补全演示精确引用代码对象",
+      "title": "先把问题指向真实文件",
+      "start": 48.8,
+      "duration": 14.1,
+      "goal": "用文件引用减少本次 Bug 的对象歧义",
       "narration": {
         "segmentId": "04_file_mention",
-        "voiceStart": 69,
-        "durationSeconds": 27.343469,
-        "text": "如果提示词只说“那个认证文件”，Claude 会怎样判断我们指的是哪一个？输入艾特，再键入部分路径，界面会补全项目里的文件或目录。<#0.25#>补全后的路径作为明确引用进入提示词，不需要复制整段代码，也减少了同名文件带来的歧义。<#0.25#>这次我们把源文件、问题条件和不修改的范围放在同一段输入里，再补上对应测试。<#0.25#>从随后读取的文件可以看到，引用越具体，Claude 为了确认对象而进行的额外扫描就越少。"
+        "voiceStart": 49.3,
+        "durationSeconds": 12.759388,
+        "text": "我们已经知道问题在认证校验附近。用艾特补全源文件和对应测试，不是替 Claude 决定实现，而是把已知证据直接放进任务。它仍然可以继续搜索，但不需要先猜“认证文件”究竟指哪一个。"
       }
     },
     {
       "id": "shell-mode",
-      "title": "!：命令在哪里执行？",
-      "start": 98,
-      "duration": 36,
-      "goal": "真实运行失败测试，并说明输出进入会话上下文",
+      "title": "先确认失败真的存在",
+      "start": 62.9,
+      "duration": 16.5,
+      "goal": "运行真实基线测试并读取失败与退出状态",
       "narration": {
         "segmentId": "05_shell_mode",
-        "voiceStart": 99,
-        "durationSeconds": 33.715465,
-        "text": "现在我们只想知道测试是否通过，还需要先让模型替我们组织一条命令吗？<#0.25#>在空输入行键入感叹号，可以直接运行 pnpm test。命令被交给当前 Shell，所以工作目录、环境变量和退出码都是真实的。<#0.25#>测试、格式化和查看 Git 状态这类确定性动作，都可以用这种方式得到现场结果。这次失败输出也进入了当前会话；从 2.1.186 开始，Claude 默认会回应这份证据。<#0.25#>它仍然是真实的 Shell，命令会产生什么影响，和我们平时使用终端时没有区别。"
+        "voiceStart": 63.4,
+        "durationSeconds": 15.134943,
+        "text": "修复开始前先运行 pnpm test。非空 Token 用例通过，空字符串和全空白字符串两项失败，退出状态也不是零。现在“空 Token 有问题”不再只是提示词里的描述，它已经成为 Claude 可以读取并继续判断的现场结果。"
       }
     },
     {
       "id": "multiline-prompt",
-      "title": "一行为什么不够？",
-      "start": 134,
-      "duration": 29,
-      "goal": "用多行提示组织目标、约束和验收条件",
+      "title": "这次任务怎样说明？",
+      "start": 79.4,
+      "duration": 17.3,
+      "goal": "用目标、范围和验证条件形成最小任务契约",
       "narration": {
         "segmentId": "06_multiline_prompt",
-        "voiceStart": 135,
-        "durationSeconds": 26.695465,
-        "text": "目标、约束和验收条件都挤在一行时，哪一部分最容易被忽略？<#0.25#>常见终端可以用 Shift 加 Enter 换行；需要通用方式时，也可以使用 Control 加 J。<#0.25#>这次输入被拆成三段：目标描述要解决的问题，约束标出不修改和不扩展的范围，证据说明最后希望看到哪一行代码、哪一条测试或哪一个命令结果。<#0.25#>拆开以后，任务运行到一半时也更容易看出它有没有偏离原来的问题。"
+        "voiceStart": 79.9,
+        "durationSeconds": 15.967483,
+        "text": "输入只保留会改变实现的三件事：空字符串和全空白字符串返回 false，非空 Token 继续返回 true；只修改必要文件；完成后运行测试和 git diff --check。它不长，但目标、范围和停止条件都能被后面的工具结果检验。"
       }
     },
     {
       "id": "observe-process",
-      "title": "Ctrl+O：结论从哪里来？",
-      "start": 163,
-      "duration": 34,
-      "goal": "从折叠结果进入 transcript viewer，观察工具和结果",
+      "title": "文件在什么时候改变？",
+      "start": 96.7,
+      "duration": 16.9,
+      "goal": "展示读取证据后发生的一处真实 Edit",
       "narration": {
         "segmentId": "07_observe_process",
-        "voiceStart": 164,
-        "durationSeconds": 31.339478,
-        "postGainDb": -0.4,
-        "text": "最终回答里说空字符串被错误放行，这个结论是怎样得到的？<#0.25#>默认界面会折叠一部分工具细节。按 Control 加 O 打开 transcript viewer，可以看到更完整的工具调用和结果。<#0.25#>这里先出现 validate-token.js 的判断条件，随后是失败测试，两个结果一起支撑了最终结论。<#0.25#>如果回答和证据对不上，transcript 还能帮助我们找到从哪一步开始偏离：是读错了文件，还是工具结果没有支持后面的判断。<#0.25#>它的价值不是展示每一行过程，而是让关键结论能够回到真实的文件和命令结果。"
+        "voiceStart": 97.2,
+        "durationSeconds": 15.535465,
+        "text": "Claude 读取测试和实现后，把大于等于零改成 trim 以后仍有内容。画面中的 Edit 才是工作区状态真正改变的时刻；前面的解释和计划都没有修改文件。改动只有一处，这和任务给出的范围一致，但它是否正确还没有被证明。"
       }
     },
     {
       "id": "interrupt-and-mode",
-      "title": "方向和权限怎样改变？",
-      "start": 197,
-      "duration": 52,
-      "goal": "演示及时中断过宽任务，并区分重新定向与权限模式",
+      "title": "哪些结果支持结束？",
+      "start": 113.6,
+      "duration": 22.3,
+      "goal": "用测试、diff check 与 transcript 形成第一份完成证据",
       "narration": {
         "segmentId": "08_interrupt_and_mode",
-        "voiceStart": 198,
-        "durationSeconds": 49.807483,
-        "text": "如果 Claude 已经扫描整个项目，而问题只在认证模块，现在还能改变方向吗？按下 Escape，当前运行会中断，已有结果仍然保留；把范围收窄到 src/auth 和对应测试，任务可以继续。<#0.3#>另一个问题是默认允许它做什么。Shift 加 Tab 会在 default、acceptEdits 和 plan 之间循环。<#0.25#>default 直接读取，编辑、Shell 和网络通常先询问；acceptEdits 自动接受工作区编辑和常见文件命令，其他命令仍会询问；plan 只读探索，不修改源码。<#0.3#>此外还有 auto、只运行预批准工具的 dontAsk，以及跳过检查的 bypassPermissions；最后一种通常只用于隔离环境。<#0.25#>具体工具还可以由 allow、ask 和 deny 继续细分，其中 deny 优先。"
+        "voiceStart": 114.1,
+        "durationSeconds": 20.935465,
+        "text": "修改后再次运行 pnpm test，三项测试全部通过；git diff --check 返回零，说明补丁没有空白错误。按 Control 加 O 还能把折叠过程展开，确认这些结论分别来自 Read、Edit 和 Bash 的真实结果。权限提示在动作需要批准时才出现；完整模式差异留到第二个视频专门比较。"
       }
     },
     {
       "id": "takeaway",
-      "title": "输入进入运行以后呢？",
-      "start": 249,
-      "duration": 18,
-      "goal": "把交互入口收束为一份边界明确的任务，并直接交给 Agent Loop",
+      "title": "修复完成，过程解释清楚了吗？",
+      "start": 135.9,
+      "duration": 15.2,
+      "goal": "冻结真实完成结果并交给 EP03 的运行回放",
       "narration": {
         "segmentId": "09_takeaway",
-        "voiceStart": 251,
-        "durationSeconds": 14.203,
-        "text": "文件由艾特明确，命令留下现场结果，运行中还能观察、中断和切换模式。<#0.25#>对象、边界和验收条件已经进入会话。接下来沿着同一份输入，看它怎样变成一处文件修改和两组验证结果。"
+        "voiceStart": 136.4,
+        "durationSeconds": 13.165714,
+        "text": "现在我们确实得到了一处修改、三项通过的测试和干净的 diff check。下一章不再重做这个 Bug，而是回放同一轮会话：工具为什么按这个顺序出现，结果怎样推动下一步，本地日志又保存了哪些工程关系。"
       }
     }
   ],

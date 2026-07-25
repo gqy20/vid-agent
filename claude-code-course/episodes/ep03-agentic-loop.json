@@ -1,18 +1,19 @@
 {
   "episodeId": "ep03-agentic-loop",
-  "title": "Claude Code 不是聊天框",
-  "subtitle": "从工具反馈到本地会话账本",
+  "compositionId": "ClaudeCodeCourseEp03AgenticLoop",
+  "title": "它为什么这样行动",
+  "subtitle": "回放工具反馈与本地会话账本",
   "status": "draft",
   "fps": 30,
   "resolution": {
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 325,
-  "goal": "用同一个真实 Bug 修复任务，读懂 Claude Code 的 agent loop、工具调用与结果配对、JSONL 会话账本、文件 checkpoint 和可观测性边界",
+  "durationSeconds": 293.5,
+  "goal": "回放 EP02 已完成的真实修复，读懂 agentic loop、工具调用与结果配对、JSONL 会话账本、文件 checkpoint 和可观测性边界，而不再次演示同一轮修改",
   "content": {
     "coreModel": "Claude Code 可以分成三层理解：模型在 gather context、take action 和 verify results 之间循环；tool_use 与 tool_result 把判断连接到真实环境；本地 JSONL 会话账本和 file history 分别保存因果记录与可恢复的文件状态。",
-    "alignmentMarkdown": "EP03 沿用 task-board 项目，但使用独立的 ep03 初始化状态。真实任务必须先复现空白 Token 测试失败，再读取源码和测试、修改实现、运行测试与 git diff --check。三阶段是教学模型，不得伪造为 Claude Code 固定且严格分隔的内部状态机。日志结构以 Claude Code 2.1.216 的本次真实录制为观察样本；字段属于实现数据，不作为稳定公共 API 教授。Ctrl+O 只展示终端中的交互视图；工程分析来自本次录制后归档的 ~/.claude/projects JSONL。公开视频只读取白名单派生结构，不读取 raw session。",
+    "alignmentMarkdown": "EP03 分析 EP02 已经展示的同一次空 Token 修复，不再按原速重复基线、Edit 和测试。前半段用工具序列与反馈关系回放三个关键状态，后半段下钻本次录制归档的 ~/.claude/projects JSONL 与 file history。三阶段是教学模型，不得伪造为固定内部状态机；日志字段来自 Claude Code 2.1.216 观察样本，不作为稳定公共 API。公开视频只读取白名单派生结构，不读取 raw session。",
     "loop": [
       {
         "id": "gather-context",
@@ -89,8 +90,8 @@
     ]
   },
   "verifiedWith": {
-    "date": "2026-07-23",
-    "claudeCodeVersion": "2.1.216"
+    "date": "2026-07-25",
+    "claudeCodeVersion": "2.1.217"
   },
   "productionPolicy": {
     "remotionOwns": [
@@ -128,54 +129,54 @@
   },
   "continuity": {
     "chapterIndex": 3,
-    "chapterLabel": "执行",
+    "chapterLabel": "回放",
     "previousEpisodeId": "ep02-interactive-guide",
     "nextEpisodeId": "ep04-understand-project",
-    "entryState": "对象、边界和验收条件明确的修复任务已经进入会话",
+    "entryState": "空 Token 修复已经由真实测试和 diff 验证",
     "exitState": "Agent Loop 的第一步 gather context 成为下一章的待展开问题",
-    "incomingQuestion": "一份边界明确的输入，怎样变成文件修改和验证结果？",
+    "incomingQuestion": "刚才的修复为什么选择这些工具，并在测试通过以后停止？",
     "outgoingQuestion": "Gather context 怎样决定先读什么，并形成项目关系？",
-    "visualBaton": "任务契约展开为工具循环，最后只保留 gather context 节点进入下一章",
+    "visualBaton": "EP02 的通过测试冻结为工具序列回放，最后只保留 gather context 节点进入下一章",
     "scenes": [
       {
         "sceneId": "hook",
-        "entryState": "对象、边界和验收条件明确的修复任务已经进入会话",
-        "change": "沿用同一份任务，把关注点从输入转向工程执行",
-        "exitState": "同一份修复任务等待被拆成可观察的工程步骤",
-        "handoff": {"type": "causal-handoff", "target": "loop-model", "visualAnchor": "上一章形成的任务契约"}
+        "entryState": "空 Token 修复已经由真实测试和 diff 验证",
+        "change": "冻结完成结果并把时间轴倒回第一次工具调用",
+        "exitState": "同一次修复已经变成可以逐步检查的运行回放",
+        "handoff": {"type": "causal-handoff", "target": "loop-model", "visualAnchor": "EP02 的 tests pass 与七次工具调用"}
       },
       {
         "sceneId": "loop-model",
-        "entryState": "同一份修复任务等待被拆成可观察的工程步骤",
+        "entryState": "同一次修复已经变成可以逐步检查的运行回放",
         "change": "把读取、动作和验证连接成由工具结果驱动的循环",
         "exitState": "工具结果会反馈并推动下一步判断",
-        "handoff": {"type": "question-handoff", "target": "task-contract", "visualAnchor": "仍未定义停止条件的循环"}
+        "handoff": {"type": "question-handoff", "target": "task-contract", "visualAnchor": "七次工具调用映射到三个循环阶段"}
       },
       {
         "sceneId": "task-contract",
         "entryState": "工具结果会反馈并推动下一步判断",
-        "change": "为循环补上目标、范围和结束条件",
+        "change": "把 EP02 的目标、范围和结束条件叠回运行序列",
         "exitState": "循环已经拥有明确的目标、范围和结束条件",
         "handoff": {"type": "causal-handoff", "target": "gather-context", "visualAnchor": "基线失败这一项验收条件"}
       },
       {
         "sceneId": "gather-context",
         "entryState": "循环已经拥有明确的目标、范围和结束条件",
-        "change": "用 Read 与基线测试把自然语言问题变成现场证据",
+        "change": "把 Read 与基线测试结果映射为 gather context 反馈",
         "exitState": "基线失败与实现条件共同定位了修改点",
         "handoff": {"type": "evidence-continuation", "target": "take-action", "visualAnchor": "token.length 判断条件"}
       },
       {
         "sceneId": "take-action",
         "entryState": "基线失败与实现条件共同定位了修改点",
-        "change": "由 Edit 执行修改，并用 diff 证明工作区状态改变",
+        "change": "把 Edit 成功结果映射为 take action 的环境变化",
         "exitState": "工作区已经出现一处可观察的真实 diff",
         "handoff": {"type": "causal-handoff", "target": "verify-results", "visualAnchor": "修改后的工作区 diff"}
       },
       {
         "sceneId": "verify-results",
         "entryState": "工作区已经出现一处可观察的真实 diff",
-        "change": "用测试和 diff 检查判断任务是否达到结束条件",
+        "change": "把测试和 diff check 结果映射为 verify results 的停止信号",
         "exitState": "测试与 diff 检查已经满足任务结束条件",
         "handoff": {"type": "zoom-in", "target": "session-ledger", "visualAnchor": "验证后的最终回答与 Ctrl+O 过程"}
       },
@@ -229,91 +230,91 @@
   "scenes": [
     {
       "id": "hook",
-      "title": "一句指令怎样变成工程结果",
+      "title": "修复结束以后，能回放过程吗？",
       "start": 0,
-      "duration": 13,
-      "goal": "承接上一章形成的任务输入，只提出它怎样变成工程结果",
+      "duration": 13.4,
+      "goal": "承接 EP02 的完成证据，把同一轮运行变成分析对象",
       "narration": {
         "segmentId": "01_hook",
         "voiceStart": 1.5,
-        "durationSeconds": 9.52,
-        "text": "对象和边界已经写进输入。现在沿着同一份修复任务继续看，中间的工具结果不断回到会话：一段文字怎样变成代码修改和两组验证？"
+        "durationSeconds": 11.017891,
+        "text": "上一章已经完成修复，这里不再重做。我们把通过的测试冻结下来，再把同一轮会话倒回去：七次工具调用为什么以这个顺序出现，它又凭什么在这里停止？"
       }
     },
     {
       "id": "loop-model",
       "title": "工具结果怎样推动下一步？",
-      "start": 13,
-      "duration": 22,
+      "start": 13.4,
+      "duration": 18.9,
       "goal": "第一次且只在这里完整定义 gather context、take action、verify results",
       "narration": {
         "segmentId": "02_loop_model",
-        "voiceStart": 13.5,
-        "durationSeconds": 19.963469,
-        "text": "Claude Code 把模型放进一个能够读取项目、调用工具并接收结果的执行环境。<#0.25#>把刚才的任务慢下来，画面上的三个阶段会形成一个循环，而不是一条只走一遍的流程。<#0.25#>每个工具结果都会回到会话，改变下一次判断；失败时过程会继续，得到足够证据以后才逐渐停下来。"
+        "voiceStart": 13.9,
+        "durationSeconds": 17.561406,
+        "text": "把刚才的工具序列映射到三个阶段，可以看到 gather context、take action 和 verify results 并不是一次走完的流水线。每个工具结果都会返回会话，改变后续判断；失败让循环继续，足够的验证证据才让它逐渐停止。"
       }
     },
     {
       "id": "task-contract",
-      "title": "任务什么时候算完成？",
-      "start": 35,
-      "duration": 23,
-      "goal": "用目标、范围和验收定义真实任务，不重复解释循环",
+      "title": "结束条件怎样影响循环？",
+      "start": 32.3,
+      "duration": 18.2,
+      "goal": "把 EP02 已出现的任务契约叠加到工具序列",
       "narration": {
         "segmentId": "03_task_contract",
-        "voiceStart": 35.3,
-        "durationSeconds": 22.231474,
-        "text": "怎样判断这次修复已经做完？我们仍然使用 task-board：空字符串和全空白 Token 预期返回 false，非空 Token 继续通过。<#0.25#>任务限定在必要文件，并约定三条结果：先复现基线失败，修改后 pnpm test 三项通过，再看 git diff --check 是否返回零。<#0.25#>后面就用这些结果观察循环为什么继续，又为什么停止。"
+        "voiceStart": 32.8,
+        "durationSeconds": 16.867483,
+        "text": "EP02 的输入给出了目标、范围和两组验证。它们不只是写给人看的说明，也成为循环可以读取的停止条件：基线需要先失败，修改保持收敛，最后测试通过并且 diff check 返回零。接下来只看这些条件怎样被工具结果逐项满足。"
       }
     },
     {
       "id": "gather-context",
-      "title": "第一步发生了什么？",
-      "start": 58,
-      "duration": 25,
-      "goal": "用真实 Read 与基线测试证明上下文来自工具结果，而不是模型凭空知道项目状态",
+      "title": "哪些结果形成了上下文？",
+      "start": 50.5,
+      "duration": 16.9,
+      "goal": "从回放中提取 Read 与基线失败的反馈关系",
       "narration": {
         "segmentId": "04_gather_context",
-        "voiceStart": 58.3,
-        "durationSeconds": 24.211474,
-        "text": "任务开始后，Claude 先读取测试和实现，随后运行基线测试。<#0.25#>Read 带回当前磁盘上的文件内容，Bash 带回命令输出和退出状态。非空用例通过，空字符串和全空白用例失败，而失败位置又和 token.length 大于等于零这条判断对应起来。<#0.25#>到这里，问题从一句自然语言描述变成了两条可以互相印证的现场证据，下一步修改也有了具体位置。"
+        "voiceStart": 51,
+        "durationSeconds": 15.571474,
+        "text": "回放前几步，Read 带回磁盘上的测试与实现，Bash 带回失败输出和退出状态。空字符串的失败位置又和 length 大于等于零的判断对应起来。模型并不是预先知道项目状态，而是在这些结果进入会话以后，才拥有下一步修改所需的上下文。"
       }
     },
     {
       "id": "take-action",
-      "title": "文件何时真正改变？",
-      "start": 83,
-      "duration": 29,
-      "goal": "展示真实 Edit 和工作区 diff，区分文字建议与实际行动",
+      "title": "一次 Edit 怎样进入后续判断？",
+      "start": 67.4,
+      "duration": 19.8,
+      "goal": "解释 Edit 请求、工具结果与工作区变化的反馈关系",
       "narration": {
         "segmentId": "05_take_action",
-        "voiceStart": 83.1,
-        "durationSeconds": 28.711474,
-        "text": "定位到判断条件以后，修改是在什么时候真正发生的？Claude 调用 Edit 更新 validate-token.js：先 trim，再检查剩余长度是否大于零。<#0.25#>在工具返回成功以前，这仍然只是模型提出的动作；Edit 的结果和随后出现的 diff，才说明工作区状态已经改变。<#0.25#>如果匹配内容不存在、文件已经变化或权限被拒绝，这些结果也会回到会话，让 Claude 重新读取或等待用户处理。<#0.25#>这次 diff 只落在认证实现，没有出现额外重构。"
+        "voiceStart": 67.9,
+        "durationSeconds": 18.487483,
+        "text": "模型发出 Edit 请求时，文件还没有因为一句文字描述而改变。执行环境完成替换并返回成功以后，工作区状态才成为后续判断的新事实。如果匹配内容不存在、文件变化或权限被拒绝，返回的就会是另一种结果，循环也会选择重新读取或等待处理。"
       }
     },
     {
       "id": "verify-results",
-      "title": "代码改完，任务就结束了吗？",
-      "start": 112,
-      "duration": 26,
-      "goal": "用测试和 diff 检查形成可验证终点，并说明验证失败会触发新一轮循环",
+      "title": "为什么这一次可以停止？",
+      "start": 87.2,
+      "duration": 17.6,
+      "goal": "解释测试与 diff check 怎样构成停止信号",
       "narration": {
         "segmentId": "06_verify_results",
-        "voiceStart": 112.6,
-        "durationSeconds": 24.787483,
-        "text": "代码已经改变，任务为什么没有立刻结束？Claude 再次运行 pnpm test，三个用例全部通过；随后运行 git diff --check，退出状态也是零。<#0.25#>前一条结果说明行为符合预期，后一条结果确认补丁没有空白错误，它们正好对应开头约定的结束条件。<#0.25#>如果测试仍然失败，这个错误就会回到下一轮上下文。最终回答出现在这些验证之后，更像是对已经发生结果的汇总。"
+        "voiceStart": 87.7,
+        "durationSeconds": 16.291474,
+        "text": "Edit 成功以后任务仍没有结束，因为工作区变化不是完成证据。测试的三个用例通过，diff check 的退出状态为零，恰好满足开头约定的验证条件。如果任一结果失败，它会再次成为下一轮输入。最终回答出现在验证之后，是对这些结果的汇总。"
       }
     },
     {
       "id": "session-ledger",
       "title": "会话在本地怎样保存？",
-      "start": 138,
-      "duration": 35,
+      "start": 104.8,
+      "duration": 33.5,
       "goal": "从真实日志解释追加式事件、事件类型与 parentUuid 因果链",
       "narration": {
         "segmentId": "07_session_ledger",
-        "voiceStart": 139,
+        "voiceStart": 105.3,
         "durationSeconds": 32.167483,
         "text": "Control 加 O 展示了会话过程，但这些信息在本地怎样保存？当前项目对应的 JSONL 会按发生顺序追加事件，一行记录一个片段。<#0.25#>这次录制里共有五十六条 session 事件，其中四十三条带 uuid，并由 parentUuid 连成一条因果链。类型也不只有 user 和 assistant，还包括 system、attachment、permission mode、turn duration 和 file history。<#0.25#>从这种结构看，它更接近一份事件账本。Claude Code 可以借此恢复和继续会话，我们也能够从中重建任务经过。"
       }
@@ -321,12 +322,12 @@
     {
       "id": "tool-correlation",
       "title": "一次工具调用怎样配对？",
-      "start": 173,
-      "duration": 40,
+      "start": 138.3,
+      "duration": 41.3,
       "goal": "解释 tool_use、tool_result、关联 ID、错误反馈与流式消息组装",
       "narration": {
         "segmentId": "08_tool_correlation",
-        "voiceStart": 173,
+        "voiceStart": 138.8,
         "durationSeconds": 39.907483,
         "text": "一条 Bash 调用在日志里会占几行？工具请求先出现在 assistant 内容块中，类型是 tool_use，里面包含工具标识、名称和输入；执行结果再以 user 角色的 tool_result 写回，并通过 tool_use_id 配成一对。<#0.25#>本次七次调用都有对应结果，基线测试那一次还明确标记 is_error 为 true。这个错误没有结束任务，而是进入后续 Read、Edit 和再次 Bash 的上下文。<#0.25#>二十二条 assistant 事件实际只对应九个 message id，因为 thinking、text 和 tool_use 会分段落盘。只按行阅读时，一轮对话很容易被误拆成好几轮。"
       }
@@ -334,12 +335,12 @@
     {
       "id": "checkpoint-architecture",
       "title": "文件修改怎样恢复？",
-      "start": 213,
-      "duration": 43,
+      "start": 179.6,
+      "duration": 42.3,
       "goal": "解释 transcript 与 file-history 的职责分离，以及 checkpoint 的覆盖边界",
       "narration": {
         "segmentId": "09_checkpoint_architecture",
-        "voiceStart": 214,
+        "voiceStart": 180.1,
         "durationSeconds": 40.951474,
         "text": "JSONL 能还原会话因果，但文件修改又怎样恢复？Claude Code 在编辑前还会维护 file history。我们这次只有一次 Edit，记录里却能看到四个 snapshot 和一个 delta：snapshot 把会话检查点绑定到已跟踪文件，delta 指向修改前的备份。<#0.25#>于是出现了两套彼此配合的数据：JSONL 记录消息与工具关系，file history 处理 Edit、Write、NotebookEdit 造成的文件变化。<#0.25#>这套恢复并不覆盖 Bash 直接改文件，也无法撤销远程 API、数据库或部署。因此 checkpoint 更像会话级文件安全网，它和 Git、事务系统解决的并不是同一件事。"
       }
@@ -347,12 +348,12 @@
     {
       "id": "observability",
       "title": "日志能否接入自动化？",
-      "start": 256,
-      "duration": 38,
+      "start": 221.9,
+      "duration": 39.2,
       "goal": "解释 hooks 如何消费会话元数据，以及原始 transcript 的隐私和 schema 边界",
       "narration": {
         "segmentId": "10_observability",
-        "voiceStart": 256,
+        "voiceStart": 222.4,
         "durationSeconds": 37.891474,
         "text": "既然日志有明确结构，它能不能接入自动化？Hook 事件会收到 session_id、transcript_path、cwd、permission mode 和当前工具信息，因此可以用于审计、统计、策略拦截，或把失败送进外部观测系统。<#0.25#>与此同时，transcript 是明文；工具读到的文件、命令输出和凭据都可能被记录，JSONL 内部字段也可能随版本变化。<#0.25#>这次课程把原始日志留在权限受限的本地目录，只派生事件序号、父序号、消息序号、工具配对、错误标记和 checkpoint 计数。这样还能讨论工程关系，却不会公开项目正文。"
       }
@@ -360,13 +361,13 @@
     {
       "id": "takeaway",
       "title": "循环的第一步是什么？",
-      "start": 294,
-      "duration": 31,
+      "start": 261.1,
+      "duration": 32.4,
       "goal": "收束模型、工具和日志关系，并把 gather context 单独交给下一章",
       "narration": {
         "segmentId": "11_takeaway",
-        "voiceStart": 294.3,
-        "durationSeconds": 30.331,
+        "voiceStart": 261.6,
+        "durationSeconds": 30.331474,
         "text": "把任务和日志合在一起看，模型形成判断，工具改变环境，session ledger 留下因果；checkpoint 保存文件恢复线索。<#0.25#>最终回答下面，还有成对的 tool_use 与 tool_result、推动下一步的错误，以及决定任务何时停止的验证。<#0.25#>循环最先发生的 gather context，看起来只是读文件，却决定后面的判断从哪里来。接下来沿着这个节点继续看：Claude 怎样知道该读哪些文件，又怎样把它们连成项目关系。"
       }
     }

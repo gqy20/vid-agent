@@ -1,0 +1,47 @@
+{
+  "episodeId": "ep10-issue-to-pr",
+  "compositionId": "ClaudeCodeCourseEp10IssueToPr",
+  "title": "从 Issue 到可审查 PR",
+  "subtitle": "让调查、计划、执行、验证和审查落在同一条证据链上",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 130.9,
+  "goal": "从干净分支和新会话完整交付一项真实 Issue，用前九章建立的方法与项目配置形成有证据、可审查、可回退的 PR",
+  "content": {"coreModel": "Claude 会话负责调查、修改和验证；Git diff、commit、PR 与 CI 把结果移出对话，形成团队能够独立复查的工程事实。", "deliverable": "一个包含问题复现、实现计划、最终 diff、验证证据和审查记录的真实 PR"},
+  "sourceOfTruth": {"references": ["https://code.claude.com/docs/en/best-practices", "https://code.claude.com/docs/en/common-workflows", "https://code.claude.com/docs/en/commands"]},
+  "verifiedWith": {"date": "2026-07-25", "claudeCodeVersion": "2.1.217"},
+  "continuity": {
+    "chapterIndex": 10,
+    "chapterLabel": "交付",
+    "previousEpisodeId": "ep09-project-instructions-memory",
+    "nextEpisodeId": null,
+    "entryState": "项目已经把稳定规则、路径规则、经验记忆和确定性门禁分配到正确机制",
+    "exitState": "任务从 Issue 进入项目，最终形成有证据、可审查且可回退的 PR",
+    "incomingQuestion": "项目能力准备完成以后，能否从干净会话稳定交付整条 Issue 到 PR？",
+    "outgoingQuestion": "个人终端里的稳定交付，下一步怎样沉淀成团队可复用和自动执行的能力？",
+    "visualBaton": "EP09 的项目能力在新会话加载，最终与 Issue、diff、验证和 PR 组成交付链路",
+    "scenes": [
+      {"sceneId": "hook", "entryState": "项目已经把稳定规则、路径规则、经验记忆和确定性门禁分配到正确机制", "change": "从干净分支和新会话提出完整交付挑战", "exitState": "项目能力需要在没有前序聊天的环境中重新接受验证", "handoff": {"type": "question-handoff", "target": "issue-and-baseline", "visualAnchor": "新会话加载的项目指令与一条真实 Issue"}},
+      {"sceneId": "issue-and-baseline", "entryState": "项目能力需要在没有前序聊天的环境中重新接受验证", "change": "读取 Issue、复现问题并建立基线", "exitState": "任务现状和失败证据已经独立于旧会话重建", "handoff": {"type": "evidence-continuation", "target": "plan-and-execute", "visualAnchor": "Issue、失败测试和工作区状态"}},
+      {"sceneId": "plan-and-execute", "entryState": "任务现状和失败证据已经独立于旧会话重建", "change": "按复杂度决定计划并在项目边界内执行", "exitState": "实现已经形成可见且范围明确的 diff", "handoff": {"type": "causal-handoff", "target": "verification-package", "visualAnchor": "计划步骤逐项落成 diff"}},
+      {"sceneId": "verification-package", "entryState": "实现已经形成可见且范围明确的 diff", "change": "生成测试、构建、运行行为和 diff 证据", "exitState": "修改已经拥有可重跑的完成证据", "handoff": {"type": "synthesis", "target": "review-and-fix", "visualAnchor": "四类验证证据进入审查"}},
+      {"sceneId": "review-and-fix", "entryState": "修改已经拥有可重跑的完成证据", "change": "用人工 diff 与 reviewer agent 发现并修正问题", "exitState": "实现和验证已经通过一次独立审查", "handoff": {"type": "causal-handoff", "target": "commit", "visualAnchor": "审查意见转化为最终修正"}},
+      {"sceneId": "commit", "entryState": "实现和验证已经通过一次独立审查", "change": "检查工作区并创建描述性提交", "exitState": "工作结果已经形成可恢复的 Git 状态", "handoff": {"type": "evidence-continuation", "target": "pull-request", "visualAnchor": "commit SHA 与验证摘要"}},
+      {"sceneId": "pull-request", "entryState": "工作结果已经形成可恢复的 Git 状态", "change": "推送分支、创建 PR 并观察 CI 与审查信息", "exitState": "团队可以独立于 Claude 会话复查修改和证据", "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "PR diff、checks 与说明"}},
+      {"sceneId": "takeaway", "entryState": "团队可以独立于 Claude 会话复查修改和证据", "change": "回收十章能力并指出扩展与自动化方向", "exitState": "任务从 Issue 进入项目，最终形成有证据、可审查且可回退的 PR", "handoff": {"type": "closure", "target": null, "visualAnchor": "Issue 到 PR 的完整十章链路"}}
+    ]
+  },
+  "audio": {"model": "speech-2.8-hd", "voice": "Chinese (Mandarin)_Gentleman", "language": "zh", "speed": 1.25, "bgm": {"source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3", "volume": 0.05}},
+  "scenes": [
+    {"id": "hook", "title": "新会话还能稳定交付吗？", "start": 0, "duration": 12.6, "goal": "从干净环境建立综合挑战", "narration": {"segmentId": "01_hook", "voiceStart": 1.5, "durationSeconds": 10.24, "text": "这次不沿用前面的聊天。我们从干净分支和新会话开始，只保留仓库里的项目能力，再选择一条真实 Issue，看看整条工作流能否重新成立。"}},
+    {"id": "issue-and-baseline", "title": "先把问题重新建立出来", "start": 12.6, "duration": 21, "goal": "读取 Issue、复现并确认 Git 基线", "narration": {"segmentId": "02_issue_and_baseline", "voiceStart": 13.1, "durationSeconds": 19.675465, "text": "Issue 描述的是另一条路径：编辑任务标题以后，原有的截止日期会被清空。Claude 读取项目指令，运行最小复现并确认当前分支没有未提交修改。失败测试、实际行为和相关路径重新建立了任务现状；这些证据来自仓库和命令，而不是依赖上一段对话记忆。"}},
+    {"id": "plan-and-execute", "title": "从计划进入真实修改", "start": 33.6, "duration": 17.4, "goal": "综合任务说明、计划和权限边界", "narration": {"segmentId": "03_plan_and_execute", "voiceStart": 34.1, "durationSeconds": 16.098571, "text": "任务跨越更新接口、领域合并逻辑和页面行为，因此先在 Plan Mode 检查影响范围。批准方向后退出只读阶段，按依赖顺序修改实现与测试。路径规则在读取前端文件时加载，Hook 则继续保护不应写入的生成目录。"}},
+    {"id": "verification-package", "title": "让完成结论带着证据出现", "start": 51, "duration": 16.2, "goal": "综合多层验证并生成可复查摘要", "narration": {"segmentId": "04_verification_package", "voiceStart": 51.5, "durationSeconds": 14.879546, "text": "修改完成后，不直接接受总结。相关测试、全量检查、构建和真实运行依次给出结果；Git diff 说明文件范围。我们把命令、退出状态和用户可见行为整理成验证摘要，让任何人都可以重新运行。"}},
+    {"id": "review-and-fix", "title": "验证通过以后还要审查什么？", "start": 67.2, "duration": 16.8, "goal": "让 reviewer agent 与人工 diff 发现测试外风险", "narration": {"segmentId": "05_review_and_fix", "voiceStart": 67.7, "durationSeconds": 15.483265, "text": "验证证明了已知目标，审查寻找还没有被断言覆盖的风险。API reviewer 在隔离上下文中检查兼容性，人工 diff 同时确认命名、范围和临时代码。发现的问题回到实现和验证环，而不是只留在一份报告里。"}},
+    {"id": "commit", "title": "什么时候适合创建提交？", "start": 84, "duration": 14.5, "goal": "建立会话与 Git 状态的边界", "narration": {"segmentId": "06_commit", "voiceStart": 84.5, "durationSeconds": 13.165714, "text": "当 diff、验证和审查都一致后，再检查 Git 状态并创建描述性提交。Commit 不代表代码永远正确，但它把当前结果从临时会话变成可恢复、可比较的工程状态，也给后续 PR 一个明确来源。"}},
+    {"id": "pull-request", "title": "PR 应该让审查者看到什么？", "start": 98.5, "duration": 17.2, "goal": "真实创建 PR 并展示团队审查证据", "narration": {"segmentId": "07_pull_request", "voiceStart": 99, "durationSeconds": 15.819955, "text": "推送分支后，PR 说明不只复述代码，而是连接 Issue、实现选择、测试命令、真实运行结果和仍需关注的边界。CI 再次从独立环境运行检查。即使 Claude 会话关闭，团队仍可以从 diff、commit 和 checks 复查这次交付。"}},
+    {"id": "takeaway", "title": "Claude Code 的结果怎样成为工程事实？", "start": 115.7, "duration": 15.2, "goal": "收束前十章并建立后续扩展方向", "narration": {"segmentId": "08_takeaway", "voiceStart": 116.2, "durationSeconds": 13.165714, "text": "从模型链路到任务说明，从计划和权限到验证、项目规则与 PR，Claude Code 始终工作在真实文件和工具结果上。最终让结果成为工程事实的，不是一句完成声明，而是可以复查、重跑和回退的证据链。"}}
+  ],
+  "release": {}
+}

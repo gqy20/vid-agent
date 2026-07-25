@@ -1,0 +1,43 @@
+{
+  "episodeId": "ep07-permissions-recovery",
+  "compositionId": "ClaudeCodeCourseEp07PermissionsRecovery",
+  "title": "怎样让它行动又不失去控制",
+  "subtitle": "权限、沙箱和恢复解决的是三类不同问题",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 86,
+  "goal": "在真实执行截止日期计划时，区分权限决策、系统沙箱、工作区检查和 checkpoint 恢复，并处理一次范围外修改",
+  "content": {"coreModel": "权限决定一次工具调用是否获准，沙箱限制获准进程能触达的资源，checkpoint 与 Git 提供不同粒度的恢复和审查。它们互补但不能互相替代。", "deliverable": "一组处于明确权限与恢复边界内的真实工作区改动"},
+  "sourceOfTruth": {"references": ["https://code.claude.com/docs/en/permission-modes", "https://code.claude.com/docs/en/permissions", "https://code.claude.com/docs/en/sandboxing", "https://code.claude.com/docs/en/checkpointing"]},
+  "verifiedWith": {"date": "2026-07-25", "claudeCodeVersion": "2.1.217"},
+  "continuity": {
+    "chapterIndex": 7,
+    "chapterLabel": "控制",
+    "previousEpisodeId": "ep06-plan-before-edit",
+    "nextEpisodeId": "ep08-verification-evidence",
+    "entryState": "一份跨前端、API、数据和测试的计划已经通过审查，等待受控执行",
+    "exitState": "计划已经在权限、沙箱和可恢复边界内转化为真实工作区改动",
+    "incomingQuestion": "计划通过以后，怎样允许必要行动，同时约束范围和恢复错误？",
+    "outgoingQuestion": "工作区已经改变，哪些证据足以证明功能真的完成？",
+    "visualBaton": "EP06 批准的计划第一步进入权限决策层，最终落成可检查的 Git diff",
+    "scenes": [
+      {"sceneId": "hook", "entryState": "一份跨前端、API、数据和测试的计划已经通过审查，等待受控执行", "change": "让计划中的第一项写入触发真实权限决策", "exitState": "执行已经开始，控制问题从计划转到工具调用", "handoff": {"type": "causal-handoff", "target": "three-boundaries", "visualAnchor": "Edit 请求与权限提示"}},
+      {"sceneId": "three-boundaries", "entryState": "执行已经开始，控制问题从计划转到工具调用", "change": "区分权限、沙箱和恢复三层", "exitState": "每一层控制的对象和时机已经明确", "handoff": {"type": "synthesis", "target": "controlled-execution", "visualAnchor": "调用批准、资源边界、恢复点三层图"}},
+      {"sceneId": "controlled-execution", "entryState": "每一层控制的对象和时机已经明确", "change": "在默认审查模式下执行计划并批准必要动作", "exitState": "预期文件已经产生真实修改和测试反馈", "handoff": {"type": "evidence-continuation", "target": "scope-drift", "visualAnchor": "文件改动与工具结果"}},
+      {"sceneId": "scope-drift", "entryState": "预期文件已经产生真实修改和测试反馈", "change": "观察一次范围外改动如何被 diff 和权限边界发现", "exitState": "计划之外的改动已经被识别为需要恢复的偏差", "handoff": {"type": "causal-handoff", "target": "rewind-and-git", "visualAnchor": "diff 中突出的范围外文件"}},
+      {"sceneId": "rewind-and-git", "entryState": "计划之外的改动已经被识别为需要恢复的偏差", "change": "比较 checkpoint 恢复与 Git 审查边界并撤销偏差", "exitState": "工作区只保留计划内改动，并且恢复路径可复查", "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "恢复前后 diff 对比"}},
+      {"sceneId": "takeaway", "entryState": "工作区只保留计划内改动，并且恢复路径可复查", "change": "将控制边界交给完整验证", "exitState": "计划已经在权限、沙箱和可恢复边界内转化为真实工作区改动", "handoff": {"type": "chapter-bridge", "target": "ep08-verification-evidence", "visualAnchor": "保留下来的 diff 与尚未闭合的验证节点"}}
+    ]
+  },
+  "audio": {"model": "speech-2.8-hd", "voice": "Chinese (Mandarin)_Gentleman", "language": "zh", "speed": 1.25, "bgm": {"source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3", "volume": 0.05}},
+  "scenes": [
+    {"id": "hook", "title": "计划通过，行动就安全了吗？", "start": 0, "duration": 10, "goal": "从批准计划进入第一次真实写入", "narration": {"segmentId": "01_hook", "voiceStart": 1.5, "durationSeconds": 7.674218, "text": "计划已经通过，Claude 接下来会真正编辑文件和运行命令。方向得到批准，不代表每一种动作都拥有相同风险。"}},
+    {"id": "three-boundaries", "title": "权限、沙箱和恢复管什么？", "start": 10, "duration": 16.6, "goal": "建立本章三层控制模型", "narration": {"segmentId": "02_three_boundaries", "voiceStart": 10.5, "durationSeconds": 15.285873, "text": "权限系统判断某次工具调用是否需要批准；沙箱限制获准进程能够访问的文件和网络；checkpoint 与 Git 则在状态已经改变后提供恢复和审查。三个机制发生在不同位置，不能用一句“安全模式”概括。"}},
+    {"id": "controlled-execution", "title": "哪些动作值得停下来确认？", "start": 26.6, "duration": 16.2, "goal": "展示真实工具权限和执行反馈", "narration": {"segmentId": "03_controlled_execution", "voiceStart": 27.1, "durationSeconds": 14.867914, "text": "我们继续执行截止日期计划。读取项目不需要逐项确认，编辑目标文件会形成可见 diff，运行项目测试则需要理解命令会做什么。权限提示的价值不是增加点击，而是让高影响动作在发生前重新获得上下文。"}},
+    {"id": "scope-drift", "title": "如果它改了计划之外的文件呢？", "start": 42.8, "duration": 16.9, "goal": "用真实范围外修改建立恢复动机", "narration": {"segmentId": "04_scope_drift", "voiceStart": 43.3, "durationSeconds": 15.587732, "text": "这次执行还顺手调整了一份生成配置，但任务边界并不需要它。命令本身可能合法，沙箱也允许访问；真正暴露偏差的是计划范围和 Git diff。控制不能只看某一步是否获准，还要看累计状态是否仍与任务一致。"}},
+    {"id": "rewind-and-git", "title": "Checkpoint 能替代 Git 吗？", "start": 59.7, "duration": 15.4, "goal": "准确比较恢复机制并撤销范围外修改", "narration": {"segmentId": "05_rewind_and_git", "voiceStart": 60.2, "durationSeconds": 14.043605, "text": "Checkpoint 可以把 Claude 产生的会话和代码状态带回较早位置，适合修正刚刚发生的方向偏差；Git 则独立记录整个工作区和提交历史，也包含会话外的修改。我们恢复范围外文件，再用 diff 确认计划内改动仍然保留。"}},
+    {"id": "takeaway", "title": "控制住改动以后，怎样证明它有效？", "start": 75.1, "duration": 10.9, "goal": "交给验证证据章节", "narration": {"segmentId": "06_takeaway", "voiceStart": 75.6, "durationSeconds": 8.835215, "text": "现在工作区只留下计划内修改，也保留了恢复路径。但一个干净的 diff 仍不能证明功能正确，下一步需要让不同验证信号共同回答这个问题。"}}
+  ],
+  "release": {}
+}

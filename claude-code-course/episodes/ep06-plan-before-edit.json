@@ -1,0 +1,74 @@
+{
+  "episodeId": "ep06-plan-before-edit",
+  "compositionId": "ClaudeCodeCourseEp06PlanBeforeEdit",
+  "title": "哪些任务值得先做计划",
+  "subtitle": "Plan Mode 不是仪式，而是编辑前的审查边界",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 82.3,
+  "goal": "用截止日期跨层需求说明何时值得进入 Plan Mode，并把计划从文件清单提升为可审查的依赖与验证顺序",
+  "content": {"coreModel": "小而明确的修改可以直接执行；方案未知、跨多个文件或不熟悉代码时，先在只读边界内探索和计划，能把错误方向暴露在写入发生之前。", "deliverable": "一份经过人工修订和批准的跨层修改计划"},
+  "sourceOfTruth": {"references": ["https://code.claude.com/docs/en/best-practices", "https://code.claude.com/docs/en/permission-modes", "https://code.claude.com/docs/en/common-workflows"]},
+  "verifiedWith": {"date": "2026-07-25", "claudeCodeVersion": "2.1.218"},
+  "productionPolicy": {
+    "remotionOwns": ["course shell", "plan dependency model", "recorded terminal evidence", "narration", "subtitles"],
+    "terminalRecording": "scripts/terminal-recordings/claude-code-lab/ep06-plan-before-edit/run.sh",
+    "terminalFixture": "fixtures/task-board-engineering/base copied into an isolated Git repository",
+    "terminalEvidence": "同一次真实 Plan Mode 会话读取跨层项目、提出第一版计划、接受兼容与验证反馈并生成修订计划，最后以 git diff 为空证明只读阶段没有写入",
+    "sensitiveValues": "raw session 只保存在 Git 忽略且权限受限的本地 run 目录；公开画面不得出现 Token、服务端点、宿主路径或原始 session 标识",
+    "versionBoundary": "计划与执行分离是本章心智模型；Plan Mode 的入口、状态栏和允许工具以 Claude Code 2.1.218 为准",
+    "recordingEvidence": {
+      "runId": "20260724T184237Z-3785692",
+      "claudeCodeVersion": "2.1.218",
+      "terminal": {
+        "width": 3514,
+        "height": 2018,
+        "fps": 30,
+        "durationSeconds": 244.7,
+        "sha256": "d6d31d560886775f521766f47e2375ea3264199aae65bc73e908e07ccd46130c"
+      },
+      "timelineSha256": "bfdaba928b7df3da68fdac742dad6ab7fa0464eff8c0783b6f0e577f9af2aa25",
+      "trace": {
+        "entries": 76,
+        "sha256": "8dfe9cfefc274de2275076b95a8f54163cccfa5c3347b021a7ac75f6579ac92c",
+        "sessionEvents": 62,
+        "toolCalls": 13,
+        "toolResults": 13,
+        "pairedTools": 13,
+        "errorResults": 0,
+        "sensitiveScan": "pass"
+      },
+      "workspaceCheck": "git diff --exit-code -- . returned zero and printed WORKTREE_ZERO_DIFF"
+    }
+  },
+  "continuity": {
+    "chapterIndex": 6,
+    "chapterLabel": "计划",
+    "previousEpisodeId": "ep05-verifiable-task",
+    "nextEpisodeId": "ep07-permissions-recovery",
+    "entryState": "一项跨层需求已经被整理成有证据、边界和验收方式的任务",
+    "exitState": "一份跨前端、API、数据和测试的计划已经通过审查，等待受控执行",
+    "incomingQuestion": "任务已经明确，怎样判断应该直接修改还是先审查计划？",
+    "outgoingQuestion": "计划通过以后，怎样让 Claude 行动而不失去边界和恢复能力？",
+    "visualBaton": "EP05 的任务页进入 Plan Mode，展开为影响图和有顺序的修改计划",
+    "scenes": [
+      {"sceneId": "hook", "entryState": "一项跨层需求已经被整理成有证据、边界和验收方式的任务", "change": "把任务页中的跨层影响变成是否直接编辑的选择", "exitState": "任务清楚但实现路径仍需要审查", "handoff": {"type": "question-handoff", "target": "plan-boundary", "visualAnchor": "任务页旁的直接编辑与先计划分叉"}},
+      {"sceneId": "plan-boundary", "entryState": "任务清楚但实现路径仍需要审查", "change": "比较小修复与跨层功能的计划成本", "exitState": "跨层且方案未定的需求值得先保持只读", "handoff": {"type": "causal-handoff", "target": "readonly-exploration", "visualAnchor": "影响范围从单文件扩展到四层"}},
+      {"sceneId": "readonly-exploration", "entryState": "跨层且方案未定的需求值得先保持只读", "change": "在 Plan Mode 中读取现有结构并形成修改候选", "exitState": "计划已经建立在真实文件和依赖关系上", "handoff": {"type": "evidence-continuation", "target": "review-the-plan", "visualAnchor": "只读工具结果形成的文件影响图"}},
+      {"sceneId": "review-the-plan", "entryState": "计划已经建立在真实文件和依赖关系上", "change": "检查遗漏、顺序、兼容性和验证范围", "exitState": "计划中的缺口在写入发生前已经可见", "handoff": {"type": "causal-handoff", "target": "revise-and-approve", "visualAnchor": "被指出缺口的计划步骤"}},
+      {"sceneId": "revise-and-approve", "entryState": "计划中的缺口在写入发生前已经可见", "change": "补充迁移顺序和验收步骤并选择执行权限模式", "exitState": "计划的修改顺序、边界和批准方式已经明确", "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "修订后计划与批准入口"}},
+      {"sceneId": "takeaway", "entryState": "计划的修改顺序、边界和批准方式已经明确", "change": "把只读调查转交给受控执行", "exitState": "一份跨前端、API、数据和测试的计划已经通过审查，等待受控执行", "handoff": {"type": "chapter-bridge", "target": "ep07-permissions-recovery", "visualAnchor": "计划第一步与权限边界同时高亮"}}
+    ]
+  },
+  "audio": {"model": "speech-2.8-hd", "voice": "Chinese (Mandarin)_Gentleman", "language": "zh", "speed": 1.25, "bgm": {"source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3", "volume": 0.05}},
+  "scenes": [
+    {"id": "hook", "title": "任务清楚了，就直接改吗？", "start": 0, "duration": 9, "goal": "承接任务页，建立是否需要计划的问题", "narration": {"segmentId": "01_hook", "voiceStart": 1.5, "durationSeconds": 6.65254, "text": "任务已经说明清楚，但截止日期会经过多个层次。现在直接开始编辑，还是先把修改路径摊开审查？"}},
+    {"id": "plan-boundary", "title": "什么情况下计划值得这份成本？", "start": 9, "duration": 16.3, "goal": "建立 Plan Mode 使用边界", "narration": {"segmentId": "02_plan_boundary", "voiceStart": 9.5, "durationSeconds": 14.937574, "text": "上一项空白标题修复只有明确的规则落点，可以直接调查和修改。截止日期功能不同：数据形状、接口兼容、页面展示和测试都会变化。计划会增加一步成本，但能让这些取舍在写入之前出现。"}},
+    {"id": "readonly-exploration", "title": "Plan Mode 实际限制了什么？", "start": 25.3, "duration": 15.3, "goal": "展示只读探索、工具边界和计划生成", "narration": {"segmentId": "03_readonly_exploration", "voiceStart": 25.8, "durationSeconds": 13.985578, "text": "进入 Plan Mode 后，Claude 可以读取文件、搜索调用关系并运行用于调查的命令，但不会直接编辑项目。我们让它沿 EP04 的证据图继续探索，确认日期数据应该怎样穿过接口、领域对象和列表展示，再提出计划。"}},
+    {"id": "review-the-plan", "title": "计划里最容易漏掉什么？", "start": 40.6, "duration": 14.9, "goal": "让用户审查计划而不是被动接受", "narration": {"segmentId": "04_review_the_plan", "voiceStart": 41.1, "durationSeconds": 13.514036, "text": "第一版计划列出了文件，却遗漏了旧任务没有日期时的兼容行为，也没有说明非法日期怎样返回错误。文件清单不是计划的全部；我们还需要检查依赖顺序、数据边界、回退影响和每一步的验证信号。"}},
+    {"id": "revise-and-approve", "title": "批准计划时，批准了什么？", "start": 55.5, "duration": 14.6, "goal": "展示计划反馈、修订与执行模式选择", "narration": {"segmentId": "05_revise_and_approve", "voiceStart": 56, "durationSeconds": 13.235374, "text": "补充反馈后，计划先扩展领域数据，再调整接口和界面，最后运行分层验证。批准并不是确认每一行代码，而是接受当前方向、影响范围和结束条件。退出 Plan Mode 时再选择怎样审查后续写入。"}},
+    {"id": "takeaway", "title": "计划通过以后，边界还在吗？", "start": 70.1, "duration": 12.2, "goal": "把计划交给权限与恢复章节", "narration": {"segmentId": "06_takeaway", "voiceStart": 70.6, "durationSeconds": 10.100703, "text": "现在我们拥有一份可审查的修改顺序。接下来 Claude 会真正写入文件、运行命令；计划给出方向，但权限、沙箱和恢复能力才决定行动边界。"}}
+  ],
+  "release": {}
+}

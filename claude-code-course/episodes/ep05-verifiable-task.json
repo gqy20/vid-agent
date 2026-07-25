@@ -1,0 +1,59 @@
+{
+  "episodeId": "ep05-verifiable-task",
+  "compositionId": "ClaudeCodeCourseEp05VerifiableTask",
+  "title": "怎样把需求变成可验证任务",
+  "subtitle": "不是写得更长，而是减少会改变实现的歧义",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 102.8,
+  "goal": "把 EP04 发现的真实行为问题与下一项跨层需求，整理成包含现象、目标、证据、边界和验收方式的可执行任务",
+  "content": {
+    "coreModel": "探索问题可以保留开放性；交付任务需要给出可观察现象、期待结果、相关证据、范围边界和验证信号。信息不是越多越好，而是每一项都应减少一种会改变实现的歧义。",
+    "case": "沿用 task-board 项目，把增加任务截止日期的产品需求转成跨 UI、API、domain 和 tests 的工程任务。",
+    "deliverable": "一份可以直接进入 Plan Mode 的任务说明"
+  },
+  "sourceOfTruth": {
+    "references": [
+      "https://code.claude.com/docs/en/best-practices",
+      "https://code.claude.com/docs/en/common-workflows",
+      "https://code.claude.com/docs/en/memory"
+    ]
+  },
+  "verifiedWith": {"date": "2026-07-25", "claudeCodeVersion": "2.1.217"},
+  "continuity": {
+    "chapterIndex": 5,
+    "chapterLabel": "任务",
+    "previousEpisodeId": "ep04-understand-project",
+    "nextEpisodeId": "ep06-plan-before-edit",
+    "entryState": "已形成有路径和行为证据的项目理解，等待转成可交付任务",
+    "exitState": "一项跨层需求已经被整理成有证据、边界和验收方式的任务",
+    "incomingQuestion": "已经理解项目以后，怎样把需求交代成 Claude Code 可以执行和验证的任务？",
+    "outgoingQuestion": "任务已经说明清楚，但跨越多个层次时应该直接编辑还是先审查计划？",
+    "visualBaton": "EP04 的 evidence graph 变成任务说明中的相关证据，最终收束为交给 EP06 的任务页",
+    "scenes": [
+      {"sceneId": "hook", "entryState": "已形成有路径和行为证据的项目理解，等待转成可交付任务", "change": "把调查结论放回一条真实产品需求", "exitState": "同一个项目问题已经从调查阶段进入交付阶段", "handoff": {"type": "evidence-continuation", "target": "explore-or-deliver", "visualAnchor": "EP04 的 route-service-store-test 证据图"}},
+      {"sceneId": "explore-or-deliver", "entryState": "同一个项目问题已经从调查阶段进入交付阶段", "change": "比较开放探索问题与自主交付任务的不同目的", "exitState": "开放问题和交付任务需要不同精度的输入", "handoff": {"type": "question-handoff", "target": "observable-symptom", "visualAnchor": "探索与交付两条路径"}},
+      {"sceneId": "observable-symptom", "entryState": "开放问题和交付任务需要不同精度的输入", "change": "从抽象需求中抽出当前现象与期待行为", "exitState": "任务已经拥有可观察的现状和目标", "handoff": {"type": "causal-handoff", "target": "evidence-and-boundary", "visualAnchor": "Issue 中的现象与期望"}},
+      {"sceneId": "evidence-and-boundary", "entryState": "任务已经拥有可观察的现状和目标", "change": "加入相关文件、现有模式、范围和非目标", "exitState": "Claude 的搜索空间已经由证据和边界收敛", "handoff": {"type": "synthesis", "target": "verification-contract", "visualAnchor": "文件证据进入任务页，范围外模块退场"}},
+      {"sceneId": "verification-contract", "entryState": "Claude 的搜索空间已经由证据和边界收敛", "change": "给任务加入测试、构建和真实行为验收信号", "exitState": "任务拥有可以让 Agent Loop 自行闭合的验证条件", "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "测试、构建、运行行为三个验证节点"}},
+      {"sceneId": "takeaway", "entryState": "任务拥有可以让 Agent Loop 自行闭合的验证条件", "change": "将现象、目标、证据、边界和验收归并为一页任务说明", "exitState": "一项跨层需求已经被整理成有证据、边界和验收方式的任务", "handoff": {"type": "chapter-bridge", "target": "ep06-plan-before-edit", "visualAnchor": "完整任务页与跨层影响提示"}}
+    ]
+  },
+  "audio": {
+    "model": "speech-2.8-hd",
+    "voice": "Chinese (Mandarin)_Gentleman",
+    "language": "zh",
+    "speed": 1.25,
+    "bgm": {"source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3", "volume": 0.05}
+  },
+  "scenes": [
+    {"id": "hook", "title": "理解项目以后，怎样交代需求？", "start": 0, "duration": 14.2, "goal": "承接 EP04 证据图，把观看问题推进到真实任务说明", "narration": {"segmentId": "01_hook", "voiceStart": 1.5, "durationSeconds": 11.808413, "text": "EP04 已经找到了创建任务的入口、规则、状态和测试。现在产品提出下一项需求：给任务增加截止日期。已经理解项目以后，我们怎样把这句话交给 Claude Code？"}},
+    {"id": "explore-or-deliver", "title": "开放问题和交付任务一样吗？", "start": 14.2, "duration": 16.8, "goal": "避免把模糊与详细简单分成坏和好", "narration": {"segmentId": "02_explore_or_deliver", "voiceStart": 14.7, "durationSeconds": 15.427483, "text": "如果我们还不知道截止日期会影响哪些模块，开放地询问现有实现可以帮助探索。但当任务要在无人逐步确认的情况下完成，输入就需要给出更明确的成功条件。区别不在长短，而在这次对话是为了发现问题，还是为了交付结果。"}},
+    {"id": "observable-symptom", "title": "先说明现状与目标", "start": 31, "duration": 21, "goal": "把产品语言转换成可观察行为", "narration": {"segmentId": "03_observable_symptom", "voiceStart": 31.5, "durationSeconds": 19.603469, "text": "先写当前可以观察到的事实：任务只有标题和完成状态，创建接口、存储结构和列表都没有截止日期。目标也只描述用户可见行为：创建任务时可以提供可选日期，列表能够显示它；暂时不指定数据库字段名和组件实现，让调查结果决定代码落点。"}},
+    {"id": "evidence-and-boundary", "title": "哪些证据和边界会改变实现？", "start": 52, "duration": 17.7, "goal": "用 EP04 证据图约束搜索范围，同时保留必要调查空间", "narration": {"segmentId": "04_evidence_and_boundary", "voiceStart": 52.5, "durationSeconds": 16.363469, "text": "接着引用已经确认的入口、领域逻辑、存储和测试，让 Claude 不必重新猜测项目从哪里开始。边界同样具体：本次不修改认证、不引入新的日期库、不改变现有标题校验。它仍然可以读取其他文件，但范围外改动需要先说明理由。"}},
+    {"id": "verification-contract", "title": "怎样证明任务完成？", "start": 69.7, "duration": 18.9, "goal": "将验收条件变成 Agent 可读取的反馈信号", "narration": {"segmentId": "05_verification_contract", "voiceStart": 70.2, "durationSeconds": 17.551474, "text": "最后加入验证方式。相关单元测试需要覆盖有日期、无日期和非法日期；类型检查与构建要通过；真实运行时创建任务后，接口响应和列表展示应保持一致。这样完成不再由一句总结决定，而是由 Claude 能运行并读取的证据决定。"}},
+    {"id": "takeaway", "title": "任务清楚以后，直接改吗？", "start": 88.6, "duration": 14.2, "goal": "形成 Volume 01 的可验证产物，并把跨层改动交给 Plan Mode", "narration": {"segmentId": "06_takeaway", "voiceStart": 89.1, "durationSeconds": 12.144059, "text": "现在这项需求已经有现状、目标、证据、边界和验收方式。它不再是一句功能愿望，但它会同时经过界面、接口、领域对象和测试。下一步不急着编辑，我们先审查这条修改路径。"}}
+  ],
+  "release": {}
+}

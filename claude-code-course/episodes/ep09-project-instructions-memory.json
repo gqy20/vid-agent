@@ -1,0 +1,50 @@
+{
+  "episodeId": "ep09-project-instructions-memory",
+  "compositionId": "ClaudeCodeCourseEp09ProjectInstructionsMemory",
+  "title": "项目怎样持续约束和帮助 Claude",
+  "subtitle": "指令、规则、记忆、Hook 和 Agent 各自进入不同位置",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 135.5,
+  "goal": "从一次真实重复纠正出发，建立 CLAUDE.md、路径 Rules、Auto Memory、确定性 Hook、自定义 Agent 和 Agent Memory 的边界",
+  "content": {
+    "coreModel": "CLAUDE.md 和 Rules 提供行为上下文，Auto Memory 保存模型积累的经验，Hooks 在生命周期上确定执行或阻止动作，自定义 Agent 定义隔离的专业执行者，Agent Memory 保存该角色跨任务积累的知识。",
+    "deliverables": ["简短项目 CLAUDE.md", "一条路径规则", "可审计 Auto Memory", "保护 generated 目录的 PreToolUse Hook", "最小 API reviewer agent"]
+  },
+  "sourceOfTruth": {"references": ["https://code.claude.com/docs/en/features-overview", "https://code.claude.com/docs/en/memory", "https://code.claude.com/docs/en/hooks-guide", "https://code.claude.com/docs/en/sub-agents"]},
+  "verifiedWith": {"date": "2026-07-25", "claudeCodeVersion": "2.1.217"},
+  "continuity": {
+    "chapterIndex": 9,
+    "chapterLabel": "固化",
+    "previousEpisodeId": "ep08-verification-evidence",
+    "nextEpisodeId": "ep10-issue-to-pr",
+    "entryState": "工作区改动已经由测试、构建、运行时行为和 diff 共同验证",
+    "exitState": "项目已经把稳定规则、路径规则、经验记忆和确定性门禁分配到正确机制",
+    "incomingQuestion": "这次任务里反复出现的信息，怎样让下一次会话直接获得并在必要时强制执行？",
+    "outgoingQuestion": "项目能力准备完成以后，能否从一个干净会话稳定交付整条 Issue 到 PR？",
+    "visualBaton": "EP08 证据包中反复出现的约定被分别送入 CLAUDE.md、Rules、Memory、Hook 和 Agent",
+    "scenes": [
+      {"sceneId": "hook", "entryState": "工作区改动已经由测试、构建、运行时行为和 diff 共同验证", "change": "识别会话中重复出现的项目纠正", "exitState": "稳定项目知识仍然只存在于当前聊天", "handoff": {"type": "question-handoff", "target": "five-mechanisms", "visualAnchor": "重复出现的 pnpm、日期和目录约定"}},
+      {"sceneId": "five-mechanisms", "entryState": "稳定项目知识仍然只存在于当前聊天", "change": "区分指令、路径规则、经验记忆、确定性自动化和专业执行者", "exitState": "五类项目能力已经拥有不同职责", "handoff": {"type": "synthesis", "target": "claude-md", "visualAnchor": "五种机制连接到 Agent Loop 的不同位置"}},
+      {"sceneId": "claude-md", "entryState": "五类项目能力已经拥有不同职责", "change": "把跨任务稳定且可验证的约定写入简短 CLAUDE.md", "exitState": "所有会话都能加载项目级稳定指令", "handoff": {"type": "zoom-in", "target": "path-rules", "visualAnchor": "CLAUDE.md 中只对部分路径适用的条目"}},
+      {"sceneId": "path-rules", "entryState": "所有会话都能加载项目级稳定指令", "change": "将局部规则拆到按路径加载的 .claude/rules", "exitState": "路径相关指令只在处理匹配文件时进入上下文", "handoff": {"type": "causal-handoff", "target": "auto-memory", "visualAnchor": "规则随文件路径按需进入上下文"}},
+      {"sceneId": "auto-memory", "entryState": "路径相关指令只在处理匹配文件时进入上下文", "change": "检查 Claude 自动保存的调试经验并决定是否迁移为团队规则", "exitState": "模型经验与团队权威指令已经分开管理", "handoff": {"type": "question-handoff", "target": "deterministic-hook", "visualAnchor": "MEMORY.md 中不可作为强制策略的经验条目"}},
+      {"sceneId": "deterministic-hook", "entryState": "模型经验与团队权威指令已经分开管理", "change": "用 PreToolUse Hook 确定阻止 generated 目录写入", "exitState": "关键目录边界不再依赖模型临场遵循", "handoff": {"type": "causal-handoff", "target": "review-agent", "visualAnchor": "被 Hook 阻止并反馈原因的 Edit 请求"}},
+      {"sceneId": "review-agent", "entryState": "关键目录边界不再依赖模型临场遵循", "change": "创建带工具边界和 project memory 的 API reviewer", "exitState": "专业审查可以在隔离上下文中积累项目知识", "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "agent 定义与独立 MEMORY.md"}},
+      {"sceneId": "takeaway", "entryState": "专业审查可以在隔离上下文中积累项目知识", "change": "将项目能力交给一次干净的完整交付", "exitState": "项目已经把稳定规则、路径规则、经验记忆和确定性门禁分配到正确机制", "handoff": {"type": "chapter-bridge", "target": "ep10-issue-to-pr", "visualAnchor": "干净会话启动时依次加载的项目能力"}}
+    ]
+  },
+  "audio": {"model": "speech-2.8-hd", "voice": "Chinese (Mandarin)_Gentleman", "language": "zh", "speed": 1.25, "bgm": {"source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3", "volume": 0.05}},
+  "scenes": [
+    {"id": "hook", "title": "为什么下一次还要重新纠正？", "start": 0, "duration": 11.6, "goal": "从真实重复信息建立项目持久能力问题", "narration": {"segmentId": "01_hook", "voiceStart": 1.5, "durationSeconds": 9.206735, "text": "刚才的任务反复用到相同命令、目录边界和日期约定。如果开启新会话以后还要逐条重说，说明这些信息还没有进入项目自己的工作方式。"}},
+    {"id": "five-mechanisms", "title": "这些机制为什么不能混在一起？", "start": 11.6, "duration": 17.1, "goal": "建立指令、规则、记忆、Hook 与 Agent 的职责图", "narration": {"segmentId": "02_five_mechanisms", "voiceStart": 12.1, "durationSeconds": 15.761882, "text": "CLAUDE.md 提供每次会话都需要的项目指令，Rules 按路径加载局部约定。Auto Memory 保存 Claude 在工作中积累的经验，Hooks 在确定的生命周期执行或阻止动作。自定义 Agent 带着独立上下文和工具边界完成专业任务。"}},
+    {"id": "claude-md", "title": "什么值得写进 CLAUDE.md？", "start": 28.7, "duration": 19.5, "goal": "真实创建并审查简短项目指令", "narration": {"segmentId": "03_claude_md", "voiceStart": 29.2, "durationSeconds": 18.163469, "text": "我们只放跨任务稳定、模型无法可靠推断并且可以验证的内容：使用 pnpm、提交前运行哪些检查、生成目录不可手工修改。当前截止日期需求和逐文件说明不放进去。保存后开启新会话，用 memory 和 context 入口确认它确实被加载。"}},
+    {"id": "path-rules", "title": "局部规则怎样按路径出现？", "start": 48.2, "duration": 18, "goal": "展示路径规则的懒加载和冲突边界", "narration": {"segmentId": "04_path_rules", "voiceStart": 48.7, "durationSeconds": 16.615465, "text": "日期格式约定只和前端展示文件有关，把它留在根指令会占用所有任务的上下文。我们将它拆到 .claude/rules，并限定匹配路径。读取相关文件时规则进入上下文，处理后端模块时则保持安静；它仍是行为指令，不是硬权限。"}},
+    {"id": "auto-memory", "title": "MEMORY.md 里保存的是什么？", "start": 66.2, "duration": 17.9, "goal": "区分模型经验、团队规则和本地状态", "narration": {"segmentId": "05_auto_memory", "voiceStart": 66.7, "durationSeconds": 16.543469, "text": "Claude 在调试时记住了 API 测试需要本地 Redis。通过 memory 入口可以看到机器本地的 MEMORY.md 和按主题保存的详细笔记。它们可以审计、修改和删除，但不是仓库权威事实；稳定的团队规则仍需要人工确认后迁入项目文件。"}},
+    {"id": "deterministic-hook", "title": "必须遵守的边界放在哪里？", "start": 84.1, "duration": 17.2, "goal": "实现并触发 PreToolUse Hook", "narration": {"segmentId": "06_deterministic_hook", "voiceStart": 84.6, "durationSeconds": 15.859478, "text": "在 CLAUDE.md 写不要修改 generated 目录，只能影响模型选择。我们加入 PreToolUse Hook：Edit 请求执行前，脚本从标准输入读取事件 JSON，检查文件路径；命中保护目录时返回阻止状态和原因。确定性边界因此不再依赖模型是否记得。"}},
+    {"id": "review-agent", "title": "Agent 文件和 Agent Memory 是一回事吗？", "start": 101.3, "duration": 17.9, "goal": "建立最小自定义 reviewer 与独立 memory", "narration": {"segmentId": "07_review_agent", "voiceStart": 101.8, "durationSeconds": 16.543469, "text": "我们再创建一个 API reviewer。agents 目录中的 Markdown 定义它的角色、工具、模型和权限；memory project 则给这个角色单独的持久目录。Agent 文件决定它怎样工作，Agent Memory 保存它跨任务发现的项目模式，两者不能合成一个所谓 memoryagent 文件。"}},
+    {"id": "takeaway", "title": "让新会话从项目能力开始", "start": 119.2, "duration": 16.3, "goal": "把项目配置交给最终完整交付", "narration": {"segmentId": "08_takeaway", "voiceStart": 119.7, "durationSeconds": 14.217755, "text": "现在项目把长期指令、路径规则、模型经验、确定性门禁和专业审查分别放到了合适的位置。下一章我们从一个干净会话和干净分支开始，看看这些能力能否支撑一次完整交付，而不是只在当前演示里成立。"}}
+  ],
+  "release": {}
+}

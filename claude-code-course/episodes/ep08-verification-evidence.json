@@ -1,0 +1,43 @@
+{
+  "episodeId": "ep08-verification-evidence",
+  "compositionId": "ClaudeCodeCourseEp08VerificationEvidence",
+  "title": "测试通过为什么还不够",
+  "subtitle": "不同证据覆盖不同的失败空间",
+  "status": "draft",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 83.8,
+  "goal": "让同一项截止日期改动依次接受测试、类型、构建、真实运行和 diff 审查，并用运行行为发现测试未覆盖的问题",
+  "content": {"coreModel": "验证不是一个总开关。单元测试、类型检查、构建、真实运行、diff 和审查分别覆盖局部逻辑、静态契约、集成、用户行为、范围和未知风险。", "deliverable": "一组可回到命令、输出、运行结果和 diff 的验证证据"},
+  "sourceOfTruth": {"references": ["https://code.claude.com/docs/en/best-practices", "https://code.claude.com/docs/en/commands"]},
+  "verifiedWith": {"date": "2026-07-25", "claudeCodeVersion": "2.1.217"},
+  "continuity": {
+    "chapterIndex": 8,
+    "chapterLabel": "验证",
+    "previousEpisodeId": "ep07-permissions-recovery",
+    "nextEpisodeId": "ep09-project-instructions-memory",
+    "entryState": "计划已经在权限、沙箱和可恢复边界内转化为真实工作区改动",
+    "exitState": "工作区改动已经由测试、构建、运行时行为和 diff 共同验证",
+    "incomingQuestion": "工作区已经改变，哪些证据足以证明功能真的完成？",
+    "outgoingQuestion": "这次验证中反复出现的项目规则，怎样让下一次会话直接获得？",
+    "visualBaton": "EP07 的 diff 依次接上测试、构建和运行证据，最终形成证据包",
+    "scenes": [
+      {"sceneId": "hook", "entryState": "计划已经在权限、沙箱和可恢复边界内转化为真实工作区改动", "change": "从绿色测试提出是否完成的问题", "exitState": "单一绿色信号无法覆盖全部任务目标", "handoff": {"type": "question-handoff", "target": "evidence-layers", "visualAnchor": "一个绿色测试旁的未验证节点"}},
+      {"sceneId": "evidence-layers", "entryState": "单一绿色信号无法覆盖全部任务目标", "change": "区分测试、类型、构建、运行和 diff 的证据范围", "exitState": "验证已经被拆成覆盖不同失败空间的信号", "handoff": {"type": "synthesis", "target": "test-and-build", "visualAnchor": "五层验证扇区"}},
+      {"sceneId": "test-and-build", "entryState": "验证已经被拆成覆盖不同失败空间的信号", "change": "运行相关测试、全量检查和构建并读取结果", "exitState": "静态与自动化检查已经通过", "handoff": {"type": "evidence-continuation", "target": "runtime-gap", "visualAnchor": "通过的命令结果与仍空白的运行行为"}},
+      {"sceneId": "runtime-gap", "entryState": "静态与自动化检查已经通过", "change": "启动应用并观察真实创建和列表行为", "exitState": "真实运行暴露了测试没有覆盖的日期展示差异", "handoff": {"type": "causal-handoff", "target": "fix-and-recheck", "visualAnchor": "接口日期与页面日期不一致"}},
+      {"sceneId": "fix-and-recheck", "entryState": "真实运行暴露了测试没有覆盖的日期展示差异", "change": "修正根因并重新运行完整验证与 diff 审查", "exitState": "自动化检查、运行行为和修改范围已经一致", "handoff": {"type": "synthesis", "target": "takeaway", "visualAnchor": "所有验证节点闭合到同一 diff"}},
+      {"sceneId": "takeaway", "entryState": "自动化检查、运行行为和修改范围已经一致", "change": "把验证过程中的稳定项目知识交给下一章", "exitState": "工作区改动已经由测试、构建、运行时行为和 diff 共同验证", "handoff": {"type": "chapter-bridge", "target": "ep09-project-instructions-memory", "visualAnchor": "证据包旁重复出现的 pnpm 和验证约定"}}
+    ]
+  },
+  "audio": {"model": "speech-2.8-hd", "voice": "Chinese (Mandarin)_Gentleman", "language": "zh", "speed": 1.25, "bgm": {"source": "remotion/renders/git-course/ep02-working-tree-index-repo/current/audio/bgm.mp3", "volume": 0.05}},
+  "scenes": [
+    {"id": "hook", "title": "测试绿了，任务完成了吗？", "start": 0, "duration": 11.9, "goal": "从绿色测试建立验证缺口", "narration": {"segmentId": "01_hook", "voiceStart": 1.5, "durationSeconds": 9.589841, "text": "相关测试已经通过，Claude 也给出了完成总结。但测试只回答它写下的断言，任务里还有构建、真实行为和修改范围没有被证明。"}},
+    {"id": "evidence-layers", "title": "不同验证信号证明什么？", "start": 11.9, "duration": 17, "goal": "建立多层验证模型", "narration": {"segmentId": "02_evidence_layers", "voiceStart": 12.4, "durationSeconds": 15.622562, "text": "单元测试检查局部逻辑，类型检查关注静态契约，构建暴露集成问题，真实运行回答用户能否观察到目标行为，Git diff 则说明实际改了什么。它们不是重复运行同一件事，而是在覆盖不同的失败空间。"}},
+    {"id": "test-and-build", "title": "先读取自动化证据", "start": 28.9, "duration": 14, "goal": "展示真实测试、类型检查和构建结果", "narration": {"segmentId": "03_test_and_build", "voiceStart": 29.4, "durationSeconds": 12.689728, "text": "我们先运行最相关的日期测试，再运行项目约定的完整测试、类型检查和构建。每个命令都保留退出状态和关键输出。通过意味着这些契约没有发现问题，但我们暂时不把它等同于用户行为已经正确。"}},
+    {"id": "runtime-gap", "title": "真实运行发现了什么？", "start": 42.9, "duration": 15.2, "goal": "用真实 API/UI 行为暴露自动化遗漏", "narration": {"segmentId": "04_runtime_gap", "voiceStart": 43.4, "durationSeconds": 13.811406, "text": "启动应用后，新建任务的接口返回完整日期，列表却按本地时区显示成前一天。现有测试只断言数据被保存，没有覆盖页面格式化。这个差异说明绿色测试是真的，但它证明的范围比任务目标更窄。"}},
+    {"id": "fix-and-recheck", "title": "修正以后，要重跑哪些证据？", "start": 58.1, "duration": 13.9, "goal": "完成反馈循环并检查最终 diff", "narration": {"segmentId": "05_fix_and_recheck", "voiceStart": 58.6, "durationSeconds": 12.585215, "text": "我们修正日期格式化，并先补上能复现问题的测试。随后重新运行相关测试、全量检查、构建和真实页面验证，最后查看 diff，确认没有把临时日志或范围外文件留在工作区。"}},
+    {"id": "takeaway", "title": "哪些信息值得下次直接加载？", "start": 72, "duration": 11.8, "goal": "把稳定项目规则交给指令与记忆章节", "narration": {"segmentId": "06_takeaway", "voiceStart": 72.5, "durationSeconds": 9.752404, "text": "这次验证反复用到 pnpm、测试顺序、日期约定和禁止修改的目录。如果下一次会话仍要重新解释，它们也许不该继续只留在聊天里。"}}
+  ],
+  "release": {}
+}

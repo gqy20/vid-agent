@@ -73,7 +73,9 @@ const loadEpisode = () => {
   existsSync(path) || fail(`Episode not found: ${rel(path)}`);
   const episode = json(path);
   episode.episodeId === EPISODE_ID || fail(`Episode id mismatch: ${episode.episodeId}`);
-  episode.status === 'draft' || fail(`${EPISODE_ID}: audio preview is only enabled for draft episodes`);
+  const ttsBootstrap = COMMAND === 'tts';
+  (episode.status === 'draft' || (ttsBootstrap && episode.status === 'outline'))
+    || fail(`${EPISODE_ID}: ${ttsBootstrap ? 'TTS bootstrap requires outline or draft content' : 'audio preview is only enabled for draft episodes'}`);
   episode.fps === 30 || fail(`${EPISODE_ID}: fps must be 30`);
   episode.audio?.model === 'speech-2.8-hd' || fail(`${EPISODE_ID}: audio.model must be speech-2.8-hd`);
   episode.audio?.voice === 'Chinese (Mandarin)_Gentleman' || fail(`${EPISODE_ID}: unexpected audio.voice`);
@@ -86,8 +88,9 @@ const loadEpisode = () => {
     || fail(`${EPISODE_ID}: BGM not found: ${episode.audio.bgm.source}`);
   const segmentIds = new Set();
   let cursor = 0;
+  const timelineTolerance = 1e-6;
   for (const scene of episode.scenes) {
-    scene.start === cursor || fail(`${scene.id}: expected start ${cursor}, got ${scene.start}`);
+    Math.abs(scene.start - cursor) <= timelineTolerance || fail(`${scene.id}: expected start ${cursor}, got ${scene.start}`);
     Number.isFinite(scene.duration) && scene.duration > 0 || fail(`${scene.id}: invalid duration`);
     const narration = scene.narration;
     narration && typeof narration.text === 'string' && narration.text.trim() || fail(`${scene.id}: narration text is required`);
@@ -95,15 +98,19 @@ const loadEpisode = () => {
     !segmentIds.has(narration.segmentId) || fail(`${scene.id}: duplicate narration segment id`);
     segmentIds.add(narration.segmentId);
     narration.voiceStart >= scene.start && narration.voiceStart < scene.start + scene.duration || fail(`${scene.id}: voiceStart outside scene`);
-    Number.isFinite(narration.durationSeconds) && narration.durationSeconds > 0 || fail(`${scene.id}: invalid narration duration`);
+    if (!ttsBootstrap) {
+      Number.isFinite(narration.durationSeconds) && narration.durationSeconds > 0 || fail(`${scene.id}: invalid narration duration`);
+    }
     const leadingSilence = narration.voiceStart - scene.start;
-    const trailingSilence = scene.start + scene.duration - narration.voiceStart - narration.durationSeconds;
-    leadingSilence <= 2 || fail(`${scene.id}: leading narration whitespace ${leadingSilence.toFixed(3)}s exceeds 2s`);
-    trailingSilence >= 0 || fail(`${scene.id}: narration exceeds scene by ${Math.abs(trailingSilence).toFixed(3)}s`);
-    trailingSilence <= 2 || fail(`${scene.id}: trailing narration whitespace ${trailingSilence.toFixed(3)}s exceeds 2s`);
+    leadingSilence <= 2 + timelineTolerance || fail(`${scene.id}: leading narration whitespace ${leadingSilence.toFixed(3)}s exceeds 2s`);
+    if (!ttsBootstrap) {
+      const trailingSilence = scene.start + scene.duration - narration.voiceStart - narration.durationSeconds;
+      trailingSilence >= -timelineTolerance || fail(`${scene.id}: narration exceeds scene by ${Math.abs(trailingSilence).toFixed(3)}s`);
+      trailingSilence <= 2 + timelineTolerance || fail(`${scene.id}: trailing narration whitespace ${trailingSilence.toFixed(3)}s exceeds 2s`);
+    }
     cursor += scene.duration;
   }
-  cursor === episode.durationSeconds || fail(`${EPISODE_ID}: scene duration sum ${cursor} != ${episode.durationSeconds}`);
+  Math.abs(cursor - episode.durationSeconds) <= timelineTolerance || fail(`${EPISODE_ID}: scene duration sum ${cursor} != ${episode.durationSeconds}`);
   const continuity = episode.continuity;
   continuity && typeof continuity === 'object' || fail(`${EPISODE_ID}: continuity is required`);
   Number.isInteger(continuity.chapterIndex) && continuity.chapterIndex > 0
@@ -972,6 +979,65 @@ const audioPreview = async (ctx) => {
   console.log('BLOCK candidate/current/release: audio preview is not a promotable artifact');
 };
 
+const ttsBootstrap = async (ctx) => {
+  const plan = await resolvePlan(ctx);
+  const selectedScenes = String(FLAGS.get('scenes') ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+  const selected = plan.tasks.filter((task) => selectedScenes.length === 0 || selectedScenes.includes(task.scene.id));
+  selected.length > 0 || fail('No matching TTS scenes selected');
+  const settled = await Promise.allSettled(selected.map(async (task) => {
+    if (cacheHit(task) && !FLAGS.has('force')) {
+      console.log(`HIT   ${task.scene.narration.segmentId}`);
+      return;
+    }
+    const timing = await generateTask(ctx, task, plan.engineVersion);
+    console.log(`PASS  ${task.scene.narration.segmentId}: ${timing.duration.toFixed(3)}s`);
+  }));
+  const failures = settled.filter((result) => result.status === 'rejected');
+  if (failures.length > 0) {
+    for (const failure of failures) console.error(failure.reason?.message ?? String(failure.reason));
+    fail(`${failures.length} TTS bootstrap task(s) failed; successful cache entries were retained`);
+  }
+  const missing = plan.tasks.filter((task) => !cacheHit(task));
+  if (missing.length > 0) {
+    console.log(`PARTIAL TTS bootstrap: ${plan.tasks.length - missing.length}/${plan.tasks.length} segments cached`);
+    return;
+  }
+  let cursor = 0;
+  const scenes = plan.tasks.map((task, index) => {
+    const metadata = json(task.metadata);
+    const narrationDurationSeconds = Number(metadata.durationSeconds);
+    const leadingSilenceSeconds = index === 0 ? 1.5 : 0.5;
+    const trailingSilenceSeconds = index === plan.tasks.length - 1 ? 1.5 : 0.8;
+    const duration = Math.ceil((leadingSilenceSeconds + narrationDurationSeconds + trailingSilenceSeconds) * 10) / 10;
+    const result = {
+      sceneId: task.scene.id,
+      segmentId: task.scene.narration.segmentId,
+      start: Number(cursor.toFixed(3)),
+      duration,
+      voiceStart: Number((cursor + leadingSilenceSeconds).toFixed(3)),
+      narrationDurationSeconds,
+      leadingSilenceSeconds,
+      trailingSilenceSeconds: Number((duration - leadingSilenceSeconds - narrationDurationSeconds).toFixed(3)),
+      ttsFingerprint: task.fingerprint,
+      normalizedSha256: shaFile(task.norm),
+    };
+    cursor += duration;
+    return result;
+  });
+  const proposalPath = join(ctx.source, 'timing-proposal.json');
+  writeJson(proposalPath, {
+    schemaVersion: 1,
+    episodeId: EPISODE_ID,
+    source: rel(ctx.path),
+    durationSeconds: Number(cursor.toFixed(3)),
+    policy: 'TTS-derived scene windows with <=2s leading/trailing whitespace; review and apply to episode JSON before audio-preview.',
+    scenes,
+    generatedAt: new Date().toISOString(),
+  });
+  console.log(`READY ${rel(proposalPath)}`);
+  console.log('BLOCK audio mix: apply the reviewed timing proposal to episode JSON and set status=draft first');
+};
+
 const status = async (ctx) => {
   const plan = await resolvePlan(ctx);
   const hits = plan.tasks.filter(cacheHit).length;
@@ -1408,6 +1474,8 @@ try {
     console.log(`Validated ${EPISODE_ID}: ${ctx.episode.scenes.length} scenes, ${ctx.episode.durationSeconds}s`);
   } else if (COMMAND === 'plan') {
     printPlan(ctx, await resolvePlan(ctx));
+  } else if (COMMAND === 'tts') {
+    await ttsBootstrap(ctx);
   } else if (COMMAND === 'audio-preview') {
     await audioPreview(ctx);
   } else if (COMMAND === 'audio-audit') {
@@ -1424,7 +1492,7 @@ try {
   } else if (blocked.has(COMMAND)) {
     fail(`BLOCKED ${COMMAND}: Claude Code Course unified Candidate/Current/Release adapter is not implemented`);
   } else {
-    fail('Usage: claude-code-course validate|plan|audio-preview|audio-audit|preview|clean|status <episode-id> [--scenes=scene-id] [--scene=scene-id] [--force] [--video=episode-local.mp4] [--apply=true]');
+    fail('Usage: claude-code-course validate|plan|tts|audio-preview|audio-audit|preview|clean|status <episode-id> [--scenes=scene-id] [--scene=scene-id] [--force] [--video=episode-local.mp4] [--apply=true]');
   }
 } catch (error) {
   console.error(`claude-code-course: ${error instanceof Error ? error.message : String(error)}`);
