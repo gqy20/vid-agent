@@ -103,9 +103,14 @@ fixture 只准备状态。观众需要看到的命令必须放在 demo 中，并
 ## 录制规则
 
 - 每段终端只解释一个动作。
+- 同一 scene 需要多条命令时，为每条命令建立独立 recording id，并在 Remotion 中使用 `RecordedTerminalCueSequence` 调度；不要把多条长输出录进同一个持续滚动的视口。
 - 命令执行后尽快退出终端主视觉。
+- 命令结果由录屏自己的 hold frame 保持，保持多久由 episode 的旁白 cue 决定；不要为了等待解说而在 demo 脚本里写很长的 `sleep`。
+- `playbackRate` 只用于小幅修正输入手感，不负责旁白对齐。旁白对齐依靠“播放当前 recording → 冻结结果 → 硬切下一 recording”。
+- cue 可以用 `startFromFrame` 裁掉开头无教学信息的空提示符或重复输入节奏，但完整命令与真实输出都必须在画面中稳定可读，不能直接跳到伪造结果。
 - 不在终端中写长解释。
 - 长命令优先拆成多个短命令，避免自动换行。
 - 命令必须能在临时目录重复执行。
+- fixture 中会进入画面的 commit 必须显式固定 `GIT_AUTHOR_DATE` 与 `GIT_COMMITTER_DATE`，保证重复录制得到稳定 hash 和可复核画面。
 - 不得暴露本机路径、用户名、token 或私人仓库信息。
 - `.cast`、GIF、MP4 和尾帧是本地生成产物；仓库保留 demo、fixture 和录制脚本。

@@ -4,6 +4,7 @@ import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
 import {seconds} from '../timeline';
 import {
   CodeDiff,
+  type DiffFocus,
   CommandPill,
   courseCommitAnchor,
   createEpisodeRuntime,
@@ -16,8 +17,7 @@ import {
   EpisodeTimeline,
   GitStateFlow,
   NarrationSubtitle,
-  RecordedTerminalStage,
-  SceneSequence,
+  RecordedTerminalCueSequence,
   type GitArea,
 } from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
@@ -28,10 +28,37 @@ import {EP09_DURATION_IN_FRAMES, EP09_SCENES} from '../data/episodeTimelines.gen
 const EP09_RUNTIME = createEpisodeRuntime(EP09_SCENES);
 const useSceneFrame = () => useCurrentFrame();
 
+const terminalCue = <T extends keyof typeof TERMINAL_RECORDINGS>(id: T, from: number, duration: number, startFromFrame = 0) => ({
+  id,
+  from: seconds(from),
+  durationInFrames: seconds(duration),
+  src: `git-course-lab/terminal/${id}.mp4`,
+  holdFrameSrc: `git-course-lab/terminal/${id}-hold.png`,
+  holdFromFrame: TERMINAL_RECORDINGS[id].holdFromFrame,
+  startFromFrame,
+});
+
+const WORKING_TERMINAL_CUES = [
+  terminalCue('ep09-status-mm', 5.7, 7.3),
+  terminalCue('ep09-unstaged-diff', 13, 2.6, 8),
+  terminalCue('ep09-staged-diff', 15.6, 5.4, 20),
+] as const;
+
+const COMMIT_TERMINAL_CUES = [
+  terminalCue('ep09-commit-log', 0, 8.5),
+  terminalCue('ep09-commit-patch', 8.5, 13),
+] as const;
+
 const WORKING_AREAS: readonly GitArea[] = [
-  {id: 'repository', title: 'HEAD / Repository', files: ['app.js  v1 committed']},
+  {id: 'repository', title: 'Repository', marker: 'HEAD', files: ['app.js  v1 committed']},
   {id: 'index', title: 'Index', files: ['theme = dark', 'v2 staged']},
   {id: 'working-tree', title: 'Working Tree', files: ['retries = 3', 'v3 working']},
+];
+
+const WORKING_SETUP_AREAS: readonly GitArea[] = [
+  {id: 'repository', title: 'Repository', marker: 'HEAD', files: ['theme = light', 'retries = 2']},
+  {id: 'index', title: 'Index', files: ['theme = dark', 'retries = 2']},
+  {id: 'working-tree', title: 'Working Tree', files: ['theme = dark', 'retries = 3']},
 ];
 
 const unstagedLines = [
@@ -170,17 +197,32 @@ const StateMapScene: React.FC = () => {
 // @git-course-scene terminal-working:start
 const TerminalWorkingScene: React.FC = () => {
   const frame = useSceneFrame();
-  const recording = TERMINAL_RECORDINGS['ep09-working-diffs'];
+  const showingSetup = frame < seconds(7.6);
+  const active: GitArea['id'][] = frame < seconds(3.45)
+    ? ['repository']
+    : frame < seconds(5.8)
+      ? ['index']
+      : ['working-tree'];
+  const setupAreas = WORKING_SETUP_AREAS.map((area) => ({...area, active: active.includes(area.id)}));
   return (
     <AbsoluteFill>
-      <RecordedTerminalStage
-        auditId="ep09-working-diffs-terminal"
-        rect={{x: 250, y: 132, width: 1420, height: 768}}
-        src="git-course-lab/terminal/ep09-working-diffs.mp4"
-        holdFrameSrc="git-course-lab/terminal/ep09-working-diffs-hold.png"
-        holdFromFrame={recording.holdFromFrame}
-        mediaFit="cover"
-      />
+      {showingSetup ? (
+        <>
+          <div style={{position: 'absolute', left: 0, right: 0, top: 116, textAlign: 'center', ...TYPE.hero, fontWeight: WEIGHT.bold}}>
+            同一个文件，两层变化
+          </div>
+          <div style={{position: 'absolute', left: 150, right: 150, top: 270}}>
+            <GitStateFlow areas={setupAreas} prominent gap={18} auditId="ep09-working-setup" />
+          </div>
+        </>
+      ) : (
+        <RecordedTerminalCueSequence
+          auditIdPrefix="ep09-working-terminal"
+          cues={WORKING_TERMINAL_CUES}
+          rect={{x: 250, y: 132, width: 1420, height: 768}}
+          mediaFit="cover"
+        />
+      )}
       <NarrationSubtitle frame={frame} cues={EP09_RUNTIME.captions('terminal-working')} width={1320} bottom={64} auditId="ep09-terminal-working-caption" />
     </AbsoluteFill>
   );
@@ -230,31 +272,24 @@ const StagedDiffScene: React.FC = () => {
 // @git-course-scene commit-diff:start
 const CommitDiffScene: React.FC = () => {
   const frame = useSceneFrame();
-  const recording = TERMINAL_RECORDINGS['ep09-commit-diff'];
-  const terminalOut = interpolate(frame, [seconds(6), seconds(7)], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const modelIn = interpolate(frame, [seconds(6.5), seconds(7.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const compare = interpolate(frame, [seconds(12.3), seconds(15.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const patchIn = interpolate(frame, [seconds(16.5), seconds(17.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const modelIn = frame >= seconds(21.5) ? 1 : 0;
+  const compare = interpolate(frame, [seconds(21.6), seconds(24.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const patchIn = interpolate(frame, [seconds(24.5), seconds(25.3)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const modelLeft = interpolate(frame, [seconds(24.5), seconds(25.3)], [450, 108], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const modelTop = interpolate(frame, [seconds(24.5), seconds(25.3)], [150, 215], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill style={{padding: '102px 132px 110px', boxSizing: 'border-box'}}>
-      <RecordedTerminalStage
-        auditId="ep09-commit-diff-terminal"
+      <RecordedTerminalCueSequence
+        auditIdPrefix="ep09-commit-terminal"
+        cues={COMMIT_TERMINAL_CUES}
         rect={{x: 250, y: 132, width: 1420, height: 768}}
-        opacity={terminalOut}
-        src="git-course-lab/terminal/ep09-commit-diff.mp4"
-        holdFrameSrc="git-course-lab/terminal/ep09-commit-diff-hold.png"
-        holdFromFrame={recording.holdFromFrame}
         mediaFit="cover"
       />
-      <div style={{position: 'absolute', left: 108, top: 122, opacity: modelIn}}>
+      <div style={{position: 'absolute', left: modelLeft, top: modelTop, opacity: modelIn}}>
         <CommitPair opacity={modelIn} compareProgress={compare} />
       </div>
-      <div data-audit-id="ep09-commit-patch" style={{position: 'absolute', right: 156, top: 560, width: 720, opacity: patchIn, transform: `translateY(${(1 - patchIn) * 12}px)`}}>
+      <div data-audit-id="ep09-commit-patch" style={{position: 'absolute', right: 156, top: 300, width: 720, opacity: patchIn, transform: `translateY(${(1 - patchIn) * 12}px)`}}>
         <CodeDiff title="C1 → C2" lines={commitLines} />
-      </div>
-      <div style={{position: 'absolute', left: 188, top: 646, width: 500, opacity: patchIn}}>
-        <div style={{...TYPE.title, color: COLOR.text.primary, fontWeight: WEIGHT.bold}}>顺序决定 patch 方向</div>
-        <div style={{...TYPE.body, color: COLOR.text.secondary, marginTop: 18}}>交换左右端点，加号与减号也会交换</div>
       </div>
       <NarrationSubtitle frame={frame} cues={EP09_RUNTIME.captions('commit-diff')} width={1320} bottom={64} auditId="ep09-commit-caption" />
     </AbsoluteFill>
@@ -272,18 +307,35 @@ const PatchNote: React.FC<{label: string; description: string; color: string; op
 // @git-course-scene read-patch:start
 const ReadPatchScene: React.FC = () => {
   const frame = useSceneFrame();
-  const note = (start: number) => interpolate(frame, [seconds(start), seconds(start + 0.7)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const focus: DiffFocus | undefined = frame < seconds(3.84)
+    ? undefined
+    : frame < seconds(6.72)
+      ? 'file-header'
+      : frame < seconds(9.73)
+        ? 'hunk-header'
+        : frame < seconds(13.79)
+          ? 'remove'
+          : frame < seconds(17.42)
+            ? 'add'
+            : undefined;
+  const note = (target: DiffFocus) => focus === undefined ? 0.42 : focus === target ? 1 : 0.2;
   return (
     <AbsoluteFill style={{padding: '116px 150px 112px', boxSizing: 'border-box'}}>
       <div style={{...TYPE.hero, fontWeight: WEIGHT.bold}}>patch 描述的是变化方向</div>
       <div data-audit-id="ep09-read-patch-code" style={{position: 'absolute', left: 170, top: 262, width: 910}}>
-        <CodeDiff title="diff --git a/app.js b/app.js · @@ -1,2 +1,2 @@" lines={commitLines} />
+        <CodeDiff
+          fileHeader="diff --git a/app.js b/app.js"
+          hunkHeader="@@ -1,2 +1,2 @@"
+          lines={commitLines}
+          focus={focus}
+          prominent
+        />
       </div>
       <div data-audit-id="ep09-read-patch-notes" style={{position: 'absolute', right: 174, top: 250, width: 560, display: 'grid', gap: 18}}>
-        <PatchNote label="a/ → b/" description="左端路径 → 右端路径" color={COLOR.git.head} opacity={note(2.8)} />
-        <PatchNote label="@@" description="变化所在的代码区间" color={COLOR.text.secondary} opacity={note(7.6)} />
-        <PatchNote label="−" description="左端存在，右端不再保留" color={COLOR.git.conflict} opacity={note(11.8)} />
-        <PatchNote label="+" description="右端新增或替换后的内容" color={COLOR.git.workingTree} opacity={note(15.8)} />
+        <PatchNote label="a/ → b/" description="左端路径 → 右端路径" color={COLOR.git.head} opacity={note('file-header')} />
+        <PatchNote label="@@" description="变化所在的代码区间" color={COLOR.text.secondary} opacity={note('hunk-header')} />
+        <PatchNote label="−" description="左端存在，右端不再保留" color={COLOR.git.conflict} opacity={note('remove')} />
+        <PatchNote label="+" description="右端新增或替换后的内容" color={COLOR.git.workingTree} opacity={note('add')} />
       </div>
       <NarrationSubtitle frame={frame} cues={EP09_RUNTIME.captions('read-patch')} width={1320} bottom={64} auditId="ep09-read-patch-caption" />
     </AbsoluteFill>
@@ -309,7 +361,7 @@ const TakeawayScene: React.FC = () => {
       <div data-audit-id="ep09-takeaway-rows">
         <SummaryRow command="git diff" relation="Index → Working Tree" color={COLOR.git.workingTree} opacity={appear(2.7)} />
         <SummaryRow command="git diff --staged" relation="HEAD → Index" color={COLOR.git.index} opacity={appear(6.4)} />
-        <SummaryRow command="git diff A B" relation="snapshot A → snapshot B" color={COLOR.git.head} opacity={appear(9.8)} />
+        <SummaryRow command="git diff A B" relation="快照 A → 快照 B" color={COLOR.git.head} opacity={appear(9.8)} />
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 756, opacity: questionIn, transform: `translateY(${(1 - questionIn) * 10}px)`}}>
         <ComparisonQuestion left="左边是谁" right="右边是谁" />

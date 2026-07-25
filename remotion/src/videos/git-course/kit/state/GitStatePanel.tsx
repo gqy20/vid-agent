@@ -5,6 +5,7 @@ import {TYPE} from '../../typography';
 export type GitArea = {
   id: 'working-tree' | 'index' | 'repository';
   title: string;
+  marker?: string;
   files: readonly string[];
   active?: boolean;
 };
@@ -88,18 +89,37 @@ export const GitStatePanel: React.FC<{
               marginBottom: prominent ? 22 : compact ? 12 : 18,
             }}
           >
-            <div
-              style={{
-                ...TYPE.ui,
-                fontSize: prominent ? 30 : compact ? 26 : TYPE.ui.fontSize,
-                lineHeight: prominent ? 1.3 : TYPE.ui.lineHeight,
-                color: prominent ? AREA_ACCENT[area.id] : COLOR.text.primary,
-                fontWeight: prominent ? 780 : 760,
-                whiteSpace: 'nowrap',
-                minWidth: 0,
-              }}
-            >
-              {area.title}
+            <div style={{display: 'flex', alignItems: 'center', gap: compact ? 10 : 12, minWidth: 0}}>
+              <div
+                style={{
+                  ...TYPE.ui,
+                  fontSize: prominent ? 30 : compact ? 26 : TYPE.ui.fontSize,
+                  lineHeight: prominent ? 1.3 : TYPE.ui.lineHeight,
+                  color: prominent ? AREA_ACCENT[area.id] : COLOR.text.primary,
+                  fontWeight: prominent ? 780 : 760,
+                  whiteSpace: 'nowrap',
+                  minWidth: 0,
+                }}
+              >
+                {area.title}
+              </div>
+              {area.marker ? (
+                <div
+                  style={{
+                    border: `1px solid ${COLOR.git.head}`,
+                    borderRadius: 999,
+                    padding: prominent ? '4px 10px' : '3px 8px',
+                    fontFamily: FONT.mono,
+                    fontSize: prominent ? 18 : compact ? 16 : 15,
+                    lineHeight: 1,
+                    color: COLOR.git.head,
+                    fontWeight: WEIGHT.bold,
+                    flex: '0 0 auto',
+                  }}
+                >
+                  {area.marker}
+                </div>
+              ) : null}
             </div>
             <div
               style={{

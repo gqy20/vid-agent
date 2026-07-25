@@ -2,6 +2,7 @@ import {AbsoluteFill, interpolate, Sequence, useCurrentFrame} from 'remotion';
 import {
   CaptionLayer,
   CenterInRect,
+  CodeDiff,
   COURSE_RECTS,
   CourseLayout,
   GitGraph,
@@ -17,7 +18,7 @@ import {TYPE} from './typography';
 
 export const COMPONENT_LAB_SCENE_DURATION = seconds(5);
 
-const LAB_SECTIONS = ['layout', 'graph', 'state', 'terminal', 'captions', 'stress'] as const;
+const LAB_SECTIONS = ['layout', 'graph', 'state', 'terminal', 'captions', 'stress', 'code-diff'] as const;
 
 export const COMPONENT_LAB_DURATION = COMPONENT_LAB_SCENE_DURATION * LAB_SECTIONS.length;
 
@@ -184,6 +185,31 @@ export const ComponentLabStress: React.FC = () => (
   </LabShell>
 );
 
+export const ComponentLabCodeDiff: React.FC = () => (
+  <LabShell section="07 / 代码差异">
+    <SceneStage preset="center-model" auditId="lab-code-diff-stage">
+      <DemoTitle auditId="lab-title-code-diff" title="主教学 diff 保持大屏可读" />
+      <div data-audit-id="lab-code-diff-prominent" style={{position: 'absolute', left: 150, top: 176, width: 900}}>
+        <CodeDiff
+          prominent
+          fileHeader="diff --git a/src/config/app.js b/src/config/app.js"
+          hunkHeader="@@ -1,2 +1,2 @@"
+          focus="add"
+          lines={[
+            {type: 'remove', text: 'export const mode = "basic";'},
+            {type: 'remove', text: 'export const cache = false;'},
+            {type: 'add', text: 'export const mode = "advanced";'},
+            {type: 'add', text: 'export const cache = true;'},
+          ]}
+        />
+      </div>
+      <div data-audit-id="lab-code-diff-note" style={{position: 'absolute', right: 120, top: 268, width: 390, ...TYPE.body, color: COLOR.text.secondary}}>
+        大屏讲解使用 prominent；普通状态卡继续保持默认密度。
+      </div>
+    </SceneStage>
+  </LabShell>
+);
+
 const LAB_COMPONENTS = [
   ComponentLabLayout,
   ComponentLabGraph,
@@ -191,6 +217,7 @@ const LAB_COMPONENTS = [
   ComponentLabTerminal,
   ComponentLabCaptions,
   ComponentLabStress,
+  ComponentLabCodeDiff,
 ] as const;
 
 export const ComponentLab: React.FC = () => (

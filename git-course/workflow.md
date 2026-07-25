@@ -217,6 +217,10 @@ release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已�
 - episode 统一通过 `createEpisodeRuntime` 和 `EpisodeTimeline` 消费生成的 scene 数据；不得在各集重新维护 scene start、duration 或 captions 查找函数。
 - 静态位置优先使用 `COURSE_RECTS`、`SceneStage`、`CenterInRect` 和 `FitToRect`；动画 transform 只表达状态变化，不用于掩盖未居中或尺寸失控。
 - 完整终端操作统一使用 `RecordedTerminalStage` 和 `git-course-lab` 真实录屏；`CommandPill` / `CommandStrip` 只作为状态画面的命令上下文。
+- 一个终端录屏只承载一个可解释的命令结果。一个 scene 需要连续展示多条命令时，必须拆成多个真实录屏，并通过 `RecordedTerminalCueSequence` 按旁白 cue 调度；不得让前一条结果在解释完成前被后续输出向下滚走。
+- 终端 cue 默认硬切换固定视口：先播放真实输入和输出，再使用对应 hold frame 保持到相关字幕结束后 `0.5–1s`。整体调整 `playbackRate` 只能微调打字节奏，不能代替中间结果冻结和语义对齐。
+- 独立录屏开头存在无信息的空提示符时，cue 可以用 `startFromFrame` 裁掉 preroll；裁切后仍需看到完整命令和真实输出，禁止把裁切用成直接跳结果的仿终端捷径。
+- 终端结果的出现时间、保持窗口和模型接管时间必须记录在 episode JSON 的 beat / alignment 说明中。审查时按这些时间点补关键帧，确认命令、结果、旁白和字幕属于同一教学动作。
 - Git 图优先使用 `GitGraph` 或 `CourseGraphPrimitives`，Working Tree / Index / Repository 优先使用 `GitStateFlow`，字幕统一经过 `CaptionLayer`。
 - `manim-viz`、`scripts/manim/git-course*`、`public/git-course/manim/` 和 `ManimClip` 仅作历史兼容保留，不参与新 scene、构建指纹、candidate 或 release。
 

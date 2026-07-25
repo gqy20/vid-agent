@@ -17,6 +17,9 @@ export const TERMINAL_RECORDINGS = {
   "ep08-reset-soft": {"id":"ep08-reset-soft","durationInFrames":137,"holdFromFrame":76,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep08-restore-flow": {"id":"ep08-restore-flow","durationInFrames":500,"holdFromFrame":439,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep08-revert": {"id":"ep08-revert","durationInFrames":278,"holdFromFrame":217,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
-  "ep09-commit-diff": {"id":"ep09-commit-diff","durationInFrames":173,"holdFromFrame":112,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
-  "ep09-working-diffs": {"id":"ep09-working-diffs","durationInFrames":235,"holdFromFrame":174,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-commit-log": {"id":"ep09-commit-log","durationInFrames":99,"holdFromFrame":38,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-commit-patch": {"id":"ep09-commit-patch","durationInFrames":112,"holdFromFrame":51,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-staged-diff": {"id":"ep09-staged-diff","durationInFrames":130,"holdFromFrame":69,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-status-mm": {"id":"ep09-status-mm","durationInFrames":145,"holdFromFrame":84,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep09-unstaged-diff": {"id":"ep09-unstaged-diff","durationInFrames":96,"holdFromFrame":35,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
 } as const;
