@@ -33,13 +33,13 @@
 9. `ep09-diff-compares-states`
    diff 到底在比较什么：明确区分 Working Tree、Index、HEAD 和两个 commit 之间的比较。
 
-10. `ep10-selecting-revisions`
+10. [`ep10-selecting-revisions`](episodes/ep10-selecting-revisions.json)
     如何定位一个 commit：使用 log、短 hash、ref、祖先引用和提交区间选中历史。
 
-11. `ep11-tags`
+11. [`ep11-tags`](episodes/ep11-tags.json)
     tag 与 branch 有什么不同：branch 是会移动的名字，tag 用来固定标记一个历史位置。
 
-12. `ep12-remote-tracking-branches`
+12. [`ep12-remote-tracking-branches`](episodes/ep12-remote-tracking-branches.json)
     `origin/main` 到底在哪里：区分远端 branch、本地 branch 和本地保存的 remote-tracking ref。
 
 13. `ep13-fetch-pull-push`

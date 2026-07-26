@@ -31,6 +31,9 @@ import {EP06_DURATION_IN_FRAMES, Ep06Merge} from './episodes/Ep06Merge';
 import {EP07_DURATION_IN_FRAMES, Ep07Rebase} from './episodes/Ep07Rebase';
 import {EP08_DURATION_IN_FRAMES, Ep08ResetRevertRestore} from './episodes/Ep08ResetRevertRestore';
 import {EP09_DURATION_IN_FRAMES, Ep09DiffComparesStates} from './episodes/Ep09DiffComparesStates';
+import {EP10_DURATION_IN_FRAMES, Ep10SelectingRevisions} from './episodes/Ep10SelectingRevisions';
+import {EP11_DURATION_IN_FRAMES, Ep11Tags} from './episodes/Ep11Tags';
+import {EP12_DURATION_IN_FRAMES, Ep12RemoteTrackingBranches} from './episodes/Ep12RemoteTrackingBranches';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -185,6 +188,30 @@ export const registration: VideoRegistration = {
       id: 'GitCourseEp09DiffComparesStates',
       component: Ep09DiffComparesStates,
       durationInFrames: EP09_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp10SelectingRevisions',
+      component: Ep10SelectingRevisions,
+      durationInFrames: EP10_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp11Tags',
+      component: Ep11Tags,
+      durationInFrames: EP11_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp12RemoteTrackingBranches',
+      component: Ep12RemoteTrackingBranches,
+      durationInFrames: EP12_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

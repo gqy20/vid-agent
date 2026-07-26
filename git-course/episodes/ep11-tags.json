@@ -1,0 +1,157 @@
+{
+  "episodeId": "ep11-tags",
+  "title": "Tag 与 Branch 有什么不同",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 168,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/02-git-basics/sections/tagging.asc",
+      "docs/references/progit2-zh/book/10-git-internals/sections/refs.asc",
+      "https://git-scm.com/docs/git-tag",
+      "https://git-scm.com/book/zh/v2/Git-基础-打标签"
+    ]
+  },
+  "states": {"release": {"tag": "v1.0", "tagTarget": "C1", "branch": "main", "branchTarget": "C2"}},
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 15.5,
+      "primaryTechnique": "Question scene + two refs",
+      "components": ["EpisodeTitleCard", "CourseCommitNode", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "提出 tag 和 branch 都是名字，但承担不同时间语义。",
+      "beats": [{"time": [0, 15.5], "visual": "main 与 v1.0 同时指向 C1，随后 main 前移", "motion": "只移动 main，tag 留在原位", "state": "release", "narration": "两个名字为什么不会一起移动？", "audit": ["tag 不使用 branch 的语义色"]}],
+      "narration": {"segmentId": "01_hook", "voiceStart": 0.35, "text": "branch 和 tag 都能给一个 commit 起名字。<#0.30#>\n可当我们继续提交时，为什么 branch 会向前走，tag 却通常留在原地？<#0.40#>\n这一集我们把两个名字放到同一张提交图上，看看它们分别在替我们保存什么。"},
+      "captions": [
+        {"from": 0.35, "to": 2.8, "text": "branch 和 tag 都能给一个 commit 起名字"},
+        {"from": 3.334, "to": 7.957, "text": "可当我们继续提交时，为什么 branch 会向前走，tag 却通常留在原地？"},
+        {"from": 8.628, "to": 13.741, "text": "这一集我们把两个名字放到同一张提交图上，看看它们分别在替我们保存什么"}
+      ]
+    },
+    {
+      "id": "two-names",
+      "title": "两个名字",
+      "start": 15.5,
+      "duration": 25,
+      "primaryTechnique": "Branch and tag ref comparison",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "先建立共同点：两者都能解析到历史位置。",
+      "beats": [{"time": [15.5, 40.5], "visual": "refs/heads/main 与 refs/tags/v1.0 分列两侧并指向 C1", "motion": "名称路径展开后收束到同一节点", "state": "release", "narration": "共同点是它们都能定位。", "audit": ["共同点讲清后再进入差异"]}],
+      "narration": {"segmentId": "02_two_names", "voiceStart": 15.85, "text": "先看共同点。<#0.30#>\nmain 位于 refs heads 命名空间，v1.0 位于 refs tags 命名空间。<#0.45#>\n它们都能被 Git 解析成一个历史位置，也都可以交给 show、diff 或 log。<#0.45#>\n因此 tag 不是历史之外的贴纸，branch 也不是文件夹副本。<#0.35#>\n差别出现在下一次 commit 发生时：Git 会更新当前 branch，而不会自动改写已有 tag。"},
+      "captions": [
+        {"from": 0.35, "to": 1.204, "text": "先看共同点"},
+        {"from": 1.804, "to": 8.454, "text": "main 位于 refs heads 命名空间，v1.0 位于 refs tags 命名空间"},
+        {"from": 9.106, "to": 13.06, "text": "它们都能被 Git 解析成一个历史位置，也都可以交给 show、diff 或 log"},
+        {"from": 13.792, "to": 17.915, "text": "因此 tag 不是历史之外的贴纸，branch 也不是文件夹副本"},
+        {"from": 18.456, "to": 23.406, "text": "差别出现在下一次 commit 发生时：Git 会更新当前 branch，而不会自动改写已有 tag"}
+      ]
+    },
+    {
+      "id": "real-tag",
+      "title": "真实标签",
+      "start": 40.5,
+      "duration": 21,
+      "primaryTechnique": "Recorded git-course-lab terminal",
+      "components": ["RecordedTerminalCueSequence", "NarrationSubtitle"],
+      "goal": "用真实仓库创建附注 tag 并检查装饰后的历史。",
+      "beats": [{"time": [40.5, 61.5], "visual": "独立录屏创建 v1.0，再展示 decorate log", "motion": "命令与结果按语义分开冻结", "state": "release", "narration": "先让 Git 建立一个真实 tag。", "audit": ["终端不滚走 v1.0 的位置", "固定提交时间保证 hash 稳定"]}],
+      "narration": {"segmentId": "03_real_tag", "voiceStart": 40.85, "text": "我们在 C1 上创建一个附注标签 v1.0。<#0.65#>\n命令结束以后，log 的装饰信息把 main、HEAD 和 v1.0 放在同一个节点。<#0.65#>\n这时它们指向同一段历史，所以用这些名字读取提交，看起来几乎没有差别。<#0.45#>\n真正的区别，要等 main 再产生一次提交才会显现。"},
+      "captions": [
+        {"from": 0.35, "to": 3.208, "text": "我们在 C1 上创建一个附注标签 v1.0"},
+        {"from": 4.143, "to": 8.921, "text": "命令结束以后，log 的装饰信息把 main、HEAD 和 v1.0 放在同一个节点"},
+        {"from": 9.816, "to": 15.687, "text": "这时它们指向同一段历史，所以用这些名字读取提交，看起来几乎没有差别"},
+        {"from": 16.353, "to": 19.332, "text": "真正的区别，要等 main 再产生一次提交才会显现"}
+      ]
+    },
+    {
+      "id": "branch-moves",
+      "title": "谁会移动",
+      "start": 61.5,
+      "duration": 27,
+      "primaryTechnique": "Visible ref update + terminal evidence",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "RecordedTerminalStage", "NarrationSubtitle"],
+      "goal": "表现 commit 更新当前 branch，而 tag 保持固定位置。",
+      "beats": [{"time": [61.5, 88.5], "visual": "左侧提交图移动 main，右侧真实 log 证明结果", "motion": "C2 出现后 main 前移，v1.0 保持 C1", "state": "release", "narration": "新提交更新 branch，不自动更新 tag。", "audit": ["tag 连接线始终指向 C1", "main 移动与 commit 出现同步"]}],
+      "narration": {"segmentId": "04_branch_moves", "voiceStart": 61.85, "text": "现在继续在 main 上提交 C2。<#0.55#>\nGit 创建新 commit，并把当前 branch main 更新到 C2。<#0.45#>\nHEAD 仍然通过 main 指向当前位置。<#0.35#>\n但 v1.0 没有参与这次写入，它继续指向 C1。<#0.45#>\n于是 branch 表达正在发展的工作线，tag 保存一个希望长期引用的历史坐标。<#0.45#>\ntag 当然可以被强制改写，但那不是普通提交会自动发生的事。"},
+      "captions": [
+        {"from": 0.35, "to": 2.072, "text": "现在继续在 main 上提交 C2"},
+        {"from": 2.883, "to": 7.131, "text": "Git 创建新 commit，并把当前 branch main 更新到 C2"},
+        {"from": 7.884, "to": 10.544, "text": "HEAD 仍然通过 main 指向当前位置"},
+        {"from": 11.107, "to": 15.007, "text": "但 v1.0 没有参与这次写入，它继续指向 C1"},
+        {"from": 15.711, "to": 21.327, "text": "于是 branch 表达正在发展的工作线，tag 保存一个希望长期引用的历史坐标"},
+        {"from": 21.974, "to": 25.564, "text": "tag 当然可以被强制改写，但那不是普通提交会自动发生的事"}
+      ]
+    },
+    {
+      "id": "tag-types",
+      "title": "两类 Tag",
+      "start": 88.5,
+      "duration": 31,
+      "primaryTechnique": "Object model comparison",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CodeBlock", "NarrationSubtitle"],
+      "goal": "区分轻量 tag 的直接 ref 与附注 tag 对象。",
+      "beats": [{"time": [88.5, 119.5], "visual": "轻量标签直接指向 C1，附注标签先指向 tag object 再到 C1", "motion": "两条对象路径依次绘制", "state": "release", "narration": "同样固定位置，保存的结构并不相同。", "audit": ["annotated tag 箭头方向为 ref 到 tag object 再到 target"]}],
+      "narration": {"segmentId": "05_tag_types", "voiceStart": 88.85, "text": "Git 里还有两种 tag 结构。<#0.35#>\n轻量标签最简单：refs tags 里的名字直接保存目标对象 ID。<#0.45#>\n附注标签会先创建一个 tag object，再由这个对象记录目标、tagger、时间和说明。<#0.55#>\n因此 cat-file 检查附注标签时，先看到的对象类型是 tag；解引用以后才落到 commit。<#0.55#>\n这种额外对象适合正式发布，因为版本说明和签署信息有明确的承载位置。<#0.45#>\n两种标签都不会随着普通 commit 自动前移。"},
+      "captions": [
+        {"from": 0.35, "to": 1.774, "text": "Git 里还有两种 tag 结构"},
+        {"from": 2.356, "to": 6.925, "text": "轻量标签最简单：refs tags 里的名字直接保存目标对象 ID"},
+        {"from": 7.622, "to": 13.246, "text": "附注标签会先创建一个 tag object，再由这个对象记录目标、tagger、时间和说明"},
+        {"from": 14.129, "to": 20.573, "text": "因此 cat-file 检查附注标签时，先看到的对象类型是 tag；解引用以后才落到 commit"},
+        {"from": 21.395, "to": 26.152, "text": "这种额外对象适合正式发布，因为版本说明和签署信息有明确的承载位置"},
+        {"from": 26.961, "to": 29.438, "text": "两种标签都不会随着普通 commit 自动前移"}
+      ]
+    },
+    {
+      "id": "sharing",
+      "title": "标签不会自动发布",
+      "start": 119.5,
+      "duration": 25.5,
+      "primaryTechnique": "Local and remote ref boundary",
+      "components": ["CourseBranchLabel", "CourseCommitNode", "NarrationSubtitle"],
+      "goal": "说明本地 tag 与远端 tag 是不同 refs，普通 push 不保证带上标签。",
+      "beats": [{"time": [119.5, 145], "visual": "本地 refs/tags/v1.0 与服务器 refs/tags/v1.0 分居左右", "motion": "普通 push 只移动 branch，显式 push tag 后再出现远端 tag", "state": "release", "narration": "创建标签与共享标签是两件事。", "audit": ["不提前展开 EP13 的对象传输过程"]}],
+      "narration": {"segmentId": "06_sharing", "voiceStart": 119.85, "text": "还有一个常见误会：本地创建 tag，不等于它已经出现在服务器。<#0.45#>\n普通 git push 通常不会自动推送新标签。<#0.40#>\n我们需要显式推送某个 tag，或者有意识地选择要共享的标签集合。<#0.50#>\n这样做很合理，因为 tag 常常代表发布坐标，公开它是一次独立决定。<#0.45#>\n这里先记住本地与远端是两套 refs。<#0.35#>\n下一集我们会把这条边界画得更清楚。"},
+      "captions": [
+        {"from": 0.35, "to": 4.55, "text": "还有一个常见误会：本地创建 tag，不等于它已经出现在服务器"},
+        {"from": 5.197, "to": 7.307, "text": "普通 git push 通常不会自动推送新标签"},
+        {"from": 7.982, "to": 12.324, "text": "我们需要显式推送某个 tag，或者有意识地选择要共享的标签集合"},
+        {"from": 13.132, "to": 17.328, "text": "这样做很合理，因为 tag 常常代表发布坐标，公开它是一次独立决定"},
+        {"from": 17.984, "to": 20.112, "text": "这里先记住本地与远端是两套 refs"},
+        {"from": 20.776, "to": 23.549, "text": "下一集我们会把这条边界画得更清楚"}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 145,
+      "duration": 23,
+      "primaryTechnique": "Minimal two-column summary",
+      "components": ["NarrationSubtitle"],
+      "goal": "以时间语义、对象结构和共享边界收束 tag。",
+      "beats": [{"time": [145, 168], "visual": "左 branch 右 tag，只保留移动、结构、共享三行", "motion": "三组差异依次出现", "state": "release", "narration": "两者都是名字，但保存不同意图。", "audit": ["不把 tag 绝对描述成永远不可修改"]}],
+      "narration": {"segmentId": "07_takeaway", "voiceStart": 145.35, "text": "最后回到最初的问题。<#0.30#>\nbranch 和 tag 都是可解析的名字。<#0.35#>\n普通 commit 会更新当前 branch，却不会自动移动已有 tag。<#0.40#>\n轻量 tag 直接保存目标，附注 tag 通过独立对象保存更多发布信息。<#0.45#>\n而创建与共享又是两步。<#0.35#>\n当我们把 tag 看成一个有意固定的历史坐标，它与 branch 的分工就清楚了。"},
+      "captions": [
+        {"from": 0.35, "to": 1.578, "text": "最后回到最初的问题"},
+        {"from": 2.214, "to": 3.993, "text": "branch 和 tag 都是可解析的名字"},
+        {"from": 4.726, "to": 8.293, "text": "普通 commit 会更新当前 branch，却不会自动移动已有 tag"},
+        {"from": 8.954, "to": 13.934, "text": "轻量 tag 直接保存目标，附注 tag 通过独立对象保存更多发布信息"},
+        {"from": 14.77, "to": 16.487, "text": "而创建与共享又是两步"},
+        {"from": 17.046, "to": 21.478, "text": "当我们把 tag 看成一个有意固定的历史坐标，它与 branch 的分工就清楚了"}
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP11：Tag 与 Branch 有什么不同\n\n把 branch 与 tag 放在同一张提交图中，从引用更新、对象结构和远端共享三层解释差异。\n",
+    "scriptMarkdown": "# EP11 当前脚本（168s）\n\n从‘为什么两个名字不会一起移动’进入，不用命令清单说教。真实终端建立 tag，提交图负责解释引用更新，最后只触及共享边界，不展开 EP13 的 fetch/push 全过程。\n",
+    "beatsMarkdown": "# EP11 Beats\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0–15.5s | hook | 两个名字为何不同步 |\n| 15.5–40.5s | two-names | refs 的共同点 |\n| 40.5–61.5s | real-tag | 创建真实附注 tag |\n| 61.5–88.5s | branch-moves | commit 只更新当前 branch |\n| 88.5–119.5s | tag-types | 轻量与附注对象路径 |\n| 119.5–145s | sharing | 本地 tag 不等于远端 tag |\n| 145–168s | takeaway | 固定坐标与发展线 |\n",
+    "qualityMarkdown": "# EP11 审查记录\n\n## 当前状态\n\n- episode JSON、Remotion 7 个 Scene 与三段 git-course-lab 真实终端证据已实现。\n- 1080p candidate 已完成，视频、音频、分辨率、帧率、总时长和抽帧完整性检查均通过。\n- tag 对象路径初次抽帧发现固定卡宽导致重叠，已改为显式宽度并复核通过。\n- 主审查当前为 needs_review，尚未 approve 或 promote。\n\n## 候选审查重点\n\n- main 前移时 v1.0 必须保持在 C1。\n- 附注 tag 的对象路径必须真实。\n- 不把 tag 说成技术上绝对不可修改。\n",
+    "alignmentMarkdown": "# EP11 对齐记录\n\n- 已按实际 TTS 与 SRT 回写 7 个 scene 的旁白进入时间、字幕和总时长。\n- sharing 段已消除额外自然停顿与计划停顿数量不一致的问题。\n- scene 尾部旁白留白约为 1.3–1.8 秒；candidate 总时长 168 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP11 B 站发布物料（草案）\n\n## 标题\n\nGit Tag 和 Branch 到底差在哪？一个固定坐标，一条发展线\n\n## 简介\n\n把 branch 与 tag 放到同一张提交图中，看懂引用更新与附注 tag 对象。\n\n## 官方参考\n\n- [git-tag 官方手册](https://git-scm.com/docs/git-tag)\n- [Pro Git：打标签](https://git-scm.com/book/zh/v2/Git-基础-打标签)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Tag\n版本发布\n```\n",
+    "coverBriefMarkdown": "# EP11 封面 Brief\n\n- 左侧大词：`tag`。\n- 右侧判断：`谁会移动`，保持单行。\n- 底部只画一条三节点提交线：`v1.0` 留在 `C2`，`main` 指向后续 `C3`。\n- 用引用位置直接表达差异，不增加解释句、锁图标或命令。\n- 连线置底，提交节点与引用标签置顶；缩略图中必须一眼看出两者停在不同提交。\n",
+    "checklistMarkdown": "# EP11 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"
+  }
+}

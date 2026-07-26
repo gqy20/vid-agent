@@ -39,7 +39,7 @@
 
 ## 当前生产入口
 
-第一季 EP01–EP08 均已有 Remotion composition。每集只维护一个 `episodes/<episode-id>.json`，统一通过 Git Course orchestrator 生产：
+EP01–EP12 均已有 Remotion composition；EP01–EP09 已进入发布流程，EP10–EP12 正在制作。每集只维护一个 `episodes/<episode-id>.json`，统一通过 Git Course orchestrator 生产：
 
 ```bash
 pnpm --dir remotion git-course plan <episode-id>

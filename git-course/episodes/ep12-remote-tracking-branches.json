@@ -1,0 +1,164 @@
+{
+  "episodeId": "ep12-remote-tracking-branches",
+  "title": "origin/main 到底在哪里",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 185,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/03-git-branching/sections/remote-branches.asc",
+      "docs/references/progit2-zh/book/10-git-internals/sections/refs.asc",
+      "docs/references/progit2-zh/book/10-git-internals/sections/refspec.asc",
+      "https://git-scm.com/docs/git-fetch",
+      "https://git-scm.com/book/zh/v2/Git-分支-远程分支"
+    ]
+  },
+  "states": {
+    "local": {"main": "C1", "originMain": "C1"},
+    "server": {"main": "C2"}
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 15.5,
+      "primaryTechnique": "Question scene + split repositories",
+      "components": ["EpisodeTitleCard", "CourseCommitNode", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "提出 origin/main 不是实时服务器分支。",
+      "beats": [{"time": [0, 15.5], "visual": "本地与服务器分列，origin/main 出现在本地一侧", "motion": "服务器 main 前移，本地 origin/main 暂不移动", "state": "local", "narration": "origin/main 到底住在哪？", "audit": ["origin/main 必须明显位于本地仓库边界内"]}],
+      "narration": {"segmentId": "01_hook", "voiceStart": 0.35, "text": "我们经常把 origin slash main 叫作远程分支。<#0.30#>\n可它真的住在服务器上吗？<#0.40#>\n如果同事刚刚推送了新 commit，为什么我们本地的 origin slash main 可能还停在旧位置？<#0.40#>\n这一集先把三个容易混在一起的位置拆开。"},
+      "captions": [
+        {"from": 0.35, "to": 3.141, "text": "我们经常把 origin slash main 叫作远程分支"},
+        {"from": 3.701, "to": 5.131, "text": "可它真的住在服务器上吗？"},
+        {"from": 5.864, "to": 10.62, "text": "如果同事刚刚推送了新 commit，为什么我们本地的 origin slash main 可能还停在旧位置？"},
+        {"from": 11.406, "to": 13.645, "text": "这一集先把三个容易混在一起的位置拆开"}
+      ]
+    },
+    {
+      "id": "three-places",
+      "title": "三个位置",
+      "start": 15.5,
+      "duration": 26.5,
+      "primaryTechnique": "Three-boundary ref model",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "明确服务器 refs/heads/main、本地 refs/remotes/origin/main 与本地 refs/heads/main。",
+      "beats": [{"time": [15.5, 42], "visual": "服务器仓库和本地仓库边界，本地内部再分 main 与 origin/main", "motion": "三个 ref 依次出现并各自连向提交", "state": "local", "narration": "名字相似，不代表是同一个引用。", "audit": ["本地 main 与 origin/main 不画成同一标签", "服务器 main 保持独立边界"]}],
+      "narration": {"segmentId": "02_three_places", "voiceStart": 15.85, "text": "先摆出三个位置。<#0.30#>\n服务器仓库里有 refs heads main，这是服务器真正保存的 branch。<#0.45#>\n我们的本地仓库里，也有可提交、可移动的 refs heads main。<#0.45#>\n除此之外，本地还保存 refs remotes origin main。<#0.45#>\n它记录的是上次与 origin 通信以后，我们所知道的服务器 main 位置。<#0.50#>\n三个名字可以暂时指向同一 commit，但它们仍然属于不同仓库、不同命名空间。"},
+      "captions": [
+        {"from": 0.35, "to": 1.384, "text": "先摆出三个位置"},
+        {"from": 2.055, "to": 5.824, "text": "服务器仓库里有 refs heads main，这是服务器真正保存的 branch"},
+        {"from": 6.584, "to": 10.29, "text": "我们的本地仓库里，也有可提交、可移动的 refs heads main"},
+        {"from": 10.983, "to": 13.969, "text": "除此之外，本地还保存 refs remotes origin main"},
+        {"from": 14.642, "to": 19.266, "text": "它记录的是上次与 origin 通信以后，我们所知道的服务器 main 位置"},
+        {"from": 20.113, "to": 24.816, "text": "三个名字可以暂时指向同一 commit，但它们仍然属于不同仓库、不同命名空间"}
+      ]
+    },
+    {
+      "id": "stale-bookmark",
+      "title": "不是实时镜像",
+      "start": 42,
+      "duration": 29.5,
+      "primaryTechnique": "Server advances while local bookmark stays",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "用时间变化证明 remote-tracking ref 是本地最后已知书签。",
+      "beats": [{"time": [42, 71.5], "visual": "服务器新增 C2，本地 main 与 origin/main 保持 C1", "motion": "只在服务器边界生成 C2", "state": "server", "narration": "网络另一端变化不会隔空修改本地 ref。", "audit": ["服务器 C2 出现时本地 origin/main 不能跟随移动"]}],
+      "narration": {"segmentId": "03_stale_bookmark", "voiceStart": 42.35, "text": "现在假设同事把 C2 推到了服务器。<#0.45#>\n服务器 main 已经向前移动，但我们的进程没有进行任何网络通信。<#0.45#>\n因此本地 main 仍在 C1，origin slash main 也仍在 C1。<#0.45#>\n这不是同步失败，而是它本来的语义：remote-tracking ref 是最后已知位置的书签。<#0.50#>\n它不会持续轮询服务器，也不会因为网页上出现新提交就自动变化。<#0.45#>\n所以查看 origin slash main，看到的是本地知识，不是远端实时画面。"},
+      "captions": [
+        {"from": 0.35, "to": 2.459, "text": "现在假设同事把 C2 推到了服务器"},
+        {"from": 3.174, "to": 7.405, "text": "服务器 main 已经向前移动，但我们的进程没有进行任何网络通信"},
+        {"from": 8.214, "to": 12.197, "text": "因此本地 main 仍在 C1，origin slash main 也仍在 C1"},
+        {"from": 12.88, "to": 18.375, "text": "这不是同步失败，而是它本来的语义：remote-tracking ref 是最后已知位置的书签"},
+        {"from": 19.11, "to": 23.18, "text": "它不会持续轮询服务器，也不会因为网页上出现新提交就自动变化"},
+        {"from": 23.868, "to": 27.703, "text": "所以查看 origin slash main，看到的是本地知识，不是远端实时画面"}
+      ]
+    },
+    {
+      "id": "real-refs",
+      "title": "真实引用",
+      "start": 71.5,
+      "duration": 22.5,
+      "primaryTechnique": "Recorded git-course-lab terminal",
+      "components": ["RecordedTerminalCueSequence", "NarrationSubtitle"],
+      "goal": "用真实本地仓库与裸仓库展示三个 ref 的不同位置。",
+      "beats": [{"time": [71.5, 94], "visual": "本地 for-each-ref 与服务器 ls-remote 分段展示", "motion": "两个固定视口按旁白切换并保持结果", "state": "server", "narration": "让真实命令分别询问本地和服务器。", "audit": ["输出明确标识数据来源", "不把两条命令堆入同一滚屏"]}],
+      "narration": {"segmentId": "04_real_refs", "voiceStart": 71.85, "text": "我们让真实命令分别询问两个仓库。<#0.55#>\n本地 for-each-ref 显示 main 和 origin slash main 都还指向 C1。<#0.65#>\n接着 ls-remote 直接询问 origin，服务器返回的 main 已经是 C2。<#0.65#>\n同一时刻出现两个答案，恰好证明它们不是同一个 ref。<#0.45#>\n一个是服务器当前值，一个是本地上次记录的值。"},
+      "captions": [
+        {"from": 0.35, "to": 2.142, "text": "我们让真实命令分别询问两个仓库"},
+        {"from": 2.948, "to": 7.498, "text": "本地 for-each-ref 显示 main 和 origin slash main 都还指向 C1"},
+        {"from": 8.409, "to": 12.85, "text": "接着 ls-remote 直接询问 origin，服务器返回的 main 已经是 C2"},
+        {"from": 13.815, "to": 17.065, "text": "同一时刻出现两个答案，恰好证明它们不是同一个 ref"},
+        {"from": 17.768, "to": 20.943, "text": "一个是服务器当前值，一个是本地上次记录的值"}
+      ]
+    },
+    {
+      "id": "fetch-updates",
+      "title": "Fetch 更新知识",
+      "start": 94,
+      "duration": 31,
+      "primaryTechnique": "Fetch boundary + terminal evidence",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "RecordedTerminalStage", "NarrationSubtitle"],
+      "goal": "表现 fetch 带回对象并更新 origin/main，但不移动本地 main。",
+      "beats": [{"time": [94, 125], "visual": "网络箭头带回 C2，本地 origin/main 前移，本地 main 保持 C1", "motion": "对象到达后再移动 remote-tracking ref", "state": "local", "narration": "fetch 更新本地对远端的认识。", "audit": ["本地 main 绝不能随 fetch 自动移动", "对象传输只作概览，不侵占 EP13"]}],
+      "narration": {"segmentId": "05_fetch_updates", "voiceStart": 94.35, "text": "当我们运行 git fetch origin，边界终于发生变化。<#0.55#>\nGit 从服务器取得本地缺少的对象，并根据抓取映射更新 refs remotes origin main。<#0.60#>\n于是 origin slash main 从 C1 移到 C2。<#0.45#>\n但本地 main 仍在 C1，Working Tree 也不会因为 fetch 自动切到服务器版本。<#0.55#>\n这一步更新的是我们对远端的本地记录，还没有决定怎样整合到当前工作。<#0.50#>\n下一集再展开 fetch、pull 和 push 的完整动作，这里先守住引用边界。"},
+      "captions": [
+        {"from": 0.35, "to": 3.554, "text": "当我们运行 git fetch origin，边界终于发生变化"},
+        {"from": 4.312, "to": 9.618, "text": "Git 从服务器取得本地缺少的对象，并根据抓取映射更新 refs remotes origin main"},
+        {"from": 10.52, "to": 13.525, "text": "于是 origin slash main 从 C1 移到 C2"},
+        {"from": 14.234, "to": 19.268, "text": "但本地 main 仍在 C1，Working Tree 也不会因为 fetch 自动切到服务器版本"},
+        {"from": 20.077, "to": 24.351, "text": "这一步更新的是我们对远端的本地记录，还没有决定怎样整合到当前工作"},
+        {"from": 25.045, "to": 29.437, "text": "下一集再展开 fetch、pull 和 push 的完整动作，这里先守住引用边界"}
+      ]
+    },
+    {
+      "id": "tracking-branch",
+      "title": "跟踪关系不是同一个分支",
+      "start": 125,
+      "duration": 30.5,
+      "primaryTechnique": "Upstream relationship diagram",
+      "components": ["CourseCommitNode", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "区分 local tracking branch 与 remote-tracking ref，并说明 origin 名称非特殊关键字。",
+      "beats": [{"time": [125, 155.5], "visual": "main 通过 upstream 配置关联 origin/main，两者仍是独立标签", "motion": "虚线关系出现但不合并两个 ref", "state": "local", "narration": "跟踪关系只是配置关联。", "audit": ["虚线不得暗示 main 自动跟随 origin/main 移动"]}],
+      "narration": {"segmentId": "06_tracking_branch", "voiceStart": 125.35, "text": "这里还要区分两个相似术语。<#0.35#>\norigin slash main 是 remote-tracking ref，保存在本地 refs remotes 下面。<#0.45#>\n本地 main 如果把它设置为 upstream，我们才把 main 称作 tracking branch。<#0.50#>\n这是一条配置关系，方便 status、pull 或 push 知道默认对应谁，并不会把两个引用合成一个。<#0.55#>\n另外，origin 只是 clone 常用的默认远端名称，不是 Git 的特殊服务器。<#0.45#>\n把远端叫 team，书签自然就会叫 team slash main。"},
+      "captions": [
+        {"from": 0.35, "to": 1.935, "text": "这里还要区分两个相似术语"},
+        {"from": 2.666, "to": 6.93, "text": "origin slash main 是 remote-tracking ref，保存在本地 refs remotes 下面"},
+        {"from": 7.658, "to": 11.853, "text": "本地 main 如果把它设置为 upstream，我们才把 main 称作 tracking branch"},
+        {"from": 12.758, "to": 18.883, "text": "这是一条配置关系，方便 status、pull 或 push 知道默认对应谁，并不会把两个引用合成一个"},
+        {"from": 19.743, "to": 24.604, "text": "另外，origin 只是 clone 常用的默认远端名称，不是 Git 的特殊服务器"},
+        {"from": 25.266, "to": 28.701, "text": "把远端叫 team，书签自然就会叫 team slash main"}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 155.5,
+      "duration": 29.5,
+      "primaryTechnique": "Minimal three-ref summary",
+      "components": ["NarrationSubtitle"],
+      "goal": "以位置、更新时间和可写性收束三个引用。",
+      "beats": [{"time": [155.5, 185], "visual": "服务器 main、本地 origin/main、本地 main 三行对照", "motion": "依次点亮位置、谁更新、是否可提交", "state": "local", "narration": "先问它住在哪里，再问谁会更新它。", "audit": ["总结不提前讲 pull 等于 fetch 加整合"]}],
+      "narration": {"segmentId": "07_takeaway", "voiceStart": 155.85, "text": "最后把三个位置再对齐一次。<#0.30#>\n服务器 main 住在服务器，由服务器收到更新时改变。<#0.40#>\norigin slash main 住在本地，由 fetch 等网络通信更新，记录最后已知远端位置。<#0.45#>\n本地 main 也住在本地，由我们的 commit、merge 或 rebase 等本地动作更新。<#0.50#>\n以后看到一个分支名，可以先问：它属于哪个仓库、哪个命名空间，又是谁在移动它？<#0.45#>\n这三个问题，比把它们统称为远程分支更可靠。"},
+      "captions": [
+        {"from": 0.35, "to": 1.881, "text": "最后把三个位置再对齐一次"},
+        {"from": 2.456, "to": 6.053, "text": "服务器 main 住在服务器，由服务器收到更新时改变"},
+        {"from": 6.732, "to": 12.269, "text": "origin slash main 住在本地，由 fetch 等网络通信更新，记录最后已知远端位置"},
+        {"from": 13.068, "to": 18.392, "text": "本地 main 也住在本地，由我们的 commit、merge 或 rebase 等本地动作更新"},
+        {"from": 19.114, "to": 23.741, "text": "以后看到一个分支名，可以先问：它属于哪个仓库、哪个命名空间，又是谁在移动它？"},
+        {"from": 24.534, "to": 27.573, "text": "这三个问题，比把它们统称为远程分支更可靠"}
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP12：origin/main 到底在哪里\n\n通过服务器 branch、本地 remote-tracking ref 与本地 branch 三个边界，解释 origin/main 为什么不是实时镜像。\n",
+    "scriptMarkdown": "# EP12 当前脚本（185s）\n\n从‘origin/main 真的住在服务器吗’进入。真实终端证明服务器值与本地记录可以同时不同；fetch 只用于展示 remote-tracking ref 的更新时间，不提前展开 EP13。\n",
+    "beatsMarkdown": "# EP12 Beats\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0–15.5s | hook | origin/main 住在哪里 |\n| 15.5–42s | three-places | 拆开三个 refs |\n| 42–71.5s | stale-bookmark | 服务器前移，本地记录不动 |\n| 71.5–94s | real-refs | 真实命令询问两边 |\n| 94–125s | fetch-updates | fetch 更新 origin/main |\n| 125–155.5s | tracking-branch | upstream 只是关联 |\n| 155.5–185s | takeaway | 仓库、命名空间、更新者 |\n",
+    "qualityMarkdown": "# EP12 审查记录\n\n## 当前状态\n\n- episode JSON、Remotion 7 个 Scene 与三段 git-course-lab 真实终端证据已实现。\n- 1080p candidate 已完成，视频、音频、分辨率、帧率、总时长和抽帧完整性检查均通过。\n- 终端夹具使用本地裸仓库模拟真实远端，并缩短 remote URL，避免输出路径换行干扰阅读。\n- 主审查当前为 needs_review，尚未 approve 或 promote。\n\n## 候选审查重点\n\n- origin/main 必须始终画在本地仓库。\n- 服务器前移时 origin/main 不得自动跟随。\n- fetch 只移动 origin/main，不移动本地 main。\n- tracking branch 与 remote-tracking ref 不得混称。\n",
+    "alignmentMarkdown": "# EP12 对齐记录\n\n- 已按实际 TTS 与 SRT 回写 7 个 scene 的旁白进入时间、字幕和总时长。\n- scene 尾部旁白留白约为 1.4–1.8 秒。\n- candidate 总时长 185 秒，连续 2fps、边界 burst 与关键帧采样均完整。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP12 B 站发布物料（草案）\n\n## 标题\n\norigin/main 到底在哪里？一次分清远端、本地书签和本地分支\n\n## 简介\n\n拆开服务器 main、本地 origin/main 与本地 main，理解 remote-tracking ref 的真实位置。\n\n## 官方参考\n\n- [git-fetch 官方手册](https://git-scm.com/docs/git-fetch)\n- [Pro Git：远程分支](https://git-scm.com/book/zh/v2/Git-分支-远程分支)\n\n## 标签\n\n```text\nGit\nGit教程\n远程分支\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP12 封面 Brief\n\n- 左侧大词：`origin/main`。\n- 右侧判断：`它在本地`，保持单行，并与左侧 `origin/main` 留出明确间隔。\n- 底部只保留两个加宽的大仓库边界：服务器里的 `main · C2`，本地仓库里的 `origin/main · C1`。\n- 本地边界和 `origin/main` 使用更强高亮，制造“名字像远端、位置却在本地”的认知反差。\n- 不画实时同步，不把 `origin/main` 放进服务器，不堆叠 fetch 命令说明。\n",
+    "checklistMarkdown": "# EP12 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "episodeId": "ep10-selecting-revisions",
+  "title": "怎样选中一个 Commit",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 175.5,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/07-git-tools/sections/revision-selection.asc",
+      "https://git-scm.com/docs/gitrevisions",
+      "https://git-scm.com/book/zh/v2/Git-工具-选择修订版本"
+    ]
+  },
+  "states": {
+    "history": {"base": "C0", "main": "C3", "feature": "F2"}
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "问题",
+      "start": 0,
+      "duration": 18,
+      "primaryTechnique": "Question scene + commit target",
+      "components": ["CourseLayout", "EpisodeTitleCard", "CourseCommitNode", "NarrationSubtitle"],
+      "goal": "提出 Git 命令最终需要把名字解析成具体对象位置。",
+      "beats": [{"time": [0, 18], "visual": "main、HEAD~2 和短 hash 依次指向同一个提交", "motion": "先出现问题，再让三个名字收束到一个节点", "state": "history", "narration": "这些写法究竟选中了谁？", "audit": ["三个名字不同时抢占视觉中心"]}],
+      "narration": {"segmentId": "01_hook", "voiceStart": 0.35, "text": "当命令里出现 main、HEAD 波浪线二，或者一段短 hash 时，<#0.30#>Git 最后选中的究竟是谁？<#0.40#>\n这些写法看起来完全不同，却都可能落到同一个 commit。<#0.35#>\n这一集我们不背符号表，而是沿着提交图，一步步看名字怎样变成位置。"},
+      "captions": [
+        {"from": 0.35, "to": 4.609, "text": "当命令里出现 main、HEAD 波浪线二，或者一段短 hash 时，"},
+        {"from": 5.249, "to": 6.694, "text": "Git 最后选中的究竟是谁？"},
+        {"from": 7.429, "to": 10.583, "text": "这些写法看起来完全不同，却都可能落到同一个 commit"},
+        {"from": 11.156, "to": 16.365, "text": "这一集我们不背符号表，而是沿着提交图，一步步看名字怎样变成位置"}
+      ]
+    },
+    {
+      "id": "revision-map",
+      "title": "Revision 地图",
+      "start": 18,
+      "duration": 27,
+      "primaryTechnique": "Center commit graph + resolver",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "NarrationSubtitle"],
+      "goal": "建立 revision 是对象选择表达式，而不是另一类对象。",
+      "beats": [{"time": [18, 45], "visual": "提交图上方放置输入，中央 resolver 把表达式连向节点", "motion": "依次解析 branch、HEAD 与 hash", "state": "history", "narration": "revision 是选择位置的写法。", "audit": ["resolver 不画成 Git 内部新增对象"]}],
+      "narration": {"segmentId": "02_revision_map", "voiceStart": 18.35, "text": "可以先把 revision 理解成一种位置表达式。<#0.35#>\n它不是新的 Git 对象，而是告诉命令：请从对象库和引用里，解析出这个位置。<#0.40#>\nbranch、tag 和 HEAD 先提供一个有名字的起点。<#0.35#>\n完整或足够唯一的短 hash，可以直接选择对象。<#0.35#>\n再加上祖先运算符，我们还能从起点沿 parent 向过去走。<#0.45#>\n所以关键不是符号长什么样，而是它最终落在哪个节点。"},
+      "captions": [
+        {"from": 0.35, "to": 2.586, "text": "可以先把 revision 理解成一种位置表达式"},
+        {"from": 3.118, "to": 8.522, "text": "它不是新的 Git 对象，而是告诉命令：请从对象库和引用里，解析出这个位置"},
+        {"from": 9.221, "to": 12.751, "text": "branch、tag 和 HEAD 先提供一个有名字的起点"},
+        {"from": 13.315, "to": 16.153, "text": "完整或足够唯一的短 hash，可以直接选择对象"},
+        {"from": 16.854, "to": 20.79, "text": "再加上祖先运算符，我们还能从起点沿 parent 向过去走"},
+        {"from": 21.574, "to": 24.852, "text": "所以关键不是符号长什么样，而是它最终落在哪个节点"}
+      ]
+    },
+    {
+      "id": "real-log",
+      "title": "先看真实历史",
+      "start": 45,
+      "duration": 22,
+      "primaryTechnique": "Recorded git-course-lab terminal",
+      "components": ["RecordedTerminalCueSequence", "NarrationSubtitle"],
+      "goal": "用稳定真实仓库提供后续解析所需的提交图和短 hash。",
+      "beats": [{"time": [45, 67], "visual": "真实终端分别展示装饰后的 log 与 rev-parse 结果", "motion": "两条录屏按语义切换并冻结结果", "state": "history", "narration": "先让 Git 给出真实位置。", "audit": ["结果在对应解说结束前保持可见", "不累积滚屏"]}],
+      "narration": {"segmentId": "03_real_log", "voiceStart": 45.35, "text": "先看一段真实历史。<#0.55#>\nlog 把 main、feature 和 HEAD 放回提交图，也给每个 commit 一个足够辨认的短 hash。<#0.65#>\n接着用 rev-parse 分别解析 main 和 feature。<#0.45#>\n终端返回的是完整对象 ID，这说明分支名只是入口，命令最后仍然落到具体对象。<#0.55#>\n后面的相对写法，也会经过同样的解析。"},
+      "captions": [
+        {"from": 0.35, "to": 1.589, "text": "先看一段真实历史"},
+        {"from": 2.324, "to": 7.79, "text": "log 把 main、feature 和 HEAD 放回提交图，也给每个 commit 一个足够辨认的短 hash"},
+        {"from": 8.697, "to": 11.34, "text": "接着用 rev-parse 分别解析 main 和 feature"},
+        {"from": 12.034, "to": 17.452, "text": "终端返回的是完整对象 ID，这说明分支名只是入口，命令最后仍然落到具体对象"},
+        {"from": 18.24, "to": 20.253, "text": "后面的相对写法，也会经过同样的解析"}
+      ]
+    },
+    {
+      "id": "names-and-hash",
+      "title": "名字与 Hash",
+      "start": 67,
+      "duration": 27,
+      "primaryTechnique": "Named refs converge on commit",
+      "components": ["CourseBranchLabel", "CourseHeadMarker", "CourseCommitNode", "NarrationSubtitle"],
+      "goal": "区分稳定名称入口和对象 ID，并解释短 hash 必须唯一。",
+      "beats": [{"time": [67, 94], "visual": "main、v1.0、HEAD 与短 hash 连接到节点", "motion": "名字逐个进入，短 hash 最后展开为完整 40 位对象 ID", "state": "history", "narration": "名字与 hash 都能定位，但来源不同。", "audit": ["完整对象 ID 必须真实显示，短 hash 前缀在同一字符串中加粗", "tag 与 branch 只在本段作为可解析名称，不提前解释移动语义"]}],
+      "narration": {"segmentId": "04_names_and_hash", "voiceStart": 67.35, "text": "如果目标正好有名字，我们可以直接使用 main、某个 tag，或者 HEAD。<#0.40#>\n这些 ref 保存或间接找到一个对象 ID。<#0.35#>\n也可以直接写 hash；完整值最明确，但日常通常只写足够唯一的前缀。<#0.45#>\n这里的重点是足够唯一，而不是永远固定七位。<#0.35#>\n仓库越大，Git 可能需要更多字符来排除歧义。<#0.45#>\n所以短 hash 是对象 ID 的可识别前缀，不是另一套编号。"},
+      "captions": [
+        {"from": 0.35, "to": 5.163, "text": "如果目标正好有名字，我们可以直接使用 main、某个 tag，或者 HEAD"},
+        {"from": 5.912, "to": 8.217, "text": "这些 ref 保存或间接找到一个对象 ID"},
+        {"from": 8.821, "to": 13.923, "text": "也可以直接写 hash；完整值最明确，但日常通常只写足够唯一的前缀"},
+        {"from": 14.646, "to": 17.255, "text": "这里的重点是足够唯一，而不是永远固定七位"},
+        {"from": 17.882, "to": 20.85, "text": "仓库越大，Git 可能需要更多字符来排除歧义"},
+        {"from": 21.586, "to": 25.029, "text": "所以短 hash 是对象 ID 的可识别前缀，不是另一套编号"}
+      ]
+    },
+    {
+      "id": "ancestors",
+      "title": "沿 Parent 向后",
+      "start": 94,
+      "duration": 27.5,
+      "primaryTechnique": "Animated parent traversal",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseHeadMarker", "NarrationSubtitle"],
+      "goal": "可视化 HEAD^、HEAD~2 与 merge commit 父节点选择差异。",
+      "beats": [{"time": [94, 121.5], "visual": "线性历史先展示 ~，随后 merge 节点展示 ^1 与 ^2", "motion": "游标严格沿 parent 逐步移动", "state": "history", "narration": "相对引用是在图上行走。", "audit": ["箭头方向遵循 child 指向 parent", "merge 父节点编号不混同代数"]}],
+      "narration": {"segmentId": "05_ancestors", "voiceStart": 94.35, "text": "相对引用最适合直接在图上读。<#0.35#>\nHEAD 脱字符选择第一个 parent；在线性历史里，它通常就是上一个 commit。<#0.45#>\nHEAD 波浪线二，则沿第一个 parent 连走两步。<#0.45#>\n遇到 merge commit 时，脱字符后的数字开始重要：一选择第一位 parent，二选择第二位 parent。<#0.55#>\n波浪线仍然沿第一位 parent 继续走。<#0.40#>\n我们不妨把它们看成图上的路线，而不是难记的标点。"},
+      "captions": [
+        {"from": 0.35, "to": 2.644, "text": "相对引用最适合直接在图上读"},
+        {"from": 3.207, "to": 8.126, "text": "HEAD 脱字符选择第一个 parent；在线性历史里，它通常就是上一个 commit"},
+        {"from": 8.865, "to": 12.399, "text": "HEAD 波浪线二，则沿第一个 parent 连走两步"},
+        {"from": 13.068, "to": 19.754, "text": "遇到 merge commit 时，脱字符后的数字开始重要：一选择第一位 parent，二选择第二位 parent"},
+        {"from": 20.51, "to": 22.226, "text": "波浪线仍然沿第一位 parent 继续走"},
+        {"from": 22.873, "to": 26.022, "text": "我们不妨把它们看成图上的路线，而不是难记的标点"}
+      ]
+    },
+    {
+      "id": "ranges",
+      "title": "选择一组提交",
+      "start": 121.5,
+      "duration": 34,
+      "primaryTechnique": "Set difference on commit graph",
+      "components": ["CourseCommitNode", "CourseGraphEdge", "CourseBranchLabel", "RecordedTerminalStage", "NarrationSubtitle"],
+      "goal": "解释 main..feature 选择 feature 可达但 main 不可达的提交集合。",
+      "beats": [{"time": [121.5, 155.5], "visual": "左右分叉图先标可达集合，再用真实终端验证 main..feature", "motion": "先圈 feature 可达，再扣除 main 可达", "state": "history", "narration": "双点不是两端距离，而是集合差。", "audit": ["不把 A..B 画成 A 到 B 的一条线段"]}],
+      "narration": {"segmentId": "06_ranges", "voiceStart": 121.85, "text": "有些命令需要的不是单个 commit，而是一组提交。<#0.40#>\nmain 双点 feature 很容易被误读成两点之间的路径。<#0.45#>\n更准确的理解是集合差：从 feature 能到达，但从 main 不能到达的 commits。<#0.55#>\n我们先在图上标出两边的可达集合，再把 main 已经包含的部分扣掉。<#0.55#>\n留下的 F1、F2，正是终端 log main 双点 feature 列出的内容。<#0.55#>\n方向反过来，得到的集合也会改变。<#0.45#>\n这为后面理解 ahead、behind 和协作分叉准备了同一套图语言。"},
+      "captions": [
+        {"from": 0.35, "to": 3.733, "text": "有些命令需要的不是单个 commit，而是一组提交"},
+        {"from": 4.347, "to": 7.567, "text": "main 双点 feature 很容易被误读成两点之间的路径"},
+        {"from": 8.388, "to": 13.773, "text": "更准确的理解是集合差：从 feature 能到达，但从 main 不能到达的 commits"},
+        {"from": 14.774, "to": 19.118, "text": "我们先在图上标出两边的可达集合，再把 main 已经包含的部分扣掉"},
+        {"from": 19.945, "to": 24.277, "text": "留下的 F1、F2，正是终端 log main 双点 feature 列出的内容"},
+        {"from": 25.063, "to": 27.528, "text": "方向反过来，得到的集合也会改变"},
+        {"from": 28.165, "to": 31.965, "text": "这为后面理解 ahead、behind 和协作分叉准备了同一套图语言"}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 155.5,
+      "duration": 20,
+      "primaryTechnique": "Minimal resolver summary",
+      "components": ["NarrationSubtitle"],
+      "goal": "把 revision 选择收束为起点、路线和集合三个问题。",
+      "beats": [{"time": [155.5, 175.5], "visual": "三个大问题依次出现：起点、路线、集合", "motion": "每次只强调一行", "state": "history", "narration": "先找起点，再看路线与集合。", "audit": ["总结不堆叠完整语法清单"]}],
+      "narration": {"segmentId": "07_takeaway", "voiceStart": 155.85, "text": "最后可以把 revision 选择收束成三个问题。<#0.35#>\n起点是谁：ref、HEAD，还是一个 hash？<#0.35#>\n沿哪条 parent 路线走：脱字符，还是波浪线？<#0.35#>\n命令需要一个节点，还是一个可达集合？<#0.45#>\n只要答案能在提交图上落地，这些写法就不再像暗号。"},
+      "captions": [
+        {"from": 0.35, "to": 2.761, "text": "最后可以把 revision 选择收束成三个问题"},
+        {"from": 3.339, "to": 7.041, "text": "起点是谁：ref、HEAD，还是一个 hash？"},
+        {"from": 7.666, "to": 10.917, "text": "沿哪条 parent 路线走：脱字符，还是波浪线？"},
+        {"from": 11.588, "to": 13.972, "text": "命令需要一个节点，还是一个可达集合？"},
+        {"from": 14.647, "to": 18.15, "text": "只要答案能在提交图上落地，这些写法就不再像暗号"}
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP10：怎样选中一个 Commit\n\n围绕‘表达式最后落在哪个节点’解释 ref、HEAD、短 hash、祖先引用与双点范围。\n",
+    "scriptMarkdown": "# EP10 当前脚本（175.5s）\n\n不做符号速查表。先用真实 log 建立提交图，再共同推演名字、相对路线和可达集合如何选择历史。逐 scene 旁白与字幕以 scenes[] 为准。\n",
+    "beatsMarkdown": "# EP10 Beats\n\n| 时间 | Scene | 教学动作 |\n|---:|---|---|\n| 0–18s | hook | 不同写法选中谁 |\n| 18–45s | revision-map | 建立解析模型 |\n| 45–67s | real-log | 真实历史与 rev-parse |\n| 67–94s | names-and-hash | ref 与唯一短 hash |\n| 94–121.5s | ancestors | 沿 parent 选择祖先 |\n| 121.5–155.5s | ranges | 用可达集合理解双点 |\n| 155.5–175.5s | takeaway | 起点、路线、集合 |\n",
+    "qualityMarkdown": "# EP10 审查记录\n\n## 当前状态\n\n- episode JSON、Remotion 7 个 Scene 与三段 git-course-lab 真实终端证据已实现。\n- Scene 04 已改为显示真实 40 位对象 ID，并在同一字符串中强调短 hash 前缀；局部 1080p preview 已抽帧复核。\n- 上一版 main candidate 因本次源码修改失效，整集 1080p candidate 待重新合成与审查。\n- 旁白使用探讨问题的语气；尚未 approve 或 promote。\n\n## 候选审查重点\n\n- 每个 revision 必须落到明确节点或集合。\n- parent 方向、merge 父节点编号与双点集合不能混淆。\n- 真实终端结果必须冻结到对应解说结束。\n",
+    "alignmentMarkdown": "# EP10 对齐记录\n\n- 已按实际 TTS 与 SRT 回写 7 个 scene 的旁白进入时间、字幕和总时长。\n- scene 尾部旁白留白约为 1.3–2.0 秒。\n- candidate 总时长 175.5 秒，连续 2fps、边界 burst 与关键帧采样均完整。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP10 B 站发布物料（草案）\n\n## 标题\n\nGit 怎样选中一个 Commit？看懂 HEAD~2、短 hash 与双点范围\n\n## 简介\n\n从真实提交图出发，理解 revision 怎样选择单个位置或一组提交。\n\n## 官方参考\n\n- [gitrevisions 官方手册](https://git-scm.com/docs/gitrevisions)\n- [Pro Git：选择修订版本](https://git-scm.com/book/zh/v2/Git-工具-选择修订版本)\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\nCommit\n```\n",
+    "coverBriefMarkdown": "# EP10 封面 Brief\n\n- 左侧大词：`revision`。\n- 右侧判断：`选中谁`，保持单行。\n- 底部只画三种输入汇聚到同一提交：`main`、`HEAD~2`、短 hash 指向高亮 `C2`。\n- 三条路径先画、节点后画；不放命令清单，不解释解析规则。\n- 320×180 下必须仍能分辨三种输入与唯一目标。\n",
+    "checklistMarkdown": "# EP10 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"
+  }
+}

@@ -136,12 +136,50 @@ export const sticker = ({label, hash, x, y, rotate, fill, text = INK}) => `
     <text x="24" y="90" font-family="${FONT.mono}" font-size="24" font-weight="${WEIGHT.bold}" fill="${text}">${esc(hash)}</text>
   </g>`;
 
+// 封面提交节点：只负责节点本身。连线必须由调用方先画，节点后画，
+// 让粗线适度伸入圆内而不覆盖节点边线。
+export const commitNode = ({
+  x,
+  y,
+  label,
+  radius = 58,
+  fill = PAPER,
+  stroke = INK,
+  text = INK,
+  strokeWidth = 7,
+  fontSize = 32,
+  halo,
+}) => `
+  ${halo ? `<circle cx="${x}" cy="${y}" r="${radius + 14}" fill="none" stroke="${halo}" stroke-width="8"/>` : ''}
+  <circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>
+  <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="${FONT.mono}" font-size="${fontSize}" font-weight="${WEIGHT.bold}" fill="${text}">${esc(label)}</text>`;
+
+// 分支、标签与 revision 输入共用的大号胶囊。封面在缩略图尺寸下仍需可辨。
+export const refPill = ({
+  x,
+  y,
+  label,
+  width = 300,
+  height = 96,
+  fill = PAPER,
+  stroke = INK,
+  text = INK,
+  fontSize = 38,
+  strokeWidth = 6,
+  rx = 18,
+}) => `
+  <g transform="translate(${x} ${y})">
+    ${softShadowRect({width, height, rx, dx: 8, dy: 9, opacity: 0.16})}
+    <rect width="${width}" height="${height}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>
+    <text x="${width / 2}" y="${height / 2}" text-anchor="middle" dominant-baseline="central" font-family="${FONT.mono}" font-size="${fontSize}" font-weight="${WEIGHT.bold}" fill="${text}">${esc(label)}</text>
+  </g>`;
+
 // 不等号
 export const neq = ({x = 828, y = 674} = {}) =>
   `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="${WEIGHT.bold}" fill="${TOMATO}">≠</text>`;
 
 // 组装 SVG、写盘、rsvg 转 PNG。outDir 相对 cwd（约定从 remotion/ 跑）。
-export function render({outDir, name = 'cover.svg', body}) {
+export function render({outDir, name = 'cover.svg', body, previews = false}) {
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>${DEFS}</defs>
@@ -155,6 +193,14 @@ ${body}
   execFileSync('rsvg-convert', ['-w', '12000', '-h', '6750', '-d', '600', '-f', 'png', '-o', pngPath, svgPath], {
     stdio: 'inherit',
   });
+  if (previews) {
+    const previewPath = svgPath.replace(/\.svg$/, '-preview.png');
+    const thumbnailPath = svgPath.replace(/\.svg$/, '-thumbnail.png');
+    execFileSync('rsvg-convert', ['-w', '1920', '-h', '1080', '-f', 'png', '-o', previewPath, svgPath], {stdio: 'inherit'});
+    execFileSync('rsvg-convert', ['-w', '320', '-h', '180', '-f', 'png', '-o', thumbnailPath, svgPath], {stdio: 'inherit'});
+    console.log(`Preview: ${previewPath}`);
+    console.log(`Thumbnail: ${thumbnailPath}`);
+  }
   console.log(`SVG: ${svgPath}`);
   console.log(`PNG: ${pngPath}`);
 }

@@ -17,6 +17,9 @@ const EPISODES = [
   ['ep07-rebase', 'GitCourseEp07Rebase', 'EP07'],
   ['ep08-reset-revert-restore', 'GitCourseEp08ResetRevertRestore', 'EP08'],
   ['ep09-diff-compares-states', 'GitCourseEp09DiffComparesStates', 'EP09'],
+  ['ep10-selecting-revisions', 'GitCourseEp10SelectingRevisions', 'EP10'],
+  ['ep11-tags', 'GitCourseEp11Tags', 'EP11'],
+  ['ep12-remote-tracking-branches', 'GitCourseEp12RemoteTrackingBranches', 'EP12'],
 ];
 
 const fail = (message) => {
@@ -121,7 +124,7 @@ const generateReleaseSource = (episode) => {
     ['audio-alignment.md', episode.content?.alignmentMarkdown],
   ].filter(([, content]) => typeof content === 'string' && content.length > 0);
   if (documents.length === 0) return [];
-  const dir = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'current/release');
+  const dir = join(REMOTION_ROOT, 'renders/git-course', episode.id, 'tmp/release-source');
   mkdirSync(dir, {recursive: true});
   return documents.map(([name, content]) => {
     const path = join(dir, name);

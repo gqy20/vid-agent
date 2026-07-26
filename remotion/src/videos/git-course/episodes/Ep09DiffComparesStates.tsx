@@ -7,6 +7,7 @@ import {
   type DiffFocus,
   CommandPill,
   courseCommitAnchor,
+  courseCommitOuterRadius,
   createEpisodeRuntime,
   CourseBranchLabel,
   CourseCommitNode,
@@ -48,6 +49,8 @@ const COMMIT_TERMINAL_CUES = [
   terminalCue('ep09-commit-log', 0, 8.5),
   terminalCue('ep09-commit-patch', 8.5, 13),
 ] as const;
+
+const COMMIT_PAIR_NODE_RADIUS = courseCommitOuterRadius({scale: 1.3, strong: true});
 
 const WORKING_AREAS: readonly GitArea[] = [
   {id: 'repository', title: 'Repository', marker: 'HEAD', files: ['app.js  v1 committed']},
@@ -124,7 +127,7 @@ const CommitPair: React.FC<{opacity?: number; compareProgress?: number}> = ({opa
   return (
     <svg width="1020" height="330" viewBox="0 0 1020 330" style={{display: 'block', overflow: 'visible', opacity}}>
       <CourseGraphEdge from={courseCommitAnchor(c1.x, c1.y, {scale: 1.3, strong: true})} to={courseCommitAnchor(c2.x, c2.y, {scale: 1.3, strong: true})} opacity={0.42} />
-      <CourseBranchLabel name="main" x={c2.x} y={62} targetX={c2.x} targetY={c2.y} targetRadius={44} color={COLOR.git.main} />
+      <CourseBranchLabel name="main" x={c2.x} y={62} targetX={c2.x} targetY={c2.y} targetRadius={COMMIT_PAIR_NODE_RADIUS} color={COLOR.git.main} />
       <CourseHeadMarker x={c2.x + 138} y={62} />
       <CourseCommitNode id="C1" x={c1.x} y={c1.y} scale={1.3} strong />
       <CourseCommitNode id="C2" x={c2.x} y={c2.y} scale={1.3} tone="main" />

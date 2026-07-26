@@ -250,6 +250,9 @@ const getComposition = (episode) => {
     'ep07-rebase': 'GitCourseEp07Rebase',
     'ep08-reset-revert-restore': 'GitCourseEp08ResetRevertRestore',
     'ep09-diff-compares-states': 'GitCourseEp09DiffComparesStates',
+    'ep10-selecting-revisions': 'GitCourseEp10SelectingRevisions',
+    'ep11-tags': 'GitCourseEp11Tags',
+    'ep12-remote-tracking-branches': 'GitCourseEp12RemoteTrackingBranches',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -264,6 +267,9 @@ const episodeSourceName = (episodeId) => ({
   'ep07-rebase': 'Ep07Rebase.tsx',
   'ep08-reset-revert-restore': 'Ep08ResetRevertRestore.tsx',
   'ep09-diff-compares-states': 'Ep09DiffComparesStates.tsx',
+  'ep10-selecting-revisions': 'Ep10SelectingRevisions.tsx',
+  'ep11-tags': 'Ep11Tags.tsx',
+  'ep12-remote-tracking-branches': 'Ep12RemoteTrackingBranches.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {
@@ -483,6 +489,7 @@ const renderScenes = async (ctx, tasks, options = {}) => {
   const profile = existsSync(profilePath) ? json(profilePath) : {maxStableConcurrencyPerBrowser: defaultConcurrency};
   const requestedConcurrency = Number(FLAGS.get('render-concurrency') ?? Math.max(1, Math.floor(logicalCpus / tasks.length)));
   const concurrency = FLAGS.has('render-concurrency') ? requestedConcurrency : Math.min(requestedConcurrency, profile.maxStableConcurrencyPerBrowser ?? defaultConcurrency);
+  const maxParallelTasks = Math.max(1, Math.min(tasks.length, profile.maxStableBrowserPools ?? tasks.length));
   const bundleFingerprint = hashFiles([
     ...walkFiles(join(REMOTION, 'src'), (path) => /\.(?:ts|tsx|css)$/.test(path)),
     join(REMOTION, 'package.json'),
@@ -513,6 +520,7 @@ const renderScenes = async (ctx, tasks, options = {}) => {
     compositionId,
     logicalCpus,
     requestedConcurrency,
+    maxParallelTasks,
     profilePath,
     bundleDir,
     bundleFingerprint,
@@ -1236,12 +1244,78 @@ const releaseBuild = async (ctx) => {
 
 const publish = (ctx) => {
   const {verdict, artifact} = requirePass(ctx, 'release');
-  const target = join(ctx.current, 'release', `${ctx.episode.episodeId}.mp4`);
-  mkdirSync(dirname(target), {recursive: true});
-  copyFileSync(artifact, `${target}.partial`);
-  renameSync(`${target}.partial`, target);
-  writeJson(join(ctx.current, 'release/verdict.json'), verdict);
-  console.log(`PASS  publish ${rel(target)}`);
+  const releaseDir = join(ctx.current, 'release');
+  const nextReleaseDir = join(ctx.current, 'release.next');
+  const previousReleaseDir = join(ctx.current, 'release.previous');
+  const candidateCoverDir = join(ctx.tmp, 'cover-candidate');
+  const existingCoverDir = releaseDir;
+  const hasCoverPair = (dir) => existsSync(join(dir, 'cover.svg')) && existsSync(join(dir, 'cover.png'));
+  const coverSourceDir = hasCoverPair(candidateCoverDir)
+    ? candidateCoverDir
+    : hasCoverPair(existingCoverDir)
+      ? existingCoverDir
+      : fail(`Published cover requires cover.svg and cover.png in ${rel(candidateCoverDir)}.`);
+  const coverSvg = join(coverSourceDir, 'cover.svg');
+  const coverPng = join(coverSourceDir, 'cover.png');
+  const svgSource = readFileSync(coverSvg, 'utf8');
+  /<svg\b/.test(svgSource) && /viewBox=["']0 0 1920 1080["']/.test(svgSource)
+    || fail(`Cover SVG must use a 1920x1080 viewBox: ${rel(coverSvg)}`);
+  const [coverWidth, coverHeight] = execFileSync(
+    'identify',
+    ['-format', '%w %h', coverPng],
+    {encoding: 'utf8'},
+  ).trim().split(/\s+/).map(Number);
+  Number.isInteger(coverWidth) && Number.isInteger(coverHeight)
+    && coverWidth >= 1920 && coverHeight >= 1080
+    && coverWidth * 9 === coverHeight * 16
+    || fail(`Cover PNG must be 16:9 and at least 1920x1080: ${rel(coverPng)}`);
+
+  const documents = [
+    ['bilibili.md', ctx.episode.release?.bilibiliMarkdown, true],
+    ['checklist.md', ctx.episode.release?.checklistMarkdown, false],
+    ['cover-brief.md', ctx.episode.release?.coverBriefMarkdown, false],
+    ['audio-alignment.md', ctx.episode.content?.alignmentMarkdown, false],
+  ];
+  const requiredDocument = documents.find(([, content, required]) => required && !(typeof content === 'string' && content.trim()));
+  !requiredDocument || fail(`${ctx.episode.episodeId}: release.${requiredDocument[0]} source is required.`);
+
+  rmSync(nextReleaseDir, {recursive: true, force: true});
+  rmSync(previousReleaseDir, {recursive: true, force: true});
+  mkdirSync(nextReleaseDir, {recursive: true});
+  const target = join(nextReleaseDir, `${ctx.episode.episodeId}.mp4`);
+  copyFileSync(artifact, target);
+  copyFileSync(coverSvg, join(nextReleaseDir, 'cover.svg'));
+  copyFileSync(coverPng, join(nextReleaseDir, 'cover.png'));
+  for (const [name, content] of documents) {
+    if (typeof content !== 'string' || !content.trim()) continue;
+    writeFileSync(join(nextReleaseDir, name), `${content.trimEnd()}\n`);
+  }
+  writeJson(join(nextReleaseDir, 'verdict.json'), verdict);
+  const publishedAt = new Date().toISOString();
+  const publishedFiles = walkFiles(nextReleaseDir).map((path) => ({
+    path: relative(nextReleaseDir, path).replaceAll('\\', '/'),
+    sha256: shaFile(path),
+    bytes: statSync(path).size,
+  }));
+  writeJson(join(nextReleaseDir, 'release-manifest.json'), {
+    schemaVersion: 1,
+    episodeId: ctx.episode.episodeId,
+    publishedAt,
+    sourceEpisode: {path: rel(ctx.episodePath), sha256: shaFile(ctx.episodePath)},
+    releaseCandidate: {path: rel(artifact), sha256: shaFile(artifact)},
+    coverSource: {path: rel(coverSourceDir), width: coverWidth, height: coverHeight},
+    files: publishedFiles,
+  });
+
+  if (existsSync(releaseDir)) renameSync(releaseDir, previousReleaseDir);
+  try {
+    renameSync(nextReleaseDir, releaseDir);
+  } catch (error) {
+    if (!existsSync(releaseDir) && existsSync(previousReleaseDir)) renameSync(previousReleaseDir, releaseDir);
+    throw error;
+  }
+  rmSync(previousReleaseDir, {recursive: true, force: true});
+  console.log(`PASS  publish package ${rel(releaseDir)} (${publishedFiles.length + 1} files)`);
 };
 
 const build = async (ctx) => {

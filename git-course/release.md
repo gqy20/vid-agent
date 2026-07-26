@@ -17,17 +17,24 @@ remotion/renders/git-course/<episode-id>/current/release/
 ├── <episode-id>.mp4
 ├── cover.svg
 ├── cover.png
-└── bilibili.md              # 由 episode JSON 的 release.bilibiliMarkdown 生成
+├── bilibili.md              # 由 episode JSON 的 release.bilibiliMarkdown 生成
+├── checklist.md             # 有源数据时生成
+├── cover-brief.md           # 有源数据时生成
+├── audio-alignment.md       # 有源数据时生成
+├── verdict.json
+└── release-manifest.json
 ```
 
 `release/` 同时容纳封面和最终发布视频，不再区分 `publishing/` 与 `published/`。生成文件默认不进入 Git。
 
 发布视频经过两级门禁：main candidate 通过 audit/approve 后才能 promote；片头、正片、片尾组成的 release candidate 再次通过 release-audit/release-approve 后才能 publish。verdict 与候选 SHA 绑定，候选或输入变化后旧批准自动失效。禁止直接运行底层 `git-course-publish-episode.sh`。
 
-`bilibili.md` 是方便发布时直接查看和复制的物化文件，不是第二份事实源；修改文案时应编辑 episode JSON，再运行：
+`bilibili.md` 是方便发布时直接查看和复制的物化文件，不是第二份事实源；修改文案时应编辑 episode JSON。`publish` 会从 episode JSON 物化文档、校验并晋升封面候选，再将视频、封面、文档、verdict 和 manifest 原子替换为一套发布物料：
 
 ```bash
-pnpm --dir remotion git-course:release <episode-id>
+pnpm --dir remotion git-course publish <episode-id>
 ```
+
+如果只需预览 episode JSON 派生的文档，可运行 `pnpm --dir remotion git-course:release <episode-id>`；它只写 `tmp/release-source/`，不得写入 `current/release/`。
 
 静态封面由对应 `remotion/scripts/git-course-build-epXX-cover.mjs` 生成；如调整生成的 SVG，必须把有效参数反推回脚本，不能让生成物成为事实源。

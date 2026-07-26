@@ -5,7 +5,7 @@ import {connectCircleAnchors, type CircleAnchor} from './graphGeometry';
 /**
  * The visual geometry established by EP04/EP05's GitGraph.
  * Later episodes reuse these values so a commit, ref, HEAD marker, and their
- * connector gaps keep the same visual weight across the course.
+ * connector underlaps keep edges continuous while nodes stay visually on top.
  */
 export const COURSE_GRAPH_GEOMETRY = {
   commitGap: 150,
@@ -15,6 +15,7 @@ export const COURSE_GRAPH_GEOMETRY = {
   nodeStroke: 5.6,
   nodeStrongStroke: 6.8,
   edgeStroke: 8,
+  connectorUnderlap: 12,
   refWidth: 116,
   refHeight: 48,
   refRadius: 8,
@@ -116,7 +117,16 @@ export const CourseGraphEdge: React.FC<{
   sourceGap?: number;
   targetGap?: number;
   auditId?: string;
-}> = ({from, to, color = COLOR.git.graphLine, width = COURSE_GRAPH_GEOMETRY.edgeStroke, opacity = 1, sourceGap = width / 2, targetGap = width / 2, auditId}) => {
+}> = ({
+  from,
+  to,
+  color = COLOR.git.graphLine,
+  width = COURSE_GRAPH_GEOMETRY.edgeStroke,
+  opacity = 1,
+  sourceGap = -COURSE_GRAPH_GEOMETRY.connectorUnderlap,
+  targetGap = -COURSE_GRAPH_GEOMETRY.connectorUnderlap,
+  auditId,
+}) => {
   const line = connectCircleAnchors(from, to, {sourceGap, targetGap});
   return <line {...line} data-audit-id={auditId} stroke={color} strokeWidth={width} strokeLinecap="round" opacity={opacity} />;
 };
@@ -135,7 +145,7 @@ export const CourseBranchLabel: React.FC<{
   const isAboveTarget = y < targetY;
   const direction = isAboveTarget ? 1 : -1;
   const connectorStartY = y + direction * COURSE_GRAPH_GEOMETRY.refHeight / 2;
-  const connectorEndY = targetY - direction * targetRadius;
+  const connectorEndY = targetY - direction * Math.max(0, targetRadius - COURSE_GRAPH_GEOMETRY.connectorUnderlap);
   const connectorMidY = connectorStartY + direction * COURSE_GRAPH_GEOMETRY.refNodeGap / 2;
 
   return (

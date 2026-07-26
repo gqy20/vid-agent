@@ -65,6 +65,40 @@ export const EP09 = {
   ],
 };
 
+export const EP10 = {
+  id: 'ep10-selecting-revisions',
+  title: '怎样选中一个 Commit',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp10SelectingRevisions',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/07-git-tools/sections/revision-selection.asc',
+    'https://git-scm.com/docs/gitrevisions',
+  ],
+};
+
+export const EP11 = {
+  id: 'ep11-tags',
+  title: 'Tag 与 Branch 有什么不同',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp11Tags',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/02-git-basics/sections/tagging.asc',
+    'docs/references/progit2-zh/book/10-git-internals/sections/refs.asc',
+  ],
+};
+
+export const EP12 = {
+  id: 'ep12-remote-tracking-branches',
+  title: 'origin/main 到底在哪里',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp12RemoteTrackingBranches',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/03-git-branching/sections/remote-branches.asc',
+    'docs/references/progit2-zh/book/10-git-internals/sections/refs.asc',
+    'docs/references/progit2-zh/book/10-git-internals/sections/refspec.asc',
+  ],
+};
+
 export const COMMAND_STEPS = [
   {
     command: 'git log --oneline --graph',

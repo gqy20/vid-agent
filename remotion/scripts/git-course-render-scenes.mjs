@@ -150,8 +150,9 @@ const renderTask = async (task) => {
     renameSync(partial, output);
     const cacheOutput = resolve(task.cacheOutput);
     mkdirSync(dirname(cacheOutput), {recursive: true});
-    copyFileSync(output, `${cacheOutput}.partial`);
-    renameSync(`${cacheOutput}.partial`, cacheOutput);
+    const cachePartial = `${cacheOutput}.partial-${process.pid}`;
+    copyFileSync(output, cachePartial);
+    renameSync(cachePartial, cacheOutput);
     const result = {
       sceneId: task.sceneId,
       start: task.start,

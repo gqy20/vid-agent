@@ -22,4 +22,13 @@ export const TERMINAL_RECORDINGS = {
   "ep09-staged-diff": {"id":"ep09-staged-diff","durationInFrames":130,"holdFromFrame":69,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep09-status-mm": {"id":"ep09-status-mm","durationInFrames":145,"holdFromFrame":84,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
   "ep09-unstaged-diff": {"id":"ep09-unstaged-diff","durationInFrames":96,"holdFromFrame":35,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep10-log": {"id":"ep10-log","durationInFrames":122,"holdFromFrame":61,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep10-range": {"id":"ep10-range","durationInFrames":111,"holdFromFrame":50,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep10-resolve": {"id":"ep10-resolve","durationInFrames":199,"holdFromFrame":138,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep11-after-commit": {"id":"ep11-after-commit","durationInFrames":110,"holdFromFrame":49,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep11-create-tag": {"id":"ep11-create-tag","durationInFrames":161,"holdFromFrame":100,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep11-tag-object": {"id":"ep11-tag-object","durationInFrames":148,"holdFromFrame":87,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep12-fetch": {"id":"ep12-fetch","durationInFrames":93,"holdFromFrame":32,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep12-local-refs": {"id":"ep12-local-refs","durationInFrames":92,"holdFromFrame":31,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
+  "ep12-server-ref": {"id":"ep12-server-ref","durationInFrames":112,"holdFromFrame":51,"width":1420,"height":768,"fps":30,"font":"Source Code Pro Medium","fontSize":32,"lineHeight":1.6,"theme":"git-course-termius-dark"},
 } as const;
