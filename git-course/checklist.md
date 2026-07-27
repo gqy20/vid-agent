@@ -59,6 +59,19 @@
 - [ ] branch 表达为可移动指针，HEAD 的附着或 detached 状态表达准确。
 - [ ] merge、rebase、reset、restore、revert 的动作对象与后果没有混淆。
 
+### 远程协作、冲突与恢复
+
+- [ ] remote-tracking ref 明确画在本地仓库内，表示最近一次通信后本地保存的远端状态，没有画成服务器上的 branch 本身。
+- [ ] `fetch` 表达为取得对象并按 refspec 更新本地记录；没有自动移动当前本地 branch，也没有自动修改 Index 或 Working Tree。
+- [ ] `pull` 表达为 fetch 后再整合，演示命令显式指定 `--ff-only`、`--rebase` 或 `--no-rebase`；没有把机器配置或 Git 版本的默认策略写成普遍事实。
+- [ ] `push` 表达为发送所需对象并请求更新远端 ref，不是上传 Working Tree；成功、客户端拒绝、远端拒绝和网络失败没有混成同一种结果。
+- [ ] ahead/behind 的比较对象是当前 branch 与本地 upstream ref；需要声称服务器最新状态时已经先 fetch，没有把旧计数说成实时查询结果。
+- [ ] non-fast-forward 用旧 ref 是否为新目标祖先来判断；普通协作分叉优先 fetch 后 merge/rebase，没有用盲目 `--force` 掩盖未整合历史。
+- [ ] 冲突画面区分 Working Tree 中的标记与 Index 中的 unmerged entries；merge 的 stage 1/2/3 分别对应 base、ours、theirs。
+- [ ] `git add` 之后，多阶段未合并条目确实收束为普通 stage 0；旁白进入 continue/commit 前，终端和状态模型均已证明不再存在 unmerged paths。
+- [ ] rebase 场景没有机械沿用 merge 视角的 ours/theirs 标签；`--continue`、`--skip`、`--abort` 与当前操作类型对应。
+- [ ] reflog 明确限定为本地、会过期的 ref 更新记录；恢复时先验证旧对象并创建救援 branch，没有把 reflog 说成服务器历史或永久备份。
+
 ## 三、Scene 验收
 
 每个 scene 完成后单独渲染，至少检查开头、动作前、动作中、动作完成和结尾五类帧。动画较复杂时增加逐帧或连续抽帧检查。

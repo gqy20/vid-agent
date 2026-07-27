@@ -43,16 +43,36 @@
     `origin/main` 到底在哪里：区分远端 branch、本地 branch 和本地保存的 remote-tracking ref。
 
 13. `ep13-fetch-pull-push`
-    fetch、pull、push 做了什么：分别观察对象传输、本地整合和远端 ref 更新。
+    fetch、pull、push 分别跨过哪条边界：区分取得对象并更新本地记录、把远端工作整合进当前分支，以及请求更新远端 ref。
+
+    - 主线：承接 EP12 的服务器 `main`、本地 `main` 与 `origin/main` 三个位置。`fetch` 取得缺少的对象并更新 remote-tracking refs；`pull` 先 fetch，再按显式策略整合；`push` 发送所需对象并请求更新远端 ref。
+    - 真实演示：分别录制 `git fetch origin`、`git pull --ff-only` 和一次可 fast-forward 的 `git push origin main`，每条命令只展示一个边界变化。
+    - 本集边界：不重复解释 `origin/main` 住在哪里；不把 `pull` 固定讲成 `fetch + merge`；不展开 push rejected、ahead/behind、refspec、prune 或 force push。
+    - 官方依据：[git-fetch](https://git-scm.com/docs/git-fetch)、[git-pull](https://git-scm.com/docs/git-pull)、[git-push](https://git-scm.com/docs/git-push)。
 
 14. `ep14-ahead-behind-non-fast-forward`
-    ahead、behind 与 non-fast-forward：从提交图理解 upstream、协作分叉和 push rejected。
+    ahead、behind 是相对谁：从本地 branch 与已抓取的 upstream ref 的可达性差，解释协作分叉和 non-fast-forward push rejected。
 
-15. `ep15-conflict-resolution`
-    冲突解决是一套状态机：从 unmerged entries 到编辑、暂存，再完成 merge 或继续 rebase。
+    - 主线：在 fresh fetch 后依次展示 up to date、ahead、behind 和 diverged；ahead 是仅从本地 branch 可达的提交数，behind 是仅从 upstream ref 可达的提交数。
+    - 真实演示：第二个 clone 先推送，本地再产生提交；fetch 前后的 `git status --short --branch` 必须形成对照，随后真实触发 push rejected，再通过 merge 或 rebase 整合后正常 push。
+    - 本集边界：upstream 只是关联，计数来自本地保存的 ref，不是实时询问服务器；普通 non-fast-forward 不用盲目 `--force` 解决，`--force-with-lease` 只作为已讲过的主动改写边界提示。
+    - 官方依据：[git-status](https://git-scm.com/docs/git-status)、[git-push 的 fast-forward 规则](https://git-scm.com/docs/git-push#_note_about_fast_forwards)、[Pro Git：Remote Branches](https://git-scm.com/book/en/v2/Git-Branching-Remote-Branches)。
+
+15. `ep15-unmerged-index`
+    冲突的真实状态在 Index：从 stage 1/2/3 的 unmerged entries，到编辑 Working Tree、`git add` 收束为普通 stage 0，再继续或退出当前操作。
+
+    - 主线：冲突标记只是 Working Tree 中的可编辑表现；Index 才保存 base、ours、theirs 三份未合并条目。解决内容并 `git add` 后，多阶段条目消失，当前操作才具备继续条件。
+    - 真实演示：以 merge 为主运行 `git status --short`、`git ls-files -u`、`git show :1:app.js`、`:2:app.js`、`:3:app.js`；编辑并 add 后再次证明 `git ls-files -u` 为空，再完成 merge。结尾只用短对照说明 rebase 使用 `--continue` 或 `--abort`。
+    - 本集边界：不重复 EP06 的“三方合并为什么冲突”，也不重复 EP07 的“rebase 如何重放”；stage 2/3 的 ours/theirs 先限定在 merge 视角，不能把同一标签机械套到 rebase。
+    - 官方依据：[git-merge 的冲突状态](https://git-scm.com/docs/git-merge#_true_merge)、[git-ls-files](https://git-scm.com/docs/git-ls-files)、[git-rebase](https://git-scm.com/docs/git-rebase)、[git-restore 的 ours/theirs 边界](https://git-scm.com/docs/git-restore)。
 
 16. `ep16-reflog-recovery`
-    reflog 如何找回旧位置：使用本地 ref 移动记录恢复 reset 或 rebase 后暂时不可达的 commit。
+    reflog 如何把旧提交重新变成可达历史：从本地 ref 移动记录定位 reset 或 rebase 前的位置，先创建救援 branch，再决定如何整合。
+
+    - 主线：制造一次 `reset --hard` 或 rebase 后旧提交暂时不可达的场景；用 `git reflog` / `git log -g` 找到旧对象，先 `git show` 验证，再用 `git branch rescue <oid>` 恢复可达性。
+    - 真实演示：恢复前后同时展示 branch/ref 与 commit graph；第一恢复动作不得再次使用 `reset --hard`，避免在尚未确认对象时继续改变 HEAD、Index 和 Working Tree。
+    - 本集边界：reflog 是当前本地仓库的 ref 更新记录，不是服务器历史、对象备份或永久保险；条目会过期，不可达对象之后也可能被 GC 清理。
+    - 官方依据：[git-reflog](https://git-scm.com/docs/git-reflog)、[Pro Git：Maintenance and Data Recovery](https://git-scm.com/book/en/v2/Git-Internals-Maintenance-and-Data-Recovery)。
 
 ## 第三季：精确修改与历史调试（规划）
 
