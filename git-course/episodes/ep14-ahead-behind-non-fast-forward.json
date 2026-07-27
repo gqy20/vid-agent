@@ -2,18 +2,141 @@
   "episodeId": "ep14-ahead-behind-non-fast-forward",
   "title": "Ahead、Behind 是相对谁",
   "fps": 30,
-  "resolution": {"width": 1920, "height": 1080},
+  "resolution": {"width":1920,"height":1080},
   "durationSeconds": 150,
-  "sourceOfTruth": {"references": ["docs/references/progit2-zh/book/03-git-branching/sections/remote-branches.asc", "https://git-scm.com/docs/git-status", "https://git-scm.com/docs/git-push#_note_about_fast_forwards"]},
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/03-git-branching/sections/remote-branches.asc",
+      "https://git-scm.com/docs/git-status",
+      "https://git-scm.com/docs/git-push#_note_about_fast_forwards"
+    ]
+  },
   "scenes": [
-    {"id": "hook", "title": "计数来自哪里", "start": 0, "duration": 16, "goal": "质疑 ahead/behind 是否实时来自服务器。", "primaryTechnique": "Question scene + stale counter", "beats": [{"time": [0, 16], "visual": "服务器已前移而本地状态仍显示 up to date", "motion": "服务器先变化，本地计数保持", "state": "stale", "narration": "这个计数在比较谁？", "audit": ["计数必须明确位于本地"]}], "narration": {"segmentId": "01_hook", "voiceStart": 0.35, "text": "终端说本地分支 ahead 一个、behind 两个。<#0.35#>\n这些数字是服务器刚刚算给我们的吗？<#0.40#>\n如果通信之前和之后答案不同，问题也许不在计算，而在比较对象。<#0.45#>\n这一集我们从一次过期的状态开始。"}},
-    {"id": "stale-count", "title": "通信前的本地认知", "start": 16, "duration": 22, "goal": "用真实 status 证明未 fetch 时计数可能仍是 up to date。", "primaryTechnique": "Recorded status before fetch", "beats": [{"time": [16, 38], "visual": "服务器已有 C2，本地 status 仍比较 main 与旧 origin/main", "motion": "真实输出冻结后显示两个本地 ref", "state": "stale", "narration": "status 没有实时询问服务器。", "audit": ["不得把旧计数说成错误"]}], "narration": {"segmentId": "02_stale_count", "voiceStart": 16.35, "text": "先让同事把 C2 推到服务器，但本地不执行 fetch。<#0.45#>\n这时运行 git status --short --branch，结果仍可能显示 up to date。<#0.50#>\n因为 status 比较的是本地 main 和本地保存的 upstream ref，也就是旧的 origin slash main。<#0.50#>\n服务器已经变化，并不会让这个本地记录自动刷新。"}},
-    {"id": "fresh-count", "title": "Fetch 后重新比较", "start": 38, "duration": 22, "goal": "fresh fetch 后显示 behind，并解释可达集合差。", "primaryTechnique": "Recorded status after fetch + set difference", "beats": [{"time": [38, 60], "visual": "fetch 后 status 显示 behind 1，图上突出仅 upstream 可达的 C2", "motion": "origin/main 前移后计数从 0 变 1", "state": "behind", "narration": "计数来自两个 ref 的可达性差。", "audit": ["behind 只突出 upstream 独有提交"]}], "narration": {"segmentId": "03_fresh_count", "voiceStart": 39.85, "text": "现在先 fetch，再运行同一条 status。<#0.40#>\norigin slash main 已经来到 C2，于是本地 main 显示 behind 一个。<#0.45#>\nahead 是只从本地 branch 可达的提交数，behind 是只从 upstream ref 可达的提交数。<#0.55#>\n它们描述两段集合差，不是网络延迟，也不是文件数量。"}},
-    {"id": "diverged", "title": "两边都前进", "start": 60, "duration": 21, "goal": "建立 diverged 图并解释 ahead/behind 同时非零。", "primaryTechnique": "Centered reachability graph", "beats": [{"time": [60, 81], "visual": "C1 后分叉为本地 L2 和服务器 R2", "motion": "两侧提交依次生成并分别计数", "state": "diverged", "narration": "两个计数可以同时存在。", "audit": ["共同祖先不计入任一侧"]}], "narration": {"segmentId": "04_diverged", "voiceStart": 60.35, "text": "再让本地也从 C1 产生一个不同的提交 L2。<#0.45#>\nfetch 以后，main 指向 L2，origin slash main 指向服务器的 R2。<#0.50#>\n两边都包含共同祖先 C1，但各自还有一个对方不可达的提交。<#0.45#>\n于是状态同时显示 ahead 一个、behind 一个，也就是历史已经分叉。"}},
-    {"id": "push-rejected", "title": "为什么 Push 被拒绝", "start": 81, "duration": 20, "goal": "真实触发 non-fast-forward 并用祖先关系解释。", "primaryTechnique": "Recorded rejected push + ancestor test", "beats": [{"time": [81, 101], "visual": "真实 push rejected 后图上检查服务器旧目标是否为本地新目标祖先", "motion": "失败提示后只高亮断开的祖先路径", "state": "rejected", "narration": "拒绝的是远端 ref 更新请求。", "audit": ["不把拒绝说成网络失败", "不建议盲目 force"]}], "narration": {"segmentId": "05_push_rejected", "voiceStart": 81.35, "text": "此时直接 push，会真实得到 non-fast-forward 拒绝。<#0.45#>\n问题不是对象完全无法发送，而是我们请求服务器 main 从 R2 改到 L2。<#0.50#>\nL2 不是 R2 的后代，这次更新会让 R2 从服务器分支历史中消失。<#0.50#>\n普通 branch push 因而默认拒绝这个更新，保护已经存在的历史。"}},
-    {"id": "integrate-first", "title": "先得到包含双方的历史", "start": 101, "duration": 26, "goal": "通过 fetch + rebase 形成可 fast-forward 的新历史后再 push。", "primaryTechnique": "Recorded rebase integration + graph transition", "beats": [{"time": [101, 127], "visual": "真实 pull --rebase 后 L2 重建为 L2'，随后服务器可快进", "motion": "先保留 R2，再在其后生成 L2'", "state": "integrated", "narration": "先整合，不是先覆盖。", "audit": ["明确 L2' 是新身份", "最终更新必须是 fast-forward"]}], "narration": {"segmentId": "06_integrate_first", "voiceStart": 101.35, "text": "更稳妥的方向是先 fetch，再选择 merge 或 rebase 整合双方历史。<#0.50#>\n这里用显式的 pull --rebase，把本地修改重新放到 R2 之后，形成新的 L2 prime。<#0.55#>\n现在服务器的 R2 已经是本地新目标的祖先。<#0.45#>\n再次 push 就是 fast-forward，不需要丢掉任何一边的提交。<#0.45#>\nforce-with-lease 属于主动改写的另一类问题，不用它掩盖普通协作分叉。"}},
-    {"id": "takeaway", "title": "总结", "start": 127, "duration": 23, "goal": "用刷新、比较、祖先三个问题收束。", "primaryTechnique": "Minimal diagnostic checklist", "beats": [{"time": [127, 150], "visual": "fresh fetch、两个 refs、祖先关系三行依次出现", "motion": "每次只强调一个判断", "state": "takeaway", "narration": "先刷新认知，再解释计数和拒绝。", "audit": ["不扩展 force push 教程"]}], "narration": {"segmentId": "07_takeaway", "voiceStart": 130.35, "text": "最后遇到 ahead、behind 或 push rejected，可以连续问三个问题。<#0.40#>\n我们刚刚 fetch 过吗？<#0.35#>\n当前 branch 和哪个本地 upstream ref 在比较？<#0.40#>\n远端旧目标是不是新目标的祖先？<#0.45#>\n先把这三点画出来，计数和 non-fast-forward 就会落到同一张提交图上。"}}
+    {
+      "id": "hook",
+      "title": "计数来自哪里",
+      "start": 0,
+      "duration": 16,
+      "goal": "质疑 ahead/behind 是否实时来自服务器。",
+      "primaryTechnique": "Question scene + stale counter",
+      "beats": [{"time":[0,16],"visual":"服务器已前移而本地状态仍显示 up to date","motion":"服务器先变化，本地计数保持","state":"stale","narration":"这个计数在比较谁？","audit":["计数必须明确位于本地"]}],
+      "narration": {"segmentId":"01_hook","voiceStart":0.35,"text":"终端说本地分支 ahead 一个、behind 两个。<#0.35#>\n这些数字是服务器刚刚算给我们的吗？<#0.40#>\n如果通信之前和之后答案不同，问题也许不在计算，而在比较对象。<#0.45#>\n这一集我们从一次过期的状态开始。"},
+      "captions": [
+        {"from":0.35,"to":3.537,"text":"终端说本地分支 ahead 一个、behind 两个"},
+        {"from":4.112,"to":6.01,"text":"这些数字是服务器刚刚算给我们的吗？"},
+        {"from":6.757,"to":11.038,"text":"如果通信之前和之后答案不同，问题也许不在计算，而在比较对象"},
+        {"from":11.718,"to":13.934,"text":"这一集我们从一次过期的状态开始"}
+      ]
+    },
+    {
+      "id": "stale-count",
+      "title": "通信前的本地认知",
+      "start": 16,
+      "duration": 22,
+      "goal": "用真实 status 证明未 fetch 时计数可能仍是 up to date。",
+      "primaryTechnique": "Recorded status before fetch",
+      "beats": [{"time":[16,38],"visual":"服务器已有 C2，本地 status 仍比较 main 与旧 origin/main","motion":"真实输出冻结后显示两个本地 ref","state":"stale","narration":"status 没有实时询问服务器。","audit":["不得把旧计数说成错误"]}],
+      "narration": {"segmentId":"02_stale_count","voiceStart":16.35,"text":"先让同事把 C2 推到服务器，但本地不执行 fetch。<#0.45#>\n这时运行 git status --short --branch，结果仍可能显示 up to date。<#0.50#>\n因为 status 比较的是本地 main 和本地保存的 upstream ref，也就是旧的 origin slash main。<#0.50#>\n服务器已经变化，并不会让这个本地记录自动刷新。"},
+      "captions": [
+        {"from":0.35,"to":3.945,"text":"先让同事把 C2 推到服务器，但本地不执行 fetch"},
+        {"from":4.576,"to":9.805,"text":"这时运行 git status --short --branch，结果仍可能显示 up to date"},
+        {"from":10.572,"to":16.347,"text":"因为 status 比较的是本地 main 和本地保存的 upstream ref，也就是旧的 origin slash main"},
+        {"from":17.102,"to":20.122,"text":"服务器已经变化，并不会让这个本地记录自动刷新"}
+      ]
+    },
+    {
+      "id": "fresh-count",
+      "title": "Fetch 后重新比较",
+      "start": 38,
+      "duration": 22,
+      "goal": "fresh fetch 后显示 behind，并解释可达集合差。",
+      "primaryTechnique": "Recorded status after fetch + set difference",
+      "beats": [{"time":[38,60],"visual":"fetch 后 status 显示 behind 1，图上突出仅 upstream 可达的 C2","motion":"origin/main 前移后计数从 0 变 1","state":"behind","narration":"计数来自两个 ref 的可达性差。","audit":["behind 只突出 upstream 独有提交"]}],
+      "narration": {"segmentId":"03_fresh_count","voiceStart":39.85,"text":"现在先 fetch，再运行同一条 status。<#0.40#>\norigin slash main 已经来到 C2，于是本地 main 显示 behind 一个。<#0.45#>\nahead 是只从本地 branch 可达的提交数，behind 是只从 upstream ref 可达的提交数。<#0.55#>\n它们描述两段集合差，不是网络延迟，也不是文件数量。"},
+      "captions": [
+        {"from":1.85,"to":4.525,"text":"现在先 fetch，再运行同一条 status"},
+        {"from":5.165,"to":9.209,"text":"origin slash main 已经来到 C2，于是本地 main 显示 behind 一个"},
+        {"from":9.871,"to":15.365,"text":"ahead 是只从本地 branch 可达的提交数，behind 是只从 upstream ref 可达的提交数"},
+        {"from":16.187,"to":20.126,"text":"它们描述两段集合差，不是网络延迟，也不是文件数量"}
+      ]
+    },
+    {
+      "id": "diverged",
+      "title": "两边都前进",
+      "start": 60,
+      "duration": 21,
+      "goal": "建立 diverged 图并解释 ahead/behind 同时非零。",
+      "primaryTechnique": "Centered reachability graph",
+      "beats": [{"time":[60,81],"visual":"C1 后分叉为本地 L2 和服务器 R2","motion":"两侧提交依次生成并分别计数","state":"diverged","narration":"两个计数可以同时存在。","audit":["共同祖先不计入任一侧"]}],
+      "narration": {"segmentId":"04_diverged","voiceStart":60.35,"text":"再让本地也从 C1 产生一个不同的提交 L2。<#0.45#>\nfetch 以后，main 指向 L2，origin slash main 指向服务器的 R2。<#0.50#>\n两边都包含共同祖先 C1，但各自还有一个对方不可达的提交。<#0.45#>\n于是状态同时显示 ahead 一个、behind 一个，也就是历史已经分叉。"},
+      "captions": [
+        {"from":0.35,"to":2.785,"text":"再让本地也从 C1 产生一个不同的提交 L2"},
+        {"from":3.601,"to":8.411,"text":"fetch 以后，main 指向 L2，origin slash main 指向服务器的 R2"},
+        {"from":9.234,"to":13.373,"text":"两边都包含共同祖先 C1，但各自还有一个对方不可达的提交"},
+        {"from":14.058,"to":19.582,"text":"于是状态同时显示 ahead 一个、behind 一个，也就是历史已经分叉"}
+      ]
+    },
+    {
+      "id": "push-rejected",
+      "title": "为什么 Push 被拒绝",
+      "start": 81,
+      "duration": 20,
+      "goal": "真实触发 non-fast-forward 并用祖先关系解释。",
+      "primaryTechnique": "Recorded rejected push + ancestor test",
+      "beats": [{"time":[81,101],"visual":"真实 push rejected 后图上检查服务器旧目标是否为本地新目标祖先","motion":"失败提示后只高亮断开的祖先路径","state":"rejected","narration":"拒绝的是远端 ref 更新请求。","audit":["不把拒绝说成网络失败","不建议盲目 force"]}],
+      "narration": {"segmentId":"05_push_rejected","voiceStart":81.35,"text":"此时直接 push，会真实得到 non-fast-forward 拒绝。<#0.45#>\n问题不是对象完全无法发送，而是我们请求服务器 main 从 R2 改到 L2。<#0.50#>\nL2 不是 R2 的后代，这次更新会让 R2 从服务器分支历史中消失。<#0.50#>\n普通 branch push 因而默认拒绝这个更新，保护已经存在的历史。"},
+      "captions": [
+        {"from":0.35,"to":3.541,"text":"此时直接 push，会真实得到 non-fast-forward 拒绝"},
+        {"from":4.226,"to":9.197,"text":"问题不是对象完全无法发送，而是我们请求服务器 main 从 R2 改到 L2"},
+        {"from":9.904,"to":14.204,"text":"L2 不是 R2 的后代，这次更新会让 R2 从服务器分支历史中消失"},
+        {"from":14.949,"to":18.298,"text":"普通 branch push 因而默认拒绝这个更新，保护已经存在的历史"}
+      ]
+    },
+    {
+      "id": "integrate-first",
+      "title": "先得到包含双方的历史",
+      "start": 101,
+      "duration": 26,
+      "goal": "通过 fetch + rebase 形成可 fast-forward 的新历史后再 push。",
+      "primaryTechnique": "Recorded rebase integration + graph transition",
+      "beats": [{"time":[101,127],"visual":"真实 pull --rebase 后 L2 重建为 L2'，随后服务器可快进","motion":"先保留 R2，再在其后生成 L2'","state":"integrated","narration":"先整合，不是先覆盖。","audit":["明确 L2' 是新身份","最终更新必须是 fast-forward"]}],
+      "narration": {"segmentId":"06_integrate_first","voiceStart":101.35,"text":"更稳妥的方向是先 fetch，再选择 merge 或 rebase 整合双方历史。<#0.50#>\n这里用显式的 pull --rebase，把本地修改重新放到 R2 之后，形成新的 L2 prime。<#0.55#>\n现在服务器的 R2 已经是本地新目标的祖先。<#0.45#>\n再次 push 就是 fast-forward，不需要丢掉任何一边的提交。<#0.45#>\nforce-with-lease 属于主动改写的另一类问题，不用它掩盖普通协作分叉。"},
+      "captions": [
+        {"from":0.35,"to":5.416,"text":"更稳妥的方向是先 fetch，再选择 merge 或 rebase 整合双方历史"},
+        {"from":6.097,"to":11.846,"text":"这里用显式的 pull --rebase，把本地修改重新放到 R2 之后，形成新的 L2 prime"},
+        {"from":12.649,"to":15.056,"text":"现在服务器的 R2 已经是本地新目标的祖先"},
+        {"from":15.733,"to":19.347,"text":"再次 push 就是 fast-forward，不需要丢掉任何一边的提交"},
+        {"from":20.034,"to":24.234,"text":"force-with-lease 属于主动改写的另一类问题，不用它掩盖普通协作分叉"}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 127,
+      "duration": 23,
+      "goal": "用刷新、比较、祖先三个问题收束。",
+      "primaryTechnique": "Minimal diagnostic checklist",
+      "beats": [{"time":[127,150],"visual":"fresh fetch、两个 refs、祖先关系三行依次出现","motion":"每次只强调一个判断","state":"takeaway","narration":"先刷新认知，再解释计数和拒绝。","audit":["不扩展 force push 教程"]}],
+      "narration": {"segmentId":"07_takeaway","voiceStart":130.35,"text":"最后遇到 ahead、behind 或 push rejected，可以连续问三个问题。<#0.40#>\n我们刚刚 fetch 过吗？<#0.35#>\n当前 branch 和哪个本地 upstream ref 在比较？<#0.40#>\n远端旧目标是不是新目标的祖先？<#0.45#>\n先把这三点画出来，计数和 non-fast-forward 就会落到同一张提交图上。"},
+      "captions": [
+        {"from":3.35,"to":8.531,"text":"最后遇到 ahead、behind 或 push rejected，可以连续问三个问题"},
+        {"from":9.209,"to":10.241,"text":"我们刚刚 fetch 过吗？"},
+        {"from":10.799,"to":13.728,"text":"当前 branch 和哪个本地 upstream ref 在比较？"},
+        {"from":14.421,"to":16.311,"text":"远端旧目标是不是新目标的祖先？"},
+        {"from":17.012,"to":21.014,"text":"先把这三点画出来，计数和 non-fast-forward 就会落到同一张提交图上"}
+      ]
+    }
   ],
-  "content": {"overviewMarkdown": "# EP14：Ahead、Behind 是相对谁\n\n从 stale status 到 fresh fetch，再到真实 non-fast-forward rejection。\n", "scriptMarkdown": "# EP14 当前脚本（150s）\n\n用通信前后相同 status 的不同结果证明计数来自本地 refs；再用祖先关系解释拒绝和整合。\n", "beatsMarkdown": "# EP14 Beats\n\n`stale → fetch → behind → diverged → rejected → integrate → fast-forward`。\n", "qualityMarkdown": "# EP14 审查记录\n\n## 当前状态\n\n- episode JSON、真实终端、Remotion scene 与 TTS 已建立。\n- captions、candidate 与正式审查尚待生成。\n\n## 审查重点\n\n- 计数必须绑定本地 upstream ref。\n- rejected、remote rejected 和网络失败不得混淆。\n- 普通协作分叉不使用盲目 force。\n", "alignmentMarkdown": "# EP14 对齐记录\n\n真实 TTS 已将每段旁白尾部收敛到约 1–2 秒；下一步按 SRT 回写 captions，并按 status 输出、拒绝信息和重放完成点补关键帧。\n"},
-  "release": {"bilibiliMarkdown": "# EP14 B 站发布物料（草案）\n\n## 标题\n\nAhead、Behind 到底在比较谁？\n\n## 简介\n\n从两个本地 ref 的可达提交数，理解协作分叉和 non-fast-forward。\n\n## 官方参考\n\n- [git-status](https://git-scm.com/docs/git-status)\n- [git-push](https://git-scm.com/docs/git-push#_note_about_fast_forwards)\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n```\n", "coverBriefMarkdown": "# EP14 封面 Brief\n\n左侧使用大号 `ahead / behind`，右侧只画一个清晰分叉图和被拒绝的 ref 更新，不放终端输出。\n", "checklistMarkdown": "# EP14 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"}
+  "content": {
+    "overviewMarkdown": "# EP14：Ahead、Behind 是相对谁\n\n从 stale status 到 fresh fetch，再到真实 non-fast-forward rejection。\n",
+    "scriptMarkdown": "# EP14 当前脚本（150s）\n\n用通信前后相同 status 的不同结果证明计数来自本地 refs；再用祖先关系解释拒绝和整合。\n",
+    "beatsMarkdown": "# EP14 Beats\n\n`stale → fetch → behind → diverged → rejected → integrate → fast-forward`。\n",
+    "qualityMarkdown": "# EP14 审查记录\n\n## 当前状态\n\n- episode JSON、真实终端、Remotion scene、TTS 与 SRT captions 已建立。\n- candidate 与正式审查尚待生成。\n\n## 审查重点\n\n- 计数必须绑定本地 upstream ref。\n- rejected、remote rejected 和网络失败不得混淆。\n- 普通协作分叉不使用盲目 force。\n",
+    "alignmentMarkdown": "# EP14 对齐记录\n\n真实 TTS 已逐段测量，旁白尾部保持约 1–2 秒；captions 按 SRT 时间与 scene 内 voiceStart 偏移回写。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP14 B 站发布物料（草案）\n\n## 标题\n\nAhead、Behind 到底在比较谁？\n\n## 简介\n\n从两个本地 ref 的可达提交数，理解协作分叉和 non-fast-forward。\n\n## 官方参考\n\n- [git-status](https://git-scm.com/docs/git-status)\n- [git-push](https://git-scm.com/docs/git-push#_note_about_fast_forwards)\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP14 封面 Brief\n\n左侧使用大号 `ahead / behind`，右侧只画一个清晰分叉图和被拒绝的 ref 更新，不放终端输出。\n",
+    "checklistMarkdown": "# EP14 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"
+  }
 }

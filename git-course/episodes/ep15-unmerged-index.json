@@ -2,19 +2,159 @@
   "episodeId": "ep15-unmerged-index",
   "title": "冲突的真实状态在 Index",
   "fps": 30,
-  "resolution": {"width": 1920, "height": 1080},
-  "durationSeconds": 210,
-  "sourceOfTruth": {"references": ["docs/references/progit2-zh/book/07-git-tools/sections/advanced-merging.asc", "https://git-scm.com/docs/git-merge#_true_merge", "https://git-scm.com/docs/git-ls-files", "https://git-scm.com/docs/git-restore"]},
+  "resolution": {"width":1920,"height":1080},
+  "durationSeconds": 176,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/07-git-tools/sections/advanced-merging.asc",
+      "https://git-scm.com/docs/git-merge#_true_merge",
+      "https://git-scm.com/docs/git-ls-files",
+      "https://git-scm.com/docs/git-restore"
+    ]
+  },
   "scenes": [
-    {"id": "hook", "title": "冲突只在文件里吗", "start": 0, "duration": 14, "goal": "提出冲突标记并不是完整状态。", "primaryTechnique": "Question scene + code markers", "beats": [{"time": [0, 14], "visual": "app.js 冲突标记与 Index 三层入口并置", "motion": "代码标记先出现，Index 三层随后显露", "state": "conflict", "narration": "删掉标记就结束了吗？", "audit": ["不提前给出 resolved 状态"]}], "narration": {"segmentId": "01_hook", "voiceStart": 0.35, "text": "merge 冲突时，我们最先看到的是文件里的冲突标记。<#0.35#>\n可把这些标记删掉，Git 就知道问题解决了吗？<#0.40#>\n如果真正的状态还藏在 Index 里，只看编辑器就少了一半证据。<#0.45#>\n这一集我们直接把那几份内容打开。"}},
-    {"id": "create-conflict", "title": "真实触发冲突", "start": 14, "duration": 27, "goal": "真实 merge 产生冲突并显示 unmerged status。", "primaryTechnique": "Recorded merge conflict", "beats": [{"time": [14, 41], "visual": "真实 git merge feature 输出冲突，随后保持 UU app.js", "motion": "命令结果冻结", "state": "unmerged", "narration": "merge 停下时 HEAD 没有完成前移。", "audit": ["冲突结果来自真实仓库"]}], "narration": {"segmentId": "02_create_conflict", "voiceStart": 14.35, "text": "我们准备两个都修改 app.js 同一行的分支，再真实运行 git merge feature。<#0.50#>\nGit 无法自动选择结果，于是 merge 停下。<#0.45#>\nWorking Tree 写入带标记的三方合并结果，status 把 app.js 标为未合并。<#0.50#>\n但此刻 HEAD 仍指向 merge 之前的 main，新的 merge commit 还没有产生。"}},
-    {"id": "index-stages", "title": "Index 保存三份输入", "start": 41, "duration": 29, "goal": "用 ls-files -u 证明 stage 1/2/3。", "primaryTechnique": "Recorded ls-files + index stage model", "beats": [{"time": [41, 70], "visual": "真实 ls-files -u 三行输出映射到 base、ours、theirs", "motion": "三行依次进入 Index 面板", "state": "unmerged", "narration": "同一路径暂时有三条 Index 记录。", "audit": ["stage 1/2/3 映射只限定 merge 语境"]}], "narration": {"segmentId": "03_index_stages", "voiceStart": 41.35, "text": "运行 git ls-files -u，Index 的结构就露出来了。<#0.45#>\n同一个 app.js 暂时出现三条记录。<#0.40#>\nstage 1 是共同祖先，也就是 base；stage 2 来自当前 HEAD，也就是 ours；stage 3 来自 MERGE_HEAD，也就是 theirs。<#0.60#>\n这些才是 Git 判断路径仍未合并的直接证据。"}},
-    {"id": "inspect-stages", "title": "逐份查看内容", "start": 70, "duration": 31, "goal": "用真实 show :1/:2/:3 验证三份 blob 内容。", "primaryTechnique": "Three recorded terminal cues", "beats": [{"time": [70, 101], "visual": "三个固定终端视口依次查看 :1:app.js、:2:app.js、:3:app.js", "motion": "按旁白硬切并冻结每份内容", "state": "inspect", "narration": "标签背后是三份真实 blob。", "audit": ["前一份内容保持到解释结束", "不在同一视口持续滚屏"]}], "narration": {"segmentId": "04_inspect_stages", "voiceStart": 70.35, "text": "这些 stage 不是抽象标签，我们可以逐份读取。<#0.40#>\ngit show 冒号 1 app.js 打开共同祖先。<#0.40#>\n冒号 2 打开当前 main 的版本，冒号 3 打开 feature 带来的版本。<#0.50#>\nWorking Tree 里的冲突标记，正是 Git 尝试把这三份输入合成一个结果时留下的可编辑表现。"}},
-    {"id": "resolve-working-tree", "title": "先编辑最终内容", "start": 101, "duration": 25, "goal": "表现人工编辑只先改变 Working Tree，Index 仍是 unmerged。", "primaryTechnique": "Code resolution + unchanged index model", "beats": [{"time": [101, 126], "visual": "代码标记被替换为人工选择结果，右侧 Index 三层仍保留", "motion": "只更新 Working Tree 卡片", "state": "edited", "narration": "编辑完成不等于 Git 已收束。", "audit": ["代码不能从暗到亮反复闪烁", "Index 保持 unmerged"]}], "narration": {"segmentId": "05_resolve_working_tree", "voiceStart": 101.35, "text": "接下来我们编辑 app.js，保留真正想要的最终内容，并删除冲突标记。<#0.50#>\n这一步首先只改变 Working Tree。<#0.40#>\n文件已经能正常阅读，并不代表 Index 里的 stage 1、2、3 自动消失。<#0.50#>\nGit 仍需要一个明确动作，确认这份内容就是合并结果。"}},
-    {"id": "stage-zero", "title": "Git Add 收束冲突", "start": 126, "duration": 28, "goal": "真实 add 后以 stage 0 替换 unmerged entries。", "primaryTechnique": "Recorded add + index transition", "beats": [{"time": [126, 154], "visual": "真实 git add app.js 后，三条 stage 记录收束为一条 stage 0", "motion": "三卡合并为单卡，随后显示 ls-files --stage 证据", "state": "resolved", "narration": "add 在这里表示确认合并结果。", "audit": ["stage 0 出现前不显示 resolved", "三条 unmerged entries 必须消失"]}], "narration": {"segmentId": "06_stage_zero", "voiceStart": 126.35, "text": "现在运行 git add app.js。<#0.40#>\n在冲突流程里，add 的意义是把 Working Tree 的最终内容写回 Index。<#0.50#>\n原来的三条未合并记录被一条普通 stage 0 替换。<#0.45#>\n再次查看 Index，只剩准备写入下一次提交的最终 blob。<#0.45#>\n到这里 Git 才认为这个路径已经 resolved。"}},
-    {"id": "finish-or-abort", "title": "继续或退出当前操作", "start": 154, "duration": 30, "goal": "区分 resolved path 与完成 merge，并短对照 rebase continue/abort。", "primaryTechnique": "Recorded merge continue + operation state machine", "beats": [{"time": [154, 184], "visual": "merge --continue 产生 merge commit；旁边短列 abort 与 rebase continue", "motion": "stage 0 稳定后才允许进入完成节点", "state": "complete", "narration": "路径解决后，操作仍需完成或退出。", "audit": ["不让 unresolved 面板覆盖完成状态", "merge 与 rebase 命令对应正确"]}], "narration": {"segmentId": "07_finish_or_abort", "voiceStart": 154.35, "text": "路径 resolved 以后，当前 merge 还没有自动结束。<#0.45#>\n我们可以检查 diff 和测试，再运行 git merge --continue 完成 merge commit。<#0.50#>\n如果不想继续，也可以在合适的时候 merge --abort，尝试回到操作前状态。<#0.50#>\nrebase 遇到冲突时也要先解决并 add，但随后使用的是 rebase --continue 或 rebase --abort。<#0.55#>\n操作不同，Index 的收束逻辑相同，继续命令不能混用。"}},
-    {"id": "takeaway", "title": "总结", "start": 184, "duration": 26, "goal": "收束 unmerged 到 stage 0 再完成操作的状态链。", "primaryTechnique": "Minimal centered state chain", "beats": [{"time": [184, 210], "visual": "unmerged entries → edit Working Tree → git add → stage 0 → continue", "motion": "五步依次出现后稳定", "state": "takeaway", "narration": "冲突解决是一条可验证状态链。", "audit": ["总结图整体在字幕上方居中"]}], "narration": {"segmentId": "08_takeaway", "voiceStart": 184.35, "text": "最后把冲突处理看成一条状态链。<#0.40#>\nmerge 停下时，Index 保存 stage 1、2、3，Working Tree 显示可编辑的冲突结果。<#0.50#>\n人工编辑决定最终内容，git add 再把它收束成 stage 0。<#0.45#>\n检查完成后，我们才继续或退出当前操作。<#0.45#>\n所以下次判断冲突是否解决，不只看标记还在不在，也看 Index 是否已经离开 unmerged 状态。"}}
+    {
+      "id": "hook",
+      "title": "冲突只在文件里吗",
+      "start": 0,
+      "duration": 16,
+      "goal": "提出冲突标记并不是完整状态。",
+      "primaryTechnique": "Question scene + code markers",
+      "beats": [{"time":[0,16],"visual":"app.js 冲突标记与 Index 三层入口并置","motion":"代码标记先出现，Index 三层随后显露","state":"conflict","narration":"删掉标记就结束了吗？","audit":["不提前给出 resolved 状态"]}],
+      "narration": {"segmentId":"01_hook","voiceStart":0.65,"text":"merge 冲突时，我们最先看到的是文件里的冲突标记。<#0.35#>\n可把这些标记删掉，Git 就知道问题解决了吗？<#0.40#>\n如果真正的状态还藏在 Index 里，只看编辑器就少了一半证据。<#0.45#>\n这一集我们直接把那几份内容打开。"},
+      "captions": [
+        {"from":0.65,"to":3.636,"text":"merge 冲突时，我们最先看到的是文件里的冲突标记"},
+        {"from":4.279,"to":6.88,"text":"可把这些标记删掉，Git 就知道问题解决了吗？"},
+        {"from":7.544,"to":11.053,"text":"如果真正的状态还藏在 Index 里，只看编辑器就少了一半证据"},
+        {"from":11.882,"to":13.857,"text":"这一集我们直接把那几份内容打开"}
+      ]
+    },
+    {
+      "id": "create-conflict",
+      "title": "真实触发冲突",
+      "start": 16,
+      "duration": 22,
+      "goal": "真实 merge 产生冲突并显示 unmerged status。",
+      "primaryTechnique": "Recorded merge conflict",
+      "beats": [{"time":[16,38],"visual":"真实 git merge feature 输出冲突，随后保持 UU app.js","motion":"命令结果冻结","state":"unmerged","narration":"merge 停下时 HEAD 没有完成前移。","audit":["冲突结果来自真实仓库"]}],
+      "narration": {"segmentId":"02_create_conflict","voiceStart":16.35,"text":"我们准备两个都修改 app.js 同一行的分支，再真实运行 git merge feature。<#0.50#>\nGit 无法自动选择结果，于是 merge 停下。<#0.45#>\nWorking Tree 写入带标记的三方合并结果，status 把 app.js 标为未合并。<#0.50#>\n但此刻 HEAD 仍指向 merge 之前的 main，新的 merge commit 还没有产生。"},
+      "captions": [
+        {"from":0.35,"to":5.133,"text":"我们准备两个都修改 app.js 同一行的分支，再真实运行 git merge feature"},
+        {"from":5.85,"to":9.08,"text":"Git 无法自动选择结果，于是 merge 停下"},
+        {"from":9.911,"to":15.081,"text":"Working Tree 写入带标记的三方合并结果，status 把 app.js 标为未合并"},
+        {"from":15.746,"to":20.393,"text":"但此刻 HEAD 仍指向 merge 之前的 main，新的 merge commit 还没有产生"}
+      ]
+    },
+    {
+      "id": "index-stages",
+      "title": "Index 保存三份输入",
+      "start": 38,
+      "duration": 23,
+      "goal": "用 ls-files -u 证明 stage 1/2/3。",
+      "primaryTechnique": "Recorded ls-files + index stage model",
+      "beats": [{"time":[38,61],"visual":"真实 ls-files -u 三行输出映射到 base、ours、theirs","motion":"三行依次进入 Index 面板","state":"unmerged","narration":"同一路径暂时有三条 Index 记录。","audit":["stage 1/2/3 映射只限定 merge 语境"]}],
+      "narration": {"segmentId":"03_index_stages","voiceStart":38.35,"text":"运行 git ls-files -u，Index 的结构就露出来了。<#0.45#>\n同一个 app.js 暂时出现三条记录。<#0.40#>\nstage 1 是共同祖先，也就是 base；stage 2 来自当前 HEAD，也就是 ours；stage 3 来自 MERGE_HEAD，也就是 theirs。<#0.60#>\n这些才是 Git 判断路径仍未合并的直接证据。"},
+      "captions": [
+        {"from":0.35,"to":3.908,"text":"运行 git ls-files -u，Index 的结构就露出来了"},
+        {"from":4.614,"to":6.78,"text":"同一个 app.js 暂时出现三条记录"},
+        {"from":7.488,"to":17.853,"text":"stage 1 是共同祖先，也就是 base；stage 2 来自当前 HEAD，也就是 ours；stage 3 来自 MERGE_HEAD，也就是 theirs"},
+        {"from":18.703,"to":21.055,"text":"这些才是 Git 判断路径仍未合并的直接证据"}
+      ]
+    },
+    {
+      "id": "inspect-stages",
+      "title": "逐份查看内容",
+      "start": 61,
+      "duration": 21,
+      "goal": "用真实 show :1/:2/:3 验证三份 blob 内容。",
+      "primaryTechnique": "Three recorded terminal cues",
+      "beats": [{"time":[61,82],"visual":"三个固定终端视口依次查看 :1:app.js、:2:app.js、:3:app.js","motion":"按旁白硬切并冻结每份内容","state":"inspect","narration":"标签背后是三份真实 blob。","audit":["前一份内容保持到解释结束","不在同一视口持续滚屏"]}],
+      "narration": {"segmentId":"04_inspect_stages","voiceStart":61.65,"text":"这些 stage 不是抽象标签，我们可以逐份读取。<#0.40#>\ngit show 冒号 1 app.js 打开共同祖先。<#0.40#>\n冒号 2 打开当前 main 的版本，冒号 3 打开 feature 带来的版本。<#0.50#>\nWorking Tree 里的冲突标记，正是 Git 尝试把这三份输入合成一个结果时留下的可编辑表现。"},
+      "captions": [
+        {"from":0.65,"to":3.728,"text":"这些 stage 不是抽象标签，我们可以逐份读取"},
+        {"from":4.379,"to":7.941,"text":"git show 冒号 1 app.js 打开共同祖先"},
+        {"from":8.629,"to":12.622,"text":"冒号 2 打开当前 main 的版本，冒号 3 打开 feature 带来的版本"},
+        {"from":13.313,"to":18.874,"text":"Working Tree 里的冲突标记，正是 Git 尝试把这三份输入合成一个结果时留下的可编辑表现"}
+      ]
+    },
+    {
+      "id": "resolve-working-tree",
+      "title": "先编辑最终内容",
+      "start": 82,
+      "duration": 20,
+      "goal": "表现人工编辑只先改变 Working Tree，Index 仍是 unmerged。",
+      "primaryTechnique": "Code resolution + unchanged index model",
+      "beats": [{"time":[82,102],"visual":"代码标记被替换为人工选择结果，右侧 Index 三层仍保留","motion":"只更新 Working Tree 卡片","state":"edited","narration":"编辑完成不等于 Git 已收束。","audit":["代码不能从暗到亮反复闪烁","Index 保持 unmerged"]}],
+      "narration": {"segmentId":"05_resolve_working_tree","voiceStart":82.35,"text":"接下来我们编辑 app.js，保留真正想要的最终内容，并删除冲突标记。<#0.50#>\n这一步首先只改变 Working Tree。<#0.40#>\n文件已经能正常阅读，并不代表 Index 里的 stage 1、2、3 自动消失。<#0.50#>\nGit 仍需要一个明确动作，确认这份内容就是合并结果。"},
+      "captions": [
+        {"from":0.35,"to":5.584,"text":"接下来我们编辑 app.js，保留真正想要的最终内容，并删除冲突标记"},
+        {"from":6.287,"to":8.164,"text":"这一步首先只改变 Working Tree"},
+        {"from":8.828,"to":13.974,"text":"文件已经能正常阅读，并不代表 Index 里的 stage 1、2、3 自动消失"},
+        {"from":14.678,"to":18.047,"text":"Git 仍需要一个明确动作，确认这份内容就是合并结果"}
+      ]
+    },
+    {
+      "id": "stage-zero",
+      "title": "Git Add 收束冲突",
+      "start": 102,
+      "duration": 21,
+      "goal": "真实 add 后以 stage 0 替换 unmerged entries。",
+      "primaryTechnique": "Recorded add + index transition",
+      "beats": [{"time":[102,123],"visual":"真实 git add app.js 后，三条 stage 记录收束为一条 stage 0","motion":"三卡合并为单卡，随后显示 ls-files --stage 证据","state":"resolved","narration":"add 在这里表示确认合并结果。","audit":["stage 0 出现前不显示 resolved","三条 unmerged entries 必须消失"]}],
+      "narration": {"segmentId":"06_stage_zero","voiceStart":102.35,"text":"现在运行 git add app.js。<#0.40#>\n在冲突流程里，add 的意义是把 Working Tree 的最终内容写回 Index。<#0.50#>\n原来的三条未合并记录被一条普通 stage 0 替换。<#0.45#>\n再次查看 Index，只剩准备写入下一次提交的最终 blob。<#0.45#>\n到这里 Git 才认为这个路径已经 resolved。"},
+      "captions": [
+        {"from":0.35,"to":2.511,"text":"现在运行 git add app.js"},
+        {"from":3.133,"to":7.172,"text":"在冲突流程里，add 的意义是把 Working Tree 的最终内容写回 Index"},
+        {"from":8.031,"to":10.989,"text":"原来的三条未合并记录被一条普通 stage 0 替换"},
+        {"from":11.691,"to":15.931,"text":"再次查看 Index，只剩准备写入下一次提交的最终 blob"},
+        {"from":16.572,"to":18.794,"text":"到这里 Git 才认为这个路径已经 resolved"}
+      ]
+    },
+    {
+      "id": "finish-or-abort",
+      "title": "继续或退出当前操作",
+      "start": 123,
+      "duration": 28,
+      "goal": "区分 resolved path 与完成 merge，并短对照 rebase continue/abort。",
+      "primaryTechnique": "Recorded merge continue + operation state machine",
+      "beats": [{"time":[123,151],"visual":"merge --continue 产生 merge commit；旁边短列 abort 与 rebase continue","motion":"stage 0 稳定后才允许进入完成节点","state":"complete","narration":"路径解决后，操作仍需完成或退出。","audit":["不让 unresolved 面板覆盖完成状态","merge 与 rebase 命令对应正确"]}],
+      "narration": {"segmentId":"07_finish_or_abort","voiceStart":123.85,"text":"路径 resolved 以后，当前 merge 还没有自动结束。<#0.45#>\n我们可以检查 diff 和测试，再运行 git merge --continue 完成 merge commit。<#0.50#>\n如果不想继续，也可以在合适的时候 merge --abort，尝试回到操作前状态。<#0.50#>\nrebase 遇到冲突时也要先解决并 add，但随后使用的是 rebase --continue 或 rebase --abort。<#0.55#>\n操作不同，Index 的收束逻辑相同，继续命令不能混用。"},
+      "captions": [
+        {"from":0.85,"to":4.179,"text":"路径 resolved 以后，当前 merge 还没有自动结束"},
+        {"from":4.825,"to":9.743,"text":"我们可以检查 diff 和测试，再运行 git merge --continue 完成 merge commit"},
+        {"from":10.634,"to":14.725,"text":"如果不想继续，也可以在合适的时候 merge --abort，尝试回到操作前状态"},
+        {"from":15.519,"to":21.465,"text":"rebase 遇到冲突时也要先解决并 add，但随后使用的是 rebase --continue 或 rebase --abort"},
+        {"from":22.237,"to":25.847,"text":"操作不同，Index 的收束逻辑相同，继续命令不能混用"}
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 151,
+      "duration": 25,
+      "goal": "收束 unmerged 到 stage 0 再完成操作的状态链。",
+      "primaryTechnique": "Minimal centered state chain",
+      "beats": [{"time":[151,176],"visual":"unmerged entries → edit Working Tree → git add → stage 0 → continue","motion":"五步依次出现后稳定","state":"takeaway","narration":"冲突解决是一条可验证状态链。","audit":["总结图整体在字幕上方居中"]}],
+      "narration": {"segmentId":"08_takeaway","voiceStart":151.35,"text":"最后把冲突处理看成一条状态链。<#0.40#>\nmerge 停下时，Index 保存 stage 1、2、3，Working Tree 显示可编辑的冲突结果。<#0.50#>\n人工编辑决定最终内容，git add 再把它收束成 stage 0。<#0.45#>\n检查完成后，我们才继续或退出当前操作。<#0.45#>\n所以下次判断冲突是否解决，不只看标记还在不在，也看 Index 是否已经离开 unmerged 状态。"},
+      "captions": [
+        {"from":0.35,"to":2.188,"text":"最后把冲突处理看成一条状态链"},
+        {"from":2.823,"to":8.194,"text":"merge 停下时，Index 保存 stage 1、2、3，Working Tree 显示可编辑的冲突结果"},
+        {"from":8.979,"to":13.289,"text":"人工编辑决定最终内容，git add 再把它收束成 stage 0"},
+        {"from":13.995,"to":16.827,"text":"检查完成后，我们才继续或退出当前操作"},
+        {"from":17.525,"to":23.038,"text":"所以下次判断冲突是否解决，不只看标记还在不在，也看 Index 是否已经离开 unmerged 状态"}
+      ]
+    }
   ],
-  "content": {"overviewMarkdown": "# EP15：冲突的真实状态在 Index\n\n从 Working Tree 冲突标记进入 stage 1/2/3，再经过编辑和 git add 收束为 stage 0。\n", "scriptMarkdown": "# EP15 当前脚本（210s）\n\n真实 merge 冲突、ls-files -u、show 三份输入、编辑、add 与 continue 形成完整状态链。\n", "beatsMarkdown": "# EP15 Beats\n\n`conflict → unmerged stages → inspect → edit → add → stage 0 → continue/abort`。\n", "qualityMarkdown": "# EP15 审查记录\n\n## 当前状态\n\n- episode JSON 首版已建立。\n- 真实终端、Remotion scene、TTS 与候选尚待生成。\n\n## 审查重点\n\n- 冲突标记与 Index 状态必须分开。\n- stage 2/3 的 ours/theirs 只按 merge 视角讲解。\n- resolved、commit 与 abort 画面不得提前出现。\n", "alignmentMarkdown": "# EP15 对齐记录\n\n生成真实 TTS 与 SRT 后，重点回写 show 三份内容、add 收束和 continue 完成三个时间点。\n"},
-  "release": {"bilibiliMarkdown": "# EP15 B 站发布物料（草案）\n\n## 标题\n\nGit 冲突真正存在哪里？看懂 Index 的 stage 1/2/3\n\n## 简介\n\n从冲突标记进入 Index，完整观察 unmerged entries 如何被 git add 收束成 stage 0。\n\n## 官方参考\n\n- [git-merge](https://git-scm.com/docs/git-merge#_true_merge)\n- [git-ls-files](https://git-scm.com/docs/git-ls-files)\n\n## 标签\n\n```text\nGit\nGit教程\n合并冲突\n```\n", "coverBriefMarkdown": "# EP15 封面 Brief\n\n左侧大字 `冲突`，右侧只保留 app.js 的三层 Index 记录收束为 stage 0；不堆完整代码。\n", "checklistMarkdown": "# EP15 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"}
+  "content": {
+    "overviewMarkdown": "# EP15：冲突的真实状态在 Index\n\n从 Working Tree 冲突标记进入 stage 1/2/3，再经过编辑和 git add 收束为 stage 0。\n",
+    "scriptMarkdown": "# EP15 当前脚本（176s）\n\n真实 merge 冲突、ls-files -u、show 三份输入、编辑、add 与 continue 形成完整状态链。\n",
+    "beatsMarkdown": "# EP15 Beats\n\n`conflict → unmerged stages → inspect → edit → add → stage 0 → continue/abort`。\n",
+    "qualityMarkdown": "# EP15 审查记录\n\n## 当前状态\n\n- episode JSON、真实终端、Remotion scene、TTS 与 SRT captions 已建立。\n- candidate 与正式审查尚待生成。\n\n## 审查重点\n\n- 冲突标记与 Index 状态必须分开。\n- stage 2/3 的 ours/theirs 只按 merge 视角讲解。\n- resolved、commit 与 abort 画面不得提前出现。\n",
+    "alignmentMarkdown": "# EP15 对齐记录\n\n真实 TTS 已逐段测量，旁白尾部保持约 1–2 秒；captions 按 SRT 时间与 scene 内 voiceStart 偏移回写。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP15 B 站发布物料（草案）\n\n## 标题\n\nGit 冲突真正存在哪里？看懂 Index 的 stage 1/2/3\n\n## 简介\n\n从冲突标记进入 Index，完整观察 unmerged entries 如何被 git add 收束成 stage 0。\n\n## 官方参考\n\n- [git-merge](https://git-scm.com/docs/git-merge#_true_merge)\n- [git-ls-files](https://git-scm.com/docs/git-ls-files)\n\n## 标签\n\n```text\nGit\nGit教程\n合并冲突\n```\n",
+    "coverBriefMarkdown": "# EP15 封面 Brief\n\n左侧大字 `冲突`，右侧只保留 app.js 的三层 Index 记录收束为 stage 0；不堆完整代码。\n",
+    "checklistMarkdown": "# EP15 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"
+  }
 }

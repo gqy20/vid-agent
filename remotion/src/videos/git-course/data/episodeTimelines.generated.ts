@@ -153,35 +153,35 @@ export const EP13_SCENES = [
 export const EP13_DURATION_IN_FRAMES = EP13_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP14_SCENES = [
-  {id: "hook", title: "计数来自哪里", duration: seconds(16)},
-  {id: "stale-count", title: "通信前的本地认知", duration: seconds(22)},
-  {id: "fresh-count", title: "Fetch 后重新比较", duration: seconds(22)},
-  {id: "diverged", title: "两边都前进", duration: seconds(21)},
-  {id: "push-rejected", title: "为什么 Push 被拒绝", duration: seconds(20)},
-  {id: "integrate-first", title: "先得到包含双方的历史", duration: seconds(26)},
-  {id: "takeaway", title: "总结", duration: seconds(23)},
+  {id: "hook", title: "计数来自哪里", duration: seconds(16), captions: [{"from":0.35,"to":3.537,"text":"终端说本地分支 ahead 一个、behind 两个"},{"from":4.112,"to":6.01,"text":"这些数字是服务器刚刚算给我们的吗？"},{"from":6.757,"to":11.038,"text":"如果通信之前和之后答案不同，问题也许不在计算，而在比较对象"},{"from":11.718,"to":13.934,"text":"这一集我们从一次过期的状态开始"}]},
+  {id: "stale-count", title: "通信前的本地认知", duration: seconds(22), captions: [{"from":0.35,"to":3.945,"text":"先让同事把 C2 推到服务器，但本地不执行 fetch"},{"from":4.576,"to":9.805,"text":"这时运行 git status --short --branch，结果仍可能显示 up to date"},{"from":10.572,"to":16.347,"text":"因为 status 比较的是本地 main 和本地保存的 upstream ref，也就是旧的 origin slash main"},{"from":17.102,"to":20.122,"text":"服务器已经变化，并不会让这个本地记录自动刷新"}]},
+  {id: "fresh-count", title: "Fetch 后重新比较", duration: seconds(22), captions: [{"from":1.85,"to":4.525,"text":"现在先 fetch，再运行同一条 status"},{"from":5.165,"to":9.209,"text":"origin slash main 已经来到 C2，于是本地 main 显示 behind 一个"},{"from":9.871,"to":15.365,"text":"ahead 是只从本地 branch 可达的提交数，behind 是只从 upstream ref 可达的提交数"},{"from":16.187,"to":20.126,"text":"它们描述两段集合差，不是网络延迟，也不是文件数量"}]},
+  {id: "diverged", title: "两边都前进", duration: seconds(21), captions: [{"from":0.35,"to":2.785,"text":"再让本地也从 C1 产生一个不同的提交 L2"},{"from":3.601,"to":8.411,"text":"fetch 以后，main 指向 L2，origin slash main 指向服务器的 R2"},{"from":9.234,"to":13.373,"text":"两边都包含共同祖先 C1，但各自还有一个对方不可达的提交"},{"from":14.058,"to":19.582,"text":"于是状态同时显示 ahead 一个、behind 一个，也就是历史已经分叉"}]},
+  {id: "push-rejected", title: "为什么 Push 被拒绝", duration: seconds(20), captions: [{"from":0.35,"to":3.541,"text":"此时直接 push，会真实得到 non-fast-forward 拒绝"},{"from":4.226,"to":9.197,"text":"问题不是对象完全无法发送，而是我们请求服务器 main 从 R2 改到 L2"},{"from":9.904,"to":14.204,"text":"L2 不是 R2 的后代，这次更新会让 R2 从服务器分支历史中消失"},{"from":14.949,"to":18.298,"text":"普通 branch push 因而默认拒绝这个更新，保护已经存在的历史"}]},
+  {id: "integrate-first", title: "先得到包含双方的历史", duration: seconds(26), captions: [{"from":0.35,"to":5.416,"text":"更稳妥的方向是先 fetch，再选择 merge 或 rebase 整合双方历史"},{"from":6.097,"to":11.846,"text":"这里用显式的 pull --rebase，把本地修改重新放到 R2 之后，形成新的 L2 prime"},{"from":12.649,"to":15.056,"text":"现在服务器的 R2 已经是本地新目标的祖先"},{"from":15.733,"to":19.347,"text":"再次 push 就是 fast-forward，不需要丢掉任何一边的提交"},{"from":20.034,"to":24.234,"text":"force-with-lease 属于主动改写的另一类问题，不用它掩盖普通协作分叉"}]},
+  {id: "takeaway", title: "总结", duration: seconds(23), captions: [{"from":3.35,"to":8.531,"text":"最后遇到 ahead、behind 或 push rejected，可以连续问三个问题"},{"from":9.209,"to":10.241,"text":"我们刚刚 fetch 过吗？"},{"from":10.799,"to":13.728,"text":"当前 branch 和哪个本地 upstream ref 在比较？"},{"from":14.421,"to":16.311,"text":"远端旧目标是不是新目标的祖先？"},{"from":17.012,"to":21.014,"text":"先把这三点画出来，计数和 non-fast-forward 就会落到同一张提交图上"}]},
 ] as const;
 export const EP14_DURATION_IN_FRAMES = EP14_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP15_SCENES = [
-  {id: "hook", title: "冲突只在文件里吗", duration: seconds(14)},
-  {id: "create-conflict", title: "真实触发冲突", duration: seconds(27)},
-  {id: "index-stages", title: "Index 保存三份输入", duration: seconds(29)},
-  {id: "inspect-stages", title: "逐份查看内容", duration: seconds(31)},
-  {id: "resolve-working-tree", title: "先编辑最终内容", duration: seconds(25)},
-  {id: "stage-zero", title: "Git Add 收束冲突", duration: seconds(28)},
-  {id: "finish-or-abort", title: "继续或退出当前操作", duration: seconds(30)},
-  {id: "takeaway", title: "总结", duration: seconds(26)},
+  {id: "hook", title: "冲突只在文件里吗", duration: seconds(16), captions: [{"from":0.65,"to":3.636,"text":"merge 冲突时，我们最先看到的是文件里的冲突标记"},{"from":4.279,"to":6.88,"text":"可把这些标记删掉，Git 就知道问题解决了吗？"},{"from":7.544,"to":11.053,"text":"如果真正的状态还藏在 Index 里，只看编辑器就少了一半证据"},{"from":11.882,"to":13.857,"text":"这一集我们直接把那几份内容打开"}]},
+  {id: "create-conflict", title: "真实触发冲突", duration: seconds(22), captions: [{"from":0.35,"to":5.133,"text":"我们准备两个都修改 app.js 同一行的分支，再真实运行 git merge feature"},{"from":5.85,"to":9.08,"text":"Git 无法自动选择结果，于是 merge 停下"},{"from":9.911,"to":15.081,"text":"Working Tree 写入带标记的三方合并结果，status 把 app.js 标为未合并"},{"from":15.746,"to":20.393,"text":"但此刻 HEAD 仍指向 merge 之前的 main，新的 merge commit 还没有产生"}]},
+  {id: "index-stages", title: "Index 保存三份输入", duration: seconds(23), captions: [{"from":0.35,"to":3.908,"text":"运行 git ls-files -u，Index 的结构就露出来了"},{"from":4.614,"to":6.78,"text":"同一个 app.js 暂时出现三条记录"},{"from":7.488,"to":17.853,"text":"stage 1 是共同祖先，也就是 base；stage 2 来自当前 HEAD，也就是 ours；stage 3 来自 MERGE_HEAD，也就是 theirs"},{"from":18.703,"to":21.055,"text":"这些才是 Git 判断路径仍未合并的直接证据"}]},
+  {id: "inspect-stages", title: "逐份查看内容", duration: seconds(21), captions: [{"from":0.65,"to":3.728,"text":"这些 stage 不是抽象标签，我们可以逐份读取"},{"from":4.379,"to":7.941,"text":"git show 冒号 1 app.js 打开共同祖先"},{"from":8.629,"to":12.622,"text":"冒号 2 打开当前 main 的版本，冒号 3 打开 feature 带来的版本"},{"from":13.313,"to":18.874,"text":"Working Tree 里的冲突标记，正是 Git 尝试把这三份输入合成一个结果时留下的可编辑表现"}]},
+  {id: "resolve-working-tree", title: "先编辑最终内容", duration: seconds(20), captions: [{"from":0.35,"to":5.584,"text":"接下来我们编辑 app.js，保留真正想要的最终内容，并删除冲突标记"},{"from":6.287,"to":8.164,"text":"这一步首先只改变 Working Tree"},{"from":8.828,"to":13.974,"text":"文件已经能正常阅读，并不代表 Index 里的 stage 1、2、3 自动消失"},{"from":14.678,"to":18.047,"text":"Git 仍需要一个明确动作，确认这份内容就是合并结果"}]},
+  {id: "stage-zero", title: "Git Add 收束冲突", duration: seconds(21), captions: [{"from":0.35,"to":2.511,"text":"现在运行 git add app.js"},{"from":3.133,"to":7.172,"text":"在冲突流程里，add 的意义是把 Working Tree 的最终内容写回 Index"},{"from":8.031,"to":10.989,"text":"原来的三条未合并记录被一条普通 stage 0 替换"},{"from":11.691,"to":15.931,"text":"再次查看 Index，只剩准备写入下一次提交的最终 blob"},{"from":16.572,"to":18.794,"text":"到这里 Git 才认为这个路径已经 resolved"}]},
+  {id: "finish-or-abort", title: "继续或退出当前操作", duration: seconds(28), captions: [{"from":0.85,"to":4.179,"text":"路径 resolved 以后，当前 merge 还没有自动结束"},{"from":4.825,"to":9.743,"text":"我们可以检查 diff 和测试，再运行 git merge --continue 完成 merge commit"},{"from":10.634,"to":14.725,"text":"如果不想继续，也可以在合适的时候 merge --abort，尝试回到操作前状态"},{"from":15.519,"to":21.465,"text":"rebase 遇到冲突时也要先解决并 add，但随后使用的是 rebase --continue 或 rebase --abort"},{"from":22.237,"to":25.847,"text":"操作不同，Index 的收束逻辑相同，继续命令不能混用"}]},
+  {id: "takeaway", title: "总结", duration: seconds(25), captions: [{"from":0.35,"to":2.188,"text":"最后把冲突处理看成一条状态链"},{"from":2.823,"to":8.194,"text":"merge 停下时，Index 保存 stage 1、2、3，Working Tree 显示可编辑的冲突结果"},{"from":8.979,"to":13.289,"text":"人工编辑决定最终内容，git add 再把它收束成 stage 0"},{"from":13.995,"to":16.827,"text":"检查完成后，我们才继续或退出当前操作"},{"from":17.525,"to":23.038,"text":"所以下次判断冲突是否解决，不只看标记还在不在，也看 Index 是否已经离开 unmerged 状态"}]},
 ] as const;
 export const EP15_DURATION_IN_FRAMES = EP15_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
 
 export const EP16_SCENES = [
-  {id: "hook", title: "提交消失了吗", duration: seconds(14)},
-  {id: "lose-commit", title: "先制造一次旧位置", duration: seconds(27)},
-  {id: "read-reflog", title: "Reflog 记录本地移动", duration: seconds(28)},
-  {id: "verify-object", title: "恢复前先验证对象", duration: seconds(27)},
-  {id: "create-rescue", title: "先恢复可达性", duration: seconds(28)},
-  {id: "limits", title: "它不是永久备份", duration: seconds(29)},
-  {id: "takeaway", title: "总结", duration: seconds(27)},
+  {id: "hook", title: "提交消失了吗", duration: seconds(16), captions: [{"from":0.75,"to":3.933,"text":"一次 reset --hard 之后，git log 里的两个提交突然不见了"},{"from":4.564,"to":6.163,"text":"它们已经从对象库里删除了吗？"},{"from":6.814,"to":8.747,"text":"还是只是没有 branch 再指向它们？"},{"from":9.479,"to":13.886,"text":"如果旧位置曾经被本地 ref 记录过，我们也许还能先找到，再决定怎样恢复"}]},
+  {id: "lose-commit", title: "先制造一次旧位置", duration: seconds(26), captions: [{"from":0.85,"to":7.995,"text":"我们在本地准备 C1、C2、C3，然后真实运行 git reset --hard HEAD 波浪号 2"},{"from":8.735,"to":13.36,"text":"main 和 HEAD 回到 C1，Index 与 Working Tree 也匹配这个提交"},{"from":14.212,"to":17.757,"text":"普通 git log 从 main 出发，因此不再列出 C2 和 C3"},{"from":18.437,"to":23.842,"text":"但这只能说明它们暂时不可从当前 branch 到达，不能证明对象已经被立即清除"}]},
+  {id: "read-reflog", title: "Reflog 记录本地移动", duration: seconds(23), captions: [{"from":0.75,"to":3.091,"text":"现在运行 git reflog --oneline"},{"from":3.824,"to":10.329,"text":"最新记录说明 HEAD 因 reset 从 C3 移到了 C1，上一条位置仍能用 HEAD at brace 1 表示"},{"from":11.208,"to":16.488,"text":"reflog 保存 branch 和其他 refs 在当前本地仓库中的更新记录，HEAD 还会记录切换动作"},{"from":17.241,"to":20.851,"text":"它不是另一条提交历史，而是一份本地位置移动日志"}]},
+  {id: "verify-object", title: "恢复前先验证对象", duration: seconds(23), captions: [{"from":0.35,"to":2.909,"text":"找到旧位置后，我们先不急着再次移动 main"},{"from":3.561,"to":9.119,"text":"运行 git show --stat HEAD at brace 1，检查提交说明、对象 ID 和文件变化"},{"from":10.095,"to":17.586,"text":"这一步把恢复问题拆成两件事：reflog 负责提供候选位置，show 负责确认它是不是我们要找的提交"},{"from":18.572,"to":21.014,"text":"验证完成之前，不必继续改变当前工作状态"}]},
+  {id: "create-rescue", title: "先恢复可达性", duration: seconds(23), captions: [{"from":0.55,"to":4.009,"text":"确认 C3 正确后，我们运行 git branch rescue HEAD at brace 1"},{"from":4.84,"to":9.718,"text":"这个动作只创建一个新的 branch ref，让 C3 和它的祖先重新变得可达"},{"from":10.412,"to":15.304,"text":"当前 main 仍在 C1，HEAD、Index 和 Working Tree 都不用跟着移动"},{"from":16.056,"to":20.838,"text":"有了 rescue 这个稳定名字，我们再决定 merge、cherry-pick，还是只取回其中某些内容"}]},
+  {id: "limits", title: "它不是永久备份", duration: seconds(24), captions: [{"from":0.35,"to":4.303,"text":"reflog 很有用，但它不是服务器历史，也不是永久备份"},{"from":4.959,"to":9.051,"text":"记录属于当前本地仓库，另一台机器通常不会拥有同一份移动日志"},{"from":9.797,"to":14.768,"text":"reflog 条目会按配置过期，不可达对象在失去保护后也可能被垃圾回收"},{"from":15.583,"to":21.919,"text":"所以恢复动作应该尽早进行，而真正重要的工作仍然需要可验证的 branch、远端或备份策略"}]},
+  {id: "takeaway", title: "总结", duration: seconds(25), captions: [{"from":0.35,"to":2.138,"text":"最后把恢复流程收束成三步"},{"from":2.838,"to":4.978,"text":"先用 reflog 找到 ref 曾经指向的位置"},{"from":5.532,"to":7.278,"text":"再用 show 验证对象内容和身份"},{"from":7.844,"to":11.689,"text":"最后创建 rescue branch，让需要的提交重新可达"},{"from":12.41,"to":17.079,"text":"这样我们先保存证据和选择空间，再决定怎样把旧工作整合回来"},{"from":17.789,"to":22.849,"text":"reflog 的价值不是替我们撤销一切，而是让本地 ref 的旧位置仍然可以被追踪"}]},
 ] as const;
 export const EP16_DURATION_IN_FRAMES = EP16_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
