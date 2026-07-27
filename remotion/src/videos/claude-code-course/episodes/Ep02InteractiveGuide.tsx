@@ -65,13 +65,13 @@ const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 150}}>
-      <div style={{textAlign: 'center', opacity: enter(frame, 30), translate: `0 ${(1 - enter(frame, 30)) * 22}px`}}>
+      <div style={{textAlign: 'center', opacity: enter(frame, 0, MOTION.structural), translate: `0 ${(1 - enter(frame, 0, MOTION.structural)) * 22}px`}}>
         <div style={{...TYPE.display}}>{getEp02Scene('hook').title}</div>
       </div>
       <div style={{position: 'absolute', left: 310, right: 310, top: 570, display: 'grid', gridTemplateColumns: '1fr 170px 1fr', alignItems: 'center'}}>
-        <EvidenceStep icon="stop" label="OBSERVED" value="空 Token 被接受" tone={COLOR.text.danger} progress={enter(frame, 62)} />
-        <div style={{height: 2, background: COLOR.stroke.default, scale: `${enter(frame, 82, MOTION.structural)} 1`, transformOrigin: 'left center'}} />
-        <EvidenceStep icon="check" label="QUESTION" value="能否修复并证明？" tone={COLOR.text.brand} progress={enter(frame, 92)} />
+        <EvidenceStep icon="stop" label="OBSERVED" value="空 Token 被接受" tone={COLOR.text.danger} progress={1} />
+        <div style={{height: 2, background: COLOR.stroke.default, scale: `${enter(frame, 36, MOTION.structural)} 1`, transformOrigin: 'left center'}} />
+        <EvidenceStep icon="check" label="QUESTION" value="能否修复并证明？" tone={COLOR.text.brand} progress={enter(frame, 48)} />
       </div>
     </AbsoluteFill>
   );

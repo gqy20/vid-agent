@@ -61,11 +61,11 @@ const Connector: React.FC<{progress: number; tone?: string}> = ({
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const issue = enter(frame, 48);
-  const session = enter(frame, 76);
+  const issue = 1;
+  const session = enter(frame, 48);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
-      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 18)}}>
+      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 0, MOTION.structural)}}>
         {getEp10Scene('hook').title}
       </div>
       <div
@@ -80,7 +80,7 @@ const HookScene: React.FC = () => {
         }}
       >
         <EvidenceNode icon="file" label="ISSUE #142" detail="真实问题" tone={COLOR.text.brand} progress={issue} />
-        <Connector progress={enter(frame, 66)} />
+        <Connector progress={enter(frame, 36)} />
         <EvidenceNode icon="shell" label="CLEAN SESSION" detail="clean branch" tone={COLOR.text.info} progress={session} />
       </div>
     </AbsoluteFill>

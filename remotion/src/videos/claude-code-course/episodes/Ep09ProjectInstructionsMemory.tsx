@@ -34,9 +34,9 @@ const HookScene: React.FC = () => {
   ] as const;
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
-      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 20)}}>{getEp09Scene('hook').title}</div>
+      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 0, MOTION.structural)}}>{getEp09Scene('hook').title}</div>
       <div style={{position: 'absolute', left: 220, right: 220, top: 500, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 70}}>
-        {repeated.map(([icon, label], index) => <Mechanism key={label} icon={icon} label={label} detail="再次说明" tone={COLOR.text.warning} progress={enter(frame, 42 + index * 16)} />)}
+        {repeated.map(([icon, label], index) => <Mechanism key={label} icon={icon} label={label} detail="再次说明" tone={COLOR.text.warning} progress={index === 0 ? 1 : enter(frame, 10 + index * 16)} />)}
       </div>
     </AbsoluteFill>
   );

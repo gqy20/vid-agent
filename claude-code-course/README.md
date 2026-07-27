@@ -234,4 +234,5 @@ pnpm --dir remotion claude-code-course audio-audit ep01-install-first-start
 - EP01–EP10 都已经具备独立 episode JSON、Remotion Composition、真实 TTS 时长、语义完整字幕、规范化音频与可单章复用的 1080p Draft Preview；章节渲染器只重建内容指纹变化的章节，并在缓存前核验实际时长、分辨率和帧率。
 - EP06 已接入 Claude Code 2.1.218 的真实 Plan Mode 终端证据：只调用 `Read` / `Bash`，保存只读探索、计划复核与修改后计划三个 4K 短片及帧序列，并通过敏感信息扫描和零工作区修改核验。EP07–EP10 当前仍是教学结构、旁白和语义动画 Draft，真实权限交互、验证输出、指令加载和 GitHub PR 浏览器证据尚待逐章录制替换。
 - 两条长视频 Draft 已生成：Volume 01 为 EP01–EP05，共 1073.9 秒；Volume 02 为 EP06–EP10，共 518.5 秒。两者都由独立章节 Preview 装配，章节人声按 manifest 对齐，整卷只铺设一条连续 BGM；章节边界保留不超过 0.5 秒的视觉换气。
-- chapter Draft adapter 已有基础能力；Volume 已实现 `validate/plan/status/draft`。`draft` 只接受带 `pass` 音频审查且 SHA 匹配的章节 Preview。Volume Candidate/Audit、Current 晋升与 Release/Publish adapter 仍待实现，因此这些成片只能作为可重建审片稿，不能晋升或发布。
+- 两卷均已有固定 Draft 审片页：每章连续 `2fps`、每页最多 5 帧并独立缓存，整卷另有 `4×4` 总览和章间双侧 burst；最后一页按真实帧数裁短，不再补空白格。重复运行在输入未变化时直接复用报告。
+- chapter Draft adapter 已有基础能力；Volume 已实现 `validate/plan/status/draft/review`。`draft` 只接受带 `pass` 音频审查且 SHA 匹配的章节 Preview，`review` 只接受 SHA 匹配的 Volume Draft 与章节视图。Volume Candidate/Audit、Current 晋升与 Release/Publish adapter 仍待实现，因此这些成片只能作为可重建审片稿，不能晋升或发布。

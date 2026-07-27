@@ -49,7 +49,7 @@ const HookScene: React.FC = () => {
   const rewind = enter(frame, 54, MOTION.structural);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 148}}>
-      <div style={{textAlign: 'center', opacity: enter(frame, 30), translate: `0 ${(1 - enter(frame, 30)) * 22}px`}}>
+      <div style={{textAlign: 'center', opacity: enter(frame, 0, MOTION.structural), translate: `0 ${(1 - enter(frame, 0, MOTION.structural)) * 22}px`}}>
         <div style={{...TYPE.display}}>{getEp03Scene('hook').title}</div>
       </div>
       <div style={{position: 'absolute', left: 260, right: 260, top: 520, display: 'grid', gridTemplateColumns: '1fr 220px 1fr', alignItems: 'center'}}>

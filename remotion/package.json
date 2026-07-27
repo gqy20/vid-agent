@@ -19,7 +19,7 @@
     "claude-code-course:volume": "node scripts/claude-code-course-volume.mjs",
     "claude-code-course:review-stills": "node scripts/claude-code-course-review-stills.mjs",
     "claude-code-course:render-chapters": "node scripts/claude-code-course-render-chapters.mjs",
-    "claude-code-course:test": "node --test scripts/lib/claude-code-preview.test.mjs",
+    "claude-code-course:test": "node --test scripts/lib/claude-code-preview.test.mjs scripts/lib/claude-code-render-fingerprint.test.mjs scripts/lib/claude-code-volume-review.test.mjs",
     "segments:audit": "scripts/audit-range-segments.sh",
     "audit:overlaps": "scripts/audit-overlaps.sh",
     "meta:sync": "scripts/sync-current-meta.sh",

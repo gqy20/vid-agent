@@ -25,12 +25,12 @@ const Point: React.FC<{icon: EvidenceIconName; label: string; detail?: string; t
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const request = enter(frame, 68, MOTION.structural);
+  const request = enter(frame, 44, MOTION.structural);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
-      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 20)}}>{getEp07Scene('hook').title}</div>
+      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 0, MOTION.structural)}}>{getEp07Scene('hook').title}</div>
       <div style={{position: 'absolute', left: 330, right: 330, top: 520, display: 'grid', gridTemplateColumns: '1fr 160px 1fr', alignItems: 'center'}}>
-        <Point icon="route" label="APPROVED PLAN" detail="方向与范围" tone={COLOR.text.brand} progress={enter(frame, 40)} />
+        <Point icon="route" label="APPROVED PLAN" detail="方向与范围" tone={COLOR.text.brand} progress={1} />
         <div style={{height: 2, background: COLOR.stroke.default, scale: `${request} 1`, transformOrigin: 'left center'}} />
         <Point icon="permission" label="EDIT REQUEST" detail="一次真实写入" tone={COLOR.text.warning} progress={request} />
       </div>

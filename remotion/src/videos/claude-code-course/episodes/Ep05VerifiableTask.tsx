@@ -57,9 +57,9 @@ const HookScene: React.FC = () => {
   ] as const;
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
-      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 22)}}>{getEp05Scene('hook').title}</div>
+      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 0, MOTION.structural)}}>{getEp05Scene('hook').title}</div>
       <div style={{position: 'absolute', left: 190, right: 680, top: 520, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 52, opacity: 1 - taskIn * 0.48}}>
-        {evidence.map(([icon, label], index) => <Node key={label} icon={icon} label={label} tone={[COLOR.brand.orange, COLOR.brand.blue, COLOR.brand.green, COLOR.text.warning][index]} progress={enter(frame, 42 + index * 12)} />)}
+        {evidence.map(([icon, label], index) => <Node key={label} icon={icon} label={label} tone={[COLOR.brand.orange, COLOR.brand.blue, COLOR.brand.green, COLOR.text.warning][index]} progress={index === 0 ? 1 : enter(frame, 4 + index * 12)} />)}
       </div>
       <div style={{position: 'absolute', left: 1300, top: 585, width: 150}}><Connector progress={taskIn} tone={COLOR.text.brand} /></div>
       <div style={{position: 'absolute', right: 190, top: 465, width: 330, opacity: taskIn, translate: `${(1 - taskIn) * 20}px 0`}}>

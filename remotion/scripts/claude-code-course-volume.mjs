@@ -7,6 +7,7 @@ import {
   linkSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   renameSync,
   rmSync,
   writeFileSync,
@@ -18,6 +19,12 @@ import {
   chapterVisualFingerprint,
   claudeCodeChapterSourceFingerprint,
 } from './lib/claude-code-render-fingerprint.mjs';
+import {
+  VOLUME_REVIEW_POLICY,
+  boundaryReviewPlan,
+  continuousReviewPlan,
+  volumeReviewFingerprint,
+} from './lib/claude-code-volume-review.mjs';
 
 const REMOTION = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = resolve(REMOTION, '..');
@@ -69,6 +76,11 @@ const materialize = (source, target) => {
   return method;
 };
 const ffconcatPath = (path) => `file '${path.replaceAll("'", "'\\''")}'`;
+const escapeHtml = (value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;');
 
 const validateProgramShape = (program) => {
   program.schemaVersion === 1 || fail('program.schemaVersion must be 1');
@@ -405,6 +417,250 @@ const buildVolumeDraft = async (volume) => {
   console.log('BLOCK candidate/current/release: volume audit and approval adapter is not implemented');
 };
 
+const volumeDraftPreview = (volume) => {
+  const volumeRoot = join(REMOTION, 'renders/claude-code-course/volumes', volume.volumeId);
+  const manifestPath = join(volumeRoot, 'tmp/preview/manifest.json');
+  existsSync(manifestPath) || fail(`${volume.volumeId}: volume Draft manifest is missing; run draft first`);
+  const manifest = json(manifestPath);
+  manifest.stage === 'volume-draft-preview' || fail(`${volume.volumeId}: preview is not a volume Draft`);
+  manifest.volumeId === volume.volumeId || fail(`${volume.volumeId}: preview manifest identity mismatch`);
+  const videoPath = resolve(ROOT, manifest.path ?? '');
+  existsSync(videoPath) || fail(`${volume.volumeId}: volume Draft video is missing`);
+  shaFile(videoPath) === manifest.sha256 || fail(`${volume.volumeId}: volume Draft SHA mismatch`);
+  return {volumeRoot, manifestPath, manifest, videoPath};
+};
+
+const continuousSheetName = (index) => `sheet_${String(index).padStart(4, '0')}.jpg`;
+
+const buildChapterContinuousReview = async ({chapterId, episode, preview}) => {
+  const reviewRoot = join(REMOTION, 'renders/claude-code-course', chapterId, 'tmp/preview/review');
+  const outputDir = join(reviewRoot, 'continuous-2fps');
+  const manifestPath = join(reviewRoot, 'visual-manifest.json');
+  const plan = continuousReviewPlan(preview.durationSeconds);
+  const continuousPolicy = {
+    fps: VOLUME_REVIEW_POLICY.continuousFps,
+    framesPerSheet: VOLUME_REVIEW_POLICY.continuousFramesPerSheet,
+    frameWidth: VOLUME_REVIEW_POLICY.continuousFrameWidth,
+    lastPagePadding: false,
+  };
+  const fingerprint = sha(JSON.stringify({
+    schema: 1,
+    policy: continuousPolicy,
+    episodeId: chapterId,
+    videoSha256: preview.videoSha256,
+    durationSeconds: preview.durationSeconds,
+  }));
+  if (existsSync(manifestPath)) {
+    const current = json(manifestPath);
+    const reusable = current.fingerprint === fingerprint
+      && current.sheetCount === plan.sheetCount
+      && Array.from({length: plan.sheetCount}, (_, index) => join(outputDir, continuousSheetName(index + 1)))
+        .every(existsSync);
+    if (reusable) return {...current, outputDir, manifestPath, cacheHit: true};
+  }
+
+  const partial = `${outputDir}.partial-${process.pid}`;
+  rmSync(partial, {recursive: true, force: true});
+  mkdirSync(partial, {recursive: true});
+  try {
+    await run('ffmpeg', [
+      '-y', '-hide_banner', '-nostats', '-i', preview.videoPath,
+      '-vf', `fps=${VOLUME_REVIEW_POLICY.continuousFps},scale=${VOLUME_REVIEW_POLICY.continuousFrameWidth}:-2,` +
+        `tile=${VOLUME_REVIEW_POLICY.continuousFramesPerSheet}x1:nb_frames=${VOLUME_REVIEW_POLICY.continuousFramesPerSheet}`,
+      '-fps_mode', 'vfr', '-q:v', '3', join(partial, 'sheet_%04d.jpg'),
+    ], join(partial, 'ffmpeg.log'));
+    const sheets = readdirSync(partial).filter((name) => /^sheet_\d{4}\.jpg$/.test(name)).sort();
+    sheets.length === plan.sheetCount
+      || fail(`${chapterId}: expected ${plan.sheetCount} continuous review sheets, found ${sheets.length}`);
+    if (plan.lastSheetFrames < VOLUME_REVIEW_POLICY.continuousFramesPerSheet) {
+      const last = join(partial, sheets.at(-1));
+      const cropped = join(partial, 'last-sheet-cropped.jpg');
+      await run('ffmpeg', [
+        '-y', '-hide_banner', '-nostats', '-i', last,
+        '-vf', `crop=${plan.lastSheetWidth}:ih:0:0`, '-frames:v', '1', '-q:v', '3', cropped,
+      ], join(partial, 'crop-last-sheet.log'));
+      renameSync(cropped, last);
+    }
+    rmSync(outputDir, {recursive: true, force: true});
+    renameSync(partial, outputDir);
+  } catch (error) {
+    rmSync(partial, {recursive: true, force: true});
+    throw error;
+  }
+  const manifest = {
+    schemaVersion: 1,
+    stage: 'chapter-draft-visual-review',
+    ownership: 'Rebuildable 2fps Draft review view; not Candidate audit evidence or a verdict.',
+    episodeId: chapterId,
+    title: episode.title,
+    fingerprint,
+    source: {
+      path: rel(preview.videoPath),
+      sha256: preview.videoSha256,
+      durationSeconds: preview.durationSeconds,
+    },
+    policy: continuousPolicy,
+    sampleFrames: plan.sampleFrames,
+    sheetCount: plan.sheetCount,
+    lastSheetFrames: plan.lastSheetFrames,
+    directory: rel(outputDir),
+    generatedAt: new Date().toISOString(),
+  };
+  writeJson(manifestPath, manifest);
+  return {...manifest, outputDir, manifestPath, cacheHit: false};
+};
+
+const writeVolumeReviewReport = ({volume, reviewRoot, overviewPath, boundaries, chapters, fingerprint}) => {
+  const webPath = (path) => relative(reviewRoot, path).replaceAll('\\', '/');
+  const chapterSections = chapters.map((chapter) => {
+    const sheets = Array.from({length: chapter.sheetCount}, (_, index) => {
+      const path = join(chapter.outputDir, continuousSheetName(index + 1));
+      return `<img loading="lazy" decoding="async" src="${escapeHtml(webPath(path))}" alt="${escapeHtml(chapter.episodeId)} review sheet ${index + 1}">`;
+    }).join('\n');
+    return `<details>
+      <summary>${escapeHtml(chapter.episodeId)} · ${escapeHtml(chapter.title)} · ${chapter.sampleFrames} frames / ${chapter.sheetCount} sheets${chapter.cacheHit ? ' · reused' : ''}</summary>
+      <div class="sheets">${sheets}</div>
+    </details>`;
+  }).join('\n');
+  const boundarySections = boundaries.map((boundary) => `<figure>
+    <figcaption>${escapeHtml(boundary.previousEpisodeId)} → ${escapeHtml(boundary.nextEpisodeId)} · ${boundary.cutSeconds}s</figcaption>
+    <img loading="lazy" decoding="async" src="${escapeHtml(webPath(boundary.path))}" alt="${escapeHtml(boundary.previousEpisodeId)} to ${escapeHtml(boundary.nextEpisodeId)} boundary">
+  </figure>`).join('\n');
+  const reportPath = join(reviewRoot, 'report.html');
+  writeFileSync(reportPath, `<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(volume.title)} · Draft Review</title>
+<style>
+:root{color-scheme:light;background:#f4f1eb;color:#1f1d1a;font-family:Inter,"Noto Sans SC",sans-serif}body{margin:0;padding:32px}main{max-width:1440px;margin:auto}h1{font-size:28px;margin:0 0 8px}.meta{color:#716a60;margin:0 0 28px}section{margin:32px 0}h2{font-size:18px;margin:0 0 12px}figure{margin:0 0 20px}figcaption,summary{font-weight:650;margin:0 0 8px}img{display:block;max-width:100%;height:auto;background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(45,38,30,.08)}.boundaries img{width:100%}details{margin:0 0 14px;background:#fff;border-radius:10px;padding:14px 16px}summary{cursor:pointer}.sheets{display:grid;gap:10px;margin-top:14px}.sheets img{width:100%;border-radius:4px;box-shadow:none}.legend{font-size:13px;color:#716a60;margin:-4px 0 16px}
+</style></head><body><main>
+<h1>${escapeHtml(volume.title)}</h1><p class="meta">Draft review · ${escapeHtml(fingerprint.slice(0, 12))} · 不构成 Candidate verdict</p>
+<section><h2>全卷导航</h2><img src="${escapeHtml(webPath(overviewPath))}" alt="Volume overview"></section>
+<section class="boundaries"><h2>章节接缝</h2><p class="legend">每张图上排为切点前 0.5 秒，下排为切点后 0.5 秒；两侧均为 10fps 连续取样。</p>${boundarySections}</section>
+<section><h2>逐章连续 2fps</h2>${chapterSections}</section>
+</main></body></html>\n`);
+  return reportPath;
+};
+
+const buildVolumeReview = async (volume) => {
+  const chapters = validateVolume(volume).map((chapter) => ({
+    chapterId: chapter.chapterId,
+    episode: chapter.episode,
+    preview: chapterPreview(chapter.chapterId),
+  }));
+  const blocked = chapters.filter((chapter) => !chapter.preview.ready);
+  blocked.length === 0 || fail(`${volume.volumeId}: ${blocked.map((chapter) => `${chapter.chapterId} (${chapter.preview.reason})`).join(', ')}`);
+  const draft = volumeDraftPreview(volume);
+  draft.manifest.chapters.length === chapters.length || fail(`${volume.volumeId}: Draft chapter count mismatch`);
+  for (const [index, chapter] of chapters.entries()) {
+    const assembled = draft.manifest.chapters[index];
+    assembled.episodeId === chapter.chapterId || fail(`${volume.volumeId}: Draft chapter order mismatch`);
+    assembled.videoSha256 === chapter.preview.videoSha256
+      || fail(`${volume.volumeId}: ${chapter.chapterId} preview SHA changed; rebuild the Volume Draft`);
+  }
+
+  const chapterReviews = await Promise.all(chapters.map(buildChapterContinuousReview));
+  const reviewRoot = join(draft.volumeRoot, 'tmp/preview/review');
+  const overviewPath = join(reviewRoot, 'overview.png');
+  const boundariesRoot = join(reviewRoot, 'boundaries');
+  const reviewManifestPath = join(reviewRoot, 'manifest.json');
+  const fingerprint = volumeReviewFingerprint({
+    volumeId: volume.volumeId,
+    volumeSha256: draft.manifest.sha256,
+    chapters: draft.manifest.chapters,
+  });
+  const boundaryPlans = boundaryReviewPlan(draft.manifest.chapters);
+  const existing = existsSync(reviewManifestPath) ? json(reviewManifestPath) : null;
+  const reusable = existing?.fingerprint === fingerprint
+    && existsSync(overviewPath)
+    && existsSync(join(reviewRoot, 'report.html'))
+    && boundaryPlans.every((boundary) => existsSync(join(boundariesRoot, boundary.filename)))
+    && chapterReviews.every((chapter) => existing.chapters?.some((current) =>
+      current.episodeId === chapter.episodeId && current.fingerprint === chapter.fingerprint));
+  if (reusable) {
+    console.log(`READY ${rel(join(reviewRoot, 'report.html'))}`);
+    console.log(`REUSED ${rel(reviewManifestPath)}`);
+    console.log('BLOCK candidate/current/release: Draft review is not a promotable verdict');
+    return;
+  }
+
+  const taskRoot = join(draft.volumeRoot, 'tmp/tasks', `review-${process.pid}`);
+  const taskBoundaries = join(taskRoot, 'boundaries');
+  rmSync(taskRoot, {recursive: true, force: true});
+  mkdirSync(taskBoundaries, {recursive: true});
+  try {
+    const overviewTask = join(taskRoot, 'overview.png');
+    const overview = run('ffmpeg', [
+      '-y', '-hide_banner', '-nostats', '-i', draft.videoPath,
+      '-vf', `fps=${VOLUME_REVIEW_POLICY.overviewFrames}/${draft.manifest.durationSeconds},scale=480:270,` +
+        `tile=${VOLUME_REVIEW_POLICY.overviewColumns}x${VOLUME_REVIEW_POLICY.overviewColumns}:nb_frames=${VOLUME_REVIEW_POLICY.overviewFrames}`,
+      '-frames:v', '1', overviewTask,
+    ], join(taskRoot, 'logs/overview.log'));
+    const boundaryTasks = boundaryPlans.map((boundary) => run('ffmpeg', [
+      '-y', '-hide_banner', '-nostats',
+      '-ss', String(boundary.beforeStartSeconds), '-t', String(VOLUME_REVIEW_POLICY.boundaryWindowSeconds), '-i', draft.videoPath,
+      '-ss', String(boundary.afterStartSeconds), '-t', String(VOLUME_REVIEW_POLICY.boundaryWindowSeconds), '-i', draft.videoPath,
+      '-filter_complex',
+      `[0:v]setpts=PTS-STARTPTS,fps=${VOLUME_REVIEW_POLICY.boundaryFps},scale=${VOLUME_REVIEW_POLICY.boundaryFrameWidth}:-2,` +
+      `tile=${VOLUME_REVIEW_POLICY.boundaryFramesPerSide}x1:nb_frames=${VOLUME_REVIEW_POLICY.boundaryFramesPerSide}[before];` +
+      `[1:v]setpts=PTS-STARTPTS,fps=${VOLUME_REVIEW_POLICY.boundaryFps},scale=${VOLUME_REVIEW_POLICY.boundaryFrameWidth}:-2,` +
+      `tile=${VOLUME_REVIEW_POLICY.boundaryFramesPerSide}x1:nb_frames=${VOLUME_REVIEW_POLICY.boundaryFramesPerSide}[after];` +
+      '[before][after]vstack=inputs=2',
+      '-frames:v', '1', '-q:v', '3', join(taskBoundaries, boundary.filename),
+    ], join(taskRoot, `logs/boundary-${String(boundary.index).padStart(2, '0')}.log`)));
+    await Promise.all([overview, ...boundaryTasks]);
+    mkdirSync(reviewRoot, {recursive: true});
+    rmSync(overviewPath, {force: true});
+    renameSync(overviewTask, overviewPath);
+    rmSync(boundariesRoot, {recursive: true, force: true});
+    renameSync(taskBoundaries, boundariesRoot);
+    const boundaries = boundaryPlans.map((boundary) => ({
+      ...boundary,
+      path: join(boundariesRoot, boundary.filename),
+    }));
+    const reportPath = writeVolumeReviewReport({
+      volume,
+      reviewRoot,
+      overviewPath,
+      boundaries,
+      chapters: chapterReviews,
+      fingerprint,
+    });
+    writeJson(reviewManifestPath, {
+      schemaVersion: 1,
+      stage: 'volume-draft-review',
+      ownership: 'Rebuildable Draft review view; not Candidate audit evidence or a verdict.',
+      volumeId: volume.volumeId,
+      fingerprint,
+      source: {
+        path: rel(draft.videoPath),
+        sha256: draft.manifest.sha256,
+        durationSeconds: draft.manifest.durationSeconds,
+      },
+      policy: VOLUME_REVIEW_POLICY,
+      overviewPath: rel(overviewPath),
+      boundaries: boundaries.map((boundary) => ({
+        previousEpisodeId: boundary.previousEpisodeId,
+        nextEpisodeId: boundary.nextEpisodeId,
+        cutSeconds: boundary.cutSeconds,
+        path: rel(boundary.path),
+      })),
+      chapters: chapterReviews.map((chapter) => ({
+        episodeId: chapter.episodeId,
+        fingerprint: chapter.fingerprint,
+        manifestPath: rel(chapter.manifestPath),
+        sheetCount: chapter.sheetCount,
+      })),
+      reportPath: rel(reportPath),
+      generatedAt: new Date().toISOString(),
+    });
+    console.log(`READY ${rel(reportPath)}`);
+    console.log(`MANIFEST ${rel(reviewManifestPath)}`);
+    console.log('BLOCK candidate/current/release: Draft review is not a promotable verdict');
+  } finally {
+    rmSync(taskRoot, {recursive: true, force: true});
+  }
+};
+
 try {
   const program = loadProgram();
   validateProgramContinuity(program);
@@ -421,8 +677,10 @@ try {
     }
   } else if (COMMAND === 'draft') {
     for (const volume of volumes) await buildVolumeDraft(volume);
+  } else if (COMMAND === 'review') {
+    for (const volume of volumes) await buildVolumeReview(volume);
   } else {
-    fail('Usage: claude-code-course:volume validate|plan|status|draft [volume-id]');
+    fail('Usage: claude-code-course:volume validate|plan|status|draft|review [volume-id]');
   }
 } catch (error) {
   console.error(`claude-code-course:volume: ${error instanceof Error ? error.message : String(error)}`);

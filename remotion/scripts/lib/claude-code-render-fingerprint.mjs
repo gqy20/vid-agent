@@ -5,6 +5,17 @@ import {dirname, extname, join, relative, resolve} from 'node:path';
 export const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 export const sha256File = (path) => sha256(readFileSync(path));
 
+const runtimeDependencyFingerprint = (packagePath) => {
+  if (!existsSync(packagePath)) return null;
+  const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
+  return sha256(JSON.stringify({
+    dependencies: packageJson.dependencies ?? {},
+    devDependencies: packageJson.devDependencies ?? {},
+    optionalDependencies: packageJson.optionalDependencies ?? {},
+    peerDependencies: packageJson.peerDependencies ?? {},
+  }));
+};
+
 const fingerprintEntries = ({files, repositoryRoot}) => files
   .sort((a, b) => a.localeCompare(b))
   .map((path) => [relative(repositoryRoot, path).replaceAll('\\', '/'), sha256File(path)]);
@@ -65,10 +76,14 @@ export const claudeCodeChapterSourceFingerprint = ({remotionRoot, repositoryRoot
     }
   };
   visit(componentPath);
-  for (const path of [join(remotionRoot, 'package.json'), join(repositoryRoot, 'pnpm-lock.yaml')]) {
+  for (const path of [join(repositoryRoot, 'pnpm-lock.yaml')]) {
     if (existsSync(path)) files.add(path);
   }
-  return sha256(JSON.stringify(fingerprintEntries({files: [...files], repositoryRoot})));
+  return sha256(JSON.stringify({
+    schema: 2,
+    files: fingerprintEntries({files: [...files], repositoryRoot}),
+    runtimeDependencies: runtimeDependencyFingerprint(join(remotionRoot, 'package.json')),
+  }));
 };
 
 export const chapterVisualFingerprint = ({episodePath, episode, sourceFingerprint, scale}) => sha256(JSON.stringify({

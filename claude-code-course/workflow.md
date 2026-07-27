@@ -22,6 +22,7 @@ pnpm --dir remotion claude-code-course:volume validate [volume-id]
 pnpm --dir remotion claude-code-course:volume plan [volume-id]
 pnpm --dir remotion claude-code-course:volume status [volume-id]
 pnpm --dir remotion claude-code-course:volume draft <volume-id>
+pnpm --dir remotion claude-code-course:volume review <volume-id>
 pnpm --dir remotion claude-code-course:review-stills <episode-id>:<second>[,<second>...]
 pnpm --dir remotion claude-code-course:render-chapters <episode-id>... [--scale=1|2] [--jobs=N] [--force]
 ```
@@ -55,11 +56,14 @@ tmp/preview/visual/chapter.mp4                  # 未配音章节视觉核对入
 tmp/preview/scenes/01_scene_id.mp4              # 稳定分镜入口
 tmp/preview/review/report.html                  # Draft 核对首页
 tmp/preview/review/audio-audit.json             # Draft 音频证据
+tmp/preview/review/visual-manifest.json         # 单章连续 2fps 核对视图指纹
+tmp/preview/review/continuous-2fps/             # 每页最多 5 帧的单章连续审查条
 tmp/preview/manifest.json                       # 当前视图的 SHA / 指纹 / profile
 ```
 
 - Preview 文件优先从 CAS hardlink 物化，失败时才复制；更新使用临时路径原子替换。
 - `render-chapters` 对所有选中章节只 bundle 一次；每章使用独立浏览器和独立 CAS，成功章节立即提交 cache，其他章节失败不回滚已完成结果。
+- 章节视觉指纹只覆盖该章可达组件依赖、实际引用的公开素材、锁文件和 Remotion 运行依赖版本；`package.json` 中与画面无关的 scripts 变化不得让全部章节误判为 dirty。共享 bundle 仍使用全量源码指纹。
 - 多章任务默认根据逻辑 CPU 自动分配章节 worker 与每章渲染并发，也可用 `--jobs` 调整；失败章节会在更低 Remotion concurrency 下重试。
 - `--scale=1` 生成 1920×1080 视觉预览，`--scale=2` 生成 3840×2160 视觉预览；两者指纹不同，不通过文件名制造 `4k-v2` 一类入口。
 - `tmp/preview/visual/chapter.mp4` 是无音频、未完成字幕同步的视觉核对文件，不能当作完整 episode、Volume、Candidate 或 Current。
@@ -127,6 +131,10 @@ Volume 02 · EP06–EP10
 章节渲染输出的是无重复品牌片头、片尾和下集预告的 clean segment。合集按 manifest 中记录的顺序和 SHA 装配这些 clean segment，不得直接拼接已经完成单集包装的 MP4。每卷只使用一次课程开场、一次全局章节进度和一次结尾 lockup；人声按章复用，BGM 在整卷层重新铺设为一条连续音轨，不能在每章边界重新起音。
 
 `pnpm --dir remotion claude-code-course:volume draft <volume-id>` 只接受章节完整 Preview、匹配的 `pass` 音频审查、aligned voiceover 与统一 BGM SHA。产物进入 `renders/claude-code-course/volumes/<volume-id>/tmp/cache/volume-draft/<fingerprint>/`，固定审查视图位于相邻 `tmp/preview/`。它仍是可重建 Draft；Volume Candidate/Audit/Current adapter 尚未实现，继续保持 blocked。
+
+`pnpm --dir remotion claude-code-course:volume review <volume-id>` 从已经编码的 Draft MP4 建立固定审片入口 `tmp/preview/review/report.html`：每章独立生成并复用连续 `2fps`、每页最多 5 帧的 contact sheet；整卷只生成 `4×4` 导航总览和每个章节切点前后各 `0.5s`、`10fps` 的双侧 burst。最后一页按真实帧数裁短，不补空白格；双侧 burst 在拼图前统一重置 PTS。review manifest 绑定 Volume 与章节视频 SHA，但仍不是 Candidate verdict。
+
+单章连续审查的指纹只覆盖该章视频 SHA 与连续采样策略；修改其他章节、overview 或边界策略不会让无关章节重新扫描。整卷 Draft 与所有章节 SHA 均未变化时，`volume review` 直接复用现有报告。
 
 ### 探讨式旁白
 

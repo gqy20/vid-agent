@@ -85,15 +85,15 @@ const FlowArrow: React.FC<{x1: number; x2: number; y: number; progress: number; 
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const context = enter(frame, 68, MOTION.structural);
+  const context = 1;
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 150}}>
-      <div style={{textAlign: 'center', opacity: enter(frame, 20), translate: `0 ${(1 - enter(frame, 20)) * 22}px`}}>
+      <div style={{textAlign: 'center', opacity: enter(frame, 0, MOTION.structural), translate: `0 ${(1 - enter(frame, 0, MOTION.structural)) * 22}px`}}>
         <div style={{...TYPE.display}}>{getEp04Scene('hook').title}</div>
       </div>
       <div style={{position: 'absolute', left: 300, right: 300, top: 565, height: 250}}>
         {['README', 'src/http', 'src/tasks', 'test', 'package.json'].map((name, index) => {
-          const visible = enter(frame, 48 + index * 7);
+          const visible = enter(frame, 10 + index * 7);
           return (
             <div key={name} style={{position: 'absolute', left: index * 260, top: 34 + (index % 2) * 60, ...TYPE.codeSmall, color: COLOR.text.tertiary, opacity: visible}}>
               {name}

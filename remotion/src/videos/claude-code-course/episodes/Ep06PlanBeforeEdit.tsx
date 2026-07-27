@@ -31,12 +31,12 @@ const Signal: React.FC<{icon: EvidenceIconName; label: string; detail?: string; 
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const branch = enter(frame, 72, MOTION.structural);
+  const branch = enter(frame, 48, MOTION.structural);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
-      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 20)}}>{getEp06Scene('hook').title}</div>
+      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 0, MOTION.structural)}}>{getEp06Scene('hook').title}</div>
       <div style={{position: 'absolute', left: 320, right: 320, top: 520, display: 'grid', gridTemplateColumns: '1fr 150px 1fr', alignItems: 'center'}}>
-        <Signal icon="file" label="可验证任务" detail="UI · API · data · tests" tone={COLOR.text.brand} progress={enter(frame, 40)} />
+        <Signal icon="file" label="可验证任务" detail="UI · API · data · tests" tone={COLOR.text.brand} progress={1} />
         <div style={{height: 2, background: COLOR.stroke.default, scale: `${branch} 1`, transformOrigin: 'left center'}} />
         <Signal icon="route" label="先审查路径？" detail="Plan Mode" tone={COLOR.text.info} progress={branch} />
       </div>

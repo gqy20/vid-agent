@@ -74,6 +74,9 @@
 - [ ] 每章先独立渲染并进入内容寻址 cache；单章失败不会丢弃其他已完成章节。
 - [ ] 同一批章节只生成一次 Remotion bundle；章节各用独立浏览器，章节 worker 与帧并发由逻辑 CPU 或稳定 profile 分配。
 - [ ] `tmp/preview/visual/chapter.mp4` 只作为静音视觉核对，不被描述为完整 episode 或 Volume。
+- [ ] `volume review` 的连续 `2fps` sheet 按章独立生成并复用，每页最多 5 帧，最后一页没有补空白；整卷 overview 与边界 burst 均来自最终编码 MP4。
+- [ ] 每个章节边界包含切点前后各 `0.5s`、`10fps` 的双侧取样；两侧输入在拼图前执行 `PTS-STARTPTS`，没有因时间戳错位形成假的空白行。
+- [ ] Volume Draft 的唯一图像核对入口是 `tmp/preview/review/report.html`；临时帧、FFmpeg task 和手工 contact sheet 不作为交付入口。
 - [ ] `clean` 默认 dry-run，只有显式 `--apply=true` 才清理旧 Preview 视图，且不触碰 CAS、Candidate 或 Current。
 - [ ] Preview 没有被命名、复制或描述为 Candidate、Current、Release 或 Published。
 

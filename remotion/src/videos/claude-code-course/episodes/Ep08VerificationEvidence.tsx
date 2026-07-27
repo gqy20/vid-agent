@@ -20,12 +20,12 @@ const Proof: React.FC<{icon: EvidenceIconName; label: string; detail?: string; t
 
 const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const question = enter(frame, 74, MOTION.structural);
+  const question = enter(frame, 48, MOTION.structural);
   return (
     <AbsoluteFill style={{...scenePad, paddingTop: 145}}>
-      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 20)}}>{getEp08Scene('hook').title}</div>
+      <div style={{...TYPE.display, textAlign: 'center', opacity: enter(frame, 0, MOTION.structural)}}>{getEp08Scene('hook').title}</div>
       <div style={{position: 'absolute', left: 350, right: 350, top: 520, display: 'grid', gridTemplateColumns: '1fr 160px 1fr', alignItems: 'center'}}>
-        <Proof icon="test" label="TESTS" detail="green" tone={COLOR.text.success} progress={enter(frame, 42)} />
+        <Proof icon="test" label="TESTS" detail="green" tone={COLOR.text.success} progress={1} />
         <div style={{height: 2, background: COLOR.stroke.default, scale: `${question} 1`, transformOrigin: 'left center'}} />
         <Proof icon="observe" label="USER BEHAVIOR" detail="仍未观察" tone={COLOR.text.warning} progress={question} />
       </div>
