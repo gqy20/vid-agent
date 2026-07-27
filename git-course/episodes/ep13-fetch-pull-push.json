@@ -1,0 +1,107 @@
+{
+  "episodeId": "ep13-fetch-pull-push",
+  "title": "Fetch、Pull、Push 分别做了什么",
+  "fps": 30,
+  "resolution": {"width": 1920, "height": 1080},
+  "durationSeconds": 180,
+  "sourceOfTruth": {
+    "references": [
+      "docs/references/progit2-zh/book/02-git-basics/sections/remotes.asc",
+      "docs/references/progit2-zh/book/03-git-branching/sections/remote-branches.asc",
+      "https://git-scm.com/docs/git-fetch",
+      "https://git-scm.com/docs/git-pull",
+      "https://git-scm.com/docs/git-push"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "三个命令，一条网络",
+      "start": 0,
+      "duration": 14,
+      "goal": "提出 fetch、pull、push 不能只按上传下载理解。",
+      "primaryTechnique": "Question scene + three boundary verbs",
+      "beats": [{"time": [0, 14], "visual": "fetch、pull、push 围绕本地与服务器边界出现", "motion": "三个命令依次进入，不预先展示结果", "state": "remote", "narration": "三个命令到底改变哪一边？", "audit": ["不把 pull 画成单纯下载", "不把 push 画成上传 Working Tree"]}],
+      "narration": {"segmentId": "01_hook", "voiceStart": 0.35, "text": "fetch、pull、push 都会经过网络。<#0.30#>\n可它们究竟改了哪一边？<#0.35#>\n只记成下载和上传，可能会把对象、分支与远端引用混在一起。<#0.30#>\n我们从结果反推命令。"},
+      "captions": [{"from": 0.35, "to": 3.017, "text": "fetch、pull、push 都会经过网络"}, {"from": 3.586, "to": 4.974, "text": "可它们究竟改了哪一边？"}, {"from": 5.598, "to": 10.35, "text": "只记成下载和上传，可能会把对象、分支与远端引用混在一起"}, {"from": 10.857, "to": 12.49, "text": "我们从结果反推命令"}]
+    },
+    {
+      "id": "fetch-evidence",
+      "title": "Fetch 的真实结果",
+      "start": 14,
+      "duration": 26,
+      "goal": "用真实 fetch 输出证明远端对象和 remote-tracking ref 被更新。",
+      "primaryTechnique": "Recorded git-course-lab terminal",
+      "beats": [{"time": [14, 40], "visual": "真实执行 git fetch origin 并冻结结果", "motion": "命令完成后保留 origin/main 更新证据", "state": "fetch", "narration": "先只抓取，不整合。", "audit": ["完整命令和输出保持到旁白结束"]}],
+      "narration": {"segmentId": "02_fetch_evidence", "voiceStart": 17.35, "text": "我们先让服务器 main 比本地多一个提交，再运行 git fetch origin。<#0.35#>\n终端显示新的对象与远端 main 的位置被取回。<#0.35#>\n此时 origin slash main 已经记住 C2，对象也进入本地对象库。<#0.40#>\n但当前 main 仍指向 C1，正在编辑的文件没有切换。<#0.35#>\nfetch 先更新证据，也留下了观察窗口。"},
+      "captions": [{"from": 3.35, "to": 7.996, "text": "我们先让服务器 main 比本地多一个提交，再运行 git fetch origin"}, {"from": 8.55, "to": 11.219, "text": "终端显示新的对象与远端 main 的位置被取回"}, {"from": 11.919, "to": 16.327, "text": "此时 origin slash main 已经记住 C2，对象也进入本地对象库"}, {"from": 17.086, "to": 21.055, "text": "但当前 main 仍指向 C1，正在编辑的文件没有切换"}, {"from": 21.75, "to": 23.812, "text": "fetch 先更新证据，也留下了观察窗口"}]
+    },
+    {
+      "id": "fetch-boundary",
+      "title": "Fetch 更新知识，不更新工作",
+      "start": 40,
+      "duration": 25,
+      "goal": "表现 fetch 更新对象库和 origin/main，但不移动 main、Index 或 Working Tree。",
+      "primaryTechnique": "Remote/local ref state model",
+      "beats": [{"time": [40, 65], "visual": "服务器 C2、origin/main C2、本地 main C1 三层对照", "motion": "对象先进入本地，再移动 origin/main", "state": "fetch", "narration": "fetch 更新的是本地知识。", "audit": ["main、Index、Working Tree 保持不动"]}],
+      "narration": {"segmentId": "03_fetch_boundary", "voiceStart": 40.1, "text": "fetch 带回缺少的对象，再按照 refspec 更新 remote-tracking ref。<#0.35#>\n服务器 main 在 C2，本地 origin slash main 也来到 C2；可本地 main 仍停在 C1。<#0.40#>\nIndex 与 Working Tree 保持原状，因为 fetch 没有选择如何整合，也不会替我们改动当前文件。<#0.35#>\n我们可以先比较两边历史和提交内容，再决定 merge、rebase，还是暂不处理。"},
+      "captions": [{"from": 0.1, "to": 5.458, "text": "fetch 带回缺少的对象，再按照 refspec 更新 remote-tracking ref"}, {"from": 6.009, "to": 11.59, "text": "服务器 main 在 C2，本地 origin slash main 也来到 C2；可本地 main 仍停在 C1"}, {"from": 12.228, "to": 18.296, "text": "Index 与 Working Tree 保持原状，因为 fetch 没有选择如何整合，也不会替我们改动当前文件"}, {"from": 18.86, "to": 23.827, "text": "我们可以先比较两边历史和提交内容，再决定 merge、rebase，还是暂不处理"}]
+    },
+    {
+      "id": "pull-evidence",
+      "title": "Pull 还会整合",
+      "start": 65,
+      "duration": 29,
+      "goal": "用显式 ff-only pull 展示 fetch 后更新当前分支。",
+      "primaryTechnique": "Recorded terminal to branch movement",
+      "beats": [{"time": [65, 94], "visual": "真实 git pull --ff-only origin main 后切换到分支前移模型", "motion": "终端先完成，再让 main 快进到 C2", "state": "pull", "narration": "pull 比 fetch 多了一步整合。", "audit": ["命令显式使用 --ff-only", "不声称所有 pull 都使用 merge"]}],
+      "narration": {"segmentId": "04_pull_evidence", "voiceStart": 65.35, "text": "接着换一个同样落后的本地仓库，运行 git pull --ff-only origin main。<#0.40#>\npull 会先执行取得，再把选中的远端分支整合进当前分支；所以它不是 fetch 的另一个名字。<#0.45#>\n这里 C1 到 C2 是一条直线，ff-only 允许 main 快进，Working Tree 也随当前提交更新。<#0.40#>\n如果两边已经分叉，这个显式策略会直接拒绝，而不是替我们猜 merge 还是 rebase。<#0.35#>\n整合策略因此留在命令里，而不是藏在机器的默认配置中。"},
+      "captions": [{"from": 0.35, "to": 4.465, "text": "接着换一个同样落后的本地仓库，运行 git pull --ff-only origin main"}, {"from": 5.134, "to": 11.082, "text": "pull 会先执行取得，再把选中的远端分支整合进当前分支；所以它不是 fetch 的另一个名字"}, {"from": 11.723, "to": 17.236, "text": "这里 C1 到 C2 是一条直线，ff-only 允许 main 快进，Working Tree 也随当前提交更新"}, {"from": 18.081, "to": 23.018, "text": "如果两边已经分叉，这个显式策略会直接拒绝，而不是替我们猜 merge 还是 rebase"}, {"from": 23.743, "to": 27.7, "text": "整合策略因此留在命令里，而不是藏在机器的默认配置中"}]
+    },
+    {
+      "id": "push-evidence",
+      "title": "Push 请求更新远端 Ref",
+      "start": 94,
+      "duration": 29,
+      "goal": "用真实 push 表现发送所需对象并更新服务器 ref。",
+      "primaryTechnique": "Recorded terminal + server ref update",
+      "beats": [{"time": [94, 123], "visual": "本地 C2 推送后服务器 main 从 C1 前移", "motion": "对象传输完成后再移动服务器 ref", "state": "push", "narration": "push 的目标是远端 ref。", "audit": ["不从 Working Tree 直接画箭头到服务器", "服务器 ref 更新在对象到达之后"]}],
+      "narration": {"segmentId": "05_push_evidence", "voiceStart": 94.35, "text": "现在反过来，让本地 main 比服务器多一个提交。<#0.35#>\n运行 git push origin main，Git 会先计算服务器缺少哪些对象，再把这些对象发送过去。<#0.40#>\n随后它请求把服务器的 refs heads main 从旧值更新到本地 main 指向的新值。<#0.45#>\n只有远端接受这个请求，服务器 main 才真正前移，终端也会报告更新成功。<#0.35#>\n所以 push 的起点是本地提交历史，不是把编辑器里的 Working Tree 整包上传。"},
+      "captions": [{"from": 0.35, "to": 3.029, "text": "现在反过来，让本地 main 比服务器多一个提交"}, {"from": 3.572, "to": 9.291, "text": "运行 git push origin main，Git 会先计算服务器缺少哪些对象，再把这些对象发送过去"}, {"from": 10.059, "to": 15.474, "text": "随后它请求把服务器的 refs heads main 从旧值更新到本地 main 指向的新值"}, {"from": 16.109, "to": 21.546, "text": "只有远端接受这个请求，服务器 main 才真正前移，终端也会报告更新成功"}, {"from": 22.108, "to": 27.17, "text": "所以 push 的起点是本地提交历史，不是把编辑器里的 Working Tree 整包上传"}]
+    },
+    {
+      "id": "three-boundaries",
+      "title": "三条命令，三个落点",
+      "start": 123,
+      "duration": 30,
+      "goal": "并列比较三条命令的输入边界和直接结果。",
+      "primaryTechnique": "Centered three-row causal summary",
+      "beats": [{"time": [123, 153], "visual": "fetch、pull、push 三行因果关系依次点亮", "motion": "每次只突出一行", "state": "compare", "narration": "比较的不是网络方向，而是直接结果。", "audit": ["pull 行明确包含 fetch 与整合", "三行不同时高亮"]}],
+      "narration": {"segmentId": "06_three_boundaries", "voiceStart": 124.85, "text": "把三条命令放在一起比较，差别落在哪里？<#0.30#>\nfetch 写入本地对象库和 origin slash main，停在观察阶段；当前工作不必变化。<#0.40#>\npull 先做 fetch，再执行整合策略，因此会移动当前分支，也可能更新 Index 与 Working Tree。<#0.45#>\npush 从本地提交可达的对象出发，请求更新服务器目标 ref，但远端仍有权拒绝。<#0.40#>\n网络方向只是表面，写入的对象与 ref 才决定命令边界。"},
+      "captions": [{"from": 1.85, "to": 4.533, "text": "把三条命令放在一起比较，差别落在哪里？"}, {"from": 5.145, "to": 10.386, "text": "fetch 写入本地对象库和 origin slash main，停在观察阶段；当前工作不必变化"}, {"from": 11.013, "to": 17.064, "text": "pull 先做 fetch，再执行整合策略，因此会移动当前分支，也可能更新 Index 与 Working Tree"}, {"from": 17.799, "to": 24.189, "text": "push 从本地提交可达的对象出发，请求更新服务器目标 ref，但远端仍有权拒绝"}, {"from": 24.827, "to": 28.023, "text": "网络方向只是表面，写入的对象与 ref 才决定命令边界"}]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 153,
+      "duration": 27,
+      "goal": "用取得、整合、发布三个动作收束。",
+      "primaryTechnique": "Minimal centered takeaway",
+      "beats": [{"time": [153, 180], "visual": "取得、整合、发布三个大词与对应 ref 状态", "motion": "依次出现后稳定", "state": "takeaway", "narration": "先判断写入对象，再判断移动哪个 ref。", "audit": ["不引入下一集 non-fast-forward 细节"]}],
+      "narration": {"segmentId": "07_takeaway", "voiceStart": 153.35, "text": "最后把它们收束成三个动作：取得、整合、发布。<#0.35#>\nfetch 取得远端工作，更新对象库与本地记录，但不替我们整合。<#0.35#>\npull 在取得后继续整合到当前分支，策略应该显式选择。<#0.35#>\npush 发布本地可达的提交，并请求服务器更新目标 ref；请求也可能被拒绝。<#0.40#>\n以后看到网络命令，我们可以逐一确认：对象去了哪里，哪个 ref 最终移动了？"},
+      "captions": [{"from": 0.35, "to": 3.921, "text": "最后把它们收束成三个动作：取得、整合、发布"}, {"from": 4.504, "to": 9.288, "text": "fetch 取得远端工作，更新对象库与本地记录，但不替我们整合"}, {"from": 9.921, "to": 13.78, "text": "pull 在取得后继续整合到当前分支，策略应该显式选择"}, {"from": 14.364, "to": 20.047, "text": "push 发布本地可达的提交，并请求服务器更新目标 ref；请求也可能被拒绝"}, {"from": 20.644, "to": 25.463, "text": "以后看到网络命令，我们可以逐一确认：对象去了哪里，哪个 ref 最终移动了？"}]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP13：Fetch、Pull、Push 分别做了什么\n\n用三次真实网络操作拆开对象传输、本地整合和远端 ref 更新。\n",
+    "scriptMarkdown": "# EP13 当前脚本（180s）\n\n从三条命令共享网络但直接结果不同进入；依次观察 fetch、显式 ff-only pull 和可 fast-forward push。\n",
+    "beatsMarkdown": "# EP13 Beats\n\n| Scene | 教学动作 |\n|---|---|\n| hook | 提出边界问题 |\n| fetch-evidence / fetch-boundary | 取得对象并更新本地记录 |\n| pull-evidence | fetch 后显式快进整合 |\n| push-evidence | 请求更新服务器 ref |\n| three-boundaries / takeaway | 比较并收束 |\n",
+    "qualityMarkdown": "# EP13 审查记录\n\n## 当前状态\n\n- episode JSON、真实终端、Remotion scene、TTS 与 SRT captions 已建立。\n- candidate 与正式审查尚待生成。\n\n## 审查重点\n\n- fetch 不移动本地 main。\n- pull 使用显式 `--ff-only`，不依赖默认策略。\n- push 不表现为上传 Working Tree。\n",
+    "alignmentMarkdown": "# EP13 对齐记录\n\n真实 TTS 已逐段测量，旁白尾部保持约 1–2 秒；captions 按 SRT 时间与 scene 内 voiceStart 偏移回写。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP13 B 站发布物料（草案）\n\n## 标题\n\nFetch、Pull、Push 到底分别改了什么？\n\n## 简介\n\n用真实仓库拆开对象传输、本地整合与远端 ref 更新。\n\n## 官方参考\n\n- [git-fetch](https://git-scm.com/docs/git-fetch)\n- [git-pull](https://git-scm.com/docs/git-pull)\n- [git-push](https://git-scm.com/docs/git-push)\n\n## 标签\n\n```text\nGit\nGit教程\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP13 封面 Brief\n\n左侧使用三个大词 `fetch / pull / push`，右侧只保留本地与服务器两个大边界和三种不同落点；缩略图下不显示长命令。\n",
+    "checklistMarkdown": "# EP13 发布检查清单\n\n- [ ] main candidate 通过审查与 promote。\n- [ ] release 通过审查与 publish。\n- [ ] 封面完成缩略图检查。\n"
+  }
+}

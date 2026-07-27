@@ -20,6 +20,10 @@ const EPISODES = [
   ['ep10-selecting-revisions', 'GitCourseEp10SelectingRevisions', 'EP10'],
   ['ep11-tags', 'GitCourseEp11Tags', 'EP11'],
   ['ep12-remote-tracking-branches', 'GitCourseEp12RemoteTrackingBranches', 'EP12'],
+  ['ep13-fetch-pull-push', 'GitCourseEp13FetchPullPush', 'EP13'],
+  ['ep14-ahead-behind-non-fast-forward', 'GitCourseEp14AheadBehindNonFastForward', 'EP14'],
+  ['ep15-unmerged-index', 'GitCourseEp15UnmergedIndex', 'EP15'],
+  ['ep16-reflog-recovery', 'GitCourseEp16ReflogRecovery', 'EP16'],
 ];
 
 const fail = (message) => {

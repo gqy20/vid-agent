@@ -34,6 +34,10 @@ import {EP09_DURATION_IN_FRAMES, Ep09DiffComparesStates} from './episodes/Ep09Di
 import {EP10_DURATION_IN_FRAMES, Ep10SelectingRevisions} from './episodes/Ep10SelectingRevisions';
 import {EP11_DURATION_IN_FRAMES, Ep11Tags} from './episodes/Ep11Tags';
 import {EP12_DURATION_IN_FRAMES, Ep12RemoteTrackingBranches} from './episodes/Ep12RemoteTrackingBranches';
+import {EP13_DURATION_IN_FRAMES, Ep13FetchPullPush} from './episodes/Ep13FetchPullPush';
+import {EP14_DURATION_IN_FRAMES, Ep14AheadBehindNonFastForward} from './episodes/Ep14AheadBehindNonFastForward';
+import {EP15_DURATION_IN_FRAMES, Ep15UnmergedIndex} from './episodes/Ep15UnmergedIndex';
+import {EP16_DURATION_IN_FRAMES, Ep16ReflogRecovery} from './episodes/Ep16ReflogRecovery';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -212,6 +216,38 @@ export const registration: VideoRegistration = {
       id: 'GitCourseEp12RemoteTrackingBranches',
       component: Ep12RemoteTrackingBranches,
       durationInFrames: EP12_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp13FetchPullPush',
+      component: Ep13FetchPullPush,
+      durationInFrames: EP13_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp14AheadBehindNonFastForward',
+      component: Ep14AheadBehindNonFastForward,
+      durationInFrames: EP14_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp15UnmergedIndex',
+      component: Ep15UnmergedIndex,
+      durationInFrames: EP15_DURATION_IN_FRAMES,
+      fps: FPS,
+      width: WIDTH,
+      height: HEIGHT,
+    },
+    {
+      id: 'GitCourseEp16ReflogRecovery',
+      component: Ep16ReflogRecovery,
+      durationInFrames: EP16_DURATION_IN_FRAMES,
       fps: FPS,
       width: WIDTH,
       height: HEIGHT,

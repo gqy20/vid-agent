@@ -99,6 +99,54 @@ export const EP12 = {
   ],
 };
 
+export const EP13 = {
+  id: 'ep13-fetch-pull-push',
+  title: 'Fetch、Pull、Push 分别做了什么',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp13FetchPullPush',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/02-git-basics/sections/remotes.asc',
+    'https://git-scm.com/docs/git-fetch',
+    'https://git-scm.com/docs/git-pull',
+    'https://git-scm.com/docs/git-push',
+  ],
+};
+
+export const EP14 = {
+  id: 'ep14-ahead-behind-non-fast-forward',
+  title: 'Ahead、Behind 与拒绝推送',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp14AheadBehindNonFastForward',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/03-git-branching/sections/remote-branches.asc',
+    'https://git-scm.com/docs/git-status',
+    'https://git-scm.com/docs/git-push',
+  ],
+};
+
+export const EP15 = {
+  id: 'ep15-unmerged-index',
+  title: '冲突时 Index 里有什么',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp15UnmergedIndex',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/07-git-tools/sections/advanced-merging.asc',
+    'https://git-scm.com/docs/git-merge',
+    'https://git-scm.com/docs/git-ls-files',
+  ],
+};
+
+export const EP16 = {
+  id: 'ep16-reflog-recovery',
+  title: 'Reflog 如何找回提交',
+  seriesTitle: '看得见的 Git',
+  compositionId: 'GitCourseEp16ReflogRecovery',
+  sourceReferences: [
+    'docs/references/progit2-zh/book/10-git-internals/sections/maintenance.asc',
+    'https://git-scm.com/docs/git-reflog',
+  ],
+};
+
 export const COMMAND_STEPS = [
   {
     command: 'git log --oneline --graph',

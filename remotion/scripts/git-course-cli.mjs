@@ -253,6 +253,10 @@ const getComposition = (episode) => {
     'ep10-selecting-revisions': 'GitCourseEp10SelectingRevisions',
     'ep11-tags': 'GitCourseEp11Tags',
     'ep12-remote-tracking-branches': 'GitCourseEp12RemoteTrackingBranches',
+    'ep13-fetch-pull-push': 'GitCourseEp13FetchPullPush',
+    'ep14-ahead-behind-non-fast-forward': 'GitCourseEp14AheadBehindNonFastForward',
+    'ep15-unmerged-index': 'GitCourseEp15UnmergedIndex',
+    'ep16-reflog-recovery': 'GitCourseEp16ReflogRecovery',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -270,6 +274,10 @@ const episodeSourceName = (episodeId) => ({
   'ep10-selecting-revisions': 'Ep10SelectingRevisions.tsx',
   'ep11-tags': 'Ep11Tags.tsx',
   'ep12-remote-tracking-branches': 'Ep12RemoteTrackingBranches.tsx',
+  'ep13-fetch-pull-push': 'Ep13FetchPullPush.tsx',
+  'ep14-ahead-behind-non-fast-forward': 'Ep14AheadBehindNonFastForward.tsx',
+  'ep15-unmerged-index': 'Ep15UnmergedIndex.tsx',
+  'ep16-reflog-recovery': 'Ep16ReflogRecovery.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {

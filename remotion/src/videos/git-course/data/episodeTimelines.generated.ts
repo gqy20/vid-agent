@@ -140,3 +140,48 @@ export const EP12_SCENES = [
   {id: "takeaway", title: "总结", duration: seconds(29.5), captions: [{"from":0.35,"to":1.881,"text":"最后把三个位置再对齐一次"},{"from":2.456,"to":6.053,"text":"服务器 main 住在服务器，由服务器收到更新时改变"},{"from":6.732,"to":12.269,"text":"origin slash main 住在本地，由 fetch 等网络通信更新，记录最后已知远端位置"},{"from":13.068,"to":18.392,"text":"本地 main 也住在本地，由我们的 commit、merge 或 rebase 等本地动作更新"},{"from":19.114,"to":23.741,"text":"以后看到一个分支名，可以先问：它属于哪个仓库、哪个命名空间，又是谁在移动它？"},{"from":24.534,"to":27.573,"text":"这三个问题，比把它们统称为远程分支更可靠"}]},
 ] as const;
 export const EP12_DURATION_IN_FRAMES = EP12_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+
+export const EP13_SCENES = [
+  {id: "hook", title: "三个命令，一条网络", duration: seconds(14), captions: [{"from":0.35,"to":3.017,"text":"fetch、pull、push 都会经过网络"},{"from":3.586,"to":4.974,"text":"可它们究竟改了哪一边？"},{"from":5.598,"to":10.35,"text":"只记成下载和上传，可能会把对象、分支与远端引用混在一起"},{"from":10.857,"to":12.49,"text":"我们从结果反推命令"}]},
+  {id: "fetch-evidence", title: "Fetch 的真实结果", duration: seconds(26), captions: [{"from":3.35,"to":7.996,"text":"我们先让服务器 main 比本地多一个提交，再运行 git fetch origin"},{"from":8.55,"to":11.219,"text":"终端显示新的对象与远端 main 的位置被取回"},{"from":11.919,"to":16.327,"text":"此时 origin slash main 已经记住 C2，对象也进入本地对象库"},{"from":17.086,"to":21.055,"text":"但当前 main 仍指向 C1，正在编辑的文件没有切换"},{"from":21.75,"to":23.812,"text":"fetch 先更新证据，也留下了观察窗口"}]},
+  {id: "fetch-boundary", title: "Fetch 更新知识，不更新工作", duration: seconds(25), captions: [{"from":0.1,"to":5.458,"text":"fetch 带回缺少的对象，再按照 refspec 更新 remote-tracking ref"},{"from":6.009,"to":11.59,"text":"服务器 main 在 C2，本地 origin slash main 也来到 C2；可本地 main 仍停在 C1"},{"from":12.228,"to":18.296,"text":"Index 与 Working Tree 保持原状，因为 fetch 没有选择如何整合，也不会替我们改动当前文件"},{"from":18.86,"to":23.827,"text":"我们可以先比较两边历史和提交内容，再决定 merge、rebase，还是暂不处理"}]},
+  {id: "pull-evidence", title: "Pull 还会整合", duration: seconds(29), captions: [{"from":0.35,"to":4.465,"text":"接着换一个同样落后的本地仓库，运行 git pull --ff-only origin main"},{"from":5.134,"to":11.082,"text":"pull 会先执行取得，再把选中的远端分支整合进当前分支；所以它不是 fetch 的另一个名字"},{"from":11.723,"to":17.236,"text":"这里 C1 到 C2 是一条直线，ff-only 允许 main 快进，Working Tree 也随当前提交更新"},{"from":18.081,"to":23.018,"text":"如果两边已经分叉，这个显式策略会直接拒绝，而不是替我们猜 merge 还是 rebase"},{"from":23.743,"to":27.7,"text":"整合策略因此留在命令里，而不是藏在机器的默认配置中"}]},
+  {id: "push-evidence", title: "Push 请求更新远端 Ref", duration: seconds(29), captions: [{"from":0.35,"to":3.029,"text":"现在反过来，让本地 main 比服务器多一个提交"},{"from":3.572,"to":9.291,"text":"运行 git push origin main，Git 会先计算服务器缺少哪些对象，再把这些对象发送过去"},{"from":10.059,"to":15.474,"text":"随后它请求把服务器的 refs heads main 从旧值更新到本地 main 指向的新值"},{"from":16.109,"to":21.546,"text":"只有远端接受这个请求，服务器 main 才真正前移，终端也会报告更新成功"},{"from":22.108,"to":27.17,"text":"所以 push 的起点是本地提交历史，不是把编辑器里的 Working Tree 整包上传"}]},
+  {id: "three-boundaries", title: "三条命令，三个落点", duration: seconds(30), captions: [{"from":1.85,"to":4.533,"text":"把三条命令放在一起比较，差别落在哪里？"},{"from":5.145,"to":10.386,"text":"fetch 写入本地对象库和 origin slash main，停在观察阶段；当前工作不必变化"},{"from":11.013,"to":17.064,"text":"pull 先做 fetch，再执行整合策略，因此会移动当前分支，也可能更新 Index 与 Working Tree"},{"from":17.799,"to":24.189,"text":"push 从本地提交可达的对象出发，请求更新服务器目标 ref，但远端仍有权拒绝"},{"from":24.827,"to":28.023,"text":"网络方向只是表面，写入的对象与 ref 才决定命令边界"}]},
+  {id: "takeaway", title: "总结", duration: seconds(27), captions: [{"from":0.35,"to":3.921,"text":"最后把它们收束成三个动作：取得、整合、发布"},{"from":4.504,"to":9.288,"text":"fetch 取得远端工作，更新对象库与本地记录，但不替我们整合"},{"from":9.921,"to":13.78,"text":"pull 在取得后继续整合到当前分支，策略应该显式选择"},{"from":14.364,"to":20.047,"text":"push 发布本地可达的提交，并请求服务器更新目标 ref；请求也可能被拒绝"},{"from":20.644,"to":25.463,"text":"以后看到网络命令，我们可以逐一确认：对象去了哪里，哪个 ref 最终移动了？"}]},
+] as const;
+export const EP13_DURATION_IN_FRAMES = EP13_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+
+export const EP14_SCENES = [
+  {id: "hook", title: "计数来自哪里", duration: seconds(16)},
+  {id: "stale-count", title: "通信前的本地认知", duration: seconds(22)},
+  {id: "fresh-count", title: "Fetch 后重新比较", duration: seconds(22)},
+  {id: "diverged", title: "两边都前进", duration: seconds(21)},
+  {id: "push-rejected", title: "为什么 Push 被拒绝", duration: seconds(20)},
+  {id: "integrate-first", title: "先得到包含双方的历史", duration: seconds(26)},
+  {id: "takeaway", title: "总结", duration: seconds(23)},
+] as const;
+export const EP14_DURATION_IN_FRAMES = EP14_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+
+export const EP15_SCENES = [
+  {id: "hook", title: "冲突只在文件里吗", duration: seconds(14)},
+  {id: "create-conflict", title: "真实触发冲突", duration: seconds(27)},
+  {id: "index-stages", title: "Index 保存三份输入", duration: seconds(29)},
+  {id: "inspect-stages", title: "逐份查看内容", duration: seconds(31)},
+  {id: "resolve-working-tree", title: "先编辑最终内容", duration: seconds(25)},
+  {id: "stage-zero", title: "Git Add 收束冲突", duration: seconds(28)},
+  {id: "finish-or-abort", title: "继续或退出当前操作", duration: seconds(30)},
+  {id: "takeaway", title: "总结", duration: seconds(26)},
+] as const;
+export const EP15_DURATION_IN_FRAMES = EP15_SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+
+export const EP16_SCENES = [
+  {id: "hook", title: "提交消失了吗", duration: seconds(14)},
+  {id: "lose-commit", title: "先制造一次旧位置", duration: seconds(27)},
+  {id: "read-reflog", title: "Reflog 记录本地移动", duration: seconds(28)},
+  {id: "verify-object", title: "恢复前先验证对象", duration: seconds(27)},
+  {id: "create-rescue", title: "先恢复可达性", duration: seconds(28)},
+  {id: "limits", title: "它不是永久备份", duration: seconds(29)},
+  {id: "takeaway", title: "总结", duration: seconds(27)},
+] as const;
+export const EP16_DURATION_IN_FRAMES = EP16_SCENES.reduce((sum, scene) => sum + scene.duration, 0);

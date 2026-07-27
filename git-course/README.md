@@ -39,7 +39,7 @@
 
 ## 当前生产入口
 
-EP01–EP12 均已有 Remotion composition，并已进入统一发布流程。EP13–EP16 目前只在 `outline.md` 中完成教学边界规划，尚无 episode JSON、composition 或候选产物；未实现阶段继续保持 blocked。每个已实现分集只维护一个 `episodes/<episode-id>.json`，统一通过 Git Course orchestrator 生产：
+EP01–EP12 均已有 Remotion composition，并已进入统一发布流程。EP13–EP16 已建立 episode JSON、Remotion composition 与真实 `git-course-lab` 终端证据，但尚未生成通过审查的 candidate；Current、Release 与 Published 继续保持 blocked。每个已实现分集只维护一个 `episodes/<episode-id>.json`，统一通过 Git Course orchestrator 生产：
 
 ```bash
 pnpm --dir remotion git-course plan <episode-id>
