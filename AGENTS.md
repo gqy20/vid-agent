@@ -20,6 +20,12 @@
 - episode id、composition id 映射、产物目录和命令参数必须唯一且可追踪。`segmentId` 与分段文件统一使用带顺序号的下划线形式，例如 `01_hook`。
 - Dashboard 只能调用课程 adapter 已实现的 orchestrator 动作，不得直接操作底层脚本或根据目录猜测状态。
 
+## 渲染交付回复规范
+
+- 只要本轮生成或更新了视频、Scene、候选、Current、Release、封面或其他可查看产物，最终回复必须逐项给出可点击的绝对路径，不得只说“已经生成”或只描述产物目录。
+- 视频路径旁必须标明对应 episode / scene、用途或规格（例如预览、1080p、4K）以及当前生命周期状态（例如 `candidate / needs_review`、`current`、`release`、`published`）。如果尚未通过审查、晋升或发布，必须明确说明。
+- 如果本轮没有生成完整预览，只生成了分段、抽帧或审查 sheet，也要直接列出这些实际产物；不得用旧 Current 或 Release 路径冒充本轮预览。
+
 ### 当前课程适配状态
 
 - **Git Course**：完整实现 build、main audit/approve、promote、release-build/audit/approve 和 publish，可作为共享机制的参考实现。

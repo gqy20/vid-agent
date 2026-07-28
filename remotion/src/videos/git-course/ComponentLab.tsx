@@ -3,13 +3,19 @@ import {
   CaptionLayer,
   CenterInRect,
   CodeDiff,
+  COURSE_GRAPH_PRESETS,
   COURSE_RECTS,
+  CourseBranchLabel,
+  CourseCommitNode,
+  CourseGraphEdge,
   CourseLayout,
   GitGraph,
   GitStateFlow,
   LayoutDebug,
   RecordedTerminalStage,
   SceneStage,
+  courseCommitAnchor,
+  courseCommitOuterRadius,
   type GitGraphState,
 } from './kit';
 import {COLOR, WEIGHT} from './palette';
@@ -81,20 +87,32 @@ export const ComponentLabLayout: React.FC = () => (
 export const ComponentLabGraph: React.FC = () => {
   const frame = useCurrentFrame();
   const progress = interpolate(frame, [18, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const primitiveSize = 'standard' as const;
+  const primitiveRadius = courseCommitOuterRadius({size: primitiveSize, strong: true});
+  const primitiveY = 207;
+  const primitiveLeft = 112;
+  const primitiveRight = primitiveLeft + COURSE_GRAPH_PRESETS[primitiveSize].commitGap;
   return (
     <LabShell section="02 / 提交图">
       <SceneStage preset="center-model" auditId="lab-graph-stage">
         <DemoTitle auditId="lab-title-graph" title="节点、连线与引用使用同一套尺寸" />
         <CenterInRect rect={{x: 188, y: 178, width: 1280, height: 520}} auditId="lab-graph-center">
-          <GitGraph
-            state={graphState}
-            width={1120}
-            height={414}
-            showFrame
-            branchMotion={{name: 'feature', from: 'C2', to: 'C3', progress}}
-            note="feature 引用移动，提交保持不变"
-            auditId="lab-git-graph"
-          />
+          <div style={{display: 'grid', gridTemplateColumns: '760px 440px', alignItems: 'center', gap: 40}}>
+            <GitGraph
+              state={graphState}
+              width={760}
+              height={414}
+              showFrame
+              branchMotion={{name: 'feature', from: 'C2', to: 'C3', progress}}
+              note="feature 引用移动，提交保持不变"
+              auditId="lab-git-graph"
+            />
+            <svg width="440" height="414" viewBox="0 0 440 414" data-audit-id="lab-ref-placement">
+              <g data-graph-layer="edges"><CourseGraphEdge size={primitiveSize} from={courseCommitAnchor(primitiveRight, primitiveY, {size: primitiveSize, strong: true})} to={courseCommitAnchor(primitiveLeft, primitiveY, {size: primitiveSize, strong: true})}/></g>
+              <g data-graph-layer="refs"><CourseBranchLabel name="main" x={primitiveLeft} placement="above" targetX={primitiveLeft} targetY={primitiveY} targetRadius={primitiveRadius} size={primitiveSize} color={COLOR.git.main}/><CourseBranchLabel name="origin/main" x={primitiveRight} placement="below" targetX={primitiveRight} targetY={primitiveY} targetRadius={primitiveRadius} size={primitiveSize} color={COLOR.git.head}/></g>
+              <g data-graph-layer="nodes"><CourseCommitNode id="C1" x={primitiveLeft} y={primitiveY} size={primitiveSize}/><CourseCommitNode id="C2" x={primitiveRight} y={primitiveY} size={primitiveSize} tone="main"/></g>
+            </svg>
+          </div>
         </CenterInRect>
       </SceneStage>
     </LabShell>

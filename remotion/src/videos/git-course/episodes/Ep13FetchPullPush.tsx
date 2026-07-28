@@ -2,7 +2,7 @@ import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {EP13} from '../data/episodes';
 import {EP13_DURATION_IN_FRAMES, EP13_SCENES} from '../data/episodeTimelines.generated';
 import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
-import {CourseLayout, EpisodeTitleCard, EpisodeTimeline, NarrationSubtitle, RecordedTerminalCueSequence, createEpisodeRuntime} from '../kit';
+import {CourseLayout, EpisodeTitleCard, EpisodeTimeline, NarrationSubtitle, RecordedTerminalCueSequence, SceneTitle, createEpisodeRuntime} from '../kit';
 import type {SceneId} from '../kit';
 import {COLOR, FONT, WEIGHT} from '../palette';
 import {seconds} from '../timeline';
@@ -42,7 +42,6 @@ const NetworkModel: React.FC<{mode: 'fetch' | 'pull' | 'push'; frame: number}> =
     <Boundary title="服务器仓库" color={COLOR.git.feature}><RefRow name="refs/heads/main" value={remoteMain} color={COLOR.git.feature} /></Boundary>
   </div>;
 };
-const SceneTitle: React.FC<{children: React.ReactNode}> = ({children}) => <div style={{...TYPE.hero, fontWeight: WEIGHT.bold, marginBottom: 54}}>{children}</div>;
 const TerminalThenModel: React.FC<{scene: SceneId<typeof EP13_SCENES>; recording: keyof typeof TERMINAL_RECORDINGS; mode: 'fetch' | 'pull' | 'push'; terminalSeconds: number}> = ({scene, recording, mode, terminalSeconds}) => {
   const frame = useCurrentFrame();
   const modelIn = appear(frame, terminalSeconds + 0.1);
@@ -60,7 +59,7 @@ const Hook: React.FC = () => { const frame = useCurrentFrame(); return <Absolute
 const FetchEvidence: React.FC = () => <TerminalThenModel scene="fetch-evidence" recording="ep13-fetch" mode="fetch" terminalSeconds={8} />;
 // @git-course-scene fetch-evidence:end
 // @git-course-scene fetch-boundary:start
-const FetchBoundary: React.FC = () => { const frame=useCurrentFrame(); return <AbsoluteFill style={{padding:'112px 156px',boxSizing:'border-box'}}><SceneTitle>Fetch 更新知识，不替你整合</SceneTitle><NetworkModel mode="fetch" frame={frame}/><NarrationSubtitle frame={frame} cues={RUNTIME.captions('fetch-boundary')} width={1320} bottom={64}/></AbsoluteFill>; };
+const FetchBoundary: React.FC = () => { const frame=useCurrentFrame(); return <AbsoluteFill style={{padding:'112px 156px',boxSizing:'border-box'}}><SceneTitle marginBottom={54}>Fetch 更新知识，不替你整合</SceneTitle><NetworkModel mode="fetch" frame={frame}/><NarrationSubtitle frame={frame} cues={RUNTIME.captions('fetch-boundary')} width={1320} bottom={64}/></AbsoluteFill>; };
 // @git-course-scene fetch-boundary:end
 // @git-course-scene pull-evidence:start
 const PullEvidence: React.FC = () => <TerminalThenModel scene="pull-evidence" recording="ep13-pull-ff-only" mode="pull" terminalSeconds={9} />;
@@ -69,10 +68,10 @@ const PullEvidence: React.FC = () => <TerminalThenModel scene="pull-evidence" re
 const PushEvidence: React.FC = () => <TerminalThenModel scene="push-evidence" recording="ep13-push" mode="push" terminalSeconds={9} />;
 // @git-course-scene push-evidence:end
 // @git-course-scene three-boundaries:start
-const ThreeBoundaries: React.FC = () => { const frame=useCurrentFrame(); const rows=[['fetch','对象库 + origin/main','本地记录'],['pull','fetch + integration','当前分支'],['push','objects + ref update','服务器 ref']] as const; return <AbsoluteFill style={{padding:'112px 230px',boxSizing:'border-box'}}><SceneTitle>不要只看网络方向，要看直接写入哪里</SceneTitle><div style={{display:'grid',gap:26}}>{rows.map((r,i)=><div key={r[0]} style={{display:'grid',gridTemplateColumns:'240px 1fr 280px',alignItems:'center',gap:24,padding:'24px 30px',borderRadius:20,background:COLOR.canvas.raised,opacity:appear(frame,2+i*4)}}><b style={{fontFamily:FONT.mono,...TYPE.title,color:[COLOR.git.head,COLOR.git.main,COLOR.git.feature][i]}}>{r[0]}</b><span style={{fontFamily:FONT.mono,...TYPE.body}}>{r[1]}</span><span style={{...TYPE.subtitle,fontWeight:WEIGHT.bold,textAlign:'right'}}>{r[2]}</span></div>)}</div><NarrationSubtitle frame={frame} cues={RUNTIME.captions('three-boundaries')} width={1320} bottom={64}/></AbsoluteFill>; };
+const ThreeBoundaries: React.FC = () => { const frame=useCurrentFrame(); const rows=[['fetch','对象库 + origin/main','本地记录'],['pull','fetch + integration','当前分支'],['push','objects + ref update','服务器 ref']] as const; return <AbsoluteFill style={{padding:'112px 230px',boxSizing:'border-box'}}><SceneTitle marginBottom={54}>不要只看网络方向，要看直接写入哪里</SceneTitle><div style={{display:'grid',gap:26}}>{rows.map((r,i)=><div key={r[0]} style={{display:'grid',gridTemplateColumns:'240px 1fr 280px',alignItems:'center',gap:24,padding:'24px 30px',borderRadius:20,background:COLOR.canvas.raised,opacity:appear(frame,2+i*4)}}><b style={{fontFamily:FONT.mono,...TYPE.title,color:[COLOR.git.head,COLOR.git.main,COLOR.git.feature][i]}}>{r[0]}</b><span style={{fontFamily:FONT.mono,...TYPE.body}}>{r[1]}</span><span style={{...TYPE.subtitle,fontWeight:WEIGHT.bold,textAlign:'right'}}>{r[2]}</span></div>)}</div><NarrationSubtitle frame={frame} cues={RUNTIME.captions('three-boundaries')} width={1320} bottom={64}/></AbsoluteFill>; };
 // @git-course-scene three-boundaries:end
 // @git-course-scene takeaway:start
-const Takeaway: React.FC = () => { const frame=useCurrentFrame(); return <AbsoluteFill style={{padding:'150px 240px',boxSizing:'border-box'}}><SceneTitle>三个动作，三个判断</SceneTitle><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:46,marginTop:100}}>{[['取得','fetch'],['整合','pull'],['发布','push']].map((r,i)=><div key={r[0]} style={{textAlign:'center',opacity:appear(frame,2+i*3)}}><div style={{...TYPE.hero,fontWeight:WEIGHT.bold,color:[COLOR.git.head,COLOR.git.main,COLOR.git.feature][i]}}>{r[0]}</div><div style={{fontFamily:FONT.mono,...TYPE.title,marginTop:18}}>{r[1]}</div></div>)}</div><NarrationSubtitle frame={frame} cues={RUNTIME.captions('takeaway')} width={1320} bottom={64}/></AbsoluteFill>; };
+const Takeaway: React.FC = () => { const frame=useCurrentFrame(); return <AbsoluteFill style={{padding:'150px 240px',boxSizing:'border-box'}}><SceneTitle marginBottom={54}>三个动作，三个判断</SceneTitle><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:46,marginTop:100}}>{[['取得','fetch'],['整合','pull'],['发布','push']].map((r,i)=><div key={r[0]} style={{textAlign:'center',opacity:appear(frame,2+i*3)}}><div style={{...TYPE.hero,fontWeight:WEIGHT.bold,color:[COLOR.git.head,COLOR.git.main,COLOR.git.feature][i]}}>{r[0]}</div><div style={{fontFamily:FONT.mono,...TYPE.title,marginTop:18}}>{r[1]}</div></div>)}</div><NarrationSubtitle frame={frame} cues={RUNTIME.captions('takeaway')} width={1320} bottom={64}/></AbsoluteFill>; };
 // @git-course-scene takeaway:end
 
 const COMPONENTS={hook:Hook,'fetch-evidence':FetchEvidence,'fetch-boundary':FetchBoundary,'pull-evidence':PullEvidence,'push-evidence':PushEvidence,'three-boundaries':ThreeBoundaries,takeaway:Takeaway};

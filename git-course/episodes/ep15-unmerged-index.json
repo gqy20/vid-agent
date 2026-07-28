@@ -72,8 +72,8 @@
       "narration": {"segmentId":"04_inspect_stages","voiceStart":61.65,"text":"这些 stage 不是抽象标签，我们可以逐份读取。<#0.40#>\ngit show 冒号 1 app.js 打开共同祖先。<#0.40#>\n冒号 2 打开当前 main 的版本，冒号 3 打开 feature 带来的版本。<#0.50#>\nWorking Tree 里的冲突标记，正是 Git 尝试把这三份输入合成一个结果时留下的可编辑表现。"},
       "captions": [
         {"from":0.65,"to":3.728,"text":"这些 stage 不是抽象标签，我们可以逐份读取"},
-        {"from":4.379,"to":7.941,"text":"git show 冒号 1 app.js 打开共同祖先"},
-        {"from":8.629,"to":12.622,"text":"冒号 2 打开当前 main 的版本，冒号 3 打开 feature 带来的版本"},
+        {"from":4.379,"to":7.941,"text":"git show :1:app.js 打开共同祖先"},
+        {"from":8.629,"to":12.622,"text":":2:app.js 打开当前 main 的版本，:3:app.js 打开 feature 带来的版本"},
         {"from":13.313,"to":18.874,"text":"Working Tree 里的冲突标记，正是 Git 尝试把这三份输入合成一个结果时留下的可编辑表现"}
       ]
     },

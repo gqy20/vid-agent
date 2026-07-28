@@ -123,6 +123,7 @@ playwright-cli -s=remotion-overlap-audit run-code "async page => {
           text: (el.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 80),
           explicitlyIgnored,
           allowOverflow: el.hasAttribute('data-audit-allow-overflow'),
+          singleLineOverflow: el.hasAttribute('data-audit-single-line') && el.scrollWidth > el.clientWidth + 1,
           auditGroup: el.getAttribute('data-audit-group') || '',
           ignored: explicitlyIgnored || ignoreId(id) || rect.width < 1 || rect.height < 1 || area < minArea || opacity < 0.02,
           el,
@@ -172,6 +173,14 @@ playwright-cli -s=remotion-overlap-audit run-code "async page => {
         return viewport;
       };
       for (const item of active) {
+        if (item.singleLineOverflow) {
+          visualIssues.push({
+            type: 'single-line-overflow',
+            id: item.id,
+            text: item.text,
+            width: item.width,
+          });
+        }
         if (item.allowOverflow) continue;
         const compositionBounds = compositionBoundsOf(item.el);
         if (!rectContains(compositionBounds, item)) {
@@ -297,6 +306,8 @@ for (const frame of report.results) {
         lines.push(`| ghost | \`${issue.id}\` | ${issue.text || ''} | opacity=${issue.opacity} |`);
       } else if (issue.type === 'bounds') {
         lines.push(`| bounds | \`${issue.id}\` | \`${issue.scope}\` | x=${issue.x}, y=${issue.y}, width=${issue.width}, height=${issue.height} |`);
+      } else if (issue.type === 'single-line-overflow') {
+        lines.push(`| single-line-overflow | \`${issue.id}\` | ${issue.text || ''} | width=${issue.width} |`);
       } else {
         lines.push(`| near | \`${issue.a}\` | \`${issue.b}\` | dx=${issue.dx}, dy=${issue.dy}, xOverlap=${issue.xOverlap}, yOverlap=${issue.yOverlap} |`);
       }
