@@ -34,32 +34,48 @@ const terminalCue = <T extends keyof typeof TERMINAL_RECORDINGS>(id: T, from: nu
   holdFromFrame: TERMINAL_RECORDINGS[id].holdFromFrame,
 });
 
-const C0 = {x: 220, y: 310};
+const C0 = {x: 245, y: 310};
 const C1 = {x: 500, y: 310};
-const C2 = {x: 780, y: 310};
+const C2 = {x: 755, y: 310};
 const TAG_COLOR = COLOR.git.head;
-const REF_NODE_RADIUS = courseCommitOuterRadius({scale: 1.28, strong: true});
+const REF_HISTORY_NODE_SCALE = 1.55;
+const REF_HISTORY_EDGE_WIDTH = 10.5;
+const REF_NODE_RADIUS = courseCommitOuterRadius({scale: REF_HISTORY_NODE_SCALE, strong: true});
 const EP11_TAKEAWAY_BODY = {x: 240, y: 300, width: 1440, height: 560};
 
 const RefHistory: React.FC<{progress?: number; showC2?: boolean; width?: number; opacity?: number}> = ({progress = 1, showC2 = true, width = 1040, opacity = 1}) => {
   const mainX = showC2 ? interpolate(progress, [0, 1], [C1.x, C2.x]) : C1.x;
+  const mainTargetRadius = showC2
+    ? interpolate(progress, [0, 0.12, 0.88, 1], [REF_NODE_RADIUS, 0, 0, REF_NODE_RADIUS])
+    : REF_NODE_RADIUS;
   const c2Opacity = showC2 ? progress : 0;
   return (
     <svg width={width} height="590" viewBox="0 0 1040 590" style={{display: 'block', opacity, overflow: 'visible'}}>
       <g data-graph-layer="edges">
-        <CourseGraphEdge from={courseCommitAnchor(C1.x, C1.y, {scale: 1.28})} to={courseCommitAnchor(C0.x, C0.y, {scale: 1.28})} />
-        {showC2 ? <CourseGraphEdge from={courseCommitAnchor(C2.x, C2.y, {scale: 1.28})} to={courseCommitAnchor(C1.x, C1.y, {scale: 1.28})} opacity={c2Opacity} /> : null}
+        <CourseGraphEdge
+          from={courseCommitAnchor(C1.x, C1.y, {scale: REF_HISTORY_NODE_SCALE, strong: true})}
+          to={courseCommitAnchor(C0.x, C0.y, {scale: REF_HISTORY_NODE_SCALE, strong: true})}
+          width={REF_HISTORY_EDGE_WIDTH}
+        />
+        {showC2 ? (
+          <CourseGraphEdge
+            from={courseCommitAnchor(C2.x, C2.y, {scale: REF_HISTORY_NODE_SCALE, strong: true})}
+            to={courseCommitAnchor(C1.x, C1.y, {scale: REF_HISTORY_NODE_SCALE, strong: true})}
+            width={REF_HISTORY_EDGE_WIDTH}
+            opacity={c2Opacity}
+          />
+        ) : null}
       </g>
       <g data-graph-layer="refs">
-        <CourseBranchLabel name="v1.0" x={C1.x} y={466} targetX={C1.x} targetY={C1.y} targetRadius={REF_NODE_RADIUS} color={TAG_COLOR} />
-        <CourseBranchLabel name="main" x={mainX} y={145} targetX={mainX} targetY={C1.y + (mainX - C1.x) * 0} targetRadius={REF_NODE_RADIUS} color={COLOR.git.main} />
+        <CourseBranchLabel name="v1.0" x={C1.x} y={446} targetX={C1.x} targetY={C1.y} targetRadius={REF_NODE_RADIUS} size="standard" color={TAG_COLOR} />
+        <CourseBranchLabel name="main" x={mainX} y={165} targetX={mainX} targetY={C1.y} targetRadius={mainTargetRadius} size="standard" color={COLOR.git.main} />
       </g>
       <g data-graph-layer="nodes">
-        <CourseCommitNode id="C0" {...C0} scale={1.28} />
-        <CourseCommitNode id="C1" {...C1} scale={1.28} tone="base" />
-        {showC2 ? <CourseCommitNode id="C2" {...C2} scale={1.28} tone="main" opacity={c2Opacity} /> : null}
+        <CourseCommitNode id="C0" {...C0} scale={REF_HISTORY_NODE_SCALE} />
+        <CourseCommitNode id="C1" {...C1} scale={REF_HISTORY_NODE_SCALE} tone="base" />
+        {showC2 ? <CourseCommitNode id="C2" {...C2} scale={REF_HISTORY_NODE_SCALE} tone="main" opacity={c2Opacity} /> : null}
       </g>
-      <CourseHeadMarker x={mainX + 132} y={145} />
+      <CourseHeadMarker x={mainX + 132} y={165} />
     </svg>
   );
 };
@@ -124,7 +140,7 @@ const BranchMovesScene: React.FC = () => {
   const frame = useCurrentFrame();
   const move = interpolate(frame, [seconds(2.5), seconds(6.8)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const showTerminal = frame >= seconds(14);
-  const cues = [terminalCue('ep11-after-commit', 14, 12)] as const;
+  const cues = [terminalCue('ep11-after-commit', 14, 13)] as const;
   return (
     <AbsoluteFill>
       {!showTerminal ? <>

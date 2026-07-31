@@ -110,7 +110,7 @@ export const GitStatePanel: React.FC<{
                     borderRadius: 999,
                     padding: prominent ? '4px 10px' : '3px 8px',
                     fontFamily: FONT.mono,
-                    fontSize: prominent ? 18 : compact ? 16 : 15,
+                    fontSize: prominent ? 24 : 22,
                     lineHeight: 1,
                     color: COLOR.git.head,
                     fontWeight: WEIGHT.bold,
@@ -125,7 +125,7 @@ export const GitStatePanel: React.FC<{
               style={{
                 ...TYPE.label,
                 fontFamily: FONT.mono,
-                fontSize: prominent ? 20 : compact ? 19 : TYPE.label.fontSize,
+                fontSize: prominent ? 24 : TYPE.label.fontSize,
                 lineHeight: 1,
                 color: area.active ? AREA_ACCENT[area.id] : COLOR.text.tertiary,
                 fontWeight: WEIGHT.bold,
@@ -142,7 +142,7 @@ export const GitStatePanel: React.FC<{
                 style={{
                   ...TYPE.codeSmall,
                   fontFamily: FONT.mono,
-                  fontSize: prominent ? 26 : compact ? 22 : 19,
+                  fontSize: prominent ? 26 : compact ? 22 : TYPE.label.fontSize,
                   color: COLOR.text.secondary,
                   padding: '7px 4px',
                   display: 'flex',

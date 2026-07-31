@@ -31,7 +31,7 @@ export const SUBTITLE = {
     maxLines: 1,
   },
   inline: {
-    text: TYPE.uiSmall,
+    text: TYPE.ui,
     fontWeight: WEIGHT.bold,
     color: COLOR.text.primary,
     background: COLOR.canvas.overlay,

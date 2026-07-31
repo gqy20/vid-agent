@@ -222,6 +222,8 @@ release candidate 由 4K 渲染 profile、scene 指纹、4K 片头片尾、已�
 - 独立录屏开头存在无信息的空提示符时，cue 可以用 `startFromFrame` 裁掉 preroll；裁切后仍需看到完整命令和真实输出，禁止把裁切用成直接跳结果的仿终端捷径。
 - 终端结果的出现时间、保持窗口和模型接管时间必须记录在 episode JSON 的 beat / alignment 说明中。审查时按这些时间点补关键帧，确认命令、结果、旁白和字幕属于同一教学动作。
 - Git 图优先使用 `GitGraph` 或 `CourseGraphPrimitives`，Working Tree / Index / Repository 优先使用 `GitStateFlow`，字幕统一经过 `CaptionLayer`。
+- 字号统一使用 `typography.ts` 的语义 token，并按 1920×1080 逻辑像素验收：`body` 负责主要教学正文，`label` 不小于 22px，必要代码输出不小于 20px，`subtitle` 不小于 31px。`uiSmall` 仅供课程 chrome 和非必要 metadata，禁止用于状态结论、图标签、文件名或其他教学信息。空间不足时先精简文案或调整布局，不在 episode 内写更小的覆盖值。
+- 顺序已由空间、箭头或入场时间表达时，删除孤立的数字编号；确需编号时使用教学标签层级，并和对应步骤形成稳定视觉组。
 - `manim-viz`、`scripts/manim/git-course*`、`public/git-course/manim/` 和 `ManimClip` 仅作历史兼容保留，不参与新 scene、构建指纹、candidate 或 release。
 
 共享 kit 的视觉或几何改动先在 `GitCourseComponentLab` 覆盖正常输入和长内容输入，并执行 `pnpm --dir remotion git-course:lab:audit`。Lab 只写 `renders/git-course/tmp/component-lab/`，不进入 episode 生命周期；自动检查通过后仍需 preview 受影响的真实 scene。

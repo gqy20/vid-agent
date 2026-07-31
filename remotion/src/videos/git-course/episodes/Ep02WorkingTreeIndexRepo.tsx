@@ -227,7 +227,7 @@ const HookScene: React.FC = () => {
           width: 390,
           textAlign: 'center',
           opacity: stage * diagramHold,
-          ...TYPE.uiSmall,
+          ...TYPE.ui,
           fontFamily: FONT.mono,
           fontWeight: WEIGHT.bold,
           color: COLOR.git.workingTree,
@@ -358,8 +358,8 @@ const ModifyScene: React.FC = () => {
           opacity: proof * proofOut,
         }}
       >
-        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: WEIGHT.bold, opacity: 0.76}}>Index 没变</div>
-        <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: WEIGHT.bold, opacity: 0.76}}>Repository 没变</div>
+        <div style={{...TYPE.ui, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: WEIGHT.bold, opacity: 0.76}}>Index 没变</div>
+        <div style={{...TYPE.ui, color: COLOR.text.tertiary, textAlign: 'center', fontWeight: WEIGHT.bold, opacity: 0.76}}>Repository 没变</div>
       </div>
       <SceneCaption opacity={interpolate(frame, [seconds(22), seconds(23.5)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} auditId="ep02-modify-caption">
         modified 说明文件变了，但还不是 staged。

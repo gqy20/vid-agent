@@ -32,7 +32,7 @@ export const SnapshotCard: React.FC<{
       }}
     >
       <div style={{padding: '18px 22px 14px', borderBottom: `1px solid ${COLOR.stroke.soft}`}}>
-        <div style={{...TYPE.uiSmall, color: accent, fontFamily: FONT.mono, marginBottom: 4}}>{title}</div>
+        <div style={{...TYPE.ui, color: accent, fontFamily: FONT.mono, marginBottom: 4}}>{title}</div>
         <div style={{...TYPE.ui, color: COLOR.text.primary}}>{subtitle}</div>
       </div>
       <div style={{padding: '14px 22px 18px', display: 'grid', gap: 7}}>
@@ -45,4 +45,3 @@ export const SnapshotCard: React.FC<{
     </div>
   );
 };
-

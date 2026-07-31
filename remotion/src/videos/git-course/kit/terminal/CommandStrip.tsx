@@ -35,7 +35,7 @@ export const CommandStrip: React.FC<{
       <span>{command}</span>
     </div>
     {output ? (
-      <div style={{...TYPE.codeOutput, fontSize: 19, color: COLOR.terminal.comment, marginTop: 8, paddingLeft: 22}}>
+      <div style={{...TYPE.codeOutput, color: COLOR.terminal.comment, marginTop: 8, paddingLeft: 22}}>
         {output}
       </div>
     ) : null}

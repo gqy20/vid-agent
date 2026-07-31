@@ -373,7 +373,7 @@ const DetachedScene: React.FC = () => {
         }}
       >
         <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
-          <div style={{...TYPE.uiSmall, color: COLOR.text.tertiary, letterSpacing: '0.08em'}}>适合临时</div>
+          <div style={{...TYPE.ui, color: COLOR.text.tertiary, letterSpacing: '0.08em'}}>适合临时</div>
           {['查看旧版本', '运行测试', '验证想法'].map((label) => (
             <div
               key={label}

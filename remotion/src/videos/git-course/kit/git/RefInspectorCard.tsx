@@ -1,4 +1,5 @@
 import {COLOR, FONT, WEIGHT} from '../../palette';
+import {TYPE} from '../../typography';
 
 const splitSuffix = (text: string, suffix?: string) => {
   if (!suffix || !text.endsWith(suffix)) return {prefix: text, suffix: ''};
@@ -51,7 +52,7 @@ export const RefInspectorCard: React.FC<{
       }}
     >
       <div style={{minWidth: 0, borderRight: `1px solid ${COLOR.stroke.soft}`}}>
-        <div style={{fontFamily: FONT.sans, fontSize: 16, letterSpacing: '0.08em', color: COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
+        <div style={{fontFamily: FONT.sans, ...TYPE.ui, letterSpacing: '0.08em', color: COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
           {pathLabel}
         </div>
         <div style={{marginTop: 14, overflow: 'hidden', fontFamily: FONT.mono, fontSize: 27, lineHeight: 1.12, color: COLOR.text.primary, fontStyle: 'italic', fontWeight: WEIGHT.bold, whiteSpace: 'nowrap'}}>
@@ -60,7 +61,7 @@ export const RefInspectorCard: React.FC<{
         </div>
       </div>
       <div style={{minWidth: 0}}>
-        <div style={{fontFamily: FONT.sans, fontSize: 16, letterSpacing: '0.08em', color: COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
+        <div style={{fontFamily: FONT.sans, ...TYPE.ui, letterSpacing: '0.08em', color: COLOR.text.tertiary, fontWeight: WEIGHT.bold}}>
           {valueLabel}
         </div>
         <div style={{marginTop: 10, overflow: 'hidden', fontFamily: FONT.mono, fontSize: valueFontSize, lineHeight: 1.08, color: COLOR.text.primary, whiteSpace: 'nowrap'}}>
