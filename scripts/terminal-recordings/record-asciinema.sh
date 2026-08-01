@@ -27,6 +27,10 @@ fi
 
 DEMO="$DEMO_DIR/$RECORDING_ID.sh"
 FIXTURE="$BASE/fixtures/$RECORDING_ID.sh"
+if [[ "$PROJECT" == "git-course-lab" && "$RECORDING_ID" =~ ^ep(2[5-9]|3[0-2])- ]]; then
+  [[ -f "$DEMO" ]] || DEMO="$DEMO_DIR/_ep25_32_demos.sh"
+  [[ -f "$FIXTURE" ]] || FIXTURE="$BASE/fixtures/_ep25_32_workflows.sh"
+fi
 OUT_DIR="$ROOT/remotion/public/$PROJECT/terminal"
 OUT="$OUT_DIR/$RECORDING_ID.mp4"
 HOLD="$OUT_DIR/$RECORDING_ID-hold.png"
@@ -66,10 +70,10 @@ export GIT_AUTHOR_EMAIL='course@example.local'
 export GIT_COMMITTER_NAME='Git Course'
 export GIT_COMMITTER_EMAIL='course@example.local'
 
-TERMINAL_RECORDING_WORKDIR="$WORKDIR" HOME="$HOME_DIR" bash "$FIXTURE"
+TERMINAL_RECORDING_ID="$RECORDING_ID" TERMINAL_RECORDING_WORKDIR="$WORKDIR" HOME="$HOME_DIR" bash "$FIXTURE"
 
 asciinema rec --quiet --headless --overwrite --return --window-size 72x14 \
-  --command "TERMINAL_RECORDING_WORKDIR='$WORKDIR' bash '$DEMO'" "$CAST"
+  --command "TERMINAL_RECORDING_ID='$RECORDING_ID' TERMINAL_RECORDING_WORKDIR='$WORKDIR' bash '$DEMO'" "$CAST"
 
 theme='141729,d8dee9,0d101c,d66d67,69a79b,d6a84a,6f93b8,a98bc2,72afa6,d8dee9,7f8a9a,e9827c,82b7aa,e2ba69,86a8c7,b99dce,8dc0b8,f1f4f8'
 agg --quiet --cols 72 --rows 14 \

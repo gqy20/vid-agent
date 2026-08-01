@@ -1,0 +1,365 @@
+{
+  "episodeId": "ep25-long-lived-and-topic-branches",
+  "title": "Branch 为什么有不同寿命",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 166,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows",
+      "https://git-scm.com/docs/gitworkflows"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "所有工作都放进 Main 会怎样",
+      "start": 0,
+      "duration": 26,
+      "goal": "提出不同职责为何需要不同 branch。",
+      "primaryTechnique": "Question + mixed history",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "多项工作同时压向 main",
+          "motion": "混杂后拆分",
+          "state": "question",
+          "narration": "branch 的寿命从哪里来？",
+          "audit": [
+            "不把命名说成 Git 强制规则"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "如果功能开发、稳定版本和临时试验都直接落到 main<#0.25#>历史会不会越来越难判断？<#0.45#>\n不同工作的成熟程度混在同一条 ref 上，回退、审查和发布都会失去清楚边界。<#0.40#>\n或许真正需要区分的，不是 Git 里的 branch 类型，而是团队赋予这些 ref 的职责和寿命。<#0.40#>\n接下来我们沿着一项登录修改，观察短期 topic 如何开始、结束，以及提交为何仍然保留。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 3.889,
+          "text": "如果功能开发、稳定版本和临时试验都直接落到 main"
+        },
+        {
+          "from": 4.314,
+          "to": 5.642,
+          "text": "历史会不会越来越难判断？"
+        },
+        {
+          "from": 6.294,
+          "to": 11.442,
+          "text": "不同工作的成熟程度混在同一条 ref 上，回退、审查和发布都会失去清楚边界。"
+        },
+        {
+          "from": 12.054,
+          "to": 17.271,
+          "text": "或许真正需要区分的，不是 Git 里的 branch 类型，而是团队赋予这些 ref 的职责和寿命。"
+        },
+        {
+          "from": 17.886,
+          "to": 24.334,
+          "text": "接下来我们沿着一项登录修改，观察短期 topic 如何开始、结束，以及提交为何仍然保留。"
+        }
+      ]
+    },
+    {
+      "id": "topic-start",
+      "title": "Topic Branch 隔离一项工作",
+      "start": 26,
+      "duration": 26.5,
+      "goal": "真实创建 topic 并提交两步工作。",
+      "primaryTechnique": "Recorded topic branch",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "创建 topic/login 并产生两个 commit",
+          "motion": "短期 ref 向前移动",
+          "state": "developing",
+          "narration": "一项主题先在独立 ref 上前进。",
+          "audit": [
+            "真实终端录制"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_topic_start",
+        "voiceStart": 26.75,
+        "text": "我们从 main 创建 topic/login，并把登录页拆成两个可以单独检查的 commit。<#0.45#>\nmain 暂时不动，topic 只承载这一项工作。<#0.40#>\n如果方案中途被放弃，只需要停止推进这条 topic，不必从稳定历史里逐条撤销半成品。<#0.45#>\n如果工作继续完善，新的 commit 也只沿这条 ref 前进。<#0.40#>\n这种隔离让开发过程可以变化，而稳定入口仍保持清楚。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.631,
+          "text": "我们从 main 创建 topic/login，并把登录页拆成两个可以单独检查的 commit。"
+        },
+        {
+          "from": 6.294,
+          "to": 9.503,
+          "text": "main 暂时不动，topic 只承载这一项工作。"
+        },
+        {
+          "from": 10.11,
+          "to": 16.419,
+          "text": "如果方案中途被放弃，只需要停止推进这条 topic，不必从稳定历史里逐条撤销半成品。"
+        },
+        {
+          "from": 17.094,
+          "to": 20.338,
+          "text": "如果工作继续完善，新的 commit 也只沿这条 ref 前进。"
+        },
+        {
+          "from": 20.946,
+          "to": 24.596,
+          "text": "这种隔离让开发过程可以变化，而稳定入口仍保持清楚。"
+        }
+      ]
+    },
+    {
+      "id": "topic-graph",
+      "title": "长短 Branch 都只是 Ref",
+      "start": 52.5,
+      "duration": 28.5,
+      "goal": "对比 main、next 与 topic 的职责。",
+      "primaryTechnique": "Centered branch model",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "main、next、topic 三层 refs",
+          "motion": "职责标签出现",
+          "state": "roles",
+          "narration": "对象相同，职责不同。",
+          "audit": [
+            "语义色保持一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_topic_graph",
+        "voiceStart": 53.25,
+        "text": "从对象模型看，main、next 和 topic/login 都只是指向 commit 的 ref。<#0.45#>\n长期 branch 往往代表稳定阶段，短期 topic 则代表一项具体工作。<#0.40#>\n团队可以约定 main 只接收已确认结果，也可以保留 next 观察多项变化的组合状态。<#0.45#>\n这些规则影响人怎样移动 ref，却不会改变 commit 的结构。<#0.40#>\n名字与寿命来自协作约定，不是 Git 为它们创建了不同对象。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.596,
+          "text": "从对象模型看，main、next 和 topic/login 都只是指向 commit 的 ref。"
+        },
+        {
+          "from": 6.258,
+          "to": 11.406,
+          "text": "长期 branch 往往代表稳定阶段，短期 topic 则代表一项具体工作。"
+        },
+        {
+          "from": 12.018,
+          "to": 17.479,
+          "text": "团队可以约定 main 只接收已确认结果，也可以保留 next 观察多项变化的组合状态。"
+        },
+        {
+          "from": 18.138,
+          "to": 21.579,
+          "text": "这些规则影响人怎样移动 ref，却不会改变 commit 的结构。"
+        },
+        {
+          "from": 22.206,
+          "to": 26.471,
+          "text": "名字与寿命来自协作约定，不是 Git 为它们创建了不同对象。"
+        }
+      ]
+    },
+    {
+      "id": "integrate",
+      "title": "通过检查后再进入 Main",
+      "start": 81,
+      "duration": 25.5,
+      "goal": "真实整合 topic。",
+      "primaryTechnique": "Recorded merge",
+      "beats": [
+        {
+          "time": [
+            62,
+            85
+          ],
+          "visual": "测试后 merge --no-ff",
+          "motion": "topic 进入 main",
+          "state": "integrated",
+          "narration": "稳定入口只接收确认后的工作。",
+          "audit": [
+            "命令与图状态一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_integrate",
+        "voiceStart": 81.75,
+        "text": "topic 完成后，我们先运行测试，再回到 main 做一次真实整合。<#0.45#>\n这里选择保留 merge 节点，只是为了让主题边界更容易观察。<#0.40#>\n另一个团队也可能允许 fast-forward，或者在发布前整理尚未共享的 topic。<#0.45#>\n这些策略会改变历史形状，但不会改变稳定入口应在确认之后才前进。<#0.40#>\n关键并不在固定命令，而在 main 接收的是已经检查过的一组变化。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.772,
+          "text": "topic 完成后，我们先运行测试，再回到 main 做一次真实整合。"
+        },
+        {
+          "from": 5.43,
+          "to": 8.767,
+          "text": "这里选择保留 merge 节点，只是为了让主题边界更容易观察。"
+        },
+        {
+          "from": 9.39,
+          "to": 13.957,
+          "text": "另一个团队也可能允许 fast-forward，或者在发布前整理尚未共享的 topic。"
+        },
+        {
+          "from": 14.61,
+          "to": 19.177,
+          "text": "这些策略会改变历史形状，但不会改变稳定入口应在确认之后才前进。"
+        },
+        {
+          "from": 19.794,
+          "to": 23.618,
+          "text": "关键并不在固定命令，而在 main 接收的是已经检查过的一组变化。"
+        }
+      ]
+    },
+    {
+      "id": "delete-ref",
+      "title": "删除名字不会删除可达 Commit",
+      "start": 106.5,
+      "duration": 29,
+      "goal": "真实删除已整合 topic 并检查可达性。",
+      "primaryTechnique": "Recorded branch delete",
+      "beats": [
+        {
+          "time": [
+            85,
+            110
+          ],
+          "visual": "删除 topic 前后 show-ref 与 log",
+          "motion": "ref 消失，commit 保留",
+          "state": "reachable",
+          "narration": "删除的是名字，不是仍可达的对象。",
+          "audit": [
+            "完整对象仍由 main 可达"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_delete_ref",
+        "voiceStart": 107.25,
+        "text": "整合完成后，git branch -d 删除的是 topic/login 这个名字。<#0.45#>\n沿着 main 的 parent 关系，那两个 commit 仍然可达，所以它们并没有随 branch 一起消失。<#0.45#>\n终端里的 log 仍能展示这组提交，完整对象 ID 也没有因为删 ref 而改变。<#0.45#>\n只有失去所有可达路径并经过后续清理，对象生命周期才会进入另一个问题。<#0.40#>\n短期 branch 可以结束，已经进入长期历史的对象仍会保留。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.155,
+          "text": "整合完成后，git branch -d 删除的是 topic/login 这个名字。"
+        },
+        {
+          "from": 5.826,
+          "to": 11.148,
+          "text": "沿着 main 的 parent 关系，那两个 commit 仍然可达，所以它们并没有随 branch 一起消失。"
+        },
+        {
+          "from": 11.802,
+          "to": 17.124,
+          "text": "终端里的 log 仍能展示这组提交，完整对象 ID 也没有因为删 ref 而改变。"
+        },
+        {
+          "from": 17.778,
+          "to": 22.659,
+          "text": "只有失去所有可达路径并经过后续清理，对象生命周期才会进入另一个问题。"
+        },
+        {
+          "from": 23.286,
+          "to": 27.308,
+          "text": "短期 branch 可以结束，已经进入长期历史的对象仍会保留。"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先定义职责，再决定寿命",
+      "start": 135.5,
+      "duration": 30.5,
+      "goal": "收束长期 branch 与 topic branch 的选择。",
+      "primaryTechnique": "Centered takeaway",
+      "beats": [
+        {
+          "time": [
+            110,
+            150
+          ],
+          "visual": "topic → check → integration → delete ref",
+          "motion": "四步顺序出现",
+          "state": "takeaway",
+          "narration": "branch 结构应服务协作判断。",
+          "audit": [
+            "不推广固定 Git Flow"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 136.25,
+        "text": "可以把这套关系理解成两个问题。<#0.40#>\n这条 branch 负责哪一种稳定程度？它会承载一个主题，还是长期作为团队入口？<#0.50#>\n短期 topic 让变化容易隔离、审查和放弃；长期 branch 让稳定阶段有清楚的 ref。<#0.45#>\n当 topic 被整合并删除时，消失的是临时名字，已经可达的提交仍属于项目历史。<#0.45#>\n当长期 branch 前进时，团队表达的是一个新的稳定判断。<#0.40#>\n这些都只是可调整的协作约定，不必套成唯一的 Git Flow。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 2.415,
+          "text": "可以把这套关系理解成两个问题。"
+        },
+        {
+          "from": 3.054,
+          "to": 8.039,
+          "text": "这条 branch 负责哪一种稳定程度？它会承载一个主题，还是长期作为团队入口？"
+        },
+        {
+          "from": 8.742,
+          "to": 13.623,
+          "text": "短期 topic 让变化容易隔离、审查和放弃；长期 branch 让稳定阶段有清楚的 ref。"
+        },
+        {
+          "from": 14.286,
+          "to": 20.223,
+          "text": "当 topic 被整合并删除时，消失的是临时名字，已经可达的提交仍属于项目历史。"
+        },
+        {
+          "from": 20.874,
+          "to": 24.489,
+          "text": "当长期 branch 前进时，团队表达的是一个新的稳定判断。"
+        },
+        {
+          "from": 25.122,
+          "to": 28.807,
+          "text": "这些都只是可调整的协作约定，不必套成唯一的 Git Flow。"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP25：Branch 为什么有不同寿命\n\n用普通 ref 的职责解释长期 branch 与 topic branch。\n",
+    "scriptMarkdown": "# EP25 当前脚本（150s）\n\n从隔离、整合到删除 ref，观察对象可达性。\n",
+    "beatsMarkdown": "# EP25 Beats\n\n`mixed main → topic → integrate → delete ref`。\n",
+    "qualityMarkdown": "# EP25 审查记录\n\n- 不把 main、next 或 topic 说成 Git 内置类型。\n",
+    "alignmentMarkdown": "# EP25 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP25 B 站发布物料\n\n## 标题\n\nGit Branch 为什么有不同寿命？\n\n## 简介\n\n从 topic 的创建、整合和删除，看清 branch 的职责与 commit 可达性。\n\n## 官方参考\n\n- [Pro Git：Branching Workflows](https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows)\n- [gitworkflows](https://git-scm.com/docs/gitworkflows)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Branch\n协作流程\n```\n",
+    "coverBriefMarkdown": "# EP25 封面 Brief\n\n长期 main 与短期 topic 使用清楚的大型 ref 关系。\n",
+    "checklistMarkdown": "# EP25 发布检查清单\n\n- [ ] branch 职责、删除 ref 与对象可达性已核对。\n"
+  }
+}

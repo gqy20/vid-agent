@@ -1,0 +1,346 @@
+{
+  "episodeId": "ep28-preparing-clean-contributions",
+  "title": "怎样准备容易审查的提交",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 153.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines",
+      "https://git-scm.com/docs/git-diff",
+      "https://github.com/git/git/blob/master/Documentation/SubmittingPatches"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "能运行的改动就容易审查吗",
+      "start": 0,
+      "duration": 23,
+      "goal": "提出工作结果与可审查提交的差别。",
+      "primaryTechnique": "Question + noisy patch",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "功能、调试输出、格式噪声混在一起",
+          "motion": "三类变化争夺焦点",
+          "state": "question",
+          "narration": "接收者实际会看到什么？",
+          "audit": [
+            "不强推 message 模板"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "一项改动在本机能运行，是否就已经容易审查？<#0.45#>\n如果功能、调试输出和格式噪声混在同一批变化里，接收者很难判断每个 commit 究竟承诺了什么。<#0.45#>\n真正的审查对象不是开发者脑中的目标，而是接收者最终取得的 commit range 和每一份 patch。<#0.35#>\n清楚范围需要在发送前主动建立。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 3.743,
+          "text": "一项改动在本机能运行，是否就已经容易审查？"
+        },
+        {
+          "from": 4.543,
+          "to": 11.247,
+          "text": "如果功能、调试输出和格式噪声混在同一批变化里，接收者很难判断每个 commit 究竟承诺了什么"
+        },
+        {
+          "from": 11.967,
+          "to": 18.514,
+          "text": "真正的审查对象不是开发者脑中的目标，而是接收者最终取得的 commit range 和每一份 patch"
+        },
+        {
+          "from": 19.071,
+          "to": 21.212,
+          "text": "清楚范围需要在发送前主动建立"
+        }
+      ]
+    },
+    {
+      "id": "inspect-dirty",
+      "title": "先看清尚未交付的全部变化",
+      "start": 23,
+      "duration": 26,
+      "goal": "真实检查 status、diff 与空白错误。",
+      "primaryTechnique": "Recorded dirty inspection",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "status、diff --check、diff",
+          "motion": "噪声被定位",
+          "state": "dirty",
+          "narration": "先发现混入范围的内容。",
+          "audit": [
+            "真实移除空白错误"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_inspect_dirty",
+        "voiceStart": 23.75,
+        "text": "我们先从 git status --short 和 git diff 开始，不急着 commit。<#0.45#>\ngit diff --check 找出一处尾随空白，diff 里还混着临时调试输出。<#0.40#>\n这些内容可能不影响眼前测试，却会增加接收者的判断成本。<#0.45#>\n先清理这些噪声，可以防止无关行掩盖真正的行为变化，也减少后来定位问题的范围。<#0.35#>\n这些检查也应在每次交付前重复。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.701,
+          "text": "我们先从 git status --short 和 git diff 开始，不急着 commit"
+        },
+        {
+          "from": 5.351,
+          "to": 10.387,
+          "text": "git diff --check 找出一处尾随空白，diff 里还混着临时调试输出"
+        },
+        {
+          "from": 11.009,
+          "to": 14.875,
+          "text": "这些内容可能不影响眼前测试，却会增加接收者的判断成本"
+        },
+        {
+          "from": 15.536,
+          "to": 21.082,
+          "text": "先清理这些噪声，可以防止无关行掩盖真正的行为变化，也减少后来定位问题的范围"
+        },
+        {
+          "from": 21.658,
+          "to": 23.873,
+          "text": "这些检查也应在每次交付前重复"
+        }
+      ]
+    },
+    {
+      "id": "split-intent",
+      "title": "一个 Commit 表达一个意图",
+      "start": 49,
+      "duration": 24,
+      "goal": "说明拆分逻辑与说明为什么。",
+      "primaryTechnique": "Centered commit intent model",
+      "beats": [
+        {
+          "time": [
+            40,
+            63
+          ],
+          "visual": "功能与测试拆成两个逻辑 commit",
+          "motion": "混合 patch 分解",
+          "state": "structured",
+          "narration": "每一步都可单独理解。",
+          "audit": [
+            "不重复完整 add -p 操作"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_split_intent",
+        "voiceStart": 49.75,
+        "text": "接着把变化按意图整理。<#0.35#>\n功能行为进入一个 commit，验证它的测试进入另一个紧邻的 commit；临时调试与无关格式变化被移除。<#0.50#>\n提交说明需要回答为什么改变，而不只是复述文件里已经看得到的代码。<#0.45#>\n如果其中一步需要撤销或调整，单一意图的边界也让后续操作不必连带另一项无关变化。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 2.049,
+          "text": "接着把变化按意图整理"
+        },
+        {
+          "from": 2.685,
+          "to": 10.221,
+          "text": "功能行为进入一个 commit，验证它的测试进入另一个紧邻的 commit；临时调试与无关格式变化被移除"
+        },
+        {
+          "from": 10.98,
+          "to": 15.672,
+          "text": "提交说明需要回答为什么改变，而不只是复述文件里已经看得到的代码"
+        },
+        {
+          "from": 16.398,
+          "to": 21.855,
+          "text": "如果其中一步需要撤销或调整，单一意图的边界也让后续操作不必连带另一项无关变化"
+        }
+      ]
+    },
+    {
+      "id": "verify-index",
+      "title": "提交前检查 Index 与测试",
+      "start": 73,
+      "duration": 25.5,
+      "goal": "真实检查 staged diff 并运行测试。",
+      "primaryTechnique": "Recorded staged verification",
+      "beats": [
+        {
+          "time": [
+            63,
+            86
+          ],
+          "visual": "diff --cached、test、status",
+          "motion": "Index 范围被确认",
+          "state": "verified",
+          "narration": "每个提交独立可验证。",
+          "audit": [
+            "测试通过不等于业务必然正确"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_verify_index",
+        "voiceStart": 73.75,
+        "text": "每次 commit 之前，我们先看 git diff --cached，确认 Index 只包含当前意图。<#0.45#>\n再运行与这一步对应的测试，并检查工作区是否还藏着遗漏。<#0.45#>\n测试通过提供证据，但它不会自动证明所有业务场景都正确。<#0.45#>\nWorking Tree 里可以继续保留下一步工作，但当前 Index 必须与这次 commit 的承诺一致。<#0.35#>\n这让 commit 与证据保持同一边界。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.704,
+          "text": "每次 commit 之前，我们先看 git diff --cached，确认 Index 只包含当前意图"
+        },
+        {
+          "from": 6.38,
+          "to": 10.3,
+          "text": "再运行与这一步对应的测试，并检查工作区是否还藏着遗漏"
+        },
+        {
+          "from": 11.028,
+          "to": 14.202,
+          "text": "测试通过提供证据，但它不会自动证明所有业务场景都正确"
+        },
+        {
+          "from": 15.005,
+          "to": 20.572,
+          "text": "Working Tree 里可以继续保留下一步工作，但当前 Index 必须与这次 commit 的承诺一致"
+        },
+        {
+          "from": 21.121,
+          "to": 23.543,
+          "text": "这让 commit 与证据保持同一边界"
+        }
+      ]
+    },
+    {
+      "id": "receiver-range",
+      "title": "从接收者视角检查完整 Range",
+      "start": 98.5,
+      "duration": 24,
+      "goal": "真实检查 upstream/main..HEAD。",
+      "primaryTechnique": "Recorded range review",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "log --reverse --stat 与逐条 show",
+          "motion": "提交范围顺序展开",
+          "state": "reviewable",
+          "narration": "交付的是整个范围，不只是最后一次 diff。",
+          "audit": [
+            "无额外 commit 或未提交修改"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_receiver_range",
+        "voiceStart": 99.25,
+        "text": "最后换到接收者视角，检查 upstream/main..HEAD。<#0.45#>\ngit log --reverse --stat 显示交付顺序，逐条 git show 则让我们核对每个 commit 的说明和 patch。<#0.50#>\n同时确认没有额外 commit、遗漏文件或未提交修改。<#0.45#>\n这里检查的是将要发送的整个历史，而不是只盯着 HEAD 相对上一条 commit 的局部差异。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.882,
+          "text": "最后换到接收者视角，检查 upstream/main..HEAD"
+        },
+        {
+          "from": 5.638,
+          "to": 11.957,
+          "text": "git log --reverse --stat 显示交付顺序，逐条 git show 则让我们核对每个 commit 的说明和 patch"
+        },
+        {
+          "from": 12.657,
+          "to": 15.829,
+          "text": "同时确认没有额外 commit、遗漏文件或未提交修改"
+        },
+        {
+          "from": 16.49,
+          "to": 22.138,
+          "text": "这里检查的是将要发送的整个历史，而不是只盯着 HEAD 相对上一条 commit 的局部差异"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "让每个 Commit 都可解释、可验证",
+      "start": 122.5,
+      "duration": 31,
+      "goal": "收束可审查贡献的四个问题。",
+      "primaryTechnique": "Centered checklist",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "scope、intent、evidence、range",
+          "motion": "四项依次确认",
+          "state": "takeaway",
+          "narration": "审查体验来自提交结构。",
+          "audit": [
+            "不涉及平台 PR 模板"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 123.25,
+        "text": "准备贡献时，可以连续问四个问题。<#0.40#>\n范围里是否只有这次需要的变化？每个 commit 是否表达一个意图？它能否独立检查？接收者看到的完整 range 是否与我们预期一致？<#0.55#>\n具体 message 格式由项目决定，但清楚的边界和证据会让审查真正变得容易。<#0.45#>\n接收者能够按顺序理解、测试和讨论每一步，才是提交结构真正服务协作的地方。<#0.35#>\n可审查性最终体现在接收者的理解成本。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 2.977,
+          "text": "准备贡献时，可以连续问四个问题"
+        },
+        {
+          "from": 3.653,
+          "to": 13.604,
+          "text": "范围里是否只有这次需要的变化？每个 commit 是否表达一个意图？它能否独立检查？接收者看到的完整 range 是否与我们预期一致？"
+        },
+        {
+          "from": 14.391,
+          "to": 19.804,
+          "text": "具体 message 格式由项目决定，但清楚的边界和证据会让审查真正变得容易"
+        },
+        {
+          "from": 20.523,
+          "to": 26.36,
+          "text": "接收者能够按顺序理解、测试和讨论每一步，才是提交结构真正服务协作的地方"
+        },
+        {
+          "from": 26.923,
+          "to": 29.199,
+          "text": "可审查性最终体现在接收者的理解成本"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP28：怎样准备容易审查的提交\n",
+    "scriptMarkdown": "# EP28 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP28 Beats\n\n`inspect → clean → split → verify → review range`。\n",
+    "qualityMarkdown": "# EP28 审查记录\n\n- 不把测试通过等同业务绝对正确。\n",
+    "alignmentMarkdown": "# EP28 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP28 B 站发布物料\n\n## 标题\n\n怎样准备容易审查的 Git 提交？\n\n## 简介\n\n从脏工作区到清楚的 commit range，逐步核对范围、意图和证据。\n\n## 官方参考\n\n- [Pro Git：Commit Guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project)\n- [git-diff](https://git-scm.com/docs/git-diff)\n\n## 标签\n\n```text\nGit\nGit教程\n代码审查\nCommit\n```\n",
+    "coverBriefMarkdown": "# EP28 封面 Brief\n\n混合 patch 拆成两个清晰的大 commit 卡。\n",
+    "checklistMarkdown": "# EP28 发布检查清单\n\n- [ ] 空白错误、调试噪声和完整 range 已核对。\n"
+  }
+}

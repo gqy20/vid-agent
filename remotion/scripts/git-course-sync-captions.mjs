@@ -9,7 +9,14 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const episodeId = process.argv[2];
 if (!episodeId) throw new Error('Usage: node scripts/git-course-sync-captions.mjs <episode-id>');
 const fitScenes = process.argv.includes('--fit-scenes');
+const fromBuild = process.argv.includes('--from-build');
 const DEFAULT_NARRATION_LEAD = 0.75;
+const audioSegmentsDir = join(
+  ROOT,
+  'remotion/renders/git-course',
+  episodeId,
+  fromBuild ? 'tmp/build/candidate/audio/segments' : 'tmp/preview/audio/segments',
+);
 
 const episodePath = join(ROOT, 'git-course/episodes', `${episodeId}.json`);
 const episode = JSON.parse(readFileSync(episodePath, 'utf8'));
@@ -30,7 +37,7 @@ const parseSrt = (path) => readFileSync(path, 'utf8').trim().split(/\r?\n\s*\r?\
 });
 
 const fitPlan = fitScenes ? episode.scenes.map((scene) => {
-  const audioPath = join(ROOT, 'remotion/renders/git-course', episodeId, 'tmp/preview/audio/segments', `${scene.narration.segmentId}_norm.mp3`);
+  const audioPath = join(audioSegmentsDir, `${scene.narration.segmentId}_norm.mp3`);
   const audioDuration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', audioPath], {encoding: 'utf8'}).trim());
   const sourceLead = DEFAULT_NARRATION_LEAD;
   const tightDuration = Math.ceil((sourceLead + audioDuration + 1.5) * 2) / 2;
@@ -48,7 +55,7 @@ const leadPadding = fitPlan.map((_, index) => {
 
 let sceneCursor = 0;
 for (const [index, scene] of episode.scenes.entries()) {
-  const srtPath = join(ROOT, 'remotion/renders/git-course', episodeId, 'tmp/preview/audio/segments', `${scene.narration.segmentId}.srt`);
+  const srtPath = join(audioSegmentsDir, `${scene.narration.segmentId}.srt`);
   const localVoiceStart = fitScenes ? fitPlan[index].sourceLead + leadPadding[index] : scene.narration.voiceStart - scene.start;
   const captions = parseSrt(srtPath).map((cue) => ({
     from: Number((localVoiceStart + cue.from).toFixed(3)),

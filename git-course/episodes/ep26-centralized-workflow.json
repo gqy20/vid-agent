@@ -1,0 +1,365 @@
+{
+  "episodeId": "ep26-centralized-workflow",
+  "title": "分布式 Git 怎样集中协作",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_centralized_workflow",
+      "https://git-scm.com/docs/git-push"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "完整仓库为何还需要中心",
+      "start": 0,
+      "duration": 22.5,
+      "goal": "提出分布式能力与集中入口的关系。",
+      "primaryTechnique": "Question + three repositories",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "Alice、Bob 与 shared.git",
+          "motion": "本地提交汇向共享 ref",
+          "state": "question",
+          "narration": "中心来自约定还是 Git 限制？",
+          "audit": [
+            "区分 DVCS 与集中工作流"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "Alice 和 Bob 手里都有完整 repository，也都能离线 commit。<#0.45#>\n那团队为什么还会约定一个共享中心？<#0.40#>\n我们可以跟着同一条 main 的更新顺序，看看集中协作究竟集中在哪里。<#0.45#>\n画面里真正需要同步的不是两个工作目录，而是共享 main 所代表的已接受历史。<#0.35#>\n这正是共享顺序存在的理由。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.06,
+          "text": "Alice 和 Bob 手里都有完整 repository，也都能离线 commit"
+        },
+        {
+          "from": 5.717,
+          "to": 7.643,
+          "text": "那团队为什么还会约定一个共享中心？"
+        },
+        {
+          "from": 8.341,
+          "to": 12.605,
+          "text": "我们可以跟着同一条 main 的更新顺序，看看集中协作究竟集中在哪里"
+        },
+        {
+          "from": 13.377,
+          "to": 18.584,
+          "text": "画面里真正需要同步的不是两个工作目录，而是共享 main 所代表的已接受历史"
+        },
+        {
+          "from": 19.25,
+          "to": 20.649,
+          "text": "这正是共享顺序存在的理由"
+        }
+      ]
+    },
+    {
+      "id": "three-repos",
+      "title": "三个 Repository 都有完整历史",
+      "start": 22.5,
+      "duration": 24.5,
+      "goal": "建立 bare 中心与两个 clone。",
+      "primaryTechnique": "Centered repository topology",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "shared.git、Alice、Bob 三个仓库",
+          "motion": "clone 建立 origin refs",
+          "state": "distributed",
+          "narration": "每个人先在本地拥有历史。",
+          "audit": [
+            "fork/clone 不画成工作区副本"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_three_repos",
+        "voiceStart": 23.25,
+        "text": "共享位置是一个 bare repository，Alice 和 Bob 分别 clone 出完整本地仓库。<#0.45#>\n他们的 commit 先写入各自本地对象库。<#0.40#>\n中心并没有接管本地提交，它只是被团队约定为共享 main 的写入入口。<#0.45#>\n因此任意一台机器暂时离线时，仍能查看历史、创建 branch 和建立新的本地 commit。<#0.35#>\n每个人都保留独立判断空间。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 6.011,
+          "text": "共享位置是一个 bare repository，Alice 和 Bob 分别 clone 出完整本地仓库"
+        },
+        {
+          "from": 6.68,
+          "to": 8.706,
+          "text": "他们的 commit 先写入各自本地对象库"
+        },
+        {
+          "from": 9.391,
+          "to": 13.683,
+          "text": "中心并没有接管本地提交，它只是被团队约定为共享 main 的写入入口"
+        },
+        {
+          "from": 14.454,
+          "to": 20.28,
+          "text": "因此任意一台机器暂时离线时，仍能查看历史、创建 branch 和建立新的本地 commit"
+        },
+        {
+          "from": 21.012,
+          "to": 22.41,
+          "text": "每个人都保留独立判断空间"
+        }
+      ]
+    },
+    {
+      "id": "alice-push",
+      "title": "Alice 先更新共享 Main",
+      "start": 47,
+      "duration": 23,
+      "goal": "真实展示 Alice 本地 commit 与 push。",
+      "primaryTechnique": "Recorded push",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "Alice commit 与 push",
+          "motion": "shared main 前进",
+          "state": "alice-ahead",
+          "narration": "第一条可接受更新进入中心。",
+          "audit": [
+            "对象 ID 可核对"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_alice_push",
+        "voiceStart": 47.75,
+        "text": "Alice 在本地完成一条提交，然后把 main 推到共享仓库。<#0.45#>\n服务端 ref 从基础 commit 前进到 Alice 的新位置。<#0.40#>\nBob 的本地历史不会自动改变，他仍然只知道自己 clone 时看到的状态。<#0.45#>\n只有 Alice 主动 push 后，这个对象和新的 main 位置才成为其他协作者可以取得的共享状态。<#0.35#>\n其他人此时才能 fetch 它。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.405,
+          "text": "Alice 在本地完成一条提交，然后把 main 推到共享仓库"
+        },
+        {
+          "from": 5.072,
+          "to": 8.095,
+          "text": "服务端 ref 从基础 commit 前进到 Alice 的新位置"
+        },
+        {
+          "from": 8.799,
+          "to": 13.316,
+          "text": "Bob 的本地历史不会自动改变，他仍然只知道自己 clone 时看到的状态"
+        },
+        {
+          "from": 14.03,
+          "to": 19.017,
+          "text": "只有 Alice 主动 push 后，这个对象和新的 main 位置才成为其他协作者可以取得的共享状态"
+        },
+        {
+          "from": 19.656,
+          "to": 20.941,
+          "text": "其他人此时才能 fetch 它"
+        }
+      ]
+    },
+    {
+      "id": "bob-rejected",
+      "title": "旧位置不能覆盖新的共享历史",
+      "start": 70,
+      "duration": 24,
+      "goal": "真实展示 Bob push rejected。",
+      "primaryTechnique": "Recorded rejected push",
+      "beats": [
+        {
+          "time": [
+            62,
+            86
+          ],
+          "visual": "Bob 本地提交后 push rejected",
+          "motion": "non-fast-forward 阻断",
+          "state": "rejected",
+          "narration": "共享 ref 已不再是 Bob 的祖先路径。",
+          "audit": [
+            "不归因于文件冲突"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_bob_rejected",
+        "voiceStart": 70.75,
+        "text": "Bob 也在旧 main 上完成了自己的提交。<#0.40#>\n当他直接 push 时，服务端拒绝这次 non-fast-forward 更新。<#0.45#>\n原因不是两人一定改了同一文件，而是 Bob 的 main 没有包含共享仓库已经接受的 Alice 提交。<#0.45#>\n这条保护要求 Bob 先看见别人已经发布的历史，再决定怎样把自己的变化放到它之后。<#0.35#>\n拒绝让协作顺序保持可追踪。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 2.804,
+          "text": "Bob 也在旧 main 上完成了自己的提交"
+        },
+        {
+          "from": 3.557,
+          "to": 7.167,
+          "text": "当他直接 push 时，服务端拒绝这次 non-fast-forward 更新"
+        },
+        {
+          "from": 8.012,
+          "to": 13.482,
+          "text": "原因不是两人一定改了同一文件，而是 Bob 的 main 没有包含共享仓库已经接受的 Alice 提交"
+        },
+        {
+          "from": 14.265,
+          "to": 19.178,
+          "text": "这条保护要求 Bob 先看见别人已经发布的历史，再决定怎样把自己的变化放到它之后"
+        },
+        {
+          "from": 19.763,
+          "to": 21.838,
+          "text": "拒绝让协作顺序保持可追踪"
+        }
+      ]
+    },
+    {
+      "id": "bob-integrates",
+      "title": "取得并在本地整合",
+      "start": 94,
+      "duration": 24,
+      "goal": "真实展示 fetch、merge 与成功 push。",
+      "primaryTechnique": "Recorded fetch merge push",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "fetch → local merge → test → push",
+          "motion": "双方提交共同可达",
+          "state": "integrated",
+          "narration": "整合仍发生在 Bob 本地。",
+          "audit": [
+            "服务端不自动合并"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_bob_integrates",
+        "voiceStart": 94.75,
+        "text": "Bob 先 fetch，让 origin/main 指向 Alice 已发布的位置。<#0.45#>\n随后他在本地把双方工作整合并运行测试。<#0.40#>\n只有新 main 同时包含 Alice 和 Bob 的提交，push 才能以 fast-forward 更新共享 ref。<#0.45#>\n服务端只验证 ref 能否安全前进，不会替 Bob 选择 merge、rebase 或测试策略。<#0.35#>\n最终历史由本地判断后提交。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.85,
+          "text": "Bob 先 fetch，让 origin/main 指向 Alice 已发布的位置"
+        },
+        {
+          "from": 5.591,
+          "to": 8.423,
+          "text": "随后他在本地把双方工作整合并运行测试"
+        },
+        {
+          "from": 9.147,
+          "to": 14.106,
+          "text": "只有新 main 同时包含 Alice 和 Bob 的提交，push 才能以 fast-forward 更新共享 ref"
+        },
+        {
+          "from": 14.857,
+          "to": 19.87,
+          "text": "服务端只验证 ref 能否安全前进，不会替 Bob 选择 merge、rebase 或测试策略"
+        },
+        {
+          "from": 20.458,
+          "to": 22.244,
+          "text": "最终历史由本地判断后提交"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "集中的是入口，不是本地能力",
+      "start": 118,
+      "duration": 32,
+      "goal": "收束集中式工作流的真实边界。",
+      "primaryTechnique": "Centered causal summary",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "local commit → shared order → local integrate → push",
+          "motion": "四步闭环",
+          "state": "takeaway",
+          "narration": "共享顺序由一个入口协调。",
+          "audit": [
+            "不引入平台权限"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 119.25,
+        "text": "所以，分布式 Git 与集中协作并不矛盾。<#0.45#>\n每个人仍在本地 commit、fetch、merge 或 rebase；团队只是选择一个 repository 作为共享 main 的权威入口。<#0.50#>\npush rejection 保护的是这条已发布历史的连续更新。<#0.45#>\n理解这个边界后，我们讨论的就是协作拓扑，而不是把 Git 变回集中式版本控制。<#0.45#>\n所谓中心，是团队共同读取和写入的一条约定边界，而不是唯一保存完整历史的机器。<#0.35#>\n这个中心也可以由团队重新选择。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 3.999,
+          "text": "所以，分布式 Git 与集中协作并不矛盾"
+        },
+        {
+          "from": 4.706,
+          "to": 11.778,
+          "text": "每个人仍在本地 commit、fetch、merge 或 rebase；团队只是选择一个 repository 作为共享 main 的权威入口"
+        },
+        {
+          "from": 12.512,
+          "to": 15.597,
+          "text": "push rejection 保护的是这条已发布历史的连续更新"
+        },
+        {
+          "from": 16.241,
+          "to": 21.217,
+          "text": "理解这个边界后，我们讨论的就是协作拓扑，而不是把 Git 变回集中式版本控制"
+        },
+        {
+          "from": 22.095,
+          "to": 27.68,
+          "text": "所谓中心，是团队共同读取和写入的一条约定边界，而不是唯一保存完整历史的机器"
+        },
+        {
+          "from": 28.206,
+          "to": 30.085,
+          "text": "这个中心也可以由团队重新选择"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP26：分布式 Git 怎样集中协作\n",
+    "scriptMarkdown": "# EP26 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP26 Beats\n\n`clone → Alice push → Bob rejected → local integrate → push`。\n",
+    "qualityMarkdown": "# EP26 审查记录\n\n- 整合发生在本地，中心只承载共享 ref。\n",
+    "alignmentMarkdown": "# EP26 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP26 B 站发布物料\n\n## 标题\n\n分布式 Git 怎样集中协作？\n\n## 简介\n\n用 Alice、Bob 和一个共享 bare repository 看清集中式工作流。\n\n## 官方参考\n\n- [Pro Git：Distributed Workflows](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows)\n- [git-push](https://git-scm.com/docs/git-push)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Push\n团队协作\n```\n",
+    "coverBriefMarkdown": "# EP26 封面 Brief\n\n两个本地仓库指向一个共享 main。\n",
+    "checklistMarkdown": "# EP26 发布检查清单\n\n- [ ] 三仓库 refs 与对象 ID 已核对。\n"
+  }
+}

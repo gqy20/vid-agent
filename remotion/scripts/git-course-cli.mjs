@@ -265,6 +265,14 @@ const getComposition = (episode) => {
     'ep22-blame': 'GitCourseEp22Blame',
     'ep23-bisect': 'GitCourseEp23Bisect',
     'ep24-rerere': 'GitCourseEp24Rerere',
+    'ep25-long-lived-and-topic-branches': 'GitCourseEp25LongLivedAndTopicBranches',
+    'ep26-centralized-workflow': 'GitCourseEp26CentralizedWorkflow',
+    'ep27-integration-manager-workflow': 'GitCourseEp27IntegrationManagerWorkflow',
+    'ep28-preparing-clean-contributions': 'GitCourseEp28PreparingCleanContributions',
+    'ep29-patch-series': 'GitCourseEp29PatchSeries',
+    'ep30-maintaining-topic-branches': 'GitCourseEp30MaintainingTopicBranches',
+    'ep31-release-and-maintenance-branches': 'GitCourseEp31ReleaseAndMaintenanceBranches',
+    'ep32-choosing-integration-strategy': 'GitCourseEp32ChoosingIntegrationStrategy',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -294,6 +302,14 @@ const episodeSourceName = (episodeId) => ({
   'ep22-blame': 'Ep22Blame.tsx',
   'ep23-bisect': 'Ep23Bisect.tsx',
   'ep24-rerere': 'Ep24Rerere.tsx',
+  'ep25-long-lived-and-topic-branches': 'Ep25LongLivedAndTopicBranches.tsx',
+  'ep26-centralized-workflow': 'Ep26CentralizedWorkflow.tsx',
+  'ep27-integration-manager-workflow': 'Ep27IntegrationManagerWorkflow.tsx',
+  'ep28-preparing-clean-contributions': 'Ep28PreparingCleanContributions.tsx',
+  'ep29-patch-series': 'Ep29PatchSeries.tsx',
+  'ep30-maintaining-topic-branches': 'Ep30MaintainingTopicBranches.tsx',
+  'ep31-release-and-maintenance-branches': 'Ep31ReleaseAndMaintenanceBranches.tsx',
+  'ep32-choosing-integration-strategy': 'Ep32ChoosingIntegrationStrategy.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {

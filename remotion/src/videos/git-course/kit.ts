@@ -31,6 +31,7 @@ export {BranchPointerHookGraph, BranchRefMentalModelGraph, BranchTag, CommitChai
 export type {MotionCommit} from './kit/git-motion';
 export {ChapterProgress} from './kit/layout/ChapterProgress';
 export {CenterInRect} from './kit/layout/CenterInRect';
+export {CenteredSceneBody} from './kit/layout/CenteredSceneBody';
 export {COURSE_RECTS, SCENE_STAGE_RECTS} from './kit/layout/CourseRects';
 export type {SceneStagePreset} from './kit/layout/CourseRects';
 export {CourseLayout} from './kit/layout/CourseLayout';
@@ -56,6 +57,7 @@ export {RecordedTerminalPanel} from './kit/terminal/RecordedTerminalPanel';
 export {RecordedTerminalStage} from './kit/terminal/RecordedTerminalStage';
 export {RecordedTerminalCueSequence} from './kit/terminal/RecordedTerminalCueSequence';
 export type {RecordedTerminalCue} from './kit/terminal/RecordedTerminalCueSequence';
+export {TerminalThenModelScene} from './kit/terminal/TerminalThenModelScene';
 export {CommandPill} from './kit/terminal/CommandPill';
 export {CommandStrip} from './kit/terminal/CommandStrip';
 export {createEpisodeRuntime, EpisodeTimeline} from './kit/runtime/EpisodeRuntime';

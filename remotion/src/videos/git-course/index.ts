@@ -46,6 +46,14 @@ import {EP21_DURATION_IN_FRAMES, Ep21SearchingHistory} from './episodes/Ep21Sear
 import {EP22_DURATION_IN_FRAMES, Ep22Blame} from './episodes/Ep22Blame';
 import {EP23_DURATION_IN_FRAMES, Ep23Bisect} from './episodes/Ep23Bisect';
 import {EP24_DURATION_IN_FRAMES, Ep24Rerere} from './episodes/Ep24Rerere';
+import {EP25_DURATION_IN_FRAMES, Ep25LongLivedAndTopicBranches} from './episodes/Ep25LongLivedAndTopicBranches';
+import {EP26_DURATION_IN_FRAMES, Ep26CentralizedWorkflow} from './episodes/Ep26CentralizedWorkflow';
+import {EP27_DURATION_IN_FRAMES, Ep27IntegrationManagerWorkflow} from './episodes/Ep27IntegrationManagerWorkflow';
+import {EP28_DURATION_IN_FRAMES, Ep28PreparingCleanContributions} from './episodes/Ep28PreparingCleanContributions';
+import {EP29_DURATION_IN_FRAMES, Ep29PatchSeries} from './episodes/Ep29PatchSeries';
+import {EP30_DURATION_IN_FRAMES, Ep30MaintainingTopicBranches} from './episodes/Ep30MaintainingTopicBranches';
+import {EP31_DURATION_IN_FRAMES, Ep31ReleaseAndMaintenanceBranches} from './episodes/Ep31ReleaseAndMaintenanceBranches';
+import {EP32_DURATION_IN_FRAMES, Ep32ChoosingIntegrationStrategy} from './episodes/Ep32ChoosingIntegrationStrategy';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -268,6 +276,14 @@ export const registration: VideoRegistration = {
     {id:'GitCourseEp22Blame',component:Ep22Blame,durationInFrames:EP22_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp23Bisect',component:Ep23Bisect,durationInFrames:EP23_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp24Rerere',component:Ep24Rerere,durationInFrames:EP24_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp25LongLivedAndTopicBranches',component:Ep25LongLivedAndTopicBranches,durationInFrames:EP25_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp26CentralizedWorkflow',component:Ep26CentralizedWorkflow,durationInFrames:EP26_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp27IntegrationManagerWorkflow',component:Ep27IntegrationManagerWorkflow,durationInFrames:EP27_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp28PreparingCleanContributions',component:Ep28PreparingCleanContributions,durationInFrames:EP28_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp29PatchSeries',component:Ep29PatchSeries,durationInFrames:EP29_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp30MaintainingTopicBranches',component:Ep30MaintainingTopicBranches,durationInFrames:EP30_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp31ReleaseAndMaintenanceBranches',component:Ep31ReleaseAndMaintenanceBranches,durationInFrames:EP31_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp32ChoosingIntegrationStrategy',component:Ep32ChoosingIntegrationStrategy,durationInFrames:EP32_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {
       id: 'GitCourseComponentLab',
       component: ComponentLab,

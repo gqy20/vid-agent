@@ -1,0 +1,331 @@
+{
+  "episodeId": "ep29-patch-series",
+  "title": "没有 Remote 怎样传递提交",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-format-patch",
+      "https://git-scm.com/docs/git-am",
+      "https://git-scm.com/book/en/v2/Distributed-Git-Maintaining-a-Project#_patches_from_email"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "没有共享 Remote 还能传 Commit 吗",
+      "start": 0,
+      "duration": 21.5,
+      "goal": "提出离线传递提交序列的问题。",
+      "primaryTechnique": "Question + patch envelopes",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "三个 commit 变成三个 patch 文件",
+          "motion": "对象序列转为邮件序列",
+          "state": "question",
+          "narration": "文件能否携带提交语义？",
+          "audit": [
+            "不暗示复制对象库"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "如果发送方和接收方之间没有共享 remote，三条 commit 还能按原顺序交付吗？<#0.45#>\n普通 diff 只描述文件变化，而 format-patch 会把每个非 merge commit 组织成一封可传递的 patch message。<#0.45#>\n问题的重点不是怎样复制几个文件，而是怎样让接收者仍能看见每一步工作的作者、说明和顺序。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.638,
+          "text": "如果发送方和接收方之间没有共享 remote，三条 commit 还能按原顺序交付吗？"
+        },
+        {
+          "from": 6.407,
+          "to": 11.85,
+          "text": "普通 diff 只描述文件变化，而 format-patch 会把每个非 merge commit 组织成一封可传递的 patch message"
+        },
+        {
+          "from": 12.731,
+          "to": 19.587,
+          "text": "问题的重点不是怎样复制几个文件，而是怎样让接收者仍能看见每一步工作的作者、说明和顺序"
+        }
+      ]
+    },
+    {
+      "id": "sender-history",
+      "title": "先固定发送范围与顺序",
+      "start": 21.5,
+      "duration": 24,
+      "goal": "建立三个有序非 merge commit。",
+      "primaryTechnique": "Centered commit range",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "base..HEAD 三个提交",
+          "motion": "范围由左到右编号",
+          "state": "ordered",
+          "narration": "序列来自明确的 commit range。",
+          "audit": [
+            "不包含 merge commit"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_sender_history",
+        "voiceStart": 22.25,
+        "text": "发送端先准备三个有明确依赖顺序的非 merge commit。<#0.45#>\nbase..HEAD 表示要交付的完整范围，第一条建立结构，后两条在它之上继续修改。<#0.45#>\n如果顺序错了，后面的 patch 可能没有正确上下文。<#0.45#>\n发送前先用 log 核对范围，可以避免把本地实验、额外 merge 或不属于主题的 commit 一起打包。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.333,
+          "text": "发送端先准备三个有明确依赖顺序的非 merge commit"
+        },
+        {
+          "from": 4.987,
+          "to": 11.145,
+          "text": "base..HEAD 表示要交付的完整范围，第一条建立结构，后两条在它之上继续修改"
+        },
+        {
+          "from": 11.853,
+          "to": 14.493,
+          "text": "如果顺序错了，后面的 patch 可能没有正确上下文"
+        },
+        {
+          "from": 15.224,
+          "to": 21.932,
+          "text": "发送前先用 log 核对范围，可以避免把本地实验、额外 merge 或不属于主题的 commit 一起打包"
+        }
+      ]
+    },
+    {
+      "id": "format-patch",
+      "title": "每个 Commit 生成一份 Patch Message",
+      "start": 45.5,
+      "duration": 24.5,
+      "goal": "真实运行 format-patch。",
+      "primaryTechnique": "Recorded format-patch",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "0001、0002、0003 文件生成",
+          "motion": "commit 映射为文件",
+          "state": "exported",
+          "narration": "编号保留应用顺序。",
+          "audit": [
+            "文件名与提交数一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_format_patch",
+        "voiceStart": 46.25,
+        "text": "运行 git format-patch base..HEAD 后，目录里出现 0001、0002 和 0003 三个文件。<#0.45#>\n编号表达默认应用顺序，每个文件对应一条 commit。<#0.40#>\n它们不是三个随意的文本 diff，而是一组带有提交上下文的消息。<#0.45#>\n文件名中的主题文字方便人识别，真正决定内容的仍是所选 commit 和其中记录的 patch。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 7.785,
+          "text": "运行 git format-patch base..HEAD 后，目录里出现 0001、0002 和 0003 三个文件"
+        },
+        {
+          "from": 8.447,
+          "to": 11.779,
+          "text": "编号表达默认应用顺序，每个文件对应一条 commit"
+        },
+        {
+          "from": 12.425,
+          "to": 16.107,
+          "text": "它们不是三个随意的文本 diff，而是一组带有提交上下文的消息"
+        },
+        {
+          "from": 16.848,
+          "to": 22.391,
+          "text": "文件名中的主题文字方便人识别，真正决定内容的仍是所选 commit 和其中记录的 patch"
+        }
+      ]
+    },
+    {
+      "id": "inspect-message",
+      "title": "Patch 同时携带作者、说明与 Diff",
+      "start": 70,
+      "duration": 23,
+      "goal": "真实检查 patch 头部和正文。",
+      "primaryTechnique": "Recorded patch inspection",
+      "beats": [
+        {
+          "time": [
+            62,
+            86
+          ],
+          "visual": "From、Subject、正文与 diff",
+          "motion": "四层内容依次高亮",
+          "state": "inspectable",
+          "narration": "接收者可以先审查再应用。",
+          "audit": [
+            "不展示过密全文"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_inspect_message",
+        "voiceStart": 70.75,
+        "text": "打开第一份 patch，可以看到 From 作者信息、Subject、提交正文以及真正的 diff。<#0.45#>\n这解释了为什么接收者不仅能应用文件变化，还能重建作者和 commit message。<#0.45#>\n应用之前，我们仍可以逐份检查内容和顺序。<#0.45#>\n因此 patch 文件既是可读的审查材料，也是 git am 用来恢复提交上下文的输入。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 6.655,
+          "text": "打开第一份 patch，可以看到 From 作者信息、Subject、提交正文以及真正的 diff"
+        },
+        {
+          "from": 7.331,
+          "to": 11.793,
+          "text": "这解释了为什么接收者不仅能应用文件变化，还能重建作者和 commit message"
+        },
+        {
+          "from": 12.546,
+          "to": 15.358,
+          "text": "应用之前，我们仍可以逐份检查内容和顺序"
+        },
+        {
+          "from": 16.03,
+          "to": 21.194,
+          "text": "因此 patch 文件既是可读的审查材料，也是 git am 用来恢复提交上下文的输入"
+        }
+      ]
+    },
+    {
+      "id": "apply-series",
+      "title": "Git Am 按顺序重建 Commit",
+      "start": 93,
+      "duration": 27.5,
+      "goal": "真实在接收仓库执行 git am。",
+      "primaryTechnique": "Recorded git am",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "git am 000*.patch 与 log fuller",
+          "motion": "patch 序列变成新提交",
+          "state": "rebuilt",
+          "narration": "内容相同不保证对象 ID 相同。",
+          "audit": [
+            "展示完整 OID 与作者/提交者"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_apply_series",
+        "voiceStart": 93.75,
+        "text": "接收仓库从相同 base 出发，按编号执行 git am 000*.patch。<#0.45#>\nGit 依次创建三条新 commit，并从消息中恢复作者、说明和 patch。<#0.50#>\n我们同时比较完整对象 ID：结果内容可以一致，但重建环境变化时，commit 身份并不保证相同。<#0.45#>\n如果接收端的 base 或提交者时间不同，tree 可以一致，而完整 commit OID 仍可能不同。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 6.185,
+          "text": "接收仓库从相同 base 出发，按编号执行 git am 000*.patch"
+        },
+        {
+          "from": 6.926,
+          "to": 11.363,
+          "text": "Git 依次创建三条新 commit，并从消息中恢复作者、说明和 patch"
+        },
+        {
+          "from": 12.133,
+          "to": 18.471,
+          "text": "我们同时比较完整对象 ID：结果内容可以一致，但重建环境变化时，commit 身份并不保证相同"
+        },
+        {
+          "from": 19.205,
+          "to": 25.591,
+          "text": "如果接收端的 base 或提交者时间不同，tree 可以一致，而完整 commit OID 仍可能不同"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Format-patch 传递提交序列",
+      "start": 120.5,
+      "duration": 29.5,
+      "goal": "收束 format-patch、am 与 apply 的边界。",
+      "primaryTechnique": "Centered comparison",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "format-patch → inspect → am；apply 只到 WT",
+          "motion": "两条路径分叉",
+          "state": "takeaway",
+          "narration": "选择取决于是否需要提交语义。",
+          "audit": [
+            "不展开邮件客户端"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 121.75,
+        "text": "因此，format-patch 和 am 组成的是提交序列传递。<#0.45#>\n消息携带作者、说明和 diff，接收端按顺序重建 commit。<#0.45#>\n相比之下，git apply 主要把 patch 放进 Working Tree，不会自动创建提交。<#0.50#>\n是否需要保留提交层的语义，决定了我们选择哪条路径。<#0.45#>\n遇到无法应用的 patch 时，am 会停在明确状态，让人选择解决、跳过或中止，而不是静默丢失一步。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 5.074,
+          "text": "因此，format-patch 和 am 组成的是提交序列传递"
+        },
+        {
+          "from": 5.764,
+          "to": 9.374,
+          "text": "消息携带作者、说明和 diff，接收端按顺序重建 commit"
+        },
+        {
+          "from": 10.107,
+          "to": 15.563,
+          "text": "相比之下，git apply 主要把 patch 放进 Working Tree，不会自动创建提交"
+        },
+        {
+          "from": 16.258,
+          "to": 19.744,
+          "text": "是否需要保留提交层的语义，决定了我们选择哪条路径"
+        },
+        {
+          "from": 20.419,
+          "to": 27.324,
+          "text": "遇到无法应用的 patch 时，am 会停在明确状态，让人选择解决、跳过或中止，而不是静默丢失一步"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP29：没有 Remote 怎样传递提交\n",
+    "scriptMarkdown": "# EP29 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP29 Beats\n\n`range → format-patch → inspect → am`。\n",
+    "qualityMarkdown": "# EP29 审查记录\n\n- 内容相同不暗示重建后的完整对象 ID 必然相同。\n",
+    "alignmentMarkdown": "# EP29 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP29 B 站发布物料\n\n## 标题\n\n没有 Remote 怎样传递 Git 提交？\n\n## 简介\n\n用 format-patch 和 am 传递三条有顺序的 commit。\n\n## 官方参考\n\n- [git-format-patch](https://git-scm.com/docs/git-format-patch)\n- [git-am](https://git-scm.com/docs/git-am)\n\n## 标签\n\n```text\nGit\nGit教程\nFormat Patch\nGit Am\n```\n",
+    "coverBriefMarkdown": "# EP29 封面 Brief\n\n三条 commit 对应三封大型 patch message。\n",
+    "checklistMarkdown": "# EP29 发布检查清单\n\n- [ ] patch 顺序、作者、说明、diff 与完整 OID 已核对。\n"
+  }
+}

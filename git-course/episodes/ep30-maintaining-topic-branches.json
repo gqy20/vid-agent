@@ -1,0 +1,360 @@
+{
+  "episodeId": "ep30-maintaining-topic-branches",
+  "title": "维护者怎样评估多个 Topic",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Distributed-Git-Maintaining-a-Project",
+      "https://git-scm.com/docs/gitworkflows#_topic_branches"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "两个 Topic 都能直接进 Main 吗",
+      "start": 0,
+      "duration": 22,
+      "goal": "提出多个外部贡献的隔离与组合问题。",
+      "primaryTechnique": "Question + two incoming topics",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "Alice、Bob topics 同时指向 main",
+          "motion": "一个通过，一个失败",
+          "state": "question",
+          "narration": "单独可用和组合可用是同一件事吗？",
+          "audit": [
+            "不把 remote-tracking ref 当开发 branch"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "Alice 和 Bob 同时送来两个 topic，维护者应该按到达顺序直接合进 main 吗？<#0.45#>\n单项贡献需要独立判断，而两项变化放在一起，还可能出现新的组合问题。<#0.45#>\n维护者既要知道每项贡献单独做了什么，也要避免一次失败把其他已经通过的工作一起拖入 main。<#0.35#>\n因此需要两层彼此独立的验证。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.216,
+          "text": "Alice 和 Bob 同时送来两个 topic，维护者应该按到达顺序直接合进 main 吗？"
+        },
+        {
+          "from": 6.104,
+          "to": 11.19,
+          "text": "单项贡献需要独立判断，而两项变化放在一起，还可能出现新的组合问题"
+        },
+        {
+          "from": 11.916,
+          "to": 17.722,
+          "text": "维护者既要知道每项贡献单独做了什么，也要避免一次失败把其他已经通过的工作一起拖入 main"
+        },
+        {
+          "from": 18.368,
+          "to": 20.329,
+          "text": "因此需要两层彼此独立的验证"
+        }
+      ]
+    },
+    {
+      "id": "fetch-topics",
+      "title": "先把外部 Ref 带到本地",
+      "start": 22,
+      "duration": 25,
+      "goal": "真实 fetch 两个 contributor remotes。",
+      "primaryTechnique": "Recorded multi-remote fetch",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "alice/topic-a 与 bob/topic-b 到达本地",
+          "motion": "两个观察 ref 建立",
+          "state": "fetched",
+          "narration": "main 尚未接受任何变化。",
+          "audit": [
+            "refs 所有权清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_fetch_topics",
+        "voiceStart": 22.75,
+        "text": "维护者先 fetch 两个 contributor remote。<#0.40#>\nalice/topic-a 和 bob/topic-b 进入本地，成为可以观察的 remote-tracking refs。<#0.45#>\n这一步只取得对象，没有让任何贡献进入 main。<#0.45#>\n两个 ref 可以独立更新、独立丢弃，也可以在需要时重新 fetch，不必提前制造永久整合结果。<#0.35#>\n取得对象不等于承诺接纳它。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 3.257,
+          "text": "维护者先 fetch 两个 contributor remote"
+        },
+        {
+          "from": 3.885,
+          "to": 9.452,
+          "text": "alice/topic-a 和 bob/topic-b 进入本地，成为可以观察的 remote-tracking refs"
+        },
+        {
+          "from": 10.168,
+          "to": 13.734,
+          "text": "这一步只取得对象，没有让任何贡献进入 main"
+        },
+        {
+          "from": 14.471,
+          "to": 21.202,
+          "text": "两个 ref 可以独立更新、独立丢弃，也可以在需要时重新 fetch，不必提前制造永久整合结果"
+        },
+        {
+          "from": 21.847,
+          "to": 23.276,
+          "text": "取得对象不等于承诺接纳它"
+        }
+      ]
+    },
+    {
+      "id": "isolated-review",
+      "title": "每项贡献先在独立 Branch 检查",
+      "start": 47,
+      "duration": 25,
+      "goal": "真实检查 range 与独立测试。",
+      "primaryTechnique": "Recorded isolated tests",
+      "beats": [
+        {
+          "time": [
+            40,
+            64
+          ],
+          "visual": "review/alice 通过、review/bob 失败",
+          "motion": "两条评估路径分离",
+          "state": "evaluating",
+          "narration": "失败项停留在可丢弃路径。",
+          "audit": [
+            "失败 topic 不进入 main"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_isolated_review",
+        "voiceStart": 47.75,
+        "text": "我们分别从 main 建立 review/alice 和 review/bob。<#0.45#>\n先检查各自的 commit range，再运行对应测试。<#0.40#>\nAlice 的 topic 通过，Bob 的第一版失败；失败只留在可丢弃的评估 branch，不会污染 main。<#0.45#>\n评估 branch 的价值就在于允许真实合并、修改和测试，同时把试错成本留在稳定历史之外。<#0.35#>\n每条失败路径都可以单独重来。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.32,
+          "text": "我们分别从 main 建立 review/alice 和 review/bob"
+        },
+        {
+          "from": 5.048,
+          "to": 8.029,
+          "text": "先检查各自的 commit range，再运行对应测试"
+        },
+        {
+          "from": 8.783,
+          "to": 14.314,
+          "text": "Alice 的 topic 通过，Bob 的第一版失败；失败只留在可丢弃的评估 branch，不会污染 main"
+        },
+        {
+          "from": 15.082,
+          "to": 20.864,
+          "text": "评估 branch 的价值就在于允许真实合并、修改和测试，同时把试错成本留在稳定历史之外"
+        },
+        {
+          "from": 21.596,
+          "to": 23.057,
+          "text": "每条失败路径都可以单独重来"
+        }
+      ]
+    },
+    {
+      "id": "updated-topic",
+      "title": "修正版只更新对应评估路径",
+      "start": 72,
+      "duration": 24.5,
+      "goal": "展示 contributor ref 更新与重新测试。",
+      "primaryTechnique": "Ref update model",
+      "beats": [
+        {
+          "time": [
+            64,
+            86
+          ],
+          "visual": "bob/topic-b v1 → v2",
+          "motion": "只替换 Bob 评估路径",
+          "state": "updated",
+          "narration": "其他已验证 topic 不必重做。",
+          "audit": [
+            "不伪造 CI 平台"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_updated_topic",
+        "voiceStart": 72.75,
+        "text": "Bob 修正后再次发布同一 topic ref，维护者重新 fetch。<#0.45#>\n更新只影响 Bob 的观察位置和评估 branch，Alice 已验证的 topic 不需要被混在一起重做。<#0.45#>\n隔离让失败和修正都有清楚边界。<#0.45#>\n维护者重新比较旧版与新版的范围，确认修正没有夹带新的无关变化，再恢复这项评估。<#0.35#>\n新版仍要重新通过原有判断。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.605,
+          "text": "Bob 修正后再次发布同一 topic ref，维护者重新 fetch"
+        },
+        {
+          "from": 5.308,
+          "to": 10.864,
+          "text": "更新只影响 Bob 的观察位置和评估 branch，Alice 已验证的 topic 不需要被混在一起重做"
+        },
+        {
+          "from": 11.542,
+          "to": 13.611,
+          "text": "隔离让失败和修正都有清楚边界"
+        },
+        {
+          "from": 14.317,
+          "to": 20.471,
+          "text": "维护者重新比较旧版与新版的范围，确认修正没有夹带新的无关变化，再恢复这项评估"
+        },
+        {
+          "from": 21.056,
+          "to": 22.646,
+          "text": "新版仍要重新通过原有判断"
+        }
+      ]
+    },
+    {
+      "id": "throwaway-integration",
+      "title": "临时组合验证相互影响",
+      "start": 96.5,
+      "duration": 25.5,
+      "goal": "真实创建 throw-away integration 并组合测试。",
+      "primaryTechnique": "Recorded integration branch",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "integration/test 合并两个 topic 并测试",
+          "motion": "通过后才进入 main",
+          "state": "combined",
+          "narration": "组合验证发生在可重建 branch。",
+          "audit": [
+            "临时 branch 与长期 main 区分"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_throwaway_integration",
+        "voiceStart": 97.25,
+        "text": "两个 topic 单独通过后，我们在临时 integration/test 上把它们组合起来。<#0.45#>\n组合测试确认它们同时存在时仍然工作。<#0.40#>\n这个 branch 可以随时重建；只有确认后的结果，才沿清楚的整合路径进入 main。<#0.45#>\n如果组合失败，可以删除并重建这条临时 branch，两个原始 topic 和 main 都保持清楚。<#0.35#>\n组合结果不必立即成为长期历史。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.061,
+          "text": "两个 topic 单独通过后，我们在临时 integration/test 上把它们组合起来"
+        },
+        {
+          "from": 5.816,
+          "to": 8.674,
+          "text": "组合测试确认它们同时存在时仍然工作"
+        },
+        {
+          "from": 9.355,
+          "to": 14.637,
+          "text": "这个 branch 可以随时重建；只有确认后的结果，才沿清楚的整合路径进入 main"
+        },
+        {
+          "from": 15.292,
+          "to": 20.935,
+          "text": "如果组合失败，可以删除并重建这条临时 branch，两个原始 topic 和 main 都保持清楚"
+        },
+        {
+          "from": 21.482,
+          "to": 23.427,
+          "text": "组合结果不必立即成为长期历史"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "隔离评估，临时组合，最后接纳",
+      "start": 122,
+      "duration": 28,
+      "goal": "收束维护者处理多个 topic 的方法。",
+      "primaryTechnique": "Centered pipeline",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "fetch → isolate → combine → accept",
+          "motion": "四阶段逐步收紧",
+          "state": "takeaway",
+          "narration": "稳定 branch 不承担试错成本。",
+          "audit": [
+            "不照搬 Git 项目分层"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 122.75,
+        "text": "维护多个 topic 时，关键不是堆更多 branch 名，而是分开三种判断。<#0.45#>\n先确认每项贡献自己的范围<#0.25#>再在隔离路径测试，最后用可丢弃的 integration branch 验证组合。<#0.50#>\n这样失败可以停留在局部，main 只接收已经确认的结果。<#0.45#>\n这种分层关注的是判断何时发生，不要求小项目照搬大型项目的 next、seen 或其他固定名字。<#0.35#>\n稳定入口因此不会承担探索成本。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.721,
+          "text": "维护多个 topic 时，关键不是堆更多 branch 名，而是分开三种判断"
+        },
+        {
+          "from": 5.508,
+          "to": 7.002,
+          "text": "先确认每项贡献自己的范围"
+        },
+        {
+          "from": 7.514,
+          "to": 12.121,
+          "text": "再在隔离路径测试，最后用可丢弃的 integration branch 验证组合"
+        },
+        {
+          "from": 12.872,
+          "to": 16.393,
+          "text": "这样失败可以停留在局部，main 只接收已经确认的结果"
+        },
+        {
+          "from": 17.098,
+          "to": 23.408,
+          "text": "这种分层关注的是判断何时发生，不要求小项目照搬大型项目的 next、seen 或其他固定名字"
+        },
+        {
+          "from": 24.018,
+          "to": 26.143,
+          "text": "稳定入口因此不会承担探索成本"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP30：维护者怎样评估多个 Topic\n",
+    "scriptMarkdown": "# EP30 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP30 Beats\n\n`fetch → isolated review → update → throw-away integration → main`。\n",
+    "qualityMarkdown": "# EP30 审查记录\n\n- 失败 topic 不进入 main。\n",
+    "alignmentMarkdown": "# EP30 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP30 B 站发布物料\n\n## 标题\n\n维护者怎样评估多个 Git Topic？\n\n## 简介\n\n隔离外部贡献、组合测试，再决定哪些变化进入 main。\n\n## 官方参考\n\n- [Pro Git：Maintaining a Project](https://git-scm.com/book/en/v2/Distributed-Git-Maintaining-a-Project)\n- [gitworkflows](https://git-scm.com/docs/gitworkflows)\n\n## 标签\n\n```text\nGit\nGit教程\nTopic Branch\n项目维护\n```\n",
+    "coverBriefMarkdown": "# EP30 封面 Brief\n\n两个 topic 先分离检查，再汇入临时 integration。\n",
+    "checklistMarkdown": "# EP30 发布检查清单\n\n- [ ] 独立失败、修正版和组合测试已核对。\n"
+  }
+}

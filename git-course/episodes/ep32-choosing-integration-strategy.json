@@ -1,0 +1,357 @@
+{
+  "episodeId": "ep32-choosing-integration-strategy",
+  "title": "一项贡献应该怎样进入 Main",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 151.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-merge",
+      "https://git-scm.com/docs/git-rebase",
+      "https://git-scm.com/docs/git-cherry-pick",
+      "https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "文件相同，历史也相同吗",
+      "start": 0,
+      "duration": 22.5,
+      "goal": "提出整合结果与历史语义的差别。",
+      "primaryTechnique": "Question + three histories",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "同一最终文件对应三种图形",
+          "motion": "merge、rebase、pick 分叉",
+          "state": "question",
+          "narration": "应依据哪些问题选择？",
+          "audit": [
+            "不评选唯一最佳"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "同一项功能进入 main，可以得到完全相同的文件内容，却留下不同的历史。<#0.45#>\nmerge、rebase 和 cherry-pick 到底在保留什么，又分别改变了什么？<#0.45#>\n只比较最终目录会漏掉 parent、对象身份和可达范围，而这些信息会直接影响后续协作与追溯。<#0.35#>\n所以历史也属于交付结果。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.722,
+          "text": "同一项功能进入 main，可以得到完全相同的文件内容，却留下不同的历史"
+        },
+        {
+          "from": 5.557,
+          "to": 9.876,
+          "text": "merge、rebase 和 cherry-pick 到底在保留什么，又分别改变了什么？"
+        },
+        {
+          "from": 10.564,
+          "to": 17.611,
+          "text": "只比较最终目录会漏掉 parent、对象身份和可达范围，而这些信息会直接影响后续协作与追溯"
+        },
+        {
+          "from": 18.155,
+          "to": 20.346,
+          "text": "所以历史也属于交付结果"
+        }
+      ]
+    },
+    {
+      "id": "same-start",
+      "title": "三条实验路径从同一历史开始",
+      "start": 22.5,
+      "duration": 25.5,
+      "goal": "建立 main 与 topic 的共同初始对象。",
+      "primaryTechnique": "Centered baseline graph",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "main 与 topic 两个提交，复制三组 refs",
+          "motion": "同一对象分成三条隔离路径",
+          "state": "baseline",
+          "narration": "比较必须控制相同起点。",
+          "audit": [
+            "完整 OID 可核对"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_same_start",
+        "voiceStart": 23.25,
+        "text": "我们先固定同一份 main 与 topic 历史，再复制出 demo/merge、demo/rebase 和 demo/pick 三组 refs。<#0.50#>\n每条路径接收相同的功能变化。<#0.40#>\n这样最后的差别来自整合方式，而不是起点或文件内容不同。<#0.45#>\n我们还记录每条原始 commit 的完整 OID，避免只凭图形或相似的短 hash 推断身份。<#0.35#>\n三条路径才具备可比较性。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 8.404,
+          "text": "我们先固定同一份 main 与 topic 历史，再复制出 demo/merge、demo/rebase 和 demo/pick 三组 refs"
+        },
+        {
+          "from": 9.155,
+          "to": 10.95,
+          "text": "每条路径接收相同的功能变化"
+        },
+        {
+          "from": 11.561,
+          "to": 14.934,
+          "text": "这样最后的差别来自整合方式，而不是起点或文件内容不同"
+        },
+        {
+          "from": 15.697,
+          "to": 20.709,
+          "text": "我们还记录每条原始 commit 的完整 OID，避免只凭图形或相似的短 hash 推断身份"
+        },
+        {
+          "from": 21.294,
+          "to": 23.479,
+          "text": "三条路径才具备可比较性"
+        }
+      ]
+    },
+    {
+      "id": "merge-path",
+      "title": "Merge 保留两条历史与原 Commit",
+      "start": 48,
+      "duration": 24.5,
+      "goal": "真实执行 merge --no-ff。",
+      "primaryTechnique": "Recorded merge path",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "merge --no-ff 与 parent 列表",
+          "motion": "两条拓扑汇入 merge commit",
+          "state": "merged",
+          "narration": "原 topic commit 保持身份。",
+          "audit": [
+            "parent 关系清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_merge_path",
+        "voiceStart": 48.75,
+        "text": "merge 路径使用 --no-ff，把 main 和 topic 的两条拓扑都保留下来。<#0.45#>\ntopic 原有 commit 的对象 ID 不变，新的 merge commit 记录两个 parent。<#0.45#>\n这条历史明确表达整组工作从哪里汇入。<#0.45#>\n如果 topic 已经被多人共享，保留这些原对象通常也避免了要求协作者重新对齐被改写的历史。<#0.35#>\n代价是历史中保留一次汇合。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.423,
+          "text": "merge 路径使用 --no-ff，把 main 和 topic 的两条拓扑都保留下来"
+        },
+        {
+          "from": 6.077,
+          "to": 10.425,
+          "text": "topic 原有 commit 的对象 ID 不变，新的 merge commit 记录两个 parent"
+        },
+        {
+          "from": 11.189,
+          "to": 14.186,
+          "text": "这条历史明确表达整组工作从哪里汇入"
+        },
+        {
+          "from": 14.892,
+          "to": 20.412,
+          "text": "如果 topic 已经被多人共享，保留这些原对象通常也避免了要求协作者重新对齐被改写的历史"
+        },
+        {
+          "from": 21.063,
+          "to": 22.576,
+          "text": "代价是历史中保留一次汇合"
+        }
+      ]
+    },
+    {
+      "id": "rebase-path",
+      "title": "Rebase 在新 Base 上重建 Topic",
+      "start": 72.5,
+      "duration": 26,
+      "goal": "真实 rebase 并 fast-forward 目标 ref。",
+      "primaryTechnique": "Recorded rebase path",
+      "beats": [
+        {
+          "time": [
+            62,
+            86
+          ],
+          "visual": "topic 副本 rebase main，再 ff",
+          "motion": "提交复制到新 base",
+          "state": "rebased",
+          "narration": "patch 相近，身份改变。",
+          "audit": [
+            "不描述成服务器合并"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_rebase_path",
+        "voiceStart": 73.25,
+        "text": "rebase 路径先在 topic 副本上把提交重建到新的 main 之后。<#0.45#>\n目标 ref 随后可以 fast-forward，历史变成线性。<#0.45#>\n文件变化仍然保留，但 parent 和提交者上下文改变，因此重建出的 commit 有新的对象 ID。<#0.45#>\n因此 rebase 更适合整理尚未共享的工作，不能把它描述成发生在远端 main 上的自动合并。<#0.35#>\n线性外观来自身份重建。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.192,
+          "text": "rebase 路径先在 topic 副本上把提交重建到新的 main 之后"
+        },
+        {
+          "from": 4.98,
+          "to": 8.103,
+          "text": "目标 ref 随后可以 fast-forward，历史变成线性"
+        },
+        {
+          "from": 8.766,
+          "to": 15.909,
+          "text": "文件变化仍然保留，但 parent 和提交者上下文改变，因此重建出的 commit 有新的对象 ID"
+        },
+        {
+          "from": 16.551,
+          "to": 22.127,
+          "text": "因此 rebase 更适合整理尚未共享的工作，不能把它描述成发生在远端 main 上的自动合并"
+        },
+        {
+          "from": 22.703,
+          "to": 24.139,
+          "text": "线性外观来自身份重建"
+        }
+      ]
+    },
+    {
+      "id": "pick-path",
+      "title": "Cherry-pick 只选择需要的 Commit",
+      "start": 98.5,
+      "duration": 24,
+      "goal": "真实 cherry-pick 两个指定 commit。",
+      "primaryTechnique": "Recorded cherry-pick path",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "pick 两个 OID 与新提交",
+          "motion": "只搬选择的变化",
+          "state": "picked",
+          "narration": "新历史不建立来源祖先关系。",
+          "audit": [
+            "选择范围清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_pick_path",
+        "voiceStart": 99.25,
+        "text": "cherry-pick 路径只指定需要的两条 commit。<#0.45#>\nGit 把每条变化应用到目标 branch，并创建新的 commit 身份。<#0.45#>\n它适合选择部分变化，但目标历史不会因此把原 topic 建立为祖先。<#0.45#>\n来源 branch 上未被选择的 commit 不会进入目标，这种精确范围既是优势，也要求人明确遗漏风险。<#0.35#>\n选择范围必须由人显式负责。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 3.433,
+          "text": "cherry-pick 路径只指定需要的两条 commit"
+        },
+        {
+          "from": 4.258,
+          "to": 7.974,
+          "text": "Git 把每条变化应用到目标 branch，并创建新的 commit 身份"
+        },
+        {
+          "from": 8.768,
+          "to": 12.434,
+          "text": "它适合选择部分变化，但目标历史不会因此把原 topic 建立为祖先"
+        },
+        {
+          "from": 13.129,
+          "to": 19.73,
+          "text": "来源 branch 上未被选择的 commit 不会进入目标，这种精确范围既是优势，也要求人明确遗漏风险"
+        },
+        {
+          "from": 20.269,
+          "to": 22.273,
+          "text": "选择范围必须由人显式负责"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "用四个问题选择整合方式",
+      "start": 122.5,
+      "duration": 29,
+      "goal": "收束 merge、rebase 与 cherry-pick 的选择框架。",
+      "primaryTechnique": "Centered decision grid",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "topology、identity、range、shared 四问",
+          "motion": "三种策略按答案定位",
+          "state": "takeaway",
+          "narration": "策略服务协作语义。",
+          "audit": [
+            "已共享 branch 不随意重写"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 123.25,
+        "text": "选择整合方式时，可以先问四件事。<#0.40#>\n是否要保留分支拓扑？是否要保留原 commit 身份？要接收全部还是部分变化？这条 branch 是否已经共享？<#0.55#>\nmerge、rebase 和 cherry-pick 都不是永远最佳的答案。<#0.40#>\n它们是在表达不同的历史语义，而策略应该服从当前协作边界。<#0.45#>\n最终文件能否通过测试仍要单独验证，而历史策略回答的是团队希望怎样记录这次接纳过程。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 2.963,
+          "text": "选择整合方式时，可以先问四件事"
+        },
+        {
+          "from": 3.665,
+          "to": 11.865,
+          "text": "是否要保留分支拓扑？是否要保留原 commit 身份？要接收全部还是部分变化？这条 branch 是否已经共享？"
+        },
+        {
+          "from": 12.665,
+          "to": 16.192,
+          "text": "merge、rebase 和 cherry-pick 都不是永远最佳的答案"
+        },
+        {
+          "from": 16.797,
+          "to": 20.934,
+          "text": "它们是在表达不同的历史语义，而策略应该服从当前协作边界"
+        },
+        {
+          "from": 21.721,
+          "to": 27.161,
+          "text": "最终文件能否通过测试仍要单独验证，而历史策略回答的是团队希望怎样记录这次接纳过程"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP32：一项贡献应该怎样进入 Main\n",
+    "scriptMarkdown": "# EP32 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP32 Beats\n\n`same start → merge → rebase → cherry-pick → decision`。\n",
+    "qualityMarkdown": "# EP32 审查记录\n\n- 最终文件相同不等于历史语义相同。\n",
+    "alignmentMarkdown": "# EP32 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP32 B 站发布物料\n\n## 标题\n\nMerge、Rebase、Cherry-pick 怎样选？\n\n## 简介\n\n从相同起点比较三条真实整合路径，观察拓扑、身份和选择范围。\n\n## 官方参考\n\n- [git-merge](https://git-scm.com/docs/git-merge)\n- [git-rebase](https://git-scm.com/docs/git-rebase)\n- [git-cherry-pick](https://git-scm.com/docs/git-cherry-pick)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Merge\nGit Rebase\nCherry Pick\n```\n",
+    "coverBriefMarkdown": "# EP32 封面 Brief\n\n同一 topic 分成 merge、rebase、pick 三种大型历史图。\n",
+    "checklistMarkdown": "# EP32 发布检查清单\n\n- [ ] 三条路径的 OID、parent、range 与最终文件已核对。\n"
+  }
+}

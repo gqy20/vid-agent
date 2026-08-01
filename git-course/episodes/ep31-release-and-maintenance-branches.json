@@ -1,0 +1,341 @@
+{
+  "episodeId": "ep31-release-and-maintenance-branches",
+  "title": "发布后怎样继续修旧版本",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/gitworkflows#_merging_upwards",
+      "https://git-scm.com/docs/gitworkflows#_maintenance_branch_management_after_a_feature_release",
+      "https://git-scm.com/docs/git-tag"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "新功能前进时怎样修旧版本",
+      "start": 0,
+      "duration": 23.5,
+      "goal": "提出发布后双线演进问题。",
+      "primaryTechnique": "Question + split history",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "v1 发布点后 main 前进，旧用户出现缺陷",
+          "motion": "历史分成 main 与 maint",
+          "state": "question",
+          "narration": "修复应该先落到哪里？",
+          "audit": [
+            "不推广固定 Git Flow"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "v1.0.0 已经发布，main 又加入了下一版本功能。<#0.45#>\n如果旧版本用户此时遇到缺陷，修复应该直接写在最新 main，还是先回到仍受支持的发布线？<#0.45#>\n直接从最新 main 修复再向下搬运，往往会让旧代码承担更多上下文差异和额外选择成本。<#0.35#>\n这个起点会影响修复能否安全回到旧版。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.011,
+          "text": "v1.0.0 已经发布，main 又加入了下一版本功能"
+        },
+        {
+          "from": 5.799,
+          "to": 12.177,
+          "text": "如果旧版本用户此时遇到缺陷，修复应该直接写在最新 main，还是先回到仍受支持的发布线？"
+        },
+        {
+          "from": 12.882,
+          "to": 18.885,
+          "text": "直接从最新 main 修复再向下搬运，往往会让旧代码承担更多上下文差异和额外选择成本"
+        },
+        {
+          "from": 19.452,
+          "to": 21.445,
+          "text": "这个起点会影响修复能否安全回到旧版"
+        }
+      ]
+    },
+    {
+      "id": "release-lines",
+      "title": "Tag 固定发布点，Branch 继续移动",
+      "start": 23.5,
+      "duration": 25,
+      "goal": "建立 tag、main 与 maint 的职责。",
+      "primaryTechnique": "Centered release graph",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "v1.0.0 tag、maint/v1、main",
+          "motion": "tag 固定，branches 分开前进",
+          "state": "lines",
+          "narration": "refs 职责不同，对象类型仍普通。",
+          "audit": [
+            "tag 与 branch 动态区别清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_release_lines",
+        "voiceStart": 24.25,
+        "text": "v1.0.0 tag 固定已发布对象，main 继续面向下一版本前进。<#0.45#>\n我们从发布点保留 maint/v1，表示仍接受 v1 修复的维护线。<#0.45#>\n这些名称和职责来自项目约定，并不是 Git 内置的 branch 类型。<#0.45#>\n同一个 commit 可以同时被 tag 和 branch 指向，但 tag 表达发布标记，branch 负责后续移动。<#0.35#>\n它们可以指向同一点，却承担不同职责。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.558,
+          "text": "v1.0.0 tag 固定已发布对象，main 继续面向下一版本前进"
+        },
+        {
+          "from": 6.211,
+          "to": 9.984,
+          "text": "我们从发布点保留 maint/v1，表示仍接受 v1 修复的维护线"
+        },
+        {
+          "from": 10.694,
+          "to": 13.961,
+          "text": "这些名称和职责来自项目约定，并不是 Git 内置的 branch 类型"
+        },
+        {
+          "from": 14.656,
+          "to": 20.208,
+          "text": "同一个 commit 可以同时被 tag 和 branch 指向，但 tag 表达发布标记，branch 负责后续移动"
+        },
+        {
+          "from": 20.758,
+          "to": 22.904,
+          "text": "它们可以指向同一点，却承担不同职责"
+        }
+      ]
+    },
+    {
+      "id": "hotfix",
+      "title": "修复从最老受支持位置开始",
+      "start": 48.5,
+      "duration": 22.5,
+      "goal": "真实创建 maint 与 hotfix 并提交修复。",
+      "primaryTechnique": "Recorded hotfix branch",
+      "beats": [
+        {
+          "time": [
+            40,
+            63
+          ],
+          "visual": "maint/v1 与 hotfix/login",
+          "motion": "修复从 v1 线分出",
+          "state": "fixing",
+          "narration": "避免把新功能一起带回旧版。",
+          "audit": [
+            "hotfix base 为 maint/v1"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_hotfix",
+        "voiceStart": 49.25,
+        "text": "我们从 v1.0.0 建立 maint/v1，再从维护线创建 hotfix/login。<#0.45#>\n修复在旧版本代码上完成并运行维护线测试。<#0.40#>\n这样不会把 main 上尚未发布的新功能一起带回 v1。<#0.45#>\n从最老仍需修复的位置开始，也能最早暴露这份修复是否依赖了新版本才有的代码。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 6.835,
+          "text": "我们从 v1.0.0 建立 maint/v1，再从维护线创建 hotfix/login"
+        },
+        {
+          "from": 7.496,
+          "to": 10.767,
+          "text": "修复在旧版本代码上完成并运行维护线测试"
+        },
+        {
+          "from": 11.372,
+          "to": 14.753,
+          "text": "这样不会把 main 上尚未发布的新功能一起带回 v1"
+        },
+        {
+          "from": 15.436,
+          "to": 20.791,
+          "text": "从最老仍需修复的位置开始，也能最早暴露这份修复是否依赖了新版本才有的代码"
+        }
+      ]
+    },
+    {
+      "id": "maintenance-release",
+      "title": "修复先进入维护线并发布 V1.0.1",
+      "start": 71,
+      "duration": 24.5,
+      "goal": "真实 merge hotfix 与创建维护 tag。",
+      "primaryTechnique": "Recorded maintenance tag",
+      "beats": [
+        {
+          "time": [
+            63,
+            86
+          ],
+          "visual": "merge maint/v1、test、tag v1.0.1",
+          "motion": "维护线产生补丁发布点",
+          "state": "released",
+          "narration": "维护版本只包含所需修复。",
+          "audit": [
+            "tag 位置可核对"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_maintenance_release",
+        "voiceStart": 71.75,
+        "text": "hotfix 通过后先整合进 maint/v1，并再次运行测试。<#0.45#>\n确认维护线只包含旧版本需要的修复后，我们在这里创建 v1.0.1 tag。<#0.45#>\n旧用户获得的是受控补丁版本，而不是下一版本的全部变化。<#0.45#>\n完整对象 ID 和 graph 需要共同证明，新 tag 位于维护线修复之后，而不是误打在 main 的新功能上。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.543,
+          "text": "hotfix 通过后先整合进 maint/v1，并再次运行测试"
+        },
+        {
+          "from": 5.272,
+          "to": 10.075,
+          "text": "确认维护线只包含旧版本需要的修复后，我们在这里创建 v1.0.1 tag"
+        },
+        {
+          "from": 10.88,
+          "to": 14.929,
+          "text": "旧用户获得的是受控补丁版本，而不是下一版本的全部变化"
+        },
+        {
+          "from": 15.838,
+          "to": 22.684,
+          "text": "完整对象 ID 和 graph 需要共同证明，新 tag 位于维护线修复之后，而不是误打在 main 的新功能上"
+        }
+      ]
+    },
+    {
+      "id": "merge-up",
+      "title": "再把修复向上整合到 Main",
+      "start": 95.5,
+      "duration": 26,
+      "goal": "真实 merge upward 并测试。",
+      "primaryTechnique": "Recorded upward merge",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "maint/v1 → main，测试通过",
+          "motion": "修复沿稳定线向上流动",
+          "state": "propagated",
+          "narration": "同一修复不应在新版本丢失。",
+          "audit": [
+            "不向下 merge main"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_merge_up",
+        "voiceStart": 96.25,
+        "text": "接着把 maint/v1 向上 merge 到 main，让下一版本也包含同一修复。<#0.45#>\n方向很重要：把稳定修复带向更新历史，不会把 main 的全部新功能灌回维护线。<#0.50#>\n最后在 main 再跑一次测试，确认修复与新代码能共同工作。<#0.45#>\n如果更新分支已经出现相关修改，向上整合仍需要真实检查冲突与行为，不能只看 merge 成功。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.274,
+          "text": "接着把 maint/v1 向上 merge 到 main，让下一版本也包含同一修复"
+        },
+        {
+          "from": 5.923,
+          "to": 11.344,
+          "text": "方向很重要：把稳定修复带向更新历史，不会把 main 的全部新功能灌回维护线"
+        },
+        {
+          "from": 12.086,
+          "to": 16.253,
+          "text": "最后在 main 再跑一次测试，确认修复与新代码能共同工作"
+        },
+        {
+          "from": 16.994,
+          "to": 24.114,
+          "text": "如果更新分支已经出现相关修改，向上整合仍需要真实检查冲突与行为，不能只看 merge 成功"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先修最老支持线，再向上整合",
+      "start": 121.5,
+      "duration": 28.5,
+      "goal": "收束发布维护的方向原则。",
+      "primaryTechnique": "Centered upward flow",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "oldest supported → maint release → merge upward",
+          "motion": "箭头只向上",
+          "state": "takeaway",
+          "narration": "维护线保护发布边界。",
+          "audit": [
+            "cherry-pick down 只作例外提示"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 122.25,
+        "text": "处理跨版本修复时，可以先问哪一条仍受支持的最老 branch 需要它。<#0.45#>\n修复先在那里完成和验证，再沿维护线向更新分支整合。<#0.45#>\n如果曾经误把修复只写在新分支，向下 cherry-pick 可以作为例外补救；但清楚的默认方向更容易维护。<#0.45#>\n维护线保留的是支持承诺和发布节奏，hotfix 只是完成一次修复时使用的短期工作边界。<#0.35#>\n方向清楚也让后续发布更容易核对。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.222,
+          "text": "处理跨版本修复时，可以先问哪一条仍受支持的最老 branch 需要它"
+        },
+        {
+          "from": 5.889,
+          "to": 9.657,
+          "text": "修复先在那里完成和验证，再沿维护线向更新分支整合"
+        },
+        {
+          "from": 10.378,
+          "to": 16.996,
+          "text": "如果曾经误把修复只写在新分支，向下 cherry-pick 可以作为例外补救；但清楚的默认方向更容易维护"
+        },
+        {
+          "from": 17.69,
+          "to": 24.019,
+          "text": "维护线保留的是支持承诺和发布节奏，hotfix 只是完成一次修复时使用的短期工作边界"
+        },
+        {
+          "from": 24.573,
+          "to": 26.558,
+          "text": "方向清楚也让后续发布更容易核对"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP31：发布后怎样继续修旧版本\n",
+    "scriptMarkdown": "# EP31 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP31 Beats\n\n`release tag → maint → hotfix → v1.0.1 → merge upward`。\n",
+    "qualityMarkdown": "# EP31 审查记录\n\n- 修复从最老支持线开始，不把 main 新功能带回旧版。\n",
+    "alignmentMarkdown": "# EP31 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP31 B 站发布物料\n\n## 标题\n\nGit 发布后怎样继续修旧版本？\n\n## 简介\n\n从 v1.0.0 到 v1.0.1，观察维护线、hotfix 与向上整合。\n\n## 官方参考\n\n- [gitworkflows](https://git-scm.com/docs/gitworkflows)\n- [git-tag](https://git-scm.com/docs/git-tag)\n\n## 标签\n\n```text\nGit\nGit教程\n版本发布\nHotfix\n```\n",
+    "coverBriefMarkdown": "# EP31 封面 Brief\n\n维护线 v1.0.1 与 main 用清楚的向上箭头连接。\n",
+    "checklistMarkdown": "# EP31 发布检查清单\n\n- [ ] tag、维护线、hotfix 和 merge upward 已核对。\n"
+  }
+}

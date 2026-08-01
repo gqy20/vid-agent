@@ -10,6 +10,7 @@ const DEBUG_COLORS: Record<CourseRectName, string> = {
   header: COLOR.git.main,
   question: COLOR.git.feature,
   centerModel: COLOR.git.main,
+  modelBody: COLOR.git.main,
   terminal: COLOR.git.head,
   stateTransition: COLOR.git.index,
   takeaway: COLOR.git.feature,

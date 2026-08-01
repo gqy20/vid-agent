@@ -1,0 +1,340 @@
+{
+  "episodeId": "ep27-integration-manager-workflow",
+  "title": "没有写权限怎样贡献",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 151,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_integration_manager",
+      "https://git-scm.com/docs/git-fetch"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "不能 Push Main 还能贡献吗",
+      "start": 0,
+      "duration": 23,
+      "goal": "提出无主仓库写权限的贡献路径。",
+      "primaryTechnique": "Question + repository topology",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "canonical 被维护者控制，贡献者有自己的仓库",
+          "motion": "topic 绕经公开仓库",
+          "state": "question",
+          "narration": "贡献如何跨越写权限边界？",
+          "audit": [
+            "不把 PR 当 Git 协议"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.75,
+        "text": "贡献者没有 canonical main 的写权限，是否就无法交付一组 commit？<#0.45#>\nGit 的另一种协作方式，是先发布自己持有的 ref，再让 integration manager 主动取得并判断。<#0.45#>\n权限限制改变的是谁能移动 canonical ref，并没有阻断对象通过其他 repository 被公开和取得。<#0.35#>\n贡献仍能沿公开 ref 到达维护者。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.882,
+          "text": "贡献者没有 canonical main 的写权限，是否就无法交付一组 commit？"
+        },
+        {
+          "from": 5.6,
+          "to": 11.65,
+          "text": "Git 的另一种协作方式，是先发布自己持有的 ref，再让 integration manager 主动取得并判断"
+        },
+        {
+          "from": 12.333,
+          "to": 18.465,
+          "text": "权限限制改变的是谁能移动 canonical ref，并没有阻断对象通过其他 repository 被公开和取得"
+        },
+        {
+          "from": 19.129,
+          "to": 21.085,
+          "text": "贡献仍能沿公开 ref 到达维护者"
+        }
+      ]
+    },
+    {
+      "id": "topology",
+      "title": "先分清三个 Repository",
+      "start": 23,
+      "duration": 26,
+      "goal": "建立 canonical、contributor 与 maintainer clone。",
+      "primaryTechnique": "Centered topology",
+      "beats": [
+        {
+          "time": [
+            18,
+            40
+          ],
+          "visual": "三个 repository 与权限边界",
+          "motion": "对象路径逐段点亮",
+          "state": "topology",
+          "narration": "每个位置持有不同 refs。",
+          "audit": [
+            "fork 表示 repository"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_topology",
+        "voiceStart": 23.75,
+        "text": "这里有 canonical repository、贡献者公开的 repository，以及维护者自己的本地 clone。<#0.45#>\n所谓 fork，本质上是另一份 repository，而不是一种特殊 branch。<#0.40#>\n我们需要持续追踪对象到达了哪里，以及究竟是谁更新哪条 ref。<#0.45#>\n贡献者控制自己的公开 ref，维护者控制本地检查路径，canonical 则只接受维护者确认后的更新。<#0.35#>\n三个位置不会共享同一份工作区。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.674,
+          "text": "这里有 canonical repository、贡献者公开的 repository，以及维护者自己的本地 clone"
+        },
+        {
+          "from": 6.386,
+          "to": 10.154,
+          "text": "所谓 fork，本质上是另一份 repository，而不是一种特殊 branch"
+        },
+        {
+          "from": 10.864,
+          "to": 14.684,
+          "text": "我们需要持续追踪对象到达了哪里，以及究竟是谁更新哪条 ref"
+        },
+        {
+          "from": 15.408,
+          "to": 21.722,
+          "text": "贡献者控制自己的公开 ref，维护者控制本地检查路径，canonical 则只接受维护者确认后的更新"
+        },
+        {
+          "from": 22.431,
+          "to": 24.119,
+          "text": "三个位置不会共享同一份工作区"
+        }
+      ]
+    },
+    {
+      "id": "publish-topic",
+      "title": "贡献者发布自己的 Topic",
+      "start": 49,
+      "duration": 23.5,
+      "goal": "真实把 topic 推到贡献者 remote。",
+      "primaryTechnique": "Recorded contributor push",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "topic/login 推到 contributor.git",
+          "motion": "贡献者 ref 更新",
+          "state": "published-topic",
+          "narration": "发布可取得的 ref，不触碰 canonical main。",
+          "audit": [
+            "branch 名与范围清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_publish_topic",
+        "voiceStart": 49.75,
+        "text": "贡献者从 canonical main 建立 topic/login，完成两条提交，并推送到自己的公开仓库。<#0.45#>\n这一步只更新 contributor.git 里的 topic ref。<#0.40#>\n随后贡献者把仓库位置、branch 名和希望审查的 commit 范围交给维护者。<#0.45#>\n这条公开 topic 可以继续更新，但每次请求审查时都应该给出明确的最新位置和范围。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 6.312,
+          "text": "贡献者从 canonical main 建立 topic/login，完成两条提交，并推送到自己的公开仓库"
+        },
+        {
+          "from": 7.066,
+          "to": 9.807,
+          "text": "这一步只更新 contributor.git 里的 topic ref"
+        },
+        {
+          "from": 10.472,
+          "to": 15.48,
+          "text": "随后贡献者把仓库位置、branch 名和希望审查的 commit 范围交给维护者"
+        },
+        {
+          "from": 16.2,
+          "to": 21.548,
+          "text": "这条公开 topic 可以继续更新，但每次请求审查时都应该给出明确的最新位置和范围"
+        }
+      ]
+    },
+    {
+      "id": "maintainer-fetch",
+      "title": "维护者主动取得这条 Ref",
+      "start": 72.5,
+      "duration": 25.5,
+      "goal": "真实添加 remote、fetch 与检查范围。",
+      "primaryTechnique": "Recorded remote fetch",
+      "beats": [
+        {
+          "time": [
+            62,
+            86
+          ],
+          "visual": "remote add、fetch、main..contributor/topic",
+          "motion": "对象进入维护者 clone",
+          "state": "fetched",
+          "narration": "fetch 只建立观察位置。",
+          "audit": [
+            "remote-tracking ref 不直接开发"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_maintainer_fetch",
+        "voiceStart": 73.25,
+        "text": "维护者添加 contributor remote 并执行 fetch。<#0.40#>\n对象进入维护者本地仓库，contributor/topic 成为可以核对的 remote-tracking ref。<#0.45#>\n此时 canonical main 仍然没动，维护者可以先查看 main..contributor/topic 的准确范围。<#0.45#>\n维护者可以删除或重建本地评估 branch，却不会因此改动贡献者公开的原始 ref。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 5.45,
+          "text": "维护者添加 contributor remote 并执行 fetch"
+        },
+        {
+          "from": 6.143,
+          "to": 11.725,
+          "text": "对象进入维护者本地仓库，contributor/topic 成为可以核对的 remote-tracking ref"
+        },
+        {
+          "from": 12.42,
+          "to": 18.33,
+          "text": "此时 canonical main 仍然没动，维护者可以先查看 main..contributor/topic 的准确范围"
+        },
+        {
+          "from": 18.985,
+          "to": 23.334,
+          "text": "维护者可以删除或重建本地评估 branch，却不会因此改动贡献者公开的原始 ref"
+        }
+      ]
+    },
+    {
+      "id": "review-integrate",
+      "title": "本地检查后由维护者整合",
+      "start": 98,
+      "duration": 23.5,
+      "goal": "真实测试、整合并更新 canonical。",
+      "primaryTechnique": "Recorded maintainer integration",
+      "beats": [
+        {
+          "time": [
+            86,
+            111
+          ],
+          "visual": "测试 topic、merge、push canonical",
+          "motion": "维护者 main 接纳贡献",
+          "state": "accepted",
+          "narration": "只有维护者更新 canonical main。",
+          "audit": [
+            "测试与 ref 更新分开"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_review_integrate",
+        "voiceStart": 98.75,
+        "text": "维护者在本地检查提交、运行测试，再决定是否整合。<#0.45#>\n通过后，贡献进入维护者的 main；最后由拥有写权限的维护者 push canonical。<#0.45#>\n请求接收是一段协作沟通，Git 真正传递的仍是可取得的 refs 和对象。<#0.45#>\n如果检查没有通过，维护者只需停止整合并反馈问题，canonical main 会保持原位。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 4.191,
+          "text": "维护者在本地检查提交、运行测试，再决定是否整合"
+        },
+        {
+          "from": 4.852,
+          "to": 10.484,
+          "text": "通过后，贡献进入维护者的 main；最后由拥有写权限的维护者 push canonical"
+        },
+        {
+          "from": 11.126,
+          "to": 16.114,
+          "text": "请求接收是一段协作沟通，Git 真正传递的仍是可取得的 refs 和对象"
+        },
+        {
+          "from": 16.801,
+          "to": 21.615,
+          "text": "如果检查没有通过，维护者只需停止整合并反馈问题，canonical main 会保持原位"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "发布 Ref，交出可验证范围",
+      "start": 121.5,
+      "duration": 29.5,
+      "goal": "收束 integration manager 工作流。",
+      "primaryTechnique": "Centered four-step summary",
+      "beats": [
+        {
+          "time": [
+            111,
+            150
+          ],
+          "visual": "publish → fetch → inspect → canonical",
+          "motion": "控制权逐步移交",
+          "state": "takeaway",
+          "narration": "贡献与主线写权限可以分离。",
+          "audit": [
+            "不引入平台 UI"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 122.25,
+        "text": "这条路径可以缩成四步：贡献者发布 topic，维护者 fetch，维护者本地检查，最后由维护者更新 canonical。<#0.50#>\n贡献者控制自己的 repository，integration manager 控制共享主线。<#0.45#>\n两边通过可验证的 commit 范围协作，并不要求贡献者直接拥有 main 的写权限。<#0.45#>\n这使提交的可见性、审查权和主线写权限可以由三个不同边界分别承担。<#0.35#>\n权限与贡献能力因此不必绑定。"
+      },
+      "captions": [
+        {
+          "from": 0.75,
+          "to": 8.331,
+          "text": "这条路径可以缩成四步：贡献者发布 topic，维护者 fetch，维护者本地检查，最后由维护者更新 canonical"
+        },
+        {
+          "from": 9.111,
+          "to": 13.465,
+          "text": "贡献者控制自己的 repository，integration manager 控制共享主线"
+        },
+        {
+          "from": 14.261,
+          "to": 18.522,
+          "text": "两边通过可验证的 commit 范围协作，并不要求贡献者直接拥有 main 的写权限"
+        },
+        {
+          "from": 19.222,
+          "to": 25.629,
+          "text": "这使提交的可见性、审查权和主线写权限可以由三个不同边界分别承担"
+        },
+        {
+          "from": 26.205,
+          "to": 27.828,
+          "text": "权限与贡献能力因此不必绑定"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP27：没有写权限怎样贡献\n",
+    "scriptMarkdown": "# EP27 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP27 Beats\n\n`publish topic → maintainer fetch → review → canonical`。\n",
+    "qualityMarkdown": "# EP27 审查记录\n\n- fork 是 repository，不是特殊 branch。\n",
+    "alignmentMarkdown": "# EP27 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP27 B 站发布物料\n\n## 标题\n\n没有 Main 写权限怎样贡献？\n\n## 简介\n\n跟随 topic ref 从贡献者仓库进入维护者本地，再进入 canonical main。\n\n## 官方参考\n\n- [Pro Git：Integration-Manager Workflow](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows)\n- [git-fetch](https://git-scm.com/docs/git-fetch)\n\n## 标签\n\n```text\nGit\nGit教程\n开源协作\nGit Fetch\n```\n",
+    "coverBriefMarkdown": "# EP27 封面 Brief\n\n贡献者仓库与 canonical 之间由维护者连接。\n",
+    "checklistMarkdown": "# EP27 发布检查清单\n\n- [ ] 三个仓库和写权限边界已核对。\n"
+  }
+}

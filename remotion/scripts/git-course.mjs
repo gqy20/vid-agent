@@ -32,6 +32,14 @@ const EPISODES = [
   ['ep22-blame', 'GitCourseEp22Blame', 'EP22'],
   ['ep23-bisect', 'GitCourseEp23Bisect', 'EP23'],
   ['ep24-rerere', 'GitCourseEp24Rerere', 'EP24'],
+  ['ep25-long-lived-and-topic-branches', 'GitCourseEp25LongLivedAndTopicBranches', 'EP25'],
+  ['ep26-centralized-workflow', 'GitCourseEp26CentralizedWorkflow', 'EP26'],
+  ['ep27-integration-manager-workflow', 'GitCourseEp27IntegrationManagerWorkflow', 'EP27'],
+  ['ep28-preparing-clean-contributions', 'GitCourseEp28PreparingCleanContributions', 'EP28'],
+  ['ep29-patch-series', 'GitCourseEp29PatchSeries', 'EP29'],
+  ['ep30-maintaining-topic-branches', 'GitCourseEp30MaintainingTopicBranches', 'EP30'],
+  ['ep31-release-and-maintenance-branches', 'GitCourseEp31ReleaseAndMaintenanceBranches', 'EP31'],
+  ['ep32-choosing-integration-strategy', 'GitCourseEp32ChoosingIntegrationStrategy', 'EP32'],
 ];
 
 const fail = (message) => {

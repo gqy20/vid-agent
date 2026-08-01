@@ -155,6 +155,14 @@ export const EP21 = {id:'ep21-searching-history',title:'你在搜索内容、说
 export const EP22 = {id:'ep22-blame',title:'这一行从哪次修改来',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp22Blame',sourceReferences:['https://git-scm.com/docs/git-blame']};
 export const EP23 = {id:'ep23-bisect',title:'哪个 Commit 最先让测试失败',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp23Bisect',sourceReferences:['https://git-scm.com/docs/git-bisect']};
 export const EP24 = {id:'ep24-rerere',title:'同一个冲突为什么不用重解',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp24Rerere',sourceReferences:['https://git-scm.com/docs/git-rerere']};
+export const EP25 = {id:'ep25-long-lived-and-topic-branches',title:'Branch 为什么有不同寿命',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp25LongLivedAndTopicBranches',sourceReferences:['https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows','https://git-scm.com/docs/gitworkflows']};
+export const EP26 = {id:'ep26-centralized-workflow',title:'分布式 Git 怎样集中协作',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp26CentralizedWorkflow',sourceReferences:['https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows','https://git-scm.com/docs/git-push']};
+export const EP27 = {id:'ep27-integration-manager-workflow',title:'没有写权限怎样贡献',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp27IntegrationManagerWorkflow',sourceReferences:['https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows','https://git-scm.com/docs/git-fetch']};
+export const EP28 = {id:'ep28-preparing-clean-contributions',title:'怎样准备容易审查的提交',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp28PreparingCleanContributions',sourceReferences:['https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project','https://git-scm.com/docs/git-diff']};
+export const EP29 = {id:'ep29-patch-series',title:'没有 Remote 怎样传递提交',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp29PatchSeries',sourceReferences:['https://git-scm.com/docs/git-format-patch','https://git-scm.com/docs/git-am']};
+export const EP30 = {id:'ep30-maintaining-topic-branches',title:'维护者怎样评估多个 Topic',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp30MaintainingTopicBranches',sourceReferences:['https://git-scm.com/book/en/v2/Distributed-Git-Maintaining-a-Project','https://git-scm.com/docs/gitworkflows']};
+export const EP31 = {id:'ep31-release-and-maintenance-branches',title:'发布后怎样继续修旧版本',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp31ReleaseAndMaintenanceBranches',sourceReferences:['https://git-scm.com/docs/gitworkflows','https://git-scm.com/docs/git-tag']};
+export const EP32 = {id:'ep32-choosing-integration-strategy',title:'一项贡献应该怎样进入 Main',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp32ChoosingIntegrationStrategy',sourceReferences:['https://git-scm.com/docs/git-merge','https://git-scm.com/docs/git-rebase','https://git-scm.com/docs/git-cherry-pick']};
 
 export const COMMAND_STEPS = [
   {
