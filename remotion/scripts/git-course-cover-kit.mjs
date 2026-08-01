@@ -178,10 +178,11 @@ export const refPill = ({
 export const neq = ({x = 828, y = 674} = {}) =>
   `<text x="${x}" y="${y}" font-family="${FONT.sans}" font-size="180" font-weight="${WEIGHT.bold}" fill="${TOMATO}">≠</text>`;
 
-// 组装 SVG、写盘、rsvg 转 PNG。outDir 相对 cwd（约定从 remotion/ 跑）。
-export function render({outDir, name = 'cover.svg', body, previews = false}) {
+// 组装 SVG、写盘、rsvg 转 PNG。outDir 相对 REMOTION_ROOT（remotion/），与 cwd 无关。
+// width/height 默认仍是横版 W×H；正方形等异形封面由调用方传入，单集脚本不受影响。
+export function render({outDir, name = 'cover.svg', body, previews = false, width = W, height = H}) {
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <defs>${DEFS}</defs>
 ${body}
 </svg>`;
@@ -189,15 +190,18 @@ ${body}
   mkdirSync(dirname(svgPath), {recursive: true});
   writeFileSync(svgPath, svg);
   const pngPath = svgPath.replace(/\.svg$/, '.png');
-  // ponytail: 600 DPI = 1920*6.25 x 1080*6.25 像素（6.25 = 600/96，SVG 1px 默认 = 1/96 inch）
-  execFileSync('rsvg-convert', ['-w', '12000', '-h', '6750', '-d', '600', '-f', 'png', '-o', pngPath, svgPath], {
+  // ponytail: 600 DPI = 尺寸 × 6.25（6.25 = 600/96，SVG 1px 默认 = 1/96 inch）。默认 1920×1080 → 12000×6750。
+  const hi = (px) => Math.round(px * 6.25);
+  execFileSync('rsvg-convert', ['-w', String(hi(width)), '-h', String(hi(height)), '-d', '600', '-f', 'png', '-o', pngPath, svgPath], {
     stdio: 'inherit',
   });
   if (previews) {
     const previewPath = svgPath.replace(/\.svg$/, '-preview.png');
     const thumbnailPath = svgPath.replace(/\.svg$/, '-thumbnail.png');
-    execFileSync('rsvg-convert', ['-w', '1920', '-h', '1080', '-f', 'png', '-o', previewPath, svgPath], {stdio: 'inherit'});
-    execFileSync('rsvg-convert', ['-w', '320', '-h', '180', '-f', 'png', '-o', thumbnailPath, svgPath], {stdio: 'inherit'});
+    execFileSync('rsvg-convert', ['-w', String(width), '-h', String(height), '-f', 'png', '-o', previewPath, svgPath], {stdio: 'inherit'});
+    const thumbW = 320;
+    const thumbH = Math.round((height / width) * thumbW);
+    execFileSync('rsvg-convert', ['-w', String(thumbW), '-h', String(thumbH), '-f', 'png', '-o', thumbnailPath, svgPath], {stdio: 'inherit'});
     console.log(`Preview: ${previewPath}`);
     console.log(`Thumbnail: ${thumbnailPath}`);
   }
