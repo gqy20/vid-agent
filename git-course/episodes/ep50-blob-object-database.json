@@ -1,0 +1,336 @@
+{
+  "episodeId": "ep50-blob-object-database",
+  "title": "文件内容怎样进入 Git 对象库",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 152,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-hash-object",
+      "https://git-scm.com/docs/git-cat-file",
+      "https://git-scm.com/docs/gitrepository-layout"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "同样内容换个文件名，Blob 会改变吗",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出 blob 只保存字节内容的问题",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "同样内容换个文件名，Blob 会改变吗",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出 blob 只保存字节内容的问题",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "如果把 app.js 复制成 copy.js，而文件内容完全相同，它们会得到两个 blob 吗？<#0.45#>\n直觉可能会把文件名、路径和修改时间都算进文件对象，但 Git 的 blob 并不是文件系统记录。<#0.45#>\n我们可以先计算对象 ID，再改变一个明确的字节，观察究竟是哪部分输入决定结果。<#0.45#>\n问题的重点不是记住一串 hash，而是确认 blob 的边界究竟在哪里。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.158,
+          "text": "如果把 app.js 复制成 copy.js，而文件内容完全相同，它们会得到两个 blob 吗？"
+        },
+        {
+          "from": 5.907,
+          "to": 12.386,
+          "text": "直觉可能会把文件名、路径和修改时间都算进文件对象，但 Git 的 blob 并不是文件系统记录"
+        },
+        {
+          "from": 13.024,
+          "to": 17.771,
+          "text": "我们可以先计算对象 ID，再改变一个明确的字节，观察究竟是哪部分输入决定结果"
+        },
+        {
+          "from": 18.527,
+          "to": 22.514,
+          "text": "问题的重点不是记住一串 hash，而是确认 blob 的边界究竟在哪里"
+        }
+      ]
+    },
+    {
+      "id": "object-input",
+      "title": "Blob Header 与原始字节共同决定 OID",
+      "start": 24,
+      "duration": 25.5,
+      "goal": "解释对象表示与 object format",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "Blob Header 与原始字节共同决定 OID",
+          "motion": "单次因果揭示后稳定",
+          "state": "object-input",
+          "narration": "解释对象表示与 object format",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_object_input",
+        "voiceStart": 24.35,
+        "text": "Git 对象的输入可以理解为类型、字节长度、空字符和原始内容组成的对象表示。<#0.45#>\nblob 不包含文件名，路径关系要等到 tree 对象里才会出现。<#0.45#>\n对象 ID 还取决于仓库使用的 object format，所以画面不应把所有仓库都锁定为固定四十位。<#0.45#>\n先确认格式与完整输入，再谈相同内容是否得到相同 ID，判断会更准确。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.757,
+          "text": "Git 对象的输入可以理解为类型、字节长度、空字符和原始内容组成的对象表示"
+        },
+        {
+          "from": 6.591,
+          "to": 11.052,
+          "text": "blob 不包含文件名，路径关系要等到 tree 对象里才会出现"
+        },
+        {
+          "from": 11.876,
+          "to": 18.622,
+          "text": "对象 ID 还取决于仓库使用的 object format，所以画面不应把所有仓库都锁定为固定四十位"
+        },
+        {
+          "from": 19.297,
+          "to": 24.095,
+          "text": "先确认格式与完整输入，再谈相同内容是否得到相同 ID，判断会更准确"
+        }
+      ]
+    },
+    {
+      "id": "calculate-oid",
+      "title": "Hash-object 默认只计算，不写入",
+      "start": 49.5,
+      "duration": 24,
+      "goal": "计算 OID 并核对格式",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "Hash-object 默认只计算，不写入",
+          "motion": "单次因果揭示后稳定",
+          "state": "calculate-oid",
+          "narration": "计算 OID 并核对格式",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_calculate_oid",
+        "voiceStart": 49.85,
+        "text": "先读取当前仓库的 object format，再对 app.js 运行不带写入参数的 hash-object。<#0.45#>\n命令返回完整 OID，但对象库里此时未必已经新增对应文件。<#0.45#>\n我们可以用 cat-file 查询并观察失败，把计算名称与保存对象明确拆开。<#0.45#>\n这个对照能避免把看到一串 ID 误认为文件已经进入 Index 或产生了 commit。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.056,
+          "text": "先读取当前仓库的 object format，再对 app.js 运行不带写入参数的 hash-object"
+        },
+        {
+          "from": 6.762,
+          "to": 10.956,
+          "text": "命令返回完整 OID，但对象库里此时未必已经新增对应文件"
+        },
+        {
+          "from": 11.783,
+          "to": 17.196,
+          "text": "我们可以用 cat-file 查询并观察失败，把计算名称与保存对象明确拆开"
+        },
+        {
+          "from": 17.912,
+          "to": 22.344,
+          "text": "这个对照能避免把看到一串 ID 误认为文件已经进入 Index 或产生了 commit"
+        }
+      ]
+    },
+    {
+      "id": "write-object",
+      "title": "使用 -w 后对象才进入数据库",
+      "start": 73.5,
+      "duration": 25,
+      "goal": "写入 blob 并读取类型大小内容",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "使用 -w 后对象才进入数据库",
+          "motion": "单次因果揭示后稳定",
+          "state": "write-object",
+          "narration": "写入 blob 并读取类型大小内容",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_write_object",
+        "voiceStart": 73.85,
+        "text": "加入 -w 后，Git 才把同一对象表示写入当前仓库的对象数据库。<#0.45#>\n随后用 cat-file 分别读取类型、字节长度与内容，三项证据都应对应这枚 blob。<#0.45#>\nloose object 的路径由对象 ID 前两位分目录、其余部分作文件名，但内部内容经过压缩。<#0.45#>\n我们只通过 Git 命令验证它，不直接编辑 objects 目录里的存储文件。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.357,
+          "text": "加入 -w 后，Git 才把同一对象表示写入当前仓库的对象数据库"
+        },
+        {
+          "from": 5.065,
+          "to": 12.48,
+          "text": "随后用 cat-file 分别读取类型、字节长度与内容，三项证据都应对应这枚 blob"
+        },
+        {
+          "from": 13.162,
+          "to": 18.898,
+          "text": "loose object 的路径由对象 ID 前两位分目录、其余部分作文件名，但内部内容经过压缩"
+        },
+        {
+          "from": 19.576,
+          "to": 23.488,
+          "text": "我们只通过 Git 命令验证它，不直接编辑 objects 目录里的存储文件"
+        }
+      ]
+    },
+    {
+      "id": "compare-bytes",
+      "title": "文件名不变 OID，字节变化会改变 OID",
+      "start": 98.5,
+      "duration": 22,
+      "goal": "比较同内容副本与换行变化",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "文件名不变 OID，字节变化会改变 OID",
+          "motion": "单次因果揭示后稳定",
+          "state": "compare-bytes",
+          "narration": "比较同内容副本与换行变化",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_compare_bytes",
+        "voiceStart": 98.85,
+        "text": "把相同字节复制到另一个文件名后再次计算，两个结果应该完全一致。<#0.45#>\n随后只增加一个换行，新的字节长度和对象表示都会改变，于是得到另一枚 OID。<#0.45#>\n这里变化的不是所谓文件版本号，而是内容寻址结果。<#0.45#>\n对比完整对象 ID 和 cat-file 大小，能让这一点比只看短 hash 更容易复核。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.181,
+          "text": "把相同字节复制到另一个文件名后再次计算，两个结果应该完全一致"
+        },
+        {
+          "from": 5.894,
+          "to": 11.656,
+          "text": "随后只增加一个换行，新的字节长度和对象表示都会改变，于是得到另一枚 OID"
+        },
+        {
+          "from": 12.305,
+          "to": 15.566,
+          "text": "这里变化的不是所谓文件版本号，而是内容寻址结果"
+        },
+        {
+          "from": 16.285,
+          "to": 20.63,
+          "text": "对比完整对象 ID 和 cat-file 大小，能让这一点比只看短 hash 更容易复核"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Blob 保存字节，不保存文件身份",
+      "start": 120.5,
+      "duration": 31.5,
+      "goal": "收束 blob 的内容边界",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "Blob 保存字节，不保存文件身份",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 blob 的内容边界",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 120.85,
+        "text": "理解 blob 时，可以先把文件系统里的名字、目录、权限和时间全部放到一旁。<#0.45#>\nblob 关心的是对象类型、长度与原始字节；名字和模式由 tree 负责组织。<#0.45#>\nhash-object -w 只写对象，不会自动更新 Index、创建 tree 或生成 commit。<#0.45#>\n沿这条边界继续前进，下一集就能看到相同 blob 如何被安排到不同项目路径。<#0.45#>\n所以相同 OID 能证明内容字节一致，却不能据此断言路径也一致。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.123,
+          "text": "理解 blob 时，可以先把文件系统里的名字、目录、权限和时间全部放到一旁"
+        },
+        {
+          "from": 5.832,
+          "to": 11.976,
+          "text": "blob 关心的是对象类型、长度与原始字节；名字和模式由 tree 负责组织"
+        },
+        {
+          "from": 12.713,
+          "to": 18.8,
+          "text": "hash-object -w 只写对象，不会自动更新 Index、创建 tree 或生成 commit"
+        },
+        {
+          "from": 19.523,
+          "to": 24.451,
+          "text": "沿这条边界继续前进，下一集就能看到相同 blob 如何被安排到不同项目路径"
+        },
+        {
+          "from": 25.157,
+          "to": 29.963,
+          "text": "所以相同 OID 能证明内容字节一致，却不能据此断言路径也一致"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP50-BLOB-OBJECT-DATABASE：文件内容怎样进入 Git 对象库\n",
+    "scriptMarkdown": "# EP50-BLOB-OBJECT-DATABASE 当前脚本\n",
+    "beatsMarkdown": "# EP50-BLOB-OBJECT-DATABASE Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP50-BLOB-OBJECT-DATABASE 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP50-BLOB-OBJECT-DATABASE 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP50-BLOB-OBJECT-DATABASE B 站发布物料\n\n## 标题\n\nGit Blob 究竟保存了什么？文件名为什么不影响 Hash\n\n## 简介\n\n用 hash-object 与 cat-file 验证 blob 的对象表示、写入和内容寻址。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-hash-object)\n- [Git 官方文档](https://git-scm.com/docs/git-cat-file)\n- [Git 官方文档](https://git-scm.com/docs/gitrepository-layout)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Blob\n对象数据库\n```\n",
+    "coverBriefMarkdown": "# EP50-BLOB-OBJECT-DATABASE 封面 Brief\n\n同内容不同文件名得到同一 blob，改变一个字节后 OID 分叉。\n",
+    "checklistMarkdown": "# EP50-BLOB-OBJECT-DATABASE 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

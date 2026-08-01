@@ -56,6 +56,14 @@ const EPISODES = [
   ['ep46-sparse-partial-and-shallow-clones', 'GitCourseEp46SparsePartialAndShallowClones', 'EP46'],
   ['ep47-clean-and-destructive-boundaries', 'GitCourseEp47CleanAndDestructiveBoundaries', 'EP47'],
   ['ep48-maintenance-and-data-recovery', 'GitCourseEp48MaintenanceAndDataRecovery', 'EP48'],
+  ['ep49-plumbing-and-porcelain', 'GitCourseEp49PlumbingAndPorcelain', 'EP49'],
+  ['ep50-blob-object-database', 'GitCourseEp50BlobObjectDatabase', 'EP50'],
+  ['ep51-trees-and-snapshots', 'GitCourseEp51TreesAndSnapshots', 'EP51'],
+  ['ep52-commit-and-tag-objects', 'GitCourseEp52CommitAndTagObjects', 'EP52'],
+  ['ep53-refs-head-and-packed-refs', 'GitCourseEp53RefsHeadAndPackedRefs', 'EP53'],
+  ['ep54-refspecs', 'GitCourseEp54Refspecs', 'EP54'],
+  ['ep55-packfiles-and-deltas', 'GitCourseEp55PackfilesAndDeltas', 'EP55'],
+  ['ep56-transfer-protocols', 'GitCourseEp56TransferProtocols', 'EP56'],
 ];
 
 const fail = (message) => {

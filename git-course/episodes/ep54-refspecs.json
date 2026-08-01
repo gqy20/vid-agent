@@ -1,0 +1,331 @@
+{
+  "episodeId": "ep54-refspecs",
+  "title": "Fetch 与 Push 怎样映射 Refs",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 159,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-fetch",
+      "https://git-scm.com/docs/git-push",
+      "https://git-scm.com/docs/gitremote-helpers"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Refspec 两边分别属于哪个仓库",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出 src 与 dst 的方向问题",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Refspec 两边分别属于哪个仓库",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出 src 与 dst 的方向问题",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "同样写成 source 冒号 destination，fetch 和 push 的两边为什么会落到相反仓库？<#0.45#>\n如果不先确认命令方向，很容易把 remote-tracking branch 误认为远端 branch 本体。<#0.45#>\n我们可以把 local 与 remote 的 refs 同时摆出来，每执行一次映射就核对两端结果。<#0.45#>\n这样 refspec 不再是一串难记符号，而是一条明确的名称搬运规则。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.247,
+          "text": "同样写成 source 冒号 destination，fetch 和 push 的两边为什么会落到相反仓库？"
+        },
+        {
+          "from": 6.971,
+          "to": 11.556,
+          "text": "如果不先确认命令方向，很容易把 remote-tracking branch 误认为远端 branch 本体"
+        },
+        {
+          "from": 12.234,
+          "to": 17.175,
+          "text": "我们可以把 local 与 remote 的 refs 同时摆出来，每执行一次映射就核对两端结果"
+        },
+        {
+          "from": 17.924,
+          "to": 22.378,
+          "text": "这样 refspec 不再是一串难记符号，而是一条明确的名称搬运规则"
+        }
+      ]
+    },
+    {
+      "id": "refspec-model",
+      "title": "Fetch 拉入本地，Push 送往远端",
+      "start": 24,
+      "duration": 32,
+      "goal": "建立双向 src 与 dst 模型",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "Fetch 拉入本地，Push 送往远端",
+          "motion": "单次因果揭示后稳定",
+          "state": "refspec-model",
+          "narration": "建立双向 src 与 dst 模型",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_refspec_model",
+        "voiceStart": 24.35,
+        "text": "fetch 时 source 在 remote，destination 在 local，常见目标是 refs/remotes/origin 下的本地 ref。<#0.45#>\npush 时 source 在 local，destination 在 remote，目标通常位于远端 refs/heads。<#0.45#>\nrefspec 只负责选择和映射 refs，不会自动完成 merge、rebase 或 upstream 配置。<#0.45#>\n先标清仓库与命名空间，再阅读通配符和冒号，方向就会稳定下来。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 10.083,
+          "text": "fetch 时 source 在 remote，destination 在 local，常见目标是 refs/remotes/origin 下的本地 ref"
+        },
+        {
+          "from": 10.74,
+          "to": 18.293,
+          "text": "push 时 source 在 local，destination 在 remote，目标通常位于远端 refs/heads"
+        },
+        {
+          "from": 18.958,
+          "to": 25.11,
+          "text": "refspec 只负责选择和映射 refs，不会自动完成 merge、rebase 或 upstream 配置"
+        },
+        {
+          "from": 25.751,
+          "to": 30.435,
+          "text": "先标清仓库与命名空间，再阅读通配符和冒号，方向就会稳定下来"
+        }
+      ]
+    },
+    {
+      "id": "default-fetch",
+      "title": "Clone 配置保存默认 Fetch 映射",
+      "start": 56,
+      "duration": 25.5,
+      "goal": "读取 origin.fetch 并核对 refs",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "Clone 配置保存默认 Fetch 映射",
+          "motion": "单次因果揭示后稳定",
+          "state": "default-fetch",
+          "narration": "读取 origin.fetch 并核对 refs",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_default_fetch",
+        "voiceStart": 56.35,
+        "text": "普通 clone 会写入 remote.origin.fetch，默认把远端 heads 通配映射到本地 origin 命名空间。<#0.45#>\n我们分别读取配置和两端 for-each-ref，确认 origin/main 是本地保存的 remote-tracking ref。<#0.45#>\n它反映最近一次 fetch 取得的远端状态，并不是服务器上的 refs/heads/main 文件本身。<#0.45#>\n这层区别也解释了为什么离线时仍能查看 origin/main。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.161,
+          "text": "普通 clone 会写入 remote.origin.fetch，默认把远端 heads 通配映射到本地 origin 命名空间"
+        },
+        {
+          "from": 6.787,
+          "to": 14.136,
+          "text": "我们分别读取配置和两端 for-each-ref，确认 origin/main 是本地保存的 remote-tracking ref"
+        },
+        {
+          "from": 14.784,
+          "to": 20.008,
+          "text": "它反映最近一次 fetch 取得的远端状态，并不是服务器上的 refs/heads/main 文件本身"
+        },
+        {
+          "from": 20.742,
+          "to": 23.919,
+          "text": "这层区别也解释了为什么离线时仍能查看 origin/main"
+        }
+      ]
+    },
+    {
+      "id": "explicit-fetch",
+      "title": "显式 Fetch 可以只映射一个 Ref",
+      "start": 81.5,
+      "duration": 27,
+      "goal": "抓取 topic 并对比 FETCH_HEAD",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "显式 Fetch 可以只映射一个 Ref",
+          "motion": "单次因果揭示后稳定",
+          "state": "explicit-fetch",
+          "narration": "抓取 topic 并对比 FETCH_HEAD",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_explicit_fetch",
+        "voiceStart": 81.85,
+        "text": "接着使用完整 refspec，只把远端 topic 写到本地 refs/remotes/origin/topic。<#0.45#>\n目标 ref 出现后，它的完整 OID应与远端 topic 一致。<#0.45#>\n再做一次不带 destination 的 fetch，Git 会记录 FETCH_HEAD，却不必创建同名长期 ref。<#0.45#>\n比较两次结果，可以看出下载对象与保存目标名称并不是完全相同的步骤。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.031,
+          "text": "接着使用完整 refspec，只把远端 topic 写到本地 refs/remotes/origin/topic"
+        },
+        {
+          "from": 7.701,
+          "to": 11.368,
+          "text": "目标 ref 出现后，它的完整 OID应与远端 topic 一致"
+        },
+        {
+          "from": 12.08,
+          "to": 19.727,
+          "text": "再做一次不带 destination 的 fetch，Git 会记录 FETCH_HEAD，却不必创建同名长期 ref"
+        },
+        {
+          "from": 20.415,
+          "to": 25.28,
+          "text": "比较两次结果，可以看出下载对象与保存目标名称并不是完全相同的步骤"
+        }
+      ]
+    },
+    {
+      "id": "push-rename",
+      "title": "Push 可以把本地 Topic 发布为另一名称",
+      "start": 108.5,
+      "duration": 23.5,
+      "goal": "把 topic 映射成远端 review",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "Push 可以把本地 Topic 发布为另一名称",
+          "motion": "单次因果揭示后稳定",
+          "state": "push-rename",
+          "narration": "把 topic 映射成远端 review",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_push_rename",
+        "voiceStart": 108.85,
+        "text": "方向反转后，我们把本地 refs/heads/topic 推送到远端 refs/heads/review。<#0.45#>\n服务器新增的是 review，而本地 topic 的名称并没有因此改变。<#0.45#>\n随后故意尝试一次非 fast-forward 更新，默认保护会拒绝它；这里不使用强制覆盖。<#0.45#>\n前导加号只会改变客户端允许的映射语义，服务器策略仍然可能拒绝更新。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.543,
+          "text": "方向反转后，我们把本地 refs/heads/topic 推送到远端 refs/heads/review"
+        },
+        {
+          "from": 6.187,
+          "to": 10.497,
+          "text": "服务器新增的是 review，而本地 topic 的名称并没有因此改变"
+        },
+        {
+          "from": 11.197,
+          "to": 16.263,
+          "text": "随后故意尝试一次非 fast-forward 更新，默认保护会拒绝它；这里不使用强制覆盖"
+        },
+        {
+          "from": 17.011,
+          "to": 22.129,
+          "text": "前导加号只会改变客户端允许的映射语义，服务器策略仍然可能拒绝更新"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先写仓库，再写 Source 与 Destination",
+      "start": 132,
+      "duration": 27,
+      "goal": "收束 refspec 阅读顺序",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "先写仓库，再写 Source 与 Destination",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 refspec 阅读顺序",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 132.35,
+        "text": "阅读 refspec 时，可以先把命令写成 remote 到 local，或 local 到 remote。<#0.45#>\n再把 source 与 destination 展开成完整 refs 命名空间，避免被简写掩盖方向。<#0.45#>\nremote-tracking ref 是本地记录，FETCH_HEAD 是临时入口，远端 branch 则位于服务器仓库。<#0.45#>\nrefspec 负责名称映射，历史整合和权限判断仍需要在其他层单独处理。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.722,
+          "text": "阅读 refspec 时，可以先把命令写成 remote 到 local，或 local 到 remote"
+        },
+        {
+          "from": 6.423,
+          "to": 12.275,
+          "text": "再把 source 与 destination 展开成完整 refs 命名空间，避免被简写掩盖方向"
+        },
+        {
+          "from": 12.958,
+          "to": 19.157,
+          "text": "remote-tracking ref 是本地记录，FETCH_HEAD 是临时入口，远端 branch 则位于服务器仓库"
+        },
+        {
+          "from": 19.985,
+          "to": 25.285,
+          "text": "refspec 负责名称映射，历史整合和权限判断仍需要在其他层单独处理"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP54-REFSPECS：Fetch 与 Push 怎样映射 Refs\n",
+    "scriptMarkdown": "# EP54-REFSPECS 当前脚本\n",
+    "beatsMarkdown": "# EP54-REFSPECS Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP54-REFSPECS 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP54-REFSPECS 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP54-REFSPECS B 站发布物料\n\n## 标题\n\nGit Refspec 到底怎么读？Fetch 和 Push 为什么方向相反\n\n## 简介\n\n把 local 与 remote refs 并排，逐步验证 fetch 与 push 的 source:destination。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-fetch)\n- [Git 官方文档](https://git-scm.com/docs/git-push)\n- [Git 官方文档](https://git-scm.com/docs/gitremote-helpers)\n\n## 标签\n\n```text\nGit\nGit教程\nRefspec\nGit Fetch\n```\n",
+    "coverBriefMarkdown": "# EP54-REFSPECS 封面 Brief\n\n同一个 src:dst 在 fetch 与 push 中跨越相反的仓库边界。\n",
+    "checklistMarkdown": "# EP54-REFSPECS 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

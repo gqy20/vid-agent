@@ -1,0 +1,332 @@
+{
+  "episodeId": "ep55-packfiles-and-deltas",
+  "title": "Packfile 怎样压缩 Git 对象",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 152,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-pack-objects",
+      "https://git-scm.com/docs/git-repack",
+      "https://git-scm.com/docs/git-verify-pack",
+      "https://git-scm.com/docs/gitformat-pack"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Git 会为每个版本永久保存完整文件吗",
+      "start": 0,
+      "duration": 25.5,
+      "goal": "提出逻辑对象与物理压缩的区别",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Git 会为每个版本永久保存完整文件吗",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出逻辑对象与物理压缩的区别",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "Git 的逻辑模型保存完整 snapshot，那么连续修改一个大文件会不会无限复制全部字节？<#0.45#>\n对象层仍然保留每枚 blob 的完整身份，但物理存储可以把相似对象放进 pack 并使用 delta。<#0.45#>\n关键是不要把 delta 关系误认为 commit 历史，也不要预设 Git 一定选择哪个版本作 base。<#0.45#>\n我们会先制造可验证的相似对象，再观察真实 verify-pack 输出。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.485,
+          "text": "Git 的逻辑模型保存完整 snapshot，那么连续修改一个大文件会不会无限复制全部字节？"
+        },
+        {
+          "from": 7.149,
+          "to": 12.769,
+          "text": "对象层仍然保留每枚 blob 的完整身份，但物理存储可以把相似对象放进 pack 并使用 delta"
+        },
+        {
+          "from": 13.47,
+          "to": 19.118,
+          "text": "关键是不要把 delta 关系误认为 commit 历史，也不要预设 Git 一定选择哪个版本作 base"
+        },
+        {
+          "from": 19.77,
+          "to": 23.947,
+          "text": "我们会先制造可验证的相似对象，再观察真实 verify-pack 输出"
+        }
+      ]
+    },
+    {
+      "id": "pack-model",
+      "title": "OID 不变，物理表示可以变化",
+      "start": 25.5,
+      "duration": 25,
+      "goal": "建立 loose、pack、index 与 delta 模型",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "OID 不变，物理表示可以变化",
+          "motion": "单次因果揭示后稳定",
+          "state": "pack-model",
+          "narration": "建立 loose、pack、index 与 delta 模型",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_pack_model",
+        "voiceStart": 25.85,
+        "text": "loose object 按对象 ID 分散存放，repack 后对象可以进入一个 packfile。<#0.45#>\n配套 idx 根据 OID 帮助定位 pack 中的数据，它与保存 refs 的 packed-refs 完全不同。<#0.45#>\n相似对象可能使用 base 加 delta 表示，但读取时 Git 仍还原原本的对象类型和内容。<#0.45#>\n因此逻辑身份稳定，物理压缩策略可以在不改 OID 的情况下重新安排。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.156,
+          "text": "loose object 按对象 ID 分散存放，repack 后对象可以进入一个 packfile"
+        },
+        {
+          "from": 6.819,
+          "to": 12.527,
+          "text": "配套 idx 根据 OID 帮助定位 pack 中的数据，它与保存 refs 的 packed-refs 完全不同"
+        },
+        {
+          "from": 13.161,
+          "to": 18.013,
+          "text": "相似对象可能使用 base 加 delta 表示，但读取时 Git 仍还原原本的对象类型和内容"
+        },
+        {
+          "from": 18.7,
+          "to": 23.554,
+          "text": "因此逻辑身份稳定，物理压缩策略可以在不改 OID 的情况下重新安排"
+        }
+      ]
+    },
+    {
+      "id": "loose-count",
+      "title": "Repack 前先记录 Loose Objects",
+      "start": 50.5,
+      "duration": 23,
+      "goal": "记录 count-objects 与对象 OID",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "Repack 前先记录 Loose Objects",
+          "motion": "单次因果揭示后稳定",
+          "state": "loose-count",
+          "narration": "记录 count-objects 与对象 OID",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_loose_count",
+        "voiceStart": 50.85,
+        "text": "fixture 连续提交多个相似的大文本版本，先用 count-objects 记录 loose 数量与空间。<#0.45#>\n我们也保存其中几枚 blob 的完整 OID，并用 cat-file 核对类型和大小。<#0.45#>\n这些数值来自当前实验仓库，不把一次结果包装成所有项目都相同的压缩比例。<#0.45#>\n只有先固定逻辑对象，后面的 repack 对比才有可信基线。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.962,
+          "text": "fixture 连续提交多个相似的大文本版本，先用 count-objects 记录 loose 数量与空间"
+        },
+        {
+          "from": 6.689,
+          "to": 11.71,
+          "text": "我们也保存其中几枚 blob 的完整 OID，并用 cat-file 核对类型和大小"
+        },
+        {
+          "from": 12.481,
+          "to": 17.156,
+          "text": "这些数值来自当前实验仓库，不把一次结果包装成所有项目都相同的压缩比例"
+        },
+        {
+          "from": 17.846,
+          "to": 21.423,
+          "text": "只有先固定逻辑对象，后面的 repack 对比才有可信基线"
+        }
+      ]
+    },
+    {
+      "id": "repack",
+      "title": "Repack 把对象移入 Pack 与 Index",
+      "start": 73.5,
+      "duration": 27,
+      "goal": "执行 repack 并核对 OID",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "Repack 把对象移入 Pack 与 Index",
+          "motion": "单次因果揭示后稳定",
+          "state": "repack",
+          "narration": "执行 repack 并核对 OID",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_repack",
+        "voiceStart": 73.85,
+        "text": "在隔离 fixture 里运行 repack -ad 后，count-objects 会显示 loose 减少、pack 数量出现。<#0.45#>\nobjects/pack 目录同时包含 pack 与 idx，两者共同支持压缩存储和按 OID 访问。<#0.45#>\n再次对原有 OID 运行 cat-file，类型、大小和内容都应保持不变。<#0.45#>\n这说明 repack 改变的是物理表示，不是创建了另一套提交历史。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.088,
+          "text": "在隔离 fixture 里运行 repack -ad 后，count-objects 会显示 loose 减少、pack 数量出现"
+        },
+        {
+          "from": 6.803,
+          "to": 13.869,
+          "text": "objects/pack 目录同时包含 pack 与 idx，两者共同支持压缩存储和按 OID 访问"
+        },
+        {
+          "from": 14.601,
+          "to": 20.471,
+          "text": "再次对原有 OID 运行 cat-file，类型、大小和内容都应保持不变"
+        },
+        {
+          "from": 21.19,
+          "to": 25.281,
+          "text": "这说明 repack 改变的是物理表示，不是创建了另一套提交历史"
+        }
+      ]
+    },
+    {
+      "id": "verify-delta",
+      "title": "Verify-pack 展示真实 Delta Chain",
+      "start": 100.5,
+      "duration": 25,
+      "goal": "从输出中读取 base 与 depth",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "Verify-pack 展示真实 Delta Chain",
+          "motion": "单次因果揭示后稳定",
+          "state": "verify-delta",
+          "narration": "从输出中读取 base 与 depth",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_verify_delta",
+        "voiceStart": 100.85,
+        "text": "最后让 verify-pack 检查实际 idx，并从输出里寻找带 base OID 与 depth 的对象行。<#0.45#>\nfixture 会在录制前确认至少产生一条 delta，否则这段证据就不成立。<#0.45#>\ndelta base 的选择由打包算法和对象相似度决定，不必等同于上一个文件版本或 parent commit。<#0.45#>\n即使物理上依赖 base，逻辑上每枚 blob 仍有自己的完整 OID 和可读取内容。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.145,
+          "text": "最后让 verify-pack 检查实际 idx，并从输出里寻找带 base OID 与 depth 的对象行"
+        },
+        {
+          "from": 6.79,
+          "to": 11.531,
+          "text": "fixture 会在录制前确认至少产生一条 delta，否则这段证据就不成立"
+        },
+        {
+          "from": 12.246,
+          "to": 18.085,
+          "text": "delta base 的选择由打包算法和对象相似度决定，不必等同于上一个文件版本或 parent commit"
+        },
+        {
+          "from": 18.8,
+          "to": 23.312,
+          "text": "即使物理上依赖 base，逻辑上每枚 blob 仍有自己的完整 OID 和可读取内容"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Pack 压缩存储，不改对象模型",
+      "start": 125.5,
+      "duration": 26.5,
+      "goal": "收束 packfile 与 Git 历史的边界",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "Pack 压缩存储，不改对象模型",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 packfile 与 Git 历史的边界",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 125.85,
+        "text": "看到 pack 与 delta 时，可以先把逻辑对象身份和物理存储表示分开。<#0.45#>\nOID、对象类型与 commit graph 保持不变，pack 和 idx 负责更紧凑地保存与定位数据。<#0.45#>\ndelta 是压缩关系，不是版本历史；packed-refs 则属于另一套名称存储。<#0.45#>\n用 count-objects、verify-pack 与 cat-file 交叉验证，比猜测压缩行为更可靠。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.511,
+          "text": "看到 pack 与 delta 时，可以先把逻辑对象身份和物理存储表示分开"
+        },
+        {
+          "from": 5.176,
+          "to": 12.425,
+          "text": "OID、对象类型与 commit graph 保持不变，pack 和 idx 负责更紧凑地保存与定位数据"
+        },
+        {
+          "from": 13.079,
+          "to": 19.109,
+          "text": "delta 是压缩关系，不是版本历史；packed-refs 则属于另一套名称存储"
+        },
+        {
+          "from": 19.831,
+          "to": 25.178,
+          "text": "用 count-objects、verify-pack 与 cat-file 交叉验证，比猜测压缩行为更可靠"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP55-PACKFILES-AND-DELTAS：Packfile 怎样压缩 Git 对象\n",
+    "scriptMarkdown": "# EP55-PACKFILES-AND-DELTAS 当前脚本\n",
+    "beatsMarkdown": "# EP55-PACKFILES-AND-DELTAS Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP55-PACKFILES-AND-DELTAS 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP55-PACKFILES-AND-DELTAS 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP55-PACKFILES-AND-DELTAS B 站发布物料\n\n## 标题\n\nGit 为什么不会无限复制完整文件？Packfile 和 Delta 原理\n\n## 简介\n\n用真实 repack 与 verify-pack 拆开对象身份、pack 索引和 delta 压缩。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-pack-objects)\n- [Git 官方文档](https://git-scm.com/docs/git-repack)\n- [Git 官方文档](https://git-scm.com/docs/git-verify-pack)\n- [Git 官方文档](https://git-scm.com/docs/gitformat-pack)\n\n## 标签\n\n```text\nGit\nGit教程\nPackfile\nDelta\n```\n",
+    "coverBriefMarkdown": "# EP55-PACKFILES-AND-DELTAS 封面 Brief\n\n多个稳定 OID 进入 pack，真实 delta 关系在 idx 检查中出现。\n",
+    "checklistMarkdown": "# EP55-PACKFILES-AND-DELTAS 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

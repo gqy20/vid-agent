@@ -179,6 +179,14 @@ export const EP45 = {id:'ep45-git-bundle',title:'没有网络怎样传递完整 
 export const EP46 = {id:'ep46-sparse-partial-and-shallow-clones',title:'三种精简 Clone 到底少了什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp46SparsePartialAndShallowClones',sourceReferences:['https://git-scm.com/docs/git-sparse-checkout','https://git-scm.com/docs/partial-clone','https://git-scm.com/docs/git-clone']};
 export const EP47 = {id:'ep47-clean-and-destructive-boundaries',title:'Git Clean 到底会删除什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp47CleanAndDestructiveBoundaries',sourceReferences:['https://git-scm.com/docs/git-clean']};
 export const EP48 = {id:'ep48-maintenance-and-data-recovery',title:'Commit 什么时候才真的消失',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp48MaintenanceAndDataRecovery',sourceReferences:['https://git-scm.com/docs/git-reflog','https://git-scm.com/docs/git-fsck','https://git-scm.com/docs/git-gc']};
+export const EP49 = {id:'ep49-plumbing-and-porcelain',title:'上层命令与底层对象是什么关系',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp49PlumbingAndPorcelain',sourceReferences:['https://git-scm.com/docs/gitglossary','https://git-scm.com/docs/git']};
+export const EP50 = {id:'ep50-blob-object-database',title:'文件内容怎样进入 Git 对象库',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp50BlobObjectDatabase',sourceReferences:['https://git-scm.com/docs/git-hash-object','https://git-scm.com/docs/git-cat-file']};
+export const EP51 = {id:'ep51-trees-and-snapshots',title:'Tree 怎样组成一张项目快照',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp51TreesAndSnapshots',sourceReferences:['https://git-scm.com/docs/git-update-index','https://git-scm.com/docs/git-write-tree']};
+export const EP52 = {id:'ep52-commit-and-tag-objects',title:'Commit 与 Tag 对象分别保存什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp52CommitAndTagObjects',sourceReferences:['https://git-scm.com/docs/git-commit-tree','https://git-scm.com/docs/git-tag']};
+export const EP53 = {id:'ep53-refs-head-and-packed-refs',title:'Git 的名字怎样落到对象上',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp53RefsHeadAndPackedRefs',sourceReferences:['https://git-scm.com/docs/git-update-ref','https://git-scm.com/docs/git-pack-refs']};
+export const EP54 = {id:'ep54-refspecs',title:'Fetch 与 Push 怎样映射 Refs',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp54Refspecs',sourceReferences:['https://git-scm.com/docs/git-fetch','https://git-scm.com/docs/git-push']};
+export const EP55 = {id:'ep55-packfiles-and-deltas',title:'Packfile 怎样压缩 Git 对象',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp55PackfilesAndDeltas',sourceReferences:['https://git-scm.com/docs/git-repack','https://git-scm.com/docs/git-verify-pack']};
+export const EP56 = {id:'ep56-transfer-protocols',title:'两个仓库怎样交换 Git 对象',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp56TransferProtocols',sourceReferences:['https://git-scm.com/docs/protocol-v2','https://git-scm.com/docs/gitprotocol-pack']};
 
 export const COMMAND_STEPS = [
   {

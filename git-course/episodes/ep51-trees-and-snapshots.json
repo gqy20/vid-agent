@@ -1,0 +1,336 @@
+{
+  "episodeId": "ep51-trees-and-snapshots",
+  "title": "Tree 怎样组成一张项目快照",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 152,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-update-index",
+      "https://git-scm.com/docs/git-write-tree",
+      "https://git-scm.com/docs/git-ls-tree"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Snapshot 是扁平文件清单吗",
+      "start": 0,
+      "duration": 25,
+      "goal": "提出 tree 的递归结构",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Snapshot 是扁平文件清单吗",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出 tree 的递归结构",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "如果 blob 只保存字节，那么 app.js 这个名字和 src 目录究竟存在哪里？<#0.45#>\n把 snapshot 想成一张扁平文件表虽然方便，却会遗漏 tree 之间的递归关系。<#0.45#>\n我们可以完全不读取 Working Tree，只用临时 Index 安排已有 blob，再让 Git 写出 tree。<#0.45#>\n这样路径、模式与对象引用各自承担什么职责，会直接出现在证据里。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.852,
+          "text": "如果 blob 只保存字节，那么 app.js 这个名字和 src 目录究竟存在哪里？"
+        },
+        {
+          "from": 6.576,
+          "to": 11.795,
+          "text": "把 snapshot 想成一张扁平文件表虽然方便，却会遗漏 tree 之间的递归关系"
+        },
+        {
+          "from": 12.565,
+          "to": 18.874,
+          "text": "我们可以完全不读取 Working Tree，只用临时 Index 安排已有 blob，再让 Git 写出 tree"
+        },
+        {
+          "from": 19.574,
+          "to": 23.383,
+          "text": "这样路径、模式与对象引用各自承担什么职责，会直接出现在证据里"
+        }
+      ]
+    },
+    {
+      "id": "tree-model",
+      "title": "Tree 用名称、模式和 OID 组织对象",
+      "start": 25,
+      "duration": 21,
+      "goal": "建立根 tree 与子 tree 模型",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "Tree 用名称、模式和 OID 组织对象",
+          "motion": "单次因果揭示后稳定",
+          "state": "tree-model",
+          "narration": "建立根 tree 与子 tree 模型",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_tree_model",
+        "voiceStart": 25.35,
+        "text": "一条 tree entry 同时包含模式、对象类型、对象 ID 和这一层的名称。<#0.45#>\n遇到子目录时，根 tree 指向另一枚 tree，再由子 tree 指向其中的 blob。<#0.45#>\n因此完整路径来自多层名称组合，而不是写进 blob 本身。<#0.45#>\ntree 也不会保存空目录；没有 entry 的目录不会单独成为项目快照的一部分。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.201,
+          "text": "一条 tree entry 同时包含模式、对象类型、对象 ID 和这一层的名称"
+        },
+        {
+          "from": 5.868,
+          "to": 10.189,
+          "text": "遇到子目录时，根 tree 指向另一枚 tree，再由子 tree 指向其中的 blob"
+        },
+        {
+          "from": 10.884,
+          "to": 14.488,
+          "text": "因此完整路径来自多层名称组合，而不是写进 blob 本身"
+        },
+        {
+          "from": 15.26,
+          "to": 19.645,
+          "text": "tree 也不会保存空目录；没有 entry 的目录不会单独成为项目快照的一部分"
+        }
+      ]
+    },
+    {
+      "id": "temporary-index",
+      "title": "用临时 Index 安排已有 Blob",
+      "start": 46,
+      "duration": 25,
+      "goal": "构造不影响真实 Index 的输入",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "用临时 Index 安排已有 Blob",
+          "motion": "单次因果揭示后稳定",
+          "state": "temporary-index",
+          "narration": "构造不影响真实 Index 的输入",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_temporary_index",
+        "voiceStart": 46.35,
+        "text": "为了不污染课程仓库的真实暂存区，我们显式设置一份临时 GIT_INDEX_FILE。<#0.45#>\nread-tree --empty 让它从空状态开始，update-index --cacheinfo 再把已有 blob 安排到指定路径。<#0.45#>\nls-files --stage 显示的是这份临时 Index，而不是扫描当前 Working Tree 的结果。<#0.45#>\n这一步把 write-tree 的真实输入固定下来，也让实验可以安全重复。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.769,
+          "text": "为了不污染课程仓库的真实暂存区，我们显式设置一份临时 GIT_INDEX_FILE"
+        },
+        {
+          "from": 5.554,
+          "to": 12.94,
+          "text": "read-tree --empty 让它从空状态开始，update-index --cacheinfo 再把已有 blob 安排到指定路径"
+        },
+        {
+          "from": 13.628,
+          "to": 18.826,
+          "text": "ls-files --stage 显示的是这份临时 Index，而不是扫描当前 Working Tree 的结果"
+        },
+        {
+          "from": 19.495,
+          "to": 23.625,
+          "text": "这一步把 write-tree 的真实输入固定下来，也让实验可以安全重复"
+        }
+      ]
+    },
+    {
+      "id": "write-tree",
+      "title": "Write-tree 递归生成项目快照",
+      "start": 71,
+      "duration": 26,
+      "goal": "写根 tree 并读取递归路径",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "Write-tree 递归生成项目快照",
+          "motion": "单次因果揭示后稳定",
+          "state": "write-tree",
+          "narration": "写根 tree 并读取递归路径",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_write_tree",
+        "voiceStart": 71.35,
+        "text": "当临时 Index 准备好后，write-tree 会先确保需要的子 tree 存在，再返回根 tree 的完整 OID。<#0.45#>\ncat-file 可以看到根 tree 只列当前层名称，ls-tree -r 则把递归路径展开。<#0.45#>\n两种视图看的是同一棵树：一个强调对象边，一个强调最终路径。<#0.45#>\n把根 tree OID 保存下来，下一集就能直接用它构造 commit，而不依赖工作区扫描。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.437,
+          "text": "当临时 Index 准备好后，write-tree 会先确保需要的子 tree 存在，再返回根 tree 的完整 OID"
+        },
+        {
+          "from": 7.065,
+          "to": 12.39,
+          "text": "cat-file 可以看到根 tree 只列当前层名称，ls-tree -r 则把递归路径展开"
+        },
+        {
+          "from": 13.312,
+          "to": 17.858,
+          "text": "两种视图看的是同一棵树：一个强调对象边，一个强调最终路径"
+        },
+        {
+          "from": 18.528,
+          "to": 24.291,
+          "text": "把根 tree OID 保存下来，下一集就能直接用它构造 commit，而不依赖工作区扫描"
+        }
+      ]
+    },
+    {
+      "id": "rename-path",
+      "title": "只改路径也会改变 Tree OID",
+      "start": 97,
+      "duration": 24,
+      "goal": "验证 blob 不变而 tree 变化",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "只改路径也会改变 Tree OID",
+          "motion": "单次因果揭示后稳定",
+          "state": "rename-path",
+          "narration": "验证 blob 不变而 tree 变化",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_rename_path",
+        "voiceStart": 97.35,
+        "text": "现在保持 blob 字节完全不变，只把 Index 中的路径从 app.js 改成 src/app.js。<#0.45#>\n再次 write-tree 后，blob OID 仍然相同，根 tree OID 却已经改变。<#0.45#>\n变化来自名称和目录结构进入了 tree 对象，而不是 Git 复制了一份文件内容。<#0.45#>\n比较前后两枚完整 tree ID，可以把内容身份与快照布局清楚分开。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.125,
+          "text": "现在保持 blob 字节完全不变，只把 Index 中的路径从 app.js 改成 src/app.js"
+        },
+        {
+          "from": 7.791,
+          "to": 12.244,
+          "text": "再次 write-tree 后，blob OID 仍然相同，根 tree OID 却已经改变"
+        },
+        {
+          "from": 13.042,
+          "to": 17.427,
+          "text": "变化来自名称和目录结构进入了 tree 对象，而不是 Git 复制了一份文件内容"
+        },
+        {
+          "from": 18.211,
+          "to": 22.665,
+          "text": "比较前后两枚完整 tree ID，可以把内容身份与快照布局清楚分开"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Index 排列内容，Tree 固化快照",
+      "start": 121,
+      "duration": 31,
+      "goal": "收束 Index 到 tree 的因果链",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "Index 排列内容，Tree 固化快照",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 Index 到 tree 的因果链",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 121.35,
+        "text": "从 blob 到 snapshot，中间关键的一层是 Index：它准备路径、模式和对象引用。<#0.45#>\nwrite-tree 读取这份状态，递归写出 tree，并返回可以被 commit 引用的根 OID。<#0.45#>\n文件改名可能不改变 blob，却一定可能改变连接它的 tree。<#0.45#>\n理解这条因果链后，commit 保存 snapshot 而不是保存 diff 的说法就有了可验证基础。<#0.45#>\n反过来，相同根 tree OID 则意味着递归目录结构和引用内容都一致。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.726,
+          "text": "从 blob 到 snapshot，中间关键的一层是 Index：它准备路径、模式和对象引用"
+        },
+        {
+          "from": 7.422,
+          "to": 13.355,
+          "text": "write-tree 读取这份状态，递归写出 tree，并返回可以被 commit 引用的根 OID"
+        },
+        {
+          "from": 14.032,
+          "to": 17.469,
+          "text": "文件改名可能不改变 blob，却一定可能改变连接它的 tree"
+        },
+        {
+          "from": 18.278,
+          "to": 24.401,
+          "text": "理解这条因果链后，commit 保存 snapshot 而不是保存 diff 的说法就有了可验证基础"
+        },
+        {
+          "from": 25.13,
+          "to": 29.451,
+          "text": "反过来，相同根 tree OID 则意味着递归目录结构和引用内容都一致"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP51-TREES-AND-SNAPSHOTS：Tree 怎样组成一张项目快照\n",
+    "scriptMarkdown": "# EP51-TREES-AND-SNAPSHOTS 当前脚本\n",
+    "beatsMarkdown": "# EP51-TREES-AND-SNAPSHOTS Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP51-TREES-AND-SNAPSHOTS 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP51-TREES-AND-SNAPSHOTS 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP51-TREES-AND-SNAPSHOTS B 站发布物料\n\n## 标题\n\nGit Tree 怎样把 Blob 组成一张项目快照？\n\n## 简介\n\n用临时 Index、write-tree 与 ls-tree 构造并验证递归项目快照。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-update-index)\n- [Git 官方文档](https://git-scm.com/docs/git-write-tree)\n- [Git 官方文档](https://git-scm.com/docs/git-ls-tree)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Tree\n快照\n```\n",
+    "coverBriefMarkdown": "# EP51-TREES-AND-SNAPSHOTS 封面 Brief\n\n根 tree 连接子 tree 与 blob，路径改名只改变 tree 关系。\n",
+    "checklistMarkdown": "# EP51-TREES-AND-SNAPSHOTS 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

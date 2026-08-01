@@ -1,0 +1,332 @@
+{
+  "episodeId": "ep56-transfer-protocols",
+  "title": "两个仓库怎样交换 Git 对象",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 162,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/protocol-v2",
+      "https://git-scm.com/docs/gitprotocol-pack",
+      "https://git-scm.com/docs/git-fetch",
+      "https://git-scm.com/docs/git-push"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Fetch 只是下载一个仓库压缩包吗",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出协商、pack 与 ref 更新阶段",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Fetch 只是下载一个仓库压缩包吗",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出协商、pack 与 ref 更新阶段",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "当 client 执行 fetch 时，服务器是不是直接把整个 repository 打成压缩包发过来？<#0.45#>\n真实协议会先公布能力和 refs，再根据 want 与 have 协商缺失对象，最后传输 pack。<#0.45#>\n对象到达后，本地目标 refs 才按规则更新；push 又会把更新请求交给服务端判断。<#0.45#>\n我们可以保留完整 packet trace，再只提取当前阶段需要的证据。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.369,
+          "text": "当 client 执行 fetch 时，服务器是不是直接把整个 repository 打成压缩包发过来？"
+        },
+        {
+          "from": 6.085,
+          "to": 11.986,
+          "text": "真实协议会先公布能力和 refs，再根据 want 与 have 协商缺失对象，最后传输 pack"
+        },
+        {
+          "from": 12.613,
+          "to": 18.452,
+          "text": "对象到达后，本地目标 refs 才按规则更新；push 又会把更新请求交给服务端判断"
+        },
+        {
+          "from": 19.253,
+          "to": 22.65,
+          "text": "我们可以保留完整 packet trace，再只提取当前阶段需要的证据"
+        }
+      ]
+    },
+    {
+      "id": "protocol-model",
+      "title": "Advertisement、Negotiation、Pack、Ref Update",
+      "start": 24,
+      "duration": 28,
+      "goal": "建立传输阶段模型",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "Advertisement、Negotiation、Pack、Ref Update",
+          "motion": "单次因果揭示后稳定",
+          "state": "protocol-model",
+          "narration": "建立传输阶段模型",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_protocol_model",
+        "voiceStart": 24.35,
+        "text": "fetch 的第一步是发现服务能力与可见 refs，protocol v2 中可以看到 version、capability 和 ls-refs。<#0.45#>\n随后客户端提交 want 与已有 have，服务器通过 ACK 帮助确定对象边界。<#0.45#>\npack 承载缺失对象，传输成功后本地 ref 更新才能把新历史暴露给日常命令。<#0.45#>\ntransport 解决如何连接，pack protocol 解决怎样交换 Git 数据，两层不应混成一个概念。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.649,
+          "text": "fetch 的第一步是发现服务能力与可见 refs，protocol v2 中可以看到 version、capability 和 ls-refs"
+        },
+        {
+          "from": 8.301,
+          "to": 13.46,
+          "text": "随后客户端提交 want 与已有 have，服务器通过 ACK 帮助确定对象边界"
+        },
+        {
+          "from": 14.155,
+          "to": 19.738,
+          "text": "pack 承载缺失对象，传输成功后本地 ref 更新才能把新历史暴露给日常命令"
+        },
+        {
+          "from": 20.378,
+          "to": 26.568,
+          "text": "transport 解决如何连接，pack protocol 解决怎样交换 Git 数据，两层不应混成一个概念"
+        }
+      ]
+    },
+    {
+      "id": "fetch-trace",
+      "title": "Protocol V2 Fetch 留下真实 Packet 证据",
+      "start": 52,
+      "duration": 28.5,
+      "goal": "录制 capability、ls-refs 与 fetch 请求",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "Protocol V2 Fetch 留下真实 Packet 证据",
+          "motion": "单次因果揭示后稳定",
+          "state": "fetch-trace",
+          "narration": "录制 capability、ls-refs 与 fetch 请求",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_fetch_trace",
+        "voiceStart": 52.35,
+        "text": "准备一份比 bare remote 少一条 commit 的 client，再开启 GIT_TRACE_PACKET 执行 protocol v2 fetch。<#0.45#>\n原始日志完整保留在录制环境，画面只筛选 version、ls-refs、fetch 和 want 等关键行。<#0.45#>\n这些 packet 必须来自同一次真实命令，不能在 React 中手写一段看似合理的协议文本。<#0.45#>\n把请求与两端完整 OID 对照，才能确认 client 想要的确实是缺失的远端 tip。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.842,
+          "text": "准备一份比 bare remote 少一条 commit 的 client，再开启 GIT_TRACE_PACKET 执行 protocol v2 fetch"
+        },
+        {
+          "from": 7.589,
+          "to": 14.273,
+          "text": "原始日志完整保留在录制环境，画面只筛选 version、ls-refs、fetch 和 want 等关键行"
+        },
+        {
+          "from": 15.071,
+          "to": 20.526,
+          "text": "这些 packet 必须来自同一次真实命令，不能在 React 中手写一段看似合理的协议文本"
+        },
+        {
+          "from": 21.202,
+          "to": 26.955,
+          "text": "把请求与两端完整 OID 对照，才能确认 client 想要的确实是缺失的远端 tip"
+        }
+      ]
+    },
+    {
+      "id": "fetch-result",
+      "title": "对象到达后才更新本地目标 Ref",
+      "start": 80.5,
+      "duration": 25.5,
+      "goal": "核对传输前后对象与 refs",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "对象到达后才更新本地目标 Ref",
+          "motion": "单次因果揭示后稳定",
+          "state": "fetch-result",
+          "narration": "核对传输前后对象与 refs",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_fetch_result",
+        "voiceStart": 80.85,
+        "text": "fetch 前，client 的对象库无法解析远端新 commit，本地 origin/main 也停在旧值。<#0.45#>\n命令完成后，cat-file 可以读取新对象，origin/main 才移动到远端公布的完整 OID。<#0.45#>\nWorking Tree、Index 和本地 main 不会因为这次 fetch 自动合并到新状态。<#0.45#>\n因此对象传输与目标 ref 更新有关联，却仍与工作区整合保持边界。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.15,
+          "text": "fetch 前，client 的对象库无法解析远端新 commit，本地 origin/main 也停在旧值"
+        },
+        {
+          "from": 6.837,
+          "to": 13.045,
+          "text": "命令完成后，cat-file 可以读取新对象，origin/main 才移动到远端公布的完整 OID"
+        },
+        {
+          "from": 13.727,
+          "to": 18.476,
+          "text": "Working Tree、Index 和本地 main 不会因为这次 fetch 自动合并到新状态"
+        },
+        {
+          "from": 19.172,
+          "to": 23.986,
+          "text": "因此对象传输与目标 ref 更新有关联，却仍与工作区整合保持边界"
+        }
+      ]
+    },
+    {
+      "id": "push-trace",
+      "title": "Push 发送更新请求，再由服务端决定",
+      "start": 106,
+      "duration": 26.5,
+      "goal": "录制 push packet 与服务端 ref 更新",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "Push 发送更新请求，再由服务端决定",
+          "motion": "单次因果揭示后稳定",
+          "state": "push-trace",
+          "narration": "录制 push packet 与服务端 ref 更新",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_push_trace",
+        "voiceStart": 106.35,
+        "text": "接着在 client 创建一条新 commit，并开启 packet trace 推送 main。<#0.45#>\npush 会提交旧 OID、新 OID 与目标 ref 的更新请求，并发送服务端缺少的对象。<#0.45#>\n服务端验证完成后才移动 refs/heads/main，并返回 status report。<#0.45#>\n这段流程不能伪装成 protocol v2 的 fetch command；push 需要按 receive-pack 的实际证据解释。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.784,
+          "text": "接着在 client 创建一条新 commit，并开启 packet trace 推送 main"
+        },
+        {
+          "from": 6.423,
+          "to": 12.545,
+          "text": "push 会提交旧 OID、新 OID 与目标 ref 的更新请求，并发送服务端缺少的对象"
+        },
+        {
+          "from": 13.366,
+          "to": 18.356,
+          "text": "服务端验证完成后才移动 refs/heads/main，并返回 status report"
+        },
+        {
+          "from": 18.99,
+          "to": 24.724,
+          "text": "这段流程不能伪装成 protocol v2 的 fetch command；push 需要按 receive-pack 的实际证据解释"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "协议交换对象与 Ref，不传本地现场",
+      "start": 132.5,
+      "duration": 29.5,
+      "goal": "收束 fetch、push 与 transport 边界",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "协议交换对象与 Ref，不传本地现场",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 fetch、push 与 transport 边界",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 132.85,
+        "text": "两个仓库同步时，真正交换的是缺失对象、能力信息与受约束的 ref 更新。<#0.45#>\nWorking Tree、Index、hooks、credential 和任意本地配置不会作为 repository 内容被一起传输。<#0.45#>\nfetch 先协商并接收，再更新本地目标 ref；push 则把更新请求交给服务端裁决。<#0.45#>\n下一步再比较 SSH、HTTP 与 Git protocol 时，就可以只关注它们如何提供这套服务。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.164,
+          "text": "两个仓库同步时，真正交换的是缺失对象、能力信息与受约束的 ref 更新"
+        },
+        {
+          "from": 7.024,
+          "to": 13.614,
+          "text": "Working Tree、Index、hooks、credential 和任意本地配置不会作为 repository 内容被一起传输"
+        },
+        {
+          "from": 14.255,
+          "to": 20.757,
+          "text": "fetch 先协商并接收，再更新本地目标 ref；push 则把更新请求交给服务端裁决"
+        },
+        {
+          "from": 21.475,
+          "to": 28.03,
+          "text": "下一步再比较 SSH、HTTP 与 Git protocol 时，就可以只关注它们如何提供这套服务"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP56-TRANSFER-PROTOCOLS：两个仓库怎样交换 Git 对象\n",
+    "scriptMarkdown": "# EP56-TRANSFER-PROTOCOLS 当前脚本\n",
+    "beatsMarkdown": "# EP56-TRANSFER-PROTOCOLS Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP56-TRANSFER-PROTOCOLS 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP56-TRANSFER-PROTOCOLS 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP56-TRANSFER-PROTOCOLS B 站发布物料\n\n## 标题\n\nGit Fetch 和 Push 到底怎样交换对象？从协商到 Pack 传输\n\n## 简介\n\n用真实 packet trace 观察 ref advertisement、want/have、pack 与 ref update。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/protocol-v2)\n- [Git 官方文档](https://git-scm.com/docs/gitprotocol-pack)\n- [Git 官方文档](https://git-scm.com/docs/git-fetch)\n- [Git 官方文档](https://git-scm.com/docs/git-push)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Protocol\nGit Fetch\n```\n",
+    "coverBriefMarkdown": "# EP56-TRANSFER-PROTOCOLS 封面 Brief\n\nclient 与 remote 之间依次经过 advertise、negotiate、pack 和 ref update。\n",
+    "checklistMarkdown": "# EP56-TRANSFER-PROTOCOLS 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

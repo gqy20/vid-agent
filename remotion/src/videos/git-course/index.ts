@@ -70,6 +70,14 @@ import {EP45_DURATION_IN_FRAMES, Ep45GitBundle} from './episodes/Ep45GitBundle';
 import {EP46_DURATION_IN_FRAMES, Ep46SparsePartialAndShallowClones} from './episodes/Ep46SparsePartialAndShallowClones';
 import {EP47_DURATION_IN_FRAMES, Ep47CleanAndDestructiveBoundaries} from './episodes/Ep47CleanAndDestructiveBoundaries';
 import {EP48_DURATION_IN_FRAMES, Ep48MaintenanceAndDataRecovery} from './episodes/Ep48MaintenanceAndDataRecovery';
+import {EP49_DURATION_IN_FRAMES, Ep49PlumbingAndPorcelain} from './episodes/Ep49PlumbingAndPorcelain';
+import {EP50_DURATION_IN_FRAMES, Ep50BlobObjectDatabase} from './episodes/Ep50BlobObjectDatabase';
+import {EP51_DURATION_IN_FRAMES, Ep51TreesAndSnapshots} from './episodes/Ep51TreesAndSnapshots';
+import {EP52_DURATION_IN_FRAMES, Ep52CommitAndTagObjects} from './episodes/Ep52CommitAndTagObjects';
+import {EP53_DURATION_IN_FRAMES, Ep53RefsHeadAndPackedRefs} from './episodes/Ep53RefsHeadAndPackedRefs';
+import {EP54_DURATION_IN_FRAMES, Ep54Refspecs} from './episodes/Ep54Refspecs';
+import {EP55_DURATION_IN_FRAMES, Ep55PackfilesAndDeltas} from './episodes/Ep55PackfilesAndDeltas';
+import {EP56_DURATION_IN_FRAMES, Ep56TransferProtocols} from './episodes/Ep56TransferProtocols';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -316,6 +324,14 @@ export const registration: VideoRegistration = {
     {id:'GitCourseEp46SparsePartialAndShallowClones',component:Ep46SparsePartialAndShallowClones,durationInFrames:EP46_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp47CleanAndDestructiveBoundaries',component:Ep47CleanAndDestructiveBoundaries,durationInFrames:EP47_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp48MaintenanceAndDataRecovery',component:Ep48MaintenanceAndDataRecovery,durationInFrames:EP48_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp49PlumbingAndPorcelain',component:Ep49PlumbingAndPorcelain,durationInFrames:EP49_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp50BlobObjectDatabase',component:Ep50BlobObjectDatabase,durationInFrames:EP50_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp51TreesAndSnapshots',component:Ep51TreesAndSnapshots,durationInFrames:EP51_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp52CommitAndTagObjects',component:Ep52CommitAndTagObjects,durationInFrames:EP52_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp53RefsHeadAndPackedRefs',component:Ep53RefsHeadAndPackedRefs,durationInFrames:EP53_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp54Refspecs',component:Ep54Refspecs,durationInFrames:EP54_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp55PackfilesAndDeltas',component:Ep55PackfilesAndDeltas,durationInFrames:EP55_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp56TransferProtocols',component:Ep56TransferProtocols,durationInFrames:EP56_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {
       id: 'GitCourseComponentLab',
       component: ComponentLab,

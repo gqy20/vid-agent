@@ -1,0 +1,332 @@
+{
+  "episodeId": "ep52-commit-and-tag-objects",
+  "title": "Commit 与 Tag 对象分别保存什么",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 152.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-commit-tree",
+      "https://git-scm.com/docs/git-cat-file",
+      "https://git-scm.com/docs/git-tag",
+      "https://git-scm.com/docs/gitrevisions"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Commit 保存的是 Diff 吗",
+      "start": 0,
+      "duration": 26,
+      "goal": "提出 commit 的对象内容问题",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Commit 保存的是 Diff 吗",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出 commit 的对象内容问题",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "日常界面经常把一条 commit 展示成修改内容，因此很容易认为 commit 内部保存了一份 diff。<#0.45#>\n但如果直接读取对象，会看到 tree、parent、身份、时间和 message，而不是补丁正文。<#0.45#>\nannotated tag 又会创建另一种对象，它指向目标并保存 tagger 与说明。<#0.45#>\n我们可以固定所有输入，逐个构造这些对象，再观察每条引用到底连接到哪里。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.585,
+          "text": "日常界面经常把一条 commit 展示成修改内容，因此很容易认为 commit 内部保存了一份 diff"
+        },
+        {
+          "from": 6.301,
+          "to": 12.886,
+          "text": "但如果直接读取对象，会看到 tree、parent、身份、时间和 message，而不是补丁正文"
+        },
+        {
+          "from": 13.53,
+          "to": 18.669,
+          "text": "annotated tag 又会创建另一种对象，它指向目标并保存 tagger 与说明"
+        },
+        {
+          "from": 19.531,
+          "to": 24.471,
+          "text": "我们可以固定所有输入，逐个构造这些对象，再观察每条引用到底连接到哪里"
+        }
+      ]
+    },
+    {
+      "id": "object-model",
+      "title": "Commit 指向 Snapshot，Tag 指向目标对象",
+      "start": 26,
+      "duration": 26.5,
+      "goal": "建立 commit 与 tag 对象图",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "Commit 指向 Snapshot，Tag 指向目标对象",
+          "motion": "单次因果揭示后稳定",
+          "state": "object-model",
+          "narration": "建立 commit 与 tag 对象图",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_object_model",
+        "voiceStart": 26.35,
+        "text": "commit 的 tree 指向项目快照，parent 把多条 commit 组织成历史图。<#0.45#>\nauthor 与 committer 可以不同，时间和 message 也参与对象内容，因此都会影响 OID。<#0.45#>\nannotated tag 保存 target OID、target type、tag 名、tagger 与 message。<#0.45#>\n它能指向 commit 等对象，但签名只是可选字段，不能把附注标签自动理解成可信签名。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.393,
+          "text": "commit 的 tree 指向项目快照，parent 把多条 commit 组织成历史图"
+        },
+        {
+          "from": 6.019,
+          "to": 11.986,
+          "text": "author 与 committer 可以不同，时间和 message 也参与对象内容，因此都会影响 OID"
+        },
+        {
+          "from": 12.612,
+          "to": 17.76,
+          "text": "annotated tag 保存 target OID、target type、tag 名、tagger 与 message"
+        },
+        {
+          "from": 18.413,
+          "to": 25.077,
+          "text": "它能指向 commit 等对象，但签名只是可选字段，不能把附注标签自动理解成可信签名"
+        }
+      ]
+    },
+    {
+      "id": "first-commit",
+      "title": "Commit-tree 只写对象，不移动 Branch",
+      "start": 52.5,
+      "duration": 23.5,
+      "goal": "从根 tree 创建首枚 commit",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "Commit-tree 只写对象，不移动 Branch",
+          "motion": "单次因果揭示后稳定",
+          "state": "first-commit",
+          "narration": "从根 tree 创建首枚 commit",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_first_commit",
+        "voiceStart": 52.85,
+        "text": "先把上一集得到的根 tree 交给 commit-tree，并固定实验身份与时间。<#0.45#>\n命令返回一枚新的 commit OID，但 show-ref 仍不会出现新的 branch。<#0.45#>\ncat-file 展示 tree、author、committer 和 message，也能确认这枚根 commit 没有 parent。<#0.45#>\n所以写入 commit 对象与让某个名字指向它，必须作为两个独立动作理解。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.252,
+          "text": "先把上一集得到的根 tree 交给 commit-tree，并固定实验身份与时间"
+        },
+        {
+          "from": 5.026,
+          "to": 9.231,
+          "text": "命令返回一枚新的 commit OID，但 show-ref 仍不会出现新的 branch"
+        },
+        {
+          "from": 10.041,
+          "to": 16.275,
+          "text": "cat-file 展示 tree、author、committer 和 message，也能确认这枚根 commit 没有 parent"
+        },
+        {
+          "from": 16.958,
+          "to": 21.917,
+          "text": "所以写入 commit 对象与让某个名字指向它，必须作为两个独立动作理解"
+        }
+      ]
+    },
+    {
+      "id": "parent-commit",
+      "title": "Parent 建立历史，不代表保存 Diff",
+      "start": 76,
+      "duration": 25,
+      "goal": "创建带 parent 的第二枚 commit",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "Parent 建立历史，不代表保存 Diff",
+          "motion": "单次因果揭示后稳定",
+          "state": "parent-commit",
+          "narration": "创建带 parent 的第二枚 commit",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_parent_commit",
+        "voiceStart": 76.35,
+        "text": "第二次 commit-tree 仍用同一 tree，并通过 -p 明确指定上一枚 commit 为 parent。<#0.45#>\ncat-file 现在多出 parent 行，历史关系由这条对象引用建立。<#0.45#>\ndiff-tree 可以计算两张 snapshot 的差异，但计算结果并不是 commit 对象内部保存的正文。<#0.45#>\n把对象内容与派生比较分开，才能解释为何相同 tree 仍可能产生不同 commit。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.16,
+          "text": "第二次 commit-tree 仍用同一 tree，并通过 -p 明确指定上一枚 commit 为 parent"
+        },
+        {
+          "from": 6.787,
+          "to": 12.164,
+          "text": "cat-file 现在多出 parent 行，历史关系由这条对象引用建立"
+        },
+        {
+          "from": 12.825,
+          "to": 17.663,
+          "text": "diff-tree 可以计算两张 snapshot 的差异，但计算结果并不是 commit 对象内部保存的正文"
+        },
+        {
+          "from": 18.372,
+          "to": 23.774,
+          "text": "把对象内容与派生比较分开，才能解释为何相同 tree 仍可能产生不同 commit"
+        }
+      ]
+    },
+    {
+      "id": "annotated-tag",
+      "title": "Annotated Tag 拥有自己的对象 ID",
+      "start": 101,
+      "duration": 26.5,
+      "goal": "创建 tag object 并比较 peeled target",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "Annotated Tag 拥有自己的对象 ID",
+          "motion": "单次因果揭示后稳定",
+          "state": "annotated-tag",
+          "narration": "创建 tag object 并比较 peeled target",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_annotated_tag",
+        "voiceStart": 101.35,
+        "text": "接着为第二枚 commit 创建 annotated tag，并分别查询标签名称与 peeled target。<#0.45#>\n普通 rev-parse 返回 tag object 的 OID，加上 peel 语法后才得到目标 commit OID。<#0.45#>\ncat-file 还能看到 object、type、tag、tagger 和 message 这些独立字段。<#0.45#>\n此时 commit 已经可以从 tag 到达，但还没有 branch 指向它，这个状态会交给下一集继续。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.557,
+          "text": "接着为第二枚 commit 创建 annotated tag，并分别查询标签名称与 peeled target"
+        },
+        {
+          "from": 7.372,
+          "to": 12.545,
+          "text": "普通 rev-parse 返回 tag object 的 OID，加上 peel 语法后才得到目标 commit OID"
+        },
+        {
+          "from": 13.27,
+          "to": 18.425,
+          "text": "cat-file 还能看到 object、type、tag、tagger 和 message 这些独立字段"
+        },
+        {
+          "from": 19.078,
+          "to": 25.075,
+          "text": "此时 commit 已经可以从 tag 到达，但还没有 branch 指向它，这个状态会交给下一集继续"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "对象关系比界面标签更准确",
+      "start": 127.5,
+      "duration": 25,
+      "goal": "收束 tree、parent、tag target",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "对象关系比界面标签更准确",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 tree、parent、tag target",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 127.85,
+        "text": "判断 commit 保存什么时，先看它引用的根 tree、parent 与元数据，而不是界面生成的 diff。<#0.45#>\n判断 tag 时，则先区分 lightweight ref 与拥有独立对象的 annotated tag。<#0.45#>\ncommit-tree 和 tag 都可以写对象或引用，但不会替我们建立预期的 branch 工作流。<#0.45#>\n沿完整 OID 检查每条边，能让 snapshot、历史和命名三层保持清楚。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.483,
+          "text": "判断 commit 保存什么时，先看它引用的根 tree、parent 与元数据，而不是界面生成的 diff"
+        },
+        {
+          "from": 7.225,
+          "to": 11.908,
+          "text": "判断 tag 时，则先区分 lightweight ref 与拥有独立对象的 annotated tag"
+        },
+        {
+          "from": 12.55,
+          "to": 17.066,
+          "text": "commit-tree 和 tag 都可以写对象或引用，但不会替我们建立预期的 branch 工作流"
+        },
+        {
+          "from": 17.92,
+          "to": 23.571,
+          "text": "沿完整 OID 检查每条边，能让 snapshot、历史和命名三层保持清楚"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS：Commit 与 Tag 对象分别保存什么\n",
+    "scriptMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS 当前脚本\n",
+    "beatsMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS B 站发布物料\n\n## 标题\n\nGit Commit 真的保存 Diff 吗？Tag Object 又保存什么\n\n## 简介\n\n用 commit-tree 与 annotated tag 直接读取 tree、parent、target 和元数据。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-commit-tree)\n- [Git 官方文档](https://git-scm.com/docs/git-cat-file)\n- [Git 官方文档](https://git-scm.com/docs/git-tag)\n- [Git 官方文档](https://git-scm.com/docs/gitrevisions)\n\n## 标签\n\n```text\nGit\nGit教程\nCommit Object\nGit Tag\n```\n",
+    "coverBriefMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS 封面 Brief\n\ncommit 指向 tree 与 parent，annotated tag 单独指向目标 commit。\n",
+    "checklistMarkdown": "# EP52-COMMIT-AND-TAG-OBJECTS 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

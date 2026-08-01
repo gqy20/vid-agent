@@ -1,0 +1,342 @@
+{
+  "episodeId": "ep53-refs-head-and-packed-refs",
+  "title": "Git 的名字怎样落到对象上",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 151,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-update-ref",
+      "https://git-scm.com/docs/git-symbolic-ref",
+      "https://git-scm.com/docs/git-pack-refs",
+      "https://git-scm.com/docs/git-show-ref"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Branch、HEAD 与 Tag 是同一种东西吗",
+      "start": 0,
+      "duration": 26.5,
+      "goal": "提出对象与名称存储的区别",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Branch、HEAD 与 Tag 是同一种东西吗",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "提出对象与名称存储的区别",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "同一枚 commit 可以同时被 branch、tag 和 HEAD 找到，但这三个名字保存的关系并不相同。<#0.45#>\nbranch 通常是可移动的直接 ref，HEAD 常常是指向 branch 名称的 symbolic ref。<#0.45#>\nannotated tag 的 ref 先指向 tag object，lightweight tag 才通常直接指向目标对象。<#0.45#>\n我们可以从一枚尚无 branch 的 commit 开始，逐步建立这些名字并检查底层表示。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.327,
+          "text": "同一枚 commit 可以同时被 branch、tag 和 HEAD 找到，但这三个名字保存的关系并不相同"
+        },
+        {
+          "from": 6.976,
+          "to": 13.352,
+          "text": "branch 通常是可移动的直接 ref，HEAD 常常是指向 branch 名称的 symbolic ref"
+        },
+        {
+          "from": 14.118,
+          "to": 19.351,
+          "text": "annotated tag 的 ref 先指向 tag object，lightweight tag 才通常直接指向目标对象"
+        },
+        {
+          "from": 20.101,
+          "to": 24.977,
+          "text": "我们可以从一枚尚无 branch 的 commit 开始，逐步建立这些名字并检查底层表示"
+        }
+      ]
+    },
+    {
+      "id": "ref-model",
+      "title": "对象稳定，Refs 提供可移动名称",
+      "start": 26.5,
+      "duration": 25,
+      "goal": "建立 direct ref、symbolic ref 与对象关系",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "对象稳定，Refs 提供可移动名称",
+          "motion": "单次因果揭示后稳定",
+          "state": "ref-model",
+          "narration": "建立 direct ref、symbolic ref 与对象关系",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_ref_model",
+        "voiceStart": 26.85,
+        "text": "对象由内容决定，一旦写入就不会在原地修改；ref 则是可以更新的名称。<#0.45#>\nsymbolic HEAD 通常保存 refs/heads 下的 branch 名，再由 branch 找到 commit。<#0.45#>\ndetached HEAD 是另一种状态，此时 HEAD 才直接保存对象 ID。<#0.45#>\n把名字层与对象层分开，就不会把切换 HEAD 误认为 commit 对象本身发生了变化。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.286,
+          "text": "对象由内容决定，一旦写入就不会在原地修改；ref 则是可以更新的名称"
+        },
+        {
+          "from": 5.999,
+          "to": 11.203,
+          "text": "symbolic HEAD 通常保存 refs/heads 下的 branch 名，再由 branch 找到 commit"
+        },
+        {
+          "from": 11.989,
+          "to": 17.146,
+          "text": "detached HEAD 是另一种状态，此时 HEAD 才直接保存对象 ID"
+        },
+        {
+          "from": 17.916,
+          "to": 23.536,
+          "text": "把名字层与对象层分开，就不会把切换 HEAD 误认为 commit 对象本身发生了变化"
+        }
+      ]
+    },
+    {
+      "id": "create-branch",
+      "title": "Update-ref 原子创建 Branch",
+      "start": 51.5,
+      "duration": 23.5,
+      "goal": "从无 branch 状态创建 model ref",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "Update-ref 原子创建 Branch",
+          "motion": "单次因果揭示后稳定",
+          "state": "create-branch",
+          "narration": "从无 branch 状态创建 model ref",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_create_branch",
+        "voiceStart": 51.85,
+        "text": "先用 show-ref 确认目标 commit 只能从 annotated tag 到达，对应 branch 还不存在。<#0.45#>\nupdate-ref 提供新 OID 和期望旧值，可以在确认名称不存在时原子创建 refs/heads/model。<#0.45#>\n再次解析 branch，会得到与目标 commit 完全相同的对象 ID。<#0.45#>\n这里没有复制历史，只是新增了一条可移动的命名入口。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.814,
+          "text": "先用 show-ref 确认目标 commit 只能从 annotated tag 到达，对应 branch 还不存在"
+        },
+        {
+          "from": 6.521,
+          "to": 14.215,
+          "text": "update-ref 提供新 OID 和期望旧值，可以在确认名称不存在时原子创建 refs/heads/model"
+        },
+        {
+          "from": 14.929,
+          "to": 18.314,
+          "text": "再次解析 branch，会得到与目标 commit 完全相同的对象 ID"
+        },
+        {
+          "from": 18.98,
+          "to": 21.925,
+          "text": "这里没有复制历史，只是新增了一条可移动的命名入口"
+        }
+      ]
+    },
+    {
+      "id": "head-and-guard",
+      "title": "Symbolic HEAD 与旧值保护是两件事",
+      "start": 75,
+      "duration": 24,
+      "goal": "设置 HEAD 并演示 guarded update 拒绝",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "Symbolic HEAD 与旧值保护是两件事",
+          "motion": "单次因果揭示后稳定",
+          "state": "head-and-guard",
+          "narration": "设置 HEAD 并演示 guarded update 拒绝",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_head_and_guard",
+        "voiceStart": 75.35,
+        "text": "symbolic-ref 可以让 HEAD 指向新建的 model branch，读取时会返回完整 ref 名。<#0.45#>\n随后故意给 update-ref 一个错误的期望旧值，Git 会拒绝这次更新。<#0.45#>\n这个保护检查的是名称当前指向，避免并发变化被无条件覆盖。<#0.45#>\n它与 HEAD 是否 symbolic 没有混为一件事，两种机制解决的是不同问题。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.123,
+          "text": "symbolic-ref 可以让 HEAD 指向新建的 model branch，读取时会返回完整 ref 名"
+        },
+        {
+          "from": 7.763,
+          "to": 12.476,
+          "text": "随后故意给 update-ref 一个错误的期望旧值，Git 会拒绝这次更新"
+        },
+        {
+          "from": 13.121,
+          "to": 17.217,
+          "text": "这个保护检查的是名称当前指向，避免并发变化被无条件覆盖"
+        },
+        {
+          "from": 17.984,
+          "to": 22.622,
+          "text": "它与 HEAD 是否 symbolic 没有混为一件事，两种机制解决的是不同问题"
+        }
+      ]
+    },
+    {
+      "id": "pack-refs",
+      "title": "Packed-refs 改变存储，不改变逻辑名称",
+      "start": 99,
+      "duration": 23.5,
+      "goal": "比较 loose ref 与 packed refs",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "Packed-refs 改变存储，不改变逻辑名称",
+          "motion": "单次因果揭示后稳定",
+          "state": "pack-refs",
+          "narration": "比较 loose ref 与 packed refs",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_pack_refs",
+        "voiceStart": 99.35,
+        "text": "创建 lightweight tag 后，可以比较它与 annotated tag 在 show-ref --dereference 中的结果。<#0.45#>\n运行 pack-refs 会把适合的 refs 收进 packed-refs，原来的 loose 文件可能消失。<#0.45#>\n但 rev-parse 和 show-ref 仍按同一逻辑名称解析，调用方不需要猜测存储位置。<#0.45#>\npacked-refs 只压缩名称记录，和后面保存 Git 对象的 packfile 不是同一种结构。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.753,
+          "text": "创建 lightweight tag 后，可以比较它与 annotated tag 在 show-ref --dereference 中的结果"
+        },
+        {
+          "from": 6.483,
+          "to": 10.42,
+          "text": "运行 pack-refs 会把适合的 refs 收进 packed-refs，原来的 loose 文件可能消失"
+        },
+        {
+          "from": 11.12,
+          "to": 16.411,
+          "text": "但 rev-parse 和 show-ref 仍按同一逻辑名称解析，调用方不需要猜测存储位置"
+        },
+        {
+          "from": 17.217,
+          "to": 21.902,
+          "text": "packed-refs 只压缩名称记录，和后面保存 Git 对象的 packfile 不是同一种结构"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先解析名字，再追踪对象",
+      "start": 122.5,
+      "duration": 28.5,
+      "goal": "收束 ref、HEAD、tag 和存储优化",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "先解析名字，再追踪对象",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束 ref、HEAD、tag 和存储优化",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 122.85,
+        "text": "面对一个 Git 名称，可以先问它是 direct ref、<#0.25#>symbolic ref，<#0.25#>还是指向 tag object 的 ref。<#0.45#>\n再用 Git 命令解析目标，而不是直接假设它一定来自某个 loose 文件。<#0.45#>\nupdate-ref 的旧值检查帮助我们安全移动名字，pack-refs 只改变底层表示。<#0.45#>\n对象、名称和存储优化各自独立，组合起来才形成日常看到的 branch、HEAD 与 tag。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.564,
+          "text": "面对一个 Git 名称，可以先问它是 direct ref、"
+        },
+        {
+          "from": 4.04,
+          "to": 4.989,
+          "text": "symbolic ref，"
+        },
+        {
+          "from": 5.499,
+          "to": 7.789,
+          "text": "还是指向 tag object 的 ref"
+        },
+        {
+          "from": 8.487,
+          "to": 12.819,
+          "text": "再用 Git 命令解析目标，而不是直接假设它一定来自某个 loose 文件"
+        },
+        {
+          "from": 13.525,
+          "to": 20.39,
+          "text": "update-ref 的旧值检查帮助我们安全移动名字，pack-refs 只改变底层表示"
+        },
+        {
+          "from": 21.05,
+          "to": 26.88,
+          "text": "对象、名称和存储优化各自独立，组合起来才形成日常看到的 branch、HEAD 与 tag"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS：Git 的名字怎样落到对象上\n",
+    "scriptMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS 当前脚本\n",
+    "beatsMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS B 站发布物料\n\n## 标题\n\nGit Branch、HEAD 和 Tag 在磁盘上是什么关系？\n\n## 简介\n\n用 update-ref、symbolic-ref 与 pack-refs 拆开对象、名字和存储表示。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-update-ref)\n- [Git 官方文档](https://git-scm.com/docs/git-symbolic-ref)\n- [Git 官方文档](https://git-scm.com/docs/git-pack-refs)\n- [Git 官方文档](https://git-scm.com/docs/git-show-ref)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Refs\nHEAD\n```\n",
+    "coverBriefMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS 封面 Brief\n\nsymbolic HEAD 指向 branch，branch 与 tag 再落到不同对象目标。\n",
+    "checklistMarkdown": "# EP53-REFS-HEAD-AND-PACKED-REFS 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}

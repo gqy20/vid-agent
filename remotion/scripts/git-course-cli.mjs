@@ -289,6 +289,14 @@ const getComposition = (episode) => {
     'ep46-sparse-partial-and-shallow-clones': 'GitCourseEp46SparsePartialAndShallowClones',
     'ep47-clean-and-destructive-boundaries': 'GitCourseEp47CleanAndDestructiveBoundaries',
     'ep48-maintenance-and-data-recovery': 'GitCourseEp48MaintenanceAndDataRecovery',
+    'ep49-plumbing-and-porcelain': 'GitCourseEp49PlumbingAndPorcelain',
+    'ep50-blob-object-database': 'GitCourseEp50BlobObjectDatabase',
+    'ep51-trees-and-snapshots': 'GitCourseEp51TreesAndSnapshots',
+    'ep52-commit-and-tag-objects': 'GitCourseEp52CommitAndTagObjects',
+    'ep53-refs-head-and-packed-refs': 'GitCourseEp53RefsHeadAndPackedRefs',
+    'ep54-refspecs': 'GitCourseEp54Refspecs',
+    'ep55-packfiles-and-deltas': 'GitCourseEp55PackfilesAndDeltas',
+    'ep56-transfer-protocols': 'GitCourseEp56TransferProtocols',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -342,6 +350,14 @@ const episodeSourceName = (episodeId) => ({
   'ep46-sparse-partial-and-shallow-clones': 'Ep46SparsePartialAndShallowClones.tsx',
   'ep47-clean-and-destructive-boundaries': 'Ep47CleanAndDestructiveBoundaries.tsx',
   'ep48-maintenance-and-data-recovery': 'Ep48MaintenanceAndDataRecovery.tsx',
+  'ep49-plumbing-and-porcelain': 'Ep49PlumbingAndPorcelain.tsx',
+  'ep50-blob-object-database': 'Ep50BlobObjectDatabase.tsx',
+  'ep51-trees-and-snapshots': 'Ep51TreesAndSnapshots.tsx',
+  'ep52-commit-and-tag-objects': 'Ep52CommitAndTagObjects.tsx',
+  'ep53-refs-head-and-packed-refs': 'Ep53RefsHeadAndPackedRefs.tsx',
+  'ep54-refspecs': 'Ep54Refspecs.tsx',
+  'ep55-packfiles-and-deltas': 'Ep55PackfilesAndDeltas.tsx',
+  'ep56-transfer-protocols': 'Ep56TransferProtocols.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {
@@ -407,8 +423,8 @@ const visualBaseHash = (ctx) => {
   const episodeSource = episodeSourceParts(ctx);
   const terminalAssets = walkFiles(join(REMOTION, 'public/git-course-lab/terminal'), (path) => path.includes(`/${episodeNumber}-`));
   const terminalSources = [
-    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/demos'), (path) => path.includes(`/${episodeNumber}-`) || path.endsWith('/_lib.sh')),
-    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/fixtures'), (path) => path.includes(`/${episodeNumber}-`)),
+    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/demos'), (path) => path.includes(`/${episodeNumber}-`) || path.endsWith('/_lib.sh') || (Number(episodeNumber.slice(2)) >= 49 && Number(episodeNumber.slice(2)) <= 56 && path.endsWith('/_ep49_56_demos.sh'))),
+    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/fixtures'), (path) => path.includes(`/${episodeNumber}-`) || (Number(episodeNumber.slice(2)) >= 49 && Number(episodeNumber.slice(2)) <= 56 && path.endsWith('/_ep49_56_workflows.sh'))),
     join(ROOT, 'scripts/terminal-recordings/record-asciinema.sh'),
     join(ROOT, 'scripts/terminal-recordings/build-metadata.mjs'),
   ].filter((path) => existsSync(path));

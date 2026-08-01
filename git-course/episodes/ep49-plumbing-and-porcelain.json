@@ -1,0 +1,336 @@
+{
+  "episodeId": "ep49-plumbing-and-porcelain",
+  "title": "上层命令与底层对象是什么关系",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 155,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/gitglossary",
+      "https://git-scm.com/docs/git",
+      "https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Git Commit 之后，仓库里究竟发生了什么",
+      "start": 0,
+      "duration": 23.5,
+      "goal": "从熟悉命令进入内部数据模型",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            47
+          ],
+          "visual": "Git Commit 之后，仓库里究竟发生了什么",
+          "motion": "单次因果揭示后稳定",
+          "state": "hook",
+          "narration": "从熟悉命令进入内部数据模型",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "我们运行 git add 和 git commit 时，Git 看起来只完成了一项用户任务。<#0.45#>\n但如果沿着 HEAD 向下追问，会依次遇到 branch ref、commit、tree 和 blob。<#0.45#>\n这些底层对象是否是另一套隐藏系统，还是同一个仓库状态的不同观察入口？<#0.45#>\n这一集不妨从一条真实提交开始，把上层操作和底层证据逐项对上。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.352,
+          "text": "我们运行 git add 和 git commit 时，Git 看起来只完成了一项用户任务"
+        },
+        {
+          "from": 6.107,
+          "to": 11.38,
+          "text": "但如果沿着 HEAD 向下追问，会依次遇到 branch ref、commit、tree 和 blob"
+        },
+        {
+          "from": 12.048,
+          "to": 16.762,
+          "text": "这些底层对象是否是另一套隐藏系统，还是同一个仓库状态的不同观察入口？"
+        },
+        {
+          "from": 17.416,
+          "to": 21.874,
+          "text": "这一集不妨从一条真实提交开始，把上层操作和底层证据逐项对上"
+        }
+      ]
+    },
+    {
+      "id": "shared-model",
+      "title": "Porcelain 与 Plumbing 观察同一仓库",
+      "start": 23.5,
+      "duration": 23,
+      "goal": "建立两层命令与同一数据模型的关系",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            50,
+            97
+          ],
+          "visual": "Porcelain 与 Plumbing 观察同一仓库",
+          "motion": "单次因果揭示后稳定",
+          "state": "shared-model",
+          "narration": "建立两层命令与同一数据模型的关系",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_shared_model",
+        "voiceStart": 23.85,
+        "text": "porcelain 面向提交、切换和同步这样的完整任务，plumbing 则直接查询对象、Index 与 refs。<#0.45#>\n两类命令的抽象层次不同，但它们读写的仍是同一个 repository。<#0.45#>\n这里需要避免一个误解：porcelain 不保证逐条启动画面里对应的 plumbing 命令。<#0.45#>\n更合适的理解是，一边负责用户意图，一边暴露可验证的数据模型。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.04,
+          "text": "porcelain 面向提交、切换和同步这样的完整任务，plumbing 则直接查询对象、Index 与 refs"
+        },
+        {
+          "from": 6.717,
+          "to": 10.747,
+          "text": "两类命令的抽象层次不同，但它们读写的仍是同一个 repository"
+        },
+        {
+          "from": 11.39,
+          "to": 16.5,
+          "text": "这里需要避免一个误解：porcelain 不保证逐条启动画面里对应的 plumbing 命令"
+        },
+        {
+          "from": 17.156,
+          "to": 21.355,
+          "text": "更合适的理解是，一边负责用户意图，一边暴露可验证的数据模型"
+        }
+      ]
+    },
+    {
+      "id": "porcelain-commit",
+      "title": "先用 Porcelain 产生真实提交",
+      "start": 46.5,
+      "duration": 23,
+      "goal": "录制 add 与 commit 产生稳定历史",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            100,
+            147
+          ],
+          "visual": "先用 Porcelain 产生真实提交",
+          "motion": "单次因果揭示后稳定",
+          "state": "porcelain-commit",
+          "narration": "录制 add 与 commit 产生稳定历史",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_porcelain_commit",
+        "voiceStart": 46.85,
+        "text": "先在隔离仓库修改 app.js，再使用熟悉的 add 与 commit 创建一条提交。<#0.45#>\ncommit 完成只说明这次用户任务结束，还没有解释结果由哪些对象和名字组成。<#0.45#>\n我们记录完整 HEAD 对象 ID，并把它作为后续查询的同一条线索。<#0.45#>\n这样每一次 plumbing 观察都能回到真实提交，而不是展示互不相干的示例 hash。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.451,
+          "text": "先在隔离仓库修改 app.js，再使用熟悉的 add 与 commit 创建一条提交"
+        },
+        {
+          "from": 6.146,
+          "to": 10.889,
+          "text": "commit 完成只说明这次用户任务结束，还没有解释结果由哪些对象和名字组成"
+        },
+        {
+          "from": 11.656,
+          "to": 16.292,
+          "text": "我们记录完整 HEAD 对象 ID，并把它作为后续查询的同一条线索"
+        },
+        {
+          "from": 16.981,
+          "to": 21.547,
+          "text": "这样每一次 plumbing 观察都能回到真实提交，而不是展示互不相干的示例 hash"
+        }
+      ]
+    },
+    {
+      "id": "inspect-objects",
+      "title": "从 Commit 追到 Tree 与 Blob",
+      "start": 69.5,
+      "duration": 27.5,
+      "goal": "用 cat-file 与 ls-tree 追踪对象链",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            150,
+            197
+          ],
+          "visual": "从 Commit 追到 Tree 与 Blob",
+          "motion": "单次因果揭示后稳定",
+          "state": "inspect-objects",
+          "narration": "用 cat-file 与 ls-tree 追踪对象链",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_inspect_objects",
+        "voiceStart": 69.85,
+        "text": "接着沿上一段记录的 HEAD，让 cat-file 判断对象类型并显示 commit 内容。<#0.45#>\ncommit 里的 tree 行给出根 tree 的完整对象 ID，ls-tree 又把路径、模式和 blob ID 连起来。<#0.45#>\n沿这条链可以看到，提交没有把文件文字直接塞进自身，而是引用一棵项目快照。<#0.45#>\n同一个对象 ID 在不同命令输出中重复出现，正是关系能够被交叉核对的关键。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.101,
+          "text": "接着沿上一段记录的 HEAD，让 cat-file 判断对象类型并显示 commit 内容"
+        },
+        {
+          "from": 7.761,
+          "to": 14.33,
+          "text": "commit 里的 tree 行给出根 tree 的完整对象 ID，ls-tree 又把路径、模式和 blob ID 连起来"
+        },
+        {
+          "from": 15.047,
+          "to": 19.986,
+          "text": "沿这条链可以看到，提交没有把文件文字直接塞进自身，而是引用一棵项目快照"
+        },
+        {
+          "from": 20.764,
+          "to": 25.535,
+          "text": "同一个对象 ID 在不同命令输出中重复出现，正是关系能够被交叉核对的关键"
+        }
+      ]
+    },
+    {
+      "id": "inspect-state",
+      "title": "Refs 与 Index 也是同一状态的入口",
+      "start": 97,
+      "duration": 27.5,
+      "goal": "展示 branch ref 与 Index 条目",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            200,
+            247
+          ],
+          "visual": "Refs 与 Index 也是同一状态的入口",
+          "motion": "单次因果揭示后稳定",
+          "state": "inspect-state",
+          "narration": "展示 branch ref 与 Index 条目",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_inspect_state",
+        "voiceStart": 97.35,
+        "text": "对象链之外，还可以用 for-each-ref 查看 branch 名称最终指向哪条 commit。<#0.45#>\nls-files --stage 则显示 Index 中每个路径的模式、blob ID 和 stage。<#0.45#>\n值得比较的是，ref 负责给历史端点命名，Index 负责准备下一张快照，两者并不保存相同信息。<#0.45#>\n把这些结果放在一起，porcelain 完成的动作就变成了一组可以逐层检查的状态变化。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.978,
+          "text": "对象链之外，还可以用 for-each-ref 查看 branch 名称最终指向哪条 commit"
+        },
+        {
+          "from": 6.638,
+          "to": 11.925,
+          "text": "ls-files --stage 则显示 Index 中每个路径的模式、blob ID 和 stage"
+        },
+        {
+          "from": 12.578,
+          "to": 20.197,
+          "text": "值得比较的是，ref 负责给历史端点命名，Index 负责准备下一张快照，两者并不保存相同信息"
+        },
+        {
+          "from": 20.875,
+          "to": 25.714,
+          "text": "把这些结果放在一起，porcelain 完成的动作就变成了一组可以逐层检查的状态变化"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "用任务操作，用 Plumbing 验证模型",
+      "start": 124.5,
+      "duration": 30.5,
+      "goal": "收束日常使用与内部诊断边界",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            250,
+            297
+          ],
+          "visual": "用任务操作，用 Plumbing 验证模型",
+          "motion": "单次因果揭示后稳定",
+          "state": "takeaway",
+          "narration": "收束日常使用与内部诊断边界",
+          "audit": [
+            "画面、旁白与真实证据一致"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 124.85,
+        "text": "日常工作仍然优先使用 porcelain，因为它围绕完整任务提供保护和反馈。<#0.45#>\n当我们需要解释某个结果时，再沿 ref、commit、tree、blob 与 Index 逐层查询。<#0.45#>\nplumbing 的价值不是要求每个人手工造对象，而是让 Git 的状态不再像一个黑箱。<#0.45#>\n先问用户任务是什么，再选择需要核对的数据层，通常比背一串底层命令更可靠。<#0.45#>\n遇到异常时，这条查询路径也能帮助我们判断，是名字移动了，还是对象本身不同。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.097,
+          "text": "日常工作仍然优先使用 porcelain，因为它围绕完整任务提供保护和反馈"
+        },
+        {
+          "from": 5.846,
+          "to": 11.546,
+          "text": "当我们需要解释某个结果时，再沿 ref、commit、tree、blob 与 Index 逐层查询"
+        },
+        {
+          "from": 12.198,
+          "to": 16.847,
+          "text": "plumbing 的价值不是要求每个人手工造对象，而是让 Git 的状态不再像一个黑箱"
+        },
+        {
+          "from": 17.588,
+          "to": 23.033,
+          "text": "先问用户任务是什么，再选择需要核对的数据层，通常比背一串底层命令更可靠"
+        },
+        {
+          "from": 23.69,
+          "to": 28.893,
+          "text": "遇到异常时，这条查询路径也能帮助我们判断，是名字移动了，还是对象本身不同"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP49-PLUMBING-AND-PORCELAIN：上层命令与底层对象是什么关系\n",
+    "scriptMarkdown": "# EP49-PLUMBING-AND-PORCELAIN 当前脚本\n",
+    "beatsMarkdown": "# EP49-PLUMBING-AND-PORCELAIN Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP49-PLUMBING-AND-PORCELAIN 审查记录\n\n- 全部命令来自 git-course-lab 隔离 fixture。\n",
+    "alignmentMarkdown": "# EP49-PLUMBING-AND-PORCELAIN 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP49-PLUMBING-AND-PORCELAIN B 站发布物料\n\n## 标题\n\nGit 的 Porcelain 和 Plumbing 到底是什么关系？\n\n## 简介\n\n从一条真实 commit 向下追踪 ref、commit、tree、blob 与 Index。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/gitglossary)\n- [Git 官方文档](https://git-scm.com/docs/git)\n- [Git 官方文档](https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Internals\nPlumbing\n```\n",
+    "coverBriefMarkdown": "# EP49-PLUMBING-AND-PORCELAIN 封面 Brief\n\nPorcelain 与 Plumbing 汇入同一条 ref → commit → tree → blob 对象链。\n",
+    "checklistMarkdown": "# EP49-PLUMBING-AND-PORCELAIN 发布检查清单\n\n- [ ] 完整 OID、命令输出与教学边界已核对。\n"
+  }
+}
