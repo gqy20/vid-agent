@@ -1,0 +1,29 @@
+import {AbsoluteFill,interpolate,useCurrentFrame} from 'remotion';
+import {EP18} from '../data/episodes'; import {EP18_DURATION_IN_FRAMES,EP18_SCENES} from '../data/episodeTimelines.generated'; import {TERMINAL_RECORDINGS} from '../data/terminalRecordings.generated';
+import {CourseLayout,EpisodeTitleCard,EpisodeTimeline,GitStatePanel,NarrationSubtitle,RecordedTerminalCueSequence,SceneTitle,createEpisodeRuntime} from '../kit'; import {COLOR,WEIGHT} from '../palette'; import {seconds} from '../timeline'; import {TYPE} from '../typography';
+export {EP18_DURATION_IN_FRAMES,EP18_SCENES}; const R=createEpisodeRuntime(EP18_SCENES); const ap=(f:number,a:number)=>interpolate(f,[seconds(a),seconds(a+.7)],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+const cue=(id:keyof typeof TERMINAL_RECORDINGS,d:number)=>({id,from:0,durationInFrames:seconds(d+.7),src:`git-course-lab/terminal/${id}.mp4`,holdFrameSrc:`git-course-lab/terminal/${id}-hold.png`,holdFromFrame:TERMINAL_RECORDINGS[id].holdFromFrame});
+const Term:React.FC<{scene:string;id:keyof typeof TERMINAL_RECORDINGS;d:number;children?:React.ReactNode}>=({scene,id,d,children})=>{const f=useCurrentFrame();return <AbsoluteFill><RecordedTerminalCueSequence cues={[cue(id,d)]} rect={{x:250,y:132,width:1420,height:720}} auditIdPrefix={`ep18-${scene}-terminal`}/>{children?<AbsoluteFill style={{background:COLOR.canvas.base,opacity:ap(f,d)}}>{children}</AbsoluteFill>:null}<NarrationSubtitle frame={f} cues={R.captions(scene as never)} width={1320} bottom={64}/></AbsoluteFill>};
+const State=({clean=false}:{clean?:boolean})=><div style={{position:'absolute',left:300,top:270,width:1320}}><GitStatePanel areas={[{id:'working-tree',title:'Working Tree',files:clean?['notes.tmp · untracked']:['app.js · unstaged','notes.tmp · untracked'],active:true},{id:'index',title:'Index',files:clean?['matches HEAD']:['config.js · staged'],active:!clean},{id:'repository',title:'Repository',files:['HEAD'],active:false}]} prominent/></div>;
+// @git-course-scene hook:start
+const Hook=()=>{const f=useCurrentFrame();return <AbsoluteFill><EpisodeTitleCard index="18." keyword="临时切任务" suffix="现场去哪？" opacity={1} underlineScale={ap(f,.4)} auditId="ep18-hook"/><NarrationSubtitle frame={f} cues={R.captions('hook')} width={1320} bottom={64}/></AbsoluteFill>};
+// @git-course-scene hook:end
+// @git-course-scene two-layers:start
+const TwoLayers=()=>{const f=useCurrentFrame();return <AbsoluteFill><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>先盘点 Staged、Unstaged 与 Untracked</SceneTitle><State/><NarrationSubtitle frame={f} cues={R.captions('two-layers')} width={1320} bottom={64}/></AbsoluteFill>};
+// @git-course-scene two-layers:end
+// @git-course-scene stash-push:start
+const StashPush=()=> <Term scene="stash-push" id="ep18-stash" d={11}><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Tracked 修改被保存，Untracked 仍在</SceneTitle><State clean/></Term>;
+// @git-course-scene stash-push:end
+// @git-course-scene inspect-entry:start
+const InspectEntry=()=>{const f=useCurrentFrame();return <AbsoluteFill style={{padding:'150px 260px',boxSizing:'border-box'}}><SceneTitle>refs/stash 是本地可检查入口</SceneTitle><div style={{marginTop:110,padding:46,borderRadius:28,background:COLOR.canvas.raised}}><div style={{...TYPE.title,fontFamily:'monospace',fontWeight:WEIGHT.bold,color:COLOR.git.head}}>stash@&#123;0&#125;</div><div style={{...TYPE.body,marginTop:28,color:COLOR.text.secondary}}>On main: switch task · Working Tree + Index</div></div><NarrationSubtitle frame={f} cues={R.captions('inspect-entry')} width={1320} bottom={64}/></AbsoluteFill>};
+// @git-course-scene inspect-entry:end
+// @git-course-scene apply-index:start
+const ApplyIndex=()=> <Term scene="apply-index" id="ep18-apply" d={11}><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>--index 把两部分送回原来的层</SceneTitle><State/></Term>;
+// @git-course-scene apply-index:end
+// @git-course-scene lifecycle:start
+const Lifecycle=()=>{const f=useCurrentFrame();return <AbsoluteFill style={{padding:'130px 220px',boxSizing:'border-box'}}><SceneTitle>恢复内容，与删除 Entry 是两件事</SceneTitle><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:34,marginTop:110}}>{[['apply','恢复 · 保留'],['pop','成功恢复后移除'],['drop','只移除记录']].map((x,i)=><div key={x[0]} style={{padding:40,borderRadius:24,background:COLOR.canvas.raised,opacity:ap(f,2+i*3)}}><div style={{...TYPE.title,fontWeight:WEIGHT.bold,color:[COLOR.git.main,COLOR.git.feature,COLOR.git.conflict][i]}}>{x[0]}</div><div style={{...TYPE.body,marginTop:26}}>{x[1]}</div></div>)}</div><NarrationSubtitle frame={f} cues={R.captions('lifecycle')} width={1320} bottom={64}/></AbsoluteFill>};
+// @git-course-scene lifecycle:end
+// @git-course-scene takeaway:start
+const Takeaway=()=>{const f=useCurrentFrame();return <AbsoluteFill style={{padding:'130px 220px',boxSizing:'border-box'}}><SceneTitle>Stash 是本地短期现场，不是备份</SceneTitle><div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:28,marginTop:110}}>{['status','push','show','apply --index'].map((x,i)=><div key={x} style={{padding:34,textAlign:'center',borderRadius:22,background:COLOR.canvas.raised,opacity:ap(f,2+i*2.4),...TYPE.title,fontWeight:WEIGHT.bold}}>{x}</div>)}</div><NarrationSubtitle frame={f} cues={R.captions('takeaway')} width={1320} bottom={64}/></AbsoluteFill>};
+// @git-course-scene takeaway:end
+const C={hook:Hook,'two-layers':TwoLayers,'stash-push':StashPush,'inspect-entry':InspectEntry,'apply-index':ApplyIndex,lifecycle:Lifecycle,takeaway:Takeaway}; export const Ep18StashingWork=()=>{const f=useCurrentFrame();return <CourseLayout seriesTitle={EP18.seriesTitle} episodeTitle={EP18.title} scenes={EP18_SCENES} currentFrame={f} showHeader={x=>x>=R.start('two-layers')} showEpisodeTitle={x=>x>=R.start('two-layers')}><EpisodeTimeline runtime={R} components={C}/></CourseLayout>};

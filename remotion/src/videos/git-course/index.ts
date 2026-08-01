@@ -38,6 +38,14 @@ import {EP13_DURATION_IN_FRAMES, Ep13FetchPullPush} from './episodes/Ep13FetchPu
 import {EP14_DURATION_IN_FRAMES, Ep14AheadBehindNonFastForward} from './episodes/Ep14AheadBehindNonFastForward';
 import {EP15_DURATION_IN_FRAMES, Ep15UnmergedIndex} from './episodes/Ep15UnmergedIndex';
 import {EP16_DURATION_IN_FRAMES, Ep16ReflogRecovery} from './episodes/Ep16ReflogRecovery';
+import {EP17_DURATION_IN_FRAMES, Ep17InteractiveStaging} from './episodes/Ep17InteractiveStaging';
+import {EP18_DURATION_IN_FRAMES, Ep18StashingWork} from './episodes/Ep18StashingWork';
+import {EP19_DURATION_IN_FRAMES, Ep19CherryPick} from './episodes/Ep19CherryPick';
+import {EP20_DURATION_IN_FRAMES, Ep20RewritingHistory} from './episodes/Ep20RewritingHistory';
+import {EP21_DURATION_IN_FRAMES, Ep21SearchingHistory} from './episodes/Ep21SearchingHistory';
+import {EP22_DURATION_IN_FRAMES, Ep22Blame} from './episodes/Ep22Blame';
+import {EP23_DURATION_IN_FRAMES, Ep23Bisect} from './episodes/Ep23Bisect';
+import {EP24_DURATION_IN_FRAMES, Ep24Rerere} from './episodes/Ep24Rerere';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -252,6 +260,14 @@ export const registration: VideoRegistration = {
       width: WIDTH,
       height: HEIGHT,
     },
+    {id:'GitCourseEp17InteractiveStaging',component:Ep17InteractiveStaging,durationInFrames:EP17_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp18StashingWork',component:Ep18StashingWork,durationInFrames:EP18_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp19CherryPick',component:Ep19CherryPick,durationInFrames:EP19_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp20RewritingHistory',component:Ep20RewritingHistory,durationInFrames:EP20_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp21SearchingHistory',component:Ep21SearchingHistory,durationInFrames:EP21_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp22Blame',component:Ep22Blame,durationInFrames:EP22_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp23Bisect',component:Ep23Bisect,durationInFrames:EP23_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp24Rerere',component:Ep24Rerere,durationInFrames:EP24_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {
       id: 'GitCourseComponentLab',
       component: ComponentLab,

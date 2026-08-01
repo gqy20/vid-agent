@@ -1,0 +1,375 @@
+{
+  "episodeId": "ep21-searching-history",
+  "title": "你在搜索内容、说明还是变化",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-grep",
+      "https://git-scm.com/docs/git-log"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "同一个关键词为何得到不同答案",
+      "start": 0,
+      "duration": 16,
+      "goal": "提出搜索对象不同导致结果不同。",
+      "primaryTechnique": "Question + three targets",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "timeout 同时进入 current、message、patch 三列",
+          "motion": "三个目标分开",
+          "state": "question",
+          "narration": "我们究竟在搜索什么？",
+          "audit": [
+            "不堆命令列表"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1.25,
+        "text": "同一个 timeout，为什么四条 Git 命令会返回不同 commit？<#0.45#>\n也许不是命令互相矛盾，而是它们搜索的对象根本不同。<#0.45#>\n这一集先问清楚：我们要找当前内容、提交说明，还是历史 patch 中的变化？"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 4.16,
+          "text": "同一个 timeout，为什么四条 Git 命令会返回不同 commit？"
+        },
+        {
+          "from": 4.849,
+          "to": 8.253,
+          "text": "也许不是命令互相矛盾，而是它们搜索的对象根本不同"
+        },
+        {
+          "from": 8.942,
+          "to": 13.994,
+          "text": "这一集先问清楚：我们要找当前内容、提交说明，还是历史 patch 中的变化？"
+        }
+      ]
+    },
+    {
+      "id": "search-targets",
+      "title": "先把搜索目标分开",
+      "start": 16,
+      "duration": 19,
+      "goal": "建立 current tree、message、patch 三类搜索对象。",
+      "primaryTechnique": "Target matrix",
+      "beats": [
+        {
+          "time": [
+            16,
+            38
+          ],
+          "visual": "current files / commit messages / added-removed lines",
+          "motion": "目标与命令一一配对",
+          "state": "model",
+          "narration": "先定对象，再选命令。",
+          "audit": [
+            "-S 与 -G 不写成全文搜索"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_search_targets",
+        "voiceStart": 17.25,
+        "text": "先建立三类目标。<#0.35#>\n当前检出的文件内容是一类，commit message 是第二类，历史 patch 中新增或删除的行是第三类。<#0.50#>\n它们可能在不同时间出现，也可能从当前文件里已经消失。<#0.45#>\n先确定目标，后面的命令才有可比较的答案。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 2.762,
+          "text": "先建立三类目标"
+        },
+        {
+          "from": 3.327,
+          "to": 9.574,
+          "text": "当前检出的文件内容是一类，commit message 是第二类，历史 patch 中新增或删除的行是第三类"
+        },
+        {
+          "from": 10.344,
+          "to": 13.504,
+          "text": "它们可能在不同时间出现，也可能从当前文件里已经消失"
+        },
+        {
+          "from": 14.127,
+          "to": 16.927,
+          "text": "先确定目标，后面的命令才有可比较的答案"
+        }
+      ]
+    },
+    {
+      "id": "git-grep",
+      "title": "Git Grep 搜当前内容",
+      "start": 35,
+      "duration": 19.5,
+      "goal": "真实展示 git grep 的当前 tree 语义。",
+      "primaryTechnique": "Recorded git grep",
+      "beats": [
+        {
+          "time": [
+            38,
+            60
+          ],
+          "visual": "git grep -n timeout 输出当前 app.js 行",
+          "motion": "结果回到 current tree",
+          "state": "current",
+          "narration": "它先回答现在在哪里。",
+          "audit": [
+            "不暗示默认搜索全部历史"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_git_grep",
+        "voiceStart": 36.25,
+        "text": "先运行 git grep -n timeout。<#0.40#>\n它在当前选中的 tree 中搜索受 Git 管理的内容，告诉我们这个字符串现在出现在哪里。<#0.50#>\n如果某段代码已经从当前版本删除，普通 git grep 不会自动替我们遍历全部历史。<#0.45#>\n所以这条答案属于现在，而不是变化发生的时间。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 3.185,
+          "text": "先运行 git grep -n timeout"
+        },
+        {
+          "from": 3.856,
+          "to": 8.743,
+          "text": "它在当前选中的 tree 中搜索受 Git 管理的内容，告诉我们这个字符串现在出现在哪里"
+        },
+        {
+          "from": 9.551,
+          "to": 14.065,
+          "text": "如果某段代码已经从当前版本删除，普通 git grep 不会自动替我们遍历全部历史"
+        },
+        {
+          "from": 14.81,
+          "to": 17.714,
+          "text": "所以这条答案属于现在，而不是变化发生的时间"
+        }
+      ]
+    },
+    {
+      "id": "message-search",
+      "title": "--grep 搜 Commit Message",
+      "start": 54.5,
+      "duration": 23,
+      "goal": "真实展示 message 搜索与代码内容无关。",
+      "primaryTechnique": "Recorded git log --grep",
+      "beats": [
+        {
+          "time": [
+            60,
+            82
+          ],
+          "visual": "git log --grep=timeout 命中说明",
+          "motion": "message 字段高亮",
+          "state": "message",
+          "narration": "命中的是提交说明。",
+          "audit": [
+            "结果用 git show 验证"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_message_search",
+        "voiceStart": 55.75,
+        "text": "接着运行 git log --grep=timeout。<#0.40#>\n这里匹配的是 commit message，不要求 patch 或当前文件真的包含同一个词。<#0.50#>\n一条说明可以提到 timeout，却只修改测试；另一条 patch 可以加入 timeout，却使用完全不同的说明。<#0.45#>\n因此命中后仍要打开 commit 验证上下文。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 4.476,
+          "text": "接着运行 git log --grep=timeout"
+        },
+        {
+          "from": 5.17,
+          "to": 10.017,
+          "text": "这里匹配的是 commit message，不要求 patch 或当前文件真的包含同一个词"
+        },
+        {
+          "from": 10.764,
+          "to": 17.792,
+          "text": "一条说明可以提到 timeout，却只修改测试；另一条 patch 可以加入 timeout，却使用完全不同的说明"
+        },
+        {
+          "from": 18.433,
+          "to": 21.048,
+          "text": "因此命中后仍要打开 commit 验证上下文"
+        }
+      ]
+    },
+    {
+      "id": "pickaxe-search",
+      "title": "-S 找字符串计数变化",
+      "start": 77.5,
+      "duration": 22.5,
+      "goal": "准确解释 pickaxe 的字符串出现次数变化。",
+      "primaryTechnique": "Recorded git log -S + show",
+      "beats": [
+        {
+          "time": [
+            82,
+            108
+          ],
+          "visual": "-S timeout 命中引入与移除次数变化的 commit",
+          "motion": "before/after count 可视化",
+          "state": "pickaxe",
+          "narration": "找的是出现次数变化。",
+          "audit": [
+            "不称为全文搜索"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_pickaxe_search",
+        "voiceStart": 78.75,
+        "text": "如果问题变成 timeout 是在哪次变化中被加入或移除，可以尝试 git log -S timeout。<#0.50#>\n-S 关注字符串出现次数是否随某个 commit 发生变化。<#0.45#>\n它不是对每个历史文件做一次普通全文搜索。<#0.40#>\n命中后再用 git show 打开 patch，确认这次计数变化是否就是我们要调查的事件。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 7.3,
+          "text": "如果问题变成 timeout 是在哪次变化中被加入或移除，可以尝试 git log -S timeout"
+        },
+        {
+          "from": 7.975,
+          "to": 11.669,
+          "text": "-S 关注字符串出现次数是否随某个 commit 发生变化"
+        },
+        {
+          "from": 12.417,
+          "to": 14.989,
+          "text": "它不是对每个历史文件做一次普通全文搜索"
+        },
+        {
+          "from": 15.647,
+          "to": 20.563,
+          "text": "命中后再用 git show 打开 patch，确认这次计数变化是否就是我们要调查的事件"
+        }
+      ]
+    },
+    {
+      "id": "regex-search",
+      "title": "-G 找 Patch 行的正则匹配",
+      "start": 100,
+      "duration": 24,
+      "goal": "准确解释 -G 对 added/removed patch 行的匹配。",
+      "primaryTechnique": "Recorded git log -G + patch",
+      "beats": [
+        {
+          "time": [
+            108,
+            132
+          ],
+          "visual": "-G 'timeout|retry' 命中新增或删除行",
+          "motion": "+/- 行被同一正则标出",
+          "state": "regex",
+          "narration": "搜索的是 diff 行。",
+          "audit": [
+            "added 与 removed 都可匹配"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_regex_search",
+        "voiceStart": 101.25,
+        "text": "如果我们关心 added 或 removed 行是否匹配某个正则，可以使用 git log -G。<#0.50#>\n例如 timeout 或 retry 可能在一次替换中出现，而总次数没有按预期变化。<#0.45#>\n-G 检查 patch 行的正则匹配，仍然需要 show 来判断语义。<#0.45#>\n它和 -S 接近，但回答的问题并不相同。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 6.542,
+          "text": "如果我们关心 added 或 removed 行是否匹配某个正则，可以使用 git log -G"
+        },
+        {
+          "from": 7.229,
+          "to": 13.571,
+          "text": "例如 timeout 或 retry 可能在一次替换中出现，而总次数没有按预期变化"
+        },
+        {
+          "from": 14.193,
+          "to": 18.704,
+          "text": "-G 检查 patch 行的正则匹配，仍然需要 show 来判断语义"
+        },
+        {
+          "from": 19.443,
+          "to": 21.985,
+          "text": "它和 -S 接近，但回答的问题并不相同"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 124,
+      "duration": 26,
+      "goal": "以搜索对象决策树收束。",
+      "primaryTechnique": "Decision tree",
+      "beats": [
+        {
+          "time": [
+            132,
+            160
+          ],
+          "visual": "current→grep、message→--grep、count→-S、patch regex→-G",
+          "motion": "四条路径按问题展开",
+          "state": "takeaway",
+          "narration": "先说目标，再选搜索器。",
+          "audit": [
+            "每条路径只保留一个判断"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 125.25,
+        "text": "最后不要先背四条命令，先问搜索对象。<#0.40#>\n找当前内容，用 git grep；找提交说明，用 log --grep。<#0.45#>\n找字符串出现次数发生变化的 commit，用 -S；找 patch 行匹配正则的 commit，用 -G。<#0.50#>\n无论哪条路径，最后都打开实际 patch 验证。搜索负责缩小范围，不负责替我们解释原因。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 3.75,
+          "text": "最后不要先背四条命令，先问搜索对象"
+        },
+        {
+          "from": 4.388,
+          "to": 9.737,
+          "text": "找当前内容，用 git grep；找提交说明，用 log --grep"
+        },
+        {
+          "from": 10.414,
+          "to": 15.988,
+          "text": "找字符串出现次数发生变化的 commit，用 -S；找 patch 行匹配正则的 commit，用 -G"
+        },
+        {
+          "from": 16.718,
+          "to": 24.231,
+          "text": "无论哪条路径，最后都打开实际 patch 验证。搜索负责缩小范围，不负责替我们解释原因"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP21：你在搜索内容、说明还是变化\n\n区分 current tree、commit message、字符串计数与 patch 行。\n",
+    "scriptMarkdown": "# EP21 当前脚本（160s）\n\n每次命中都回到 git show 验证。\n",
+    "beatsMarkdown": "# EP21 Beats\n\n`targets → grep → --grep → -S → -G → verify`。\n",
+    "qualityMarkdown": "# EP21 审查记录\n\n- -S 不得表述成全文搜索。\n- -G 必须显示 added / removed patch 行。\n",
+    "alignmentMarkdown": "# EP21 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP21 B 站发布物料\n\n## 标题\n\nGit Grep、-S 和 -G 到底搜什么？\n\n## 简介\n\n先区分搜索对象，再选择当前内容、提交说明或历史 patch 的搜索方式。\n\n## 官方参考\n\n- [git-grep 官方手册](https://git-scm.com/docs/git-grep)\n- [git-log 官方手册](https://git-scm.com/docs/git-log)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Log\n代码搜索\n```\n",
+    "coverBriefMarkdown": "# EP21 封面 Brief\n\n同一个关键词分流到内容、说明和变化三种目标。\n",
+    "checklistMarkdown": "# EP21 发布检查清单\n\n- [ ] grep、--grep、-S、-G 的搜索对象均已核对。\n"
+  }
+}

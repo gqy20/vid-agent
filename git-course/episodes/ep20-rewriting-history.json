@@ -1,0 +1,381 @@
+{
+  "episodeId": "ep20-rewriting-history",
+  "title": "整理提交为什么会改 Hash",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---amend",
+      "https://git-scm.com/docs/git-rebase#_interactive_mode",
+      "docs/references/progit2-zh/book/07-git-tools/sections/rewriting-history.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Commit 能被原地编辑吗",
+      "start": 0,
+      "duration": 16.5,
+      "goal": "提出整理历史与对象身份变化。",
+      "primaryTechnique": "Question + before/after IDs",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "旧 commit 退场，新 commit 使用不同 hash",
+          "motion": "重建而非擦写",
+          "state": "question",
+          "narration": "修改 message 后为什么 hash 也变了？",
+          "audit": [
+            "不使用原地编辑动画"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1.25,
+        "text": "我们只是改了一句 commit message，为什么对象 ID 也跟着变化？<#0.45#>\n如果再把两个提交 squash 成一个，旧历史究竟发生了什么？<#0.45#>\n这一集不追求把 log 变漂亮，而是一起观察所谓改写其实怎样重建 commit。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 4.968,
+          "text": "我们只是改了一句 commit message，为什么对象 ID 也跟着变化？"
+        },
+        {
+          "from": 5.631,
+          "to": 8.666,
+          "text": "如果再把两个提交 squash 成一个，旧历史究竟发生了什么？"
+        },
+        {
+          "from": 9.412,
+          "to": 14.497,
+          "text": "这一集不追求把 log 变漂亮，而是一起观察所谓改写其实怎样重建 commit"
+        }
+      ]
+    },
+    {
+      "id": "amend",
+      "title": "Amend 重建最近提交",
+      "start": 16.5,
+      "duration": 24.5,
+      "goal": "真实 amend 并比较完整对象 ID。",
+      "primaryTechnique": "Recorded commit amend",
+      "beats": [
+        {
+          "time": [
+            16,
+            40
+          ],
+          "visual": "amend 前后完整 ID 与 message 对照",
+          "motion": "旧节点保留为淡化证据，新节点接替 HEAD",
+          "state": "amended",
+          "narration": "不是修改旧对象，而是生成新对象。",
+          "audit": [
+            "旧对象不立即消失"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_amend",
+        "voiceStart": 17.75,
+        "text": "先记录当前 HEAD 的完整对象 ID，然后补上一处遗漏并运行 git commit --amend。<#0.50#>\n新的提交读取更新后的 Index，也可能使用新的说明或时间。<#0.45#>\n即使 parent 不变，只要提交对象内容改变，hash 就会改变。<#0.45#>\nbranch 和 HEAD 随后指向新对象，旧对象不再位于当前历史入口。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 7.63,
+          "text": "先记录当前 HEAD 的完整对象 ID，然后补上一处遗漏并运行 git commit --amend"
+        },
+        {
+          "from": 8.381,
+          "to": 12.057,
+          "text": "新的提交读取更新后的 Index，也可能使用新的说明或时间"
+        },
+        {
+          "from": 12.739,
+          "to": 16.33,
+          "text": "即使 parent 不变，只要提交对象内容改变，hash 就会改变"
+        },
+        {
+          "from": 17.101,
+          "to": 22.584,
+          "text": "branch 和 HEAD 随后指向新对象，旧对象不再位于当前历史入口"
+        }
+      ]
+    },
+    {
+      "id": "identity-change",
+      "title": "Hash 变化来自对象内容",
+      "start": 41,
+      "duration": 19,
+      "goal": "解释 tree、parent、author/committer、message 对身份的影响。",
+      "primaryTechnique": "Commit object anatomy",
+      "beats": [
+        {
+          "time": [
+            40,
+            62
+          ],
+          "visual": "tree、parent、identity、message 进入 hash 输入",
+          "motion": "任一字段变化触发新 ID",
+          "state": "explained",
+          "narration": "hash 是结果，不是可编辑编号。",
+          "audit": [
+            "不展开哈希算法细节"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_identity_change",
+        "voiceStart": 42.25,
+        "text": "为什么不能保留原 hash？<#0.35#>\ncommit 对象包含 tree、parent、作者与提交者信息以及 message。<#0.45#>\n这些内容共同参与对象身份计算，任何一项变化都会得到新的 ID。<#0.45#>\n所以 hash 变化不是副作用，而是 Git 对新对象内容的直接结果。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 2.62,
+          "text": "为什么不能保留原 hash？"
+        },
+        {
+          "from": 3.187,
+          "to": 8.334,
+          "text": "commit 对象包含 tree、parent、作者与提交者信息以及 message"
+        },
+        {
+          "from": 9.042,
+          "to": 13.085,
+          "text": "这些内容共同参与对象身份计算，任何一项变化都会得到新的 ID"
+        },
+        {
+          "from": 13.821,
+          "to": 17.285,
+          "text": "所以 hash 变化不是副作用，而是 Git 对新对象内容的直接结果"
+        }
+      ]
+    },
+    {
+      "id": "interactive-todo",
+      "title": "Interactive Rebase 先写计划",
+      "start": 60,
+      "duration": 20.5,
+      "goal": "真实展示 reword 与 squash 的 todo。",
+      "primaryTechnique": "Recorded rebase -i todo",
+      "beats": [
+        {
+          "time": [
+            62,
+            87
+          ],
+          "visual": "todo 中一次 reword、一次 squash",
+          "motion": "计划先出现，再开始逐条重放",
+          "state": "planned",
+          "narration": "先声明怎样重建这段本地历史。",
+          "audit": [
+            "todo 内容真实可见"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_interactive_todo",
+        "voiceStart": 61.25,
+        "text": "接着对一小段尚未发布的本地历史运行 git rebase -i。<#0.45#>\n在 todo 中，我们只做两件事：一条 reword，一条 squash。<#0.45#>\nreword 改变说明，squash 把后一个变化合入前一个提交。<#0.45#>\nGit 会按新计划从 base 开始重建，而不是在原节点上涂改文字。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 5.324,
+          "text": "接着对一小段尚未发布的本地历史运行 git rebase -i"
+        },
+        {
+          "from": 6.127,
+          "to": 9.562,
+          "text": "在 todo 中，我们只做两件事：一条 reword，一条 squash"
+        },
+        {
+          "from": 10.296,
+          "to": 13.587,
+          "text": "reword 改变说明，squash 把后一个变化合入前一个提交"
+        },
+        {
+          "from": 14.335,
+          "to": 18.78,
+          "text": "Git 会按新计划从 base 开始重建，而不是在原节点上涂改文字"
+        }
+      ]
+    },
+    {
+      "id": "rewrite-result",
+      "title": "旧到新的映射必须可核对",
+      "start": 80.5,
+      "duration": 22,
+      "goal": "展示重写后数量、顺序、内容与 ID。",
+      "primaryTechnique": "Before/after graph + recorded log",
+      "beats": [
+        {
+          "time": [
+            87,
+            112
+          ],
+          "visual": "old C1/C2/C3 映射为 new N1/N2",
+          "motion": "内容汇入与 parent 重连清楚可见",
+          "state": "rewritten",
+          "narration": "整齐结果背后是一组新对象。",
+          "audit": [
+            "保留 old/new ID 映射"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_rewrite_result",
+        "voiceStart": 82.25,
+        "text": "rebase 完成后，我们不只看整齐的 oneline log。<#0.40#>\n还要核对哪些 patch 被合并、哪些 message 被修改，以及每个新 commit 的 parent。<#0.50#>\n前面的提交一旦重建，后继提交的 parent ID 也会改变，于是后面的 hash 通常连续变化。<#0.45#>\n这就是历史改写影响整段身份链的原因。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 4.413,
+          "text": "rebase 完成后，我们不只看整齐的 oneline log"
+        },
+        {
+          "from": 5.103,
+          "to": 9.581,
+          "text": "还要核对哪些 patch 被合并、哪些 message 被修改，以及每个新 commit 的 parent"
+        },
+        {
+          "from": 10.283,
+          "to": 16.695,
+          "text": "前面的提交一旦重建，后继提交的 parent ID 也会改变，于是后面的 hash 通常连续变化"
+        },
+        {
+          "from": 17.437,
+          "to": 19.894,
+          "text": "这就是历史改写影响整段身份链的原因"
+        }
+      ]
+    },
+    {
+      "id": "published-boundary",
+      "title": "共享历史的成本更高",
+      "start": 102.5,
+      "duration": 22,
+      "goal": "限定只整理未发布本地历史。",
+      "primaryTechnique": "Local/shared boundary",
+      "beats": [
+        {
+          "time": [
+            112,
+            134
+          ],
+          "visual": "local draft 可重写，shared branch 显示协作成本",
+          "motion": "边界锁定，不执行强推",
+          "state": "boundary",
+          "narration": "能改写不等于应该改写。",
+          "audit": [
+            "不现场 force push"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_published_boundary",
+        "voiceStart": 104.25,
+        "text": "这套操作最适合尚未发布、只有自己依赖的本地提交。<#0.45#>\n如果其他人已经基于旧身份继续工作，改写会让双方历史失去共同位置。<#0.50#>\n有时团队会在明确协作规则下更新远端，但这不是本集要现场执行的动作。<#0.45#>\n先判断历史是否共享，比记住 rebase 选项更重要。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 5.428,
+          "text": "这套操作最适合尚未发布、只有自己依赖的本地提交"
+        },
+        {
+          "from": 6.104,
+          "to": 10.569,
+          "text": "如果其他人已经基于旧身份继续工作，改写会让双方历史失去共同位置"
+        },
+        {
+          "from": 11.34,
+          "to": 16.402,
+          "text": "有时团队会在明确协作规则下更新远端，但这不是本集要现场执行的动作"
+        },
+        {
+          "from": 17.076,
+          "to": 20.082,
+          "text": "先判断历史是否共享，比记住 rebase 选项更重要"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 124.5,
+      "duration": 25.5,
+      "goal": "收束 amend、interactive rebase 与共享边界。",
+      "primaryTechnique": "Decision takeaway",
+      "beats": [
+        {
+          "time": [
+            134,
+            160
+          ],
+          "visual": "amend recent / rebase sequence / shared? stop",
+          "motion": "判断路径依次锁定",
+          "state": "takeaway",
+          "narration": "改写就是重建对象和引用入口。",
+          "audit": [
+            "不扩展全部交互动作"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 126.25,
+        "text": "最后用三个问题判断。<#0.40#>\n只需要重建最近一次提交吗？可以考虑 amend。<#0.35#>\n需要整理一小段本地序列吗？可以用 interactive rebase 明确计划。<#0.45#>\n这些身份是否已经被别人使用？如果已经共享，就先停下来评估协作成本。<#0.45#>\n所谓改写历史，本质上始终是创建新对象，再让 refs 指向新的结果。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 3.126,
+          "text": "最后用三个问题判断"
+        },
+        {
+          "from": 3.783,
+          "to": 6.281,
+          "text": "只需要重建最近一次提交吗？可以考虑 amend"
+        },
+        {
+          "from": 6.96,
+          "to": 11.523,
+          "text": "需要整理一小段本地序列吗？可以用 interactive rebase 明确计划"
+        },
+        {
+          "from": 12.421,
+          "to": 17.038,
+          "text": "这些身份是否已经被别人使用？如果已经共享，就先停下来评估协作成本"
+        },
+        {
+          "from": 17.858,
+          "to": 23.462,
+          "text": "所谓改写历史，本质上始终是创建新对象，再让 refs 指向新的结果"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP20：整理提交为什么会改 Hash\n\n用 amend 与 interactive rebase 观察 commit 重建和身份链变化。\n",
+    "scriptMarkdown": "# EP20 当前脚本（160s）\n\n只处理未发布本地历史，不现场强制推送。\n",
+    "beatsMarkdown": "# EP20 Beats\n\n`amend → object identity → rebase todo → old/new mapping → shared boundary`。\n",
+    "qualityMarkdown": "# EP20 审查记录\n\n- todo、完整 ID 和 old/new 映射必须真实可见。\n- 旧节点以证据形式保留，不做原地擦写。\n",
+    "alignmentMarkdown": "# EP20 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP20 B 站发布物料\n\n## 标题\n\nAmend 和 Rebase 为什么会改 Hash？\n\n## 简介\n\n从 commit 对象内容出发，真实观察 amend、reword 与 squash 怎样重建本地历史。\n\n## 官方参考\n\n- [git-commit 官方手册](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---amend)\n- [git-rebase 官方手册](https://git-scm.com/docs/git-rebase#_interactive_mode)\n\n## 标签\n\n```text\nGit\nGit教程\nInteractive Rebase\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP20 封面 Brief\n\n旧 hash 到新 hash 的映射，中间只保留 amend 与 squash 两个动作。\n",
+    "checklistMarkdown": "# EP20 发布检查清单\n\n- [ ] todo、对象身份与共享历史边界已核对。\n"
+  }
+}

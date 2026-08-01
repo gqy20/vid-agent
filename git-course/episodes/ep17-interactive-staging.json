@@ -1,0 +1,375 @@
+{
+  "episodeId": "ep17-interactive-staging",
+  "title": "一个文件怎样拆成两个提交",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-add#_interactive_mode",
+      "docs/references/progit2-zh/book/07-git-tools/sections/interactive-staging.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "一个文件只能进一个提交吗",
+      "start": 0,
+      "duration": 19,
+      "goal": "提出同一文件包含两个意图时的提交边界问题。",
+      "primaryTechnique": "Question + split file",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "app.js 中修复与文案修改同时高亮",
+          "motion": "两组变化分开着色",
+          "state": "mixed",
+          "narration": "一个文件里的变化必须一起提交吗？",
+          "audit": [
+            "不显示交互按键清单"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 2.75,
+        "text": "如果 app.js 里同时有一处修复和一处无关文案，我们是否只能把它们放进同一个提交？<#0.45#>\n也许问题不在文件，而在我们准备让 Index 接受哪一部分变化。<#0.45#>\n这一集一起观察 Git 怎样按 hunk 询问，而不是替我们猜业务意图。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 8.04,
+          "text": "如果 app.js 里同时有一处修复和一处无关文案，我们是否只能把它们放进同一个提交？"
+        },
+        {
+          "from": 8.858,
+          "to": 12.408,
+          "text": "也许问题不在文件，而在我们准备让 Index 接受哪一部分变化"
+        },
+        {
+          "from": 13.205,
+          "to": 17.241,
+          "text": "这一集一起观察 Git 怎样按 hunk 询问，而不是替我们猜业务意图"
+        }
+      ]
+    },
+    {
+      "id": "mixed-work",
+      "title": "先看清两个修改意图",
+      "start": 19,
+      "duration": 19.5,
+      "goal": "用同一文件的两个独立 hunk 建立拆分前状态。",
+      "primaryTechnique": "CodeDiff + intent labels",
+      "beats": [
+        {
+          "time": [
+            16,
+            38
+          ],
+          "visual": "上方 bug fix、下方 copy edit，中间保持足够上下文",
+          "motion": "两组 hunk 依次进入",
+          "state": "working-tree",
+          "narration": "先识别变化，再决定边界。",
+          "audit": [
+            "两组变化不并成一个 hunk"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_mixed_work",
+        "voiceStart": 21.75,
+        "text": "先不急着 add。<#0.35#>\n我们把价格下限修复看作一个意图，把启动文案调整看作另一个意图。<#0.45#>\n它们恰好都在 app.js，但相隔足够远，因此 diff 会显示两个 hunk。<#0.45#>\n拆分之前，最重要的是先说清这次提交准备回答哪个问题。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 3.831,
+          "text": "先不急着 add"
+        },
+        {
+          "from": 4.365,
+          "to": 8.182,
+          "text": "我们把价格下限修复看作一个意图，把启动文案调整看作另一个意图"
+        },
+        {
+          "from": 8.986,
+          "to": 13.588,
+          "text": "它们恰好都在 app.js，但相隔足够远，因此 diff 会显示两个 hunk"
+        },
+        {
+          "from": 14.254,
+          "to": 17.673,
+          "text": "拆分之前，最重要的是先说清这次提交准备回答哪个问题"
+        }
+      ]
+    },
+    {
+      "id": "inspect-hunks",
+      "title": "Diff 先展示候选 Hunk",
+      "start": 38.5,
+      "duration": 21,
+      "goal": "真实展示两个 hunk，而不是按文件做抽象拆分。",
+      "primaryTechnique": "Recorded git diff",
+      "beats": [
+        {
+          "time": [
+            38,
+            60
+          ],
+          "visual": "git diff -- app.js 输出两个 hunk",
+          "motion": "终端保持到字幕解释完成",
+          "state": "inspected",
+          "narration": "hunk 是交互选择的候选单位。",
+          "audit": [
+            "完整保留两个 @@ 区块"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_inspect_hunks",
+        "voiceStart": 41.25,
+        "text": "运行 git diff -- app.js，可以看到两个独立的变更区块。<#0.45#>\n这里的 hunk 只是 Git 根据上下文形成的候选单位，不等于业务主题。<#0.45#>\n如果两个变化靠得太近，它们也可能落在同一个 hunk。<#0.45#>\n所以我们先核对 patch，再进入交互式暂存。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 6.406,
+          "text": "运行 git diff -- app.js，可以看到两个独立的变更区块"
+        },
+        {
+          "from": 7.096,
+          "to": 11.484,
+          "text": "这里的 hunk 只是 Git 根据上下文形成的候选单位，不等于业务主题"
+        },
+        {
+          "from": 12.184,
+          "to": 14.972,
+          "text": "如果两个变化靠得太近，它们也可能落在同一个 hunk"
+        },
+        {
+          "from": 15.703,
+          "to": 19.079,
+          "text": "所以我们先核对 patch，再进入交互式暂存"
+        }
+      ]
+    },
+    {
+      "id": "choose-patch",
+      "title": "对每个 Hunk 分别回答",
+      "start": 59.5,
+      "duration": 21,
+      "goal": "真实执行一次 y 和一次 n。",
+      "primaryTechnique": "Recorded git add -p",
+      "beats": [
+        {
+          "time": [
+            60,
+            85
+          ],
+          "visual": "git add -p 依次展示两个 hunk，并真实输入 y、n",
+          "motion": "问题与回答保持同步",
+          "state": "partially-staged",
+          "narration": "y 写入 Index，n 留在 Working Tree。",
+          "audit": [
+            "y 与 n 必须在终端中可见"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_choose_patch",
+        "voiceStart": 62.25,
+        "text": "现在运行 git add -p app.js。<#0.40#>\n第一个 hunk 是这次要提交的修复，我们回答 y。<#0.40#>\n第二个 hunk 属于另一项工作，我们回答 n。<#0.45#>\nGit 没有理解哪段代码更重要，它只是按照我们的选择，把第一个 patch 写入 Index。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 5.458,
+          "text": "现在运行 git add -p app.js"
+        },
+        {
+          "from": 6.077,
+          "to": 9.467,
+          "text": "第一个 hunk 是这次要提交的修复，我们回答 y"
+        },
+        {
+          "from": 10.109,
+          "to": 12.909,
+          "text": "第二个 hunk 属于另一项工作，我们回答 n"
+        },
+        {
+          "from": 13.689,
+          "to": 19.081,
+          "text": "Git 没有理解哪段代码更重要，它只是按照我们的选择，把第一个 patch 写入 Index"
+        }
+      ]
+    },
+    {
+      "id": "verify-index",
+      "title": "从两侧验证拆分结果",
+      "start": 80.5,
+      "duration": 23,
+      "goal": "用 cached diff 和普通 diff 证明两部分位于不同层。",
+      "primaryTechnique": "Recorded paired diffs + GitStateFlow",
+      "beats": [
+        {
+          "time": [
+            85,
+            108
+          ],
+          "visual": "cached diff 显示修复，普通 diff 显示文案",
+          "motion": "Index 与 Working Tree 分栏接管",
+          "state": "verified",
+          "narration": "验证比记住按键更重要。",
+          "audit": [
+            "不把未暂存修改表现为丢失"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_verify_index",
+        "voiceStart": 83.75,
+        "text": "选择结束后，我们从两侧验证。<#0.40#>\ngit diff --cached 只显示价格修复，说明它已经在 Index。<#0.45#>\n再次运行普通 git diff，仍能看到文案修改留在 Working Tree。<#0.45#>\n同一个文件现在同时拥有 staged 与 unstaged 变化，这正是交互式暂存建立的边界。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 5.159,
+          "text": "选择结束后，我们从两侧验证"
+        },
+        {
+          "from": 5.787,
+          "to": 9.964,
+          "text": "git diff --cached 只显示价格修复，说明它已经在 Index"
+        },
+        {
+          "from": 10.762,
+          "to": 14.51,
+          "text": "再次运行普通 git diff，仍能看到文案修改留在 Working Tree"
+        },
+        {
+          "from": 15.206,
+          "to": 21.241,
+          "text": "同一个文件现在同时拥有 staged 与 unstaged 变化，这正是交互式暂存建立的边界"
+        }
+      ]
+    },
+    {
+      "id": "two-commits",
+      "title": "两个意图形成两个提交",
+      "start": 103.5,
+      "duration": 23,
+      "goal": "展示两次提交后历史与工作状态的收束。",
+      "primaryTechnique": "Commit graph + verification",
+      "beats": [
+        {
+          "time": [
+            108,
+            132
+          ],
+          "visual": "fix commit 后继续暂存 copy edit，形成第二个 commit",
+          "motion": "两个提交依次生成",
+          "state": "committed",
+          "narration": "提交边界跟随意图，不跟随文件名。",
+          "audit": [
+            "两个 commit 使用不同说明"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_two_commits",
+        "voiceStart": 106.75,
+        "text": "先提交 Index 中的修复，再把剩余文案作为第二个提交。<#0.45#>\n最终历史里有两个主题单一的 commit，而不是一个混合 patch。<#0.45#>\n如果重新打开每个提交，我们应该只看到它承诺解决的那部分变化。<#0.45#>\n这也提醒我们：文件是存放位置，提交意图才是审查边界。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.669,
+          "text": "先提交 Index 中的修复，再把剩余文案作为第二个提交"
+        },
+        {
+          "from": 7.372,
+          "to": 10.902,
+          "text": "最终历史里有两个主题单一的 commit，而不是一个混合 patch"
+        },
+        {
+          "from": 11.725,
+          "to": 15.357,
+          "text": "如果重新打开每个提交，我们应该只看到它承诺解决的那部分变化"
+        },
+        {
+          "from": 16.18,
+          "to": 21.145,
+          "text": "这也提醒我们：文件是存放位置，提交意图才是审查边界"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 126.5,
+      "duration": 23.5,
+      "goal": "收束为识别、选择、双向验证。",
+      "primaryTechnique": "Three-step takeaway",
+      "beats": [
+        {
+          "time": [
+            132,
+            160
+          ],
+          "visual": "inspect → select → verify",
+          "motion": "三步连成稳定路径",
+          "state": "takeaway",
+          "narration": "先定义意图，再操作 Index。",
+          "audit": [
+            "不展开全部 patch mode 按键"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 129.75,
+        "text": "最后把判断顺序收束一下。<#0.40#>\n先用 diff 识别不同修改意图，再用 add -p 对候选 hunk 做选择。<#0.45#>\n选择后同时检查 cached diff 与普通 diff，确认 Index 和 Working Tree 各自保留了什么。<#0.45#>\n交互式暂存不会替我们设计提交，但它让提交边界可以比文件边界更精确。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 4.865,
+          "text": "最后把判断顺序收束一下"
+        },
+        {
+          "from": 5.59,
+          "to": 10.531,
+          "text": "先用 diff 识别不同修改意图，再用 add -p 对候选 hunk 做选择"
+        },
+        {
+          "from": 11.239,
+          "to": 15.856,
+          "text": "选择后同时检查 cached diff 与普通 diff，确认 Index 和 Working Tree 各自保留了什么"
+        },
+        {
+          "from": 16.692,
+          "to": 21.613,
+          "text": "交互式暂存不会替我们设计提交，但它让提交边界可以比文件边界更精确"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP17：一个文件怎样拆成两个提交\n\n用真实 patch mode 把同一文件的两个修改意图分别放入 Index 与 Working Tree。\n",
+    "scriptMarkdown": "# EP17 当前脚本（160s）\n\n语气以观察与验证推进，不把 add -p 讲成自动理解业务。\n",
+    "beatsMarkdown": "# EP17 Beats\n\n`mixed work → inspect hunks → y/n → verify both diffs → two commits`。\n",
+    "qualityMarkdown": "# EP17 审查记录\n\n- 必须真实显示一次 y 与一次 n。\n- cached diff 与普通 diff 必须对应不同修改。\n",
+    "alignmentMarkdown": "# EP17 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP17 B 站发布物料\n\n## 标题\n\n同一个文件怎样拆成两个 Git 提交？\n\n## 简介\n\n从两个 hunk 出发，真实演示 git add -p、cached diff 与普通 diff。\n\n## 官方参考\n\n- [git-add 官方手册](https://git-scm.com/docs/git-add#_interactive_mode)\n\n## 标签\n\n```text\nGit\nGit教程\n交互式暂存\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP17 封面 Brief\n\n左侧 app.js，右侧两个独立 commit，中间突出 hunk 选择。\n",
+    "checklistMarkdown": "# EP17 发布检查清单\n\n- [ ] y / n、两侧 diff 与两个 commit 均已核对。\n"
+  }
+}

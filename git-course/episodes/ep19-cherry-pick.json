@@ -1,0 +1,375 @@
+{
+  "episodeId": "ep19-cherry-pick",
+  "title": "怎样只搬一个 Commit 的修改",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-cherry-pick",
+      "docs/references/progit2-zh/book/07-git-tools/sections/rewriting-history.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "只需要其中一个修复怎么办",
+      "start": 0,
+      "duration": 17,
+      "goal": "提出从 feature 多个提交中选择一个变化。",
+      "primaryTechnique": "Question + branch graph",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "feature 有 F1/F2/F3，main 只需要 F2",
+          "motion": "F2 单独高亮",
+          "state": "selective",
+          "narration": "能否只接收一个 commit 的变化？",
+          "audit": [
+            "不画成移动原节点"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 2.25,
+        "text": "feature 上已经有三个提交，但 main 现在只需要中间那一处修复。<#0.45#>\n我们能否只接收它带来的变化，而不合并整条 branch？<#0.45#>\ncherry-pick 看起来像在搬 commit，但对象身份真的会原样保留吗？"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 6.316,
+          "text": "feature 上已经有三个提交，但 main 现在只需要中间那一处修复"
+        },
+        {
+          "from": 6.988,
+          "to": 10.248,
+          "text": "我们能否只接收它带来的变化，而不合并整条 branch？"
+        },
+        {
+          "from": 11.019,
+          "to": 15.297,
+          "text": "cherry-pick 看起来像在搬 commit，但对象身份真的会原样保留吗？"
+        }
+      ]
+    },
+    {
+      "id": "source-history",
+      "title": "先确定来源与目标",
+      "start": 17,
+      "duration": 22,
+      "goal": "展示源 commit 与目标 HEAD 的不同 parent。",
+      "primaryTechnique": "Two-branch graph",
+      "beats": [
+        {
+          "time": [
+            16,
+            38
+          ],
+          "visual": "feature:F1-F2-F3 与 main:M1",
+          "motion": "source 与 target 分别定位",
+          "state": "located",
+          "narration": "先看来源 patch，再看目标 parent。",
+          "audit": [
+            "完整显示 branch 归属"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_source_history",
+        "voiceStart": 19.75,
+        "text": "先把两个位置说清楚。<#0.35#>\nF2 位于 feature 历史中，它的 parent 是 F1；当前 main 则停在 M1。<#0.45#>\n如果我们在 main 上应用 F2 的变化，新提交只能接在 M1 后面。<#0.45#>\n这已经暗示：内容效果可以相同，提交身份却不会相同。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 4.131,
+          "text": "先把两个位置说清楚"
+        },
+        {
+          "from": 4.741,
+          "to": 10.309,
+          "text": "F2 位于 feature 历史中，它的 parent 是 F1；当前 main 则停在 M1"
+        },
+        {
+          "from": 11.046,
+          "to": 14.793,
+          "text": "如果我们在 main 上应用 F2 的变化，新提交只能接在 M1 后面"
+        },
+        {
+          "from": 15.598,
+          "to": 19.921,
+          "text": "这已经暗示：内容效果可以相同，提交身份却不会相同"
+        }
+      ]
+    },
+    {
+      "id": "inspect-patch",
+      "title": "Pick 之前先看 Patch",
+      "start": 39,
+      "duration": 19.5,
+      "goal": "真实用 git show 核对 source commit。",
+      "primaryTechnique": "Recorded git show",
+      "beats": [
+        {
+          "time": [
+            38,
+            60
+          ],
+          "visual": "git show --stat --patch pick-source",
+          "motion": "对象 ID、说明与 patch 依次聚焦",
+          "state": "verified",
+          "narration": "先确认选择的是哪次变化。",
+          "audit": [
+            "不只展示短 hash"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_inspect_patch",
+        "voiceStart": 41.75,
+        "text": "运行 git show 打开 source commit。<#0.40#>\n我们核对完整对象 ID、提交说明和 app.js 的实际 patch。<#0.45#>\n这一步不是形式检查：如果选错 commit，cherry-pick 会忠实应用错误的变化。<#0.45#>\n确认范围后，再回到 main 执行动作。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 4.668,
+          "text": "运行 git show 打开 source commit"
+        },
+        {
+          "from": 5.381,
+          "to": 8.591,
+          "text": "我们核对完整对象 ID、提交说明和 app.js 的实际 patch"
+        },
+        {
+          "from": 9.399,
+          "to": 14.841,
+          "text": "这一步不是形式检查：如果选错 commit，cherry-pick 会忠实应用错误的变化"
+        },
+        {
+          "from": 15.524,
+          "to": 17.506,
+          "text": "确认范围后，再回到 main 执行动作"
+        }
+      ]
+    },
+    {
+      "id": "pick-change",
+      "title": "变化在新 Parent 后重建",
+      "start": 58.5,
+      "duration": 22,
+      "goal": "真实执行 cherry-pick 并展示新节点。",
+      "primaryTechnique": "Recorded cherry-pick + graph",
+      "beats": [
+        {
+          "time": [
+            60,
+            85
+          ],
+          "visual": "git cherry-pick pick-source 后 P2 出现在 M1 后",
+          "motion": "patch 从 F2 投影到新节点 P2",
+          "state": "picked",
+          "narration": "复制变化，不移动原提交。",
+          "audit": [
+            "F2 始终留在 feature"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_pick_change",
+        "voiceStart": 61.25,
+        "text": "现在在 main 上运行 git cherry-pick pick-source。<#0.45#>\nGit 取出 F2 相对它 parent 的变化，把这份 patch 应用到当前状态，再创建一个新 commit。<#0.50#>\n原来的 F2 仍在 feature 上，main 后面出现的是 P2。<#0.45#>\n画面不是节点搬家，而是同一变化在新的 parent 后重新提交。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 5.581,
+          "text": "现在在 main 上运行 git cherry-pick pick-source"
+        },
+        {
+          "from": 6.241,
+          "to": 11.811,
+          "text": "Git 取出 F2 相对它 parent 的变化，把这份 patch 应用到当前状态，再创建一个新 commit"
+        },
+        {
+          "from": 12.583,
+          "to": 15.651,
+          "text": "原来的 F2 仍在 feature 上，main 后面出现的是 P2"
+        },
+        {
+          "from": 16.317,
+          "to": 20.167,
+          "text": "画面不是节点搬家，而是同一变化在新的 parent 后重新提交"
+        }
+      ]
+    },
+    {
+      "id": "compare-identity",
+      "title": "内容相同不等于身份相同",
+      "start": 80.5,
+      "duration": 21,
+      "goal": "比较 source 与 picked commit 的完整 ID、parent 和 patch。",
+      "primaryTechnique": "Identity comparison",
+      "beats": [
+        {
+          "time": [
+            85,
+            110
+          ],
+          "visual": "F2/P2 两张对象卡，patch match、parent differs、OID differs",
+          "motion": "相同与不同逐行进入",
+          "state": "compared",
+          "narration": "对象身份包含 parent 等元数据。",
+          "audit": [
+            "显示完整 40 位 ID"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_compare_identity",
+        "voiceStart": 83.25,
+        "text": "把 source 与 picked commit 放在一起比较。<#0.40#>\n两边引入的 app.js 变化可以一致，但 parent 不同，提交时间等元数据也可能不同。<#0.50#>\n因此完整对象 ID 会不同。<#0.35#>\ncherry-pick 保存的是我们选择的变化效果，不是对原 commit 身份的引用关系。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 5.354,
+          "text": "把 source 与 picked commit 放在一起比较"
+        },
+        {
+          "from": 5.967,
+          "to": 11.704,
+          "text": "两边引入的 app.js 变化可以一致，但 parent 不同，提交时间等元数据也可能不同"
+        },
+        {
+          "from": 12.482,
+          "to": 13.869,
+          "text": "因此完整对象 ID 会不同"
+        },
+        {
+          "from": 14.494,
+          "to": 18.91,
+          "text": "cherry-pick 保存的是我们选择的变化效果，不是对原 commit 身份的引用关系"
+        }
+      ]
+    },
+    {
+      "id": "conflict-boundary",
+      "title": "发生冲突时仍回到 Index",
+      "start": 101.5,
+      "duration": 23.5,
+      "goal": "说明冲突边界与 continue/abort。",
+      "primaryTechnique": "Boundary cards",
+      "beats": [
+        {
+          "time": [
+            110,
+            132
+          ],
+          "visual": "conflict → resolve/add → continue 或 abort",
+          "motion": "复用 EP15 状态路径",
+          "state": "boundary",
+          "narration": "选择动作不会消除上下文差异。",
+          "audit": [
+            "不展开 merge commit -m"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_conflict_boundary",
+        "voiceStart": 104.25,
+        "text": "如果目标上下文已经改变，应用 patch 也可能产生冲突。<#0.45#>\n这时仍然回到 EP15 的 Index 状态：检查 unmerged entries，编辑文件，git add 后再 continue。<#0.50#>\n如果不该继续，就使用 abort 回到开始前。<#0.45#>\n主流程没有冲突，只是为了看清 cherry-pick 本身在做什么。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 6.442,
+          "text": "如果目标上下文已经改变，应用 patch 也可能产生冲突"
+        },
+        {
+          "from": 7.109,
+          "to": 14.084,
+          "text": "这时仍然回到 EP15 的 Index 状态：检查 unmerged entries，编辑文件，git add 后再 continue"
+        },
+        {
+          "from": 14.882,
+          "to": 17.496,
+          "text": "如果不该继续，就使用 abort 回到开始前"
+        },
+        {
+          "from": 18.212,
+          "to": 21.459,
+          "text": "主流程没有冲突，只是为了看清 cherry-pick 本身在做什么"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 125,
+      "duration": 25,
+      "goal": "用选择、验证、重建、比较收束。",
+      "primaryTechnique": "Four-step takeaway",
+      "beats": [
+        {
+          "time": [
+            132,
+            160
+          ],
+          "visual": "locate → show → cherry-pick → compare",
+          "motion": "四步稳定呈现",
+          "state": "takeaway",
+          "narration": "选择变化，不是移动 commit。",
+          "audit": [
+            "不与 merge/rebase 混淆"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 127.75,
+        "text": "最后把选择性搬运整理成四步。<#0.40#>\n先定位 source commit，用 show 核对 patch，再在目标 HEAD 上执行 cherry-pick。<#0.50#>\n完成后比较文件效果、parent 与完整对象 ID。<#0.45#>\n如果只记住一句话，可以这样理解：cherry-pick 选择一份提交变化，在当前历史后创建新的提交身份。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 4.963,
+          "text": "最后把选择性搬运整理成四步"
+        },
+        {
+          "from": 5.633,
+          "to": 11.199,
+          "text": "先定位 source commit，用 show 核对 patch，再在目标 HEAD 上执行 cherry-pick"
+        },
+        {
+          "from": 11.937,
+          "to": 15.429,
+          "text": "完成后比较文件效果、parent 与完整对象 ID"
+        },
+        {
+          "from": 16.14,
+          "to": 22.888,
+          "text": "如果只记住一句话，可以这样理解：cherry-pick 选择一份提交变化，在当前历史后创建新的提交身份"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP19：怎样只搬一个 Commit 的修改\n\n从 source patch 到目标 parent，证明 cherry-pick 复制变化而非移动 commit。\n",
+    "scriptMarkdown": "# EP19 当前脚本（160s）\n\n主流程无冲突，冲突只作为复用 EP15 的边界。\n",
+    "beatsMarkdown": "# EP19 Beats\n\n`locate → show → cherry-pick → compare identity → conflict boundary`。\n",
+    "qualityMarkdown": "# EP19 审查记录\n\n- source 与 picked commit 显示完整对象 ID。\n- 原节点始终保留在 feature。\n",
+    "alignmentMarkdown": "# EP19 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP19 B 站发布物料\n\n## 标题\n\nCherry-pick 是搬 Commit 吗？\n\n## 简介\n\n只选择一个修复，并比较 source 与新提交的 patch、parent 和对象 ID。\n\n## 官方参考\n\n- [git-cherry-pick 官方手册](https://git-scm.com/docs/git-cherry-pick)\n\n## 标签\n\n```text\nGit\nGit教程\nCherry Pick\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP19 封面 Brief\n\n左侧 feature 中高亮 F2，右侧 main 后生成不同身份的新节点。\n",
+    "checklistMarkdown": "# EP19 发布检查清单\n\n- [ ] patch 相同、parent 与对象 ID 不同的证据已核对。\n"
+  }
+}

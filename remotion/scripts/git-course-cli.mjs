@@ -257,6 +257,14 @@ const getComposition = (episode) => {
     'ep14-ahead-behind-non-fast-forward': 'GitCourseEp14AheadBehindNonFastForward',
     'ep15-unmerged-index': 'GitCourseEp15UnmergedIndex',
     'ep16-reflog-recovery': 'GitCourseEp16ReflogRecovery',
+    'ep17-interactive-staging': 'GitCourseEp17InteractiveStaging',
+    'ep18-stashing-work': 'GitCourseEp18StashingWork',
+    'ep19-cherry-pick': 'GitCourseEp19CherryPick',
+    'ep20-rewriting-history': 'GitCourseEp20RewritingHistory',
+    'ep21-searching-history': 'GitCourseEp21SearchingHistory',
+    'ep22-blame': 'GitCourseEp22Blame',
+    'ep23-bisect': 'GitCourseEp23Bisect',
+    'ep24-rerere': 'GitCourseEp24Rerere',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -278,6 +286,14 @@ const episodeSourceName = (episodeId) => ({
   'ep14-ahead-behind-non-fast-forward': 'Ep14AheadBehindNonFastForward.tsx',
   'ep15-unmerged-index': 'Ep15UnmergedIndex.tsx',
   'ep16-reflog-recovery': 'Ep16ReflogRecovery.tsx',
+  'ep17-interactive-staging': 'Ep17InteractiveStaging.tsx',
+  'ep18-stashing-work': 'Ep18StashingWork.tsx',
+  'ep19-cherry-pick': 'Ep19CherryPick.tsx',
+  'ep20-rewriting-history': 'Ep20RewritingHistory.tsx',
+  'ep21-searching-history': 'Ep21SearchingHistory.tsx',
+  'ep22-blame': 'Ep22Blame.tsx',
+  'ep23-bisect': 'Ep23Bisect.tsx',
+  'ep24-rerere': 'Ep24Rerere.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {

@@ -1,0 +1,380 @@
+{
+  "episodeId": "ep23-bisect",
+  "title": "哪个 Commit 最先让测试失败",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-bisect",
+      "docs/references/progit2-zh/book/07-git-tools/sections/debugging.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "十几个 Commit 要逐个试吗",
+      "start": 0,
+      "duration": 17,
+      "goal": "提出 first bad commit 搜索成本。",
+      "primaryTechnique": "Question + commit interval",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "长提交链两端 good/bad，中间未知",
+          "motion": "未知区间收缩",
+          "state": "question",
+          "narration": "能否用测试把区间一半一半排除？",
+          "audit": [
+            "不把 first bad 等同根因"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 2.75,
+        "text": "旧版本测试通过，当前版本失败，中间隔着十几个 commit。<#0.45#>\n我们需要从头逐个 checkout 吗？<#0.40#>\ngit bisect 会利用 good 与 bad 边界做二分查找，但它最终找到的究竟是什么？"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 6.584,
+          "text": "旧版本测试通过，当前版本失败，中间隔着十几个 commit"
+        },
+        {
+          "from": 7.273,
+          "to": 8.669,
+          "text": "我们需要从头逐个 checkout 吗？"
+        },
+        {
+          "from": 9.504,
+          "to": 15.031,
+          "text": "git bisect 会利用 good 与 bad 边界做二分查找，但它最终找到的究竟是什么？"
+        }
+      ]
+    },
+    {
+      "id": "good-bad",
+      "title": "先建立可信的 Good 与 Bad",
+      "start": 17,
+      "duration": 22,
+      "goal": "真实验证两端并启动 bisect。",
+      "primaryTechnique": "Recorded bisect start",
+      "beats": [
+        {
+          "time": [
+            16,
+            40
+          ],
+          "visual": "当前测试失败，旧 tag 测试通过，标记 bad/good",
+          "motion": "两端边界锁定",
+          "state": "bounded",
+          "narration": "边界可靠，搜索才有意义。",
+          "audit": [
+            "测试命令与退出码可见"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_good_bad",
+        "voiceStart": 19.75,
+        "text": "先不要急着启动搜索。<#0.35#>\n我们在当前 revision 运行同一个 test.sh，确认它以非零退出码失败；再在已知旧位置验证它确实通过。<#0.50#>\n随后标记当前为 bad、旧位置为 good。<#0.45#>\n如果两端判断不可靠，二分再快也只会得到一个精确的错误答案。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 4.069,
+          "text": "先不要急着启动搜索"
+        },
+        {
+          "from": 4.647,
+          "to": 11.899,
+          "text": "我们在当前 revision 运行同一个 test.sh，确认它以非零退出码失败；再在已知旧位置验证它确实通过"
+        },
+        {
+          "from": 12.576,
+          "to": 15.64,
+          "text": "随后标记当前为 bad、旧位置为 good"
+        },
+        {
+          "from": 16.406,
+          "to": 19.936,
+          "text": "如果两端判断不可靠，二分再快也只会得到一个精确的错误答案"
+        }
+      ]
+    },
+    {
+      "id": "manual-rounds",
+      "title": "每轮只回答同一个问题",
+      "start": 39,
+      "duration": 21.5,
+      "goal": "真实展示两轮 checkout、测试与 good/bad 反馈。",
+      "primaryTechnique": "Recorded manual bisect",
+      "beats": [
+        {
+          "time": [
+            40,
+            68
+          ],
+          "visual": "Git checkout 中点，两轮运行 test.sh 并反馈",
+          "motion": "候选区间逐轮减半",
+          "state": "searching",
+          "narration": "当前候选在同一测试下是 good 还是 bad？",
+          "audit": [
+            "当前 detached checkout 清楚"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_manual_rounds",
+        "voiceStart": 42.25,
+        "text": "Git 先 checkout 区间中点，我们运行完全相同的测试。<#0.45#>\n如果通过，就把当前候选标为 good；如果失败，就标为 bad。<#0.45#>\n下一轮 Git 只保留仍可能包含边界的那一半。<#0.45#>\n画面中的 HEAD 会暂时位于候选 commit，这不是 branch 被移动。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.366,
+          "text": "Git 先 checkout 区间中点，我们运行完全相同的测试"
+        },
+        {
+          "from": 7.026,
+          "to": 11.383,
+          "text": "如果通过，就把当前候选标为 good；如果失败，就标为 bad"
+        },
+        {
+          "from": 12.079,
+          "to": 15.283,
+          "text": "下一轮 Git 只保留仍可能包含边界的那一半"
+        },
+        {
+          "from": 15.921,
+          "to": 19.767,
+          "text": "画面中的 HEAD 会暂时位于候选 commit，这不是 branch 被移动"
+        }
+      ]
+    },
+    {
+      "id": "candidate-shrinks",
+      "title": "候选区间为什么会收缩",
+      "start": 60.5,
+      "duration": 21.5,
+      "goal": "解释可达顺序上的二分而非时间排序。",
+      "primaryTechnique": "Interval model",
+      "beats": [
+        {
+          "time": [
+            68,
+            90
+          ],
+          "visual": "good ... unknown ... bad 区间两次折半",
+          "motion": "排除区间淡出",
+          "state": "model",
+          "narration": "搜索基于祖先关系与判断反馈。",
+          "audit": [
+            "主线保持线性历史"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_candidate_shrinks",
+        "voiceStart": 63.75,
+        "text": "在这条线性历史里，good 以前可以排除，bad 以后也不再需要重复检查。<#0.45#>\n每次反馈都把首次从通过变为失败的位置限制在更小区间。<#0.50#>\n它不是按提交日期猜测，也不是阅读代码后自动判断。<#0.45#>\n真正提供信号的是我们反复执行的同一测试。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 7.997,
+          "text": "在这条线性历史里，good 以前可以排除，bad 以后也不再需要重复检查"
+        },
+        {
+          "from": 8.735,
+          "to": 12.561,
+          "text": "每次反馈都把首次从通过变为失败的位置限制在更小区间"
+        },
+        {
+          "from": 13.351,
+          "to": 16.4,
+          "text": "它不是按提交日期猜测，也不是阅读代码后自动判断"
+        },
+        {
+          "from": 17.075,
+          "to": 19.596,
+          "text": "真正提供信号的是我们反复执行的同一测试"
+        }
+      ]
+    },
+    {
+      "id": "bisect-run",
+      "title": "稳定测试可以自动运行",
+      "start": 82,
+      "duration": 25.5,
+      "goal": "真实用 bisect run 完成自动案例。",
+      "primaryTechnique": "Recorded git bisect run",
+      "beats": [
+        {
+          "time": [
+            90,
+            116
+          ],
+          "visual": "git bisect run ./test.sh 输出轮次与 first bad",
+          "motion": "命令输出与区间同步",
+          "state": "automated",
+          "narration": "退出码驱动自动判断。",
+          "audit": [
+            "最终 commit 用 show 验证"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_bisect_run",
+        "voiceStart": 85.25,
+        "text": "如果测试稳定，并且能用退出码表达结果，可以交给 git bisect run ./test.sh。<#0.50#>\nGit 会反复选择候选、运行脚本并读取退出码。<#0.45#>\n完成后它报告在当前测试条件下的 first bad commit。<#0.45#>\n我们仍要用 git show 打开变化，确认它是引入失败的边界，而不是直接宣布业务根因。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 9.308,
+          "text": "如果测试稳定，并且能用退出码表达结果，可以交给 git bisect run ./test.sh"
+        },
+        {
+          "from": 9.969,
+          "to": 13.222,
+          "text": "Git 会反复选择候选、运行脚本并读取退出码"
+        },
+        {
+          "from": 13.957,
+          "to": 17.556,
+          "text": "完成后它报告在当前测试条件下的 first bad commit"
+        },
+        {
+          "from": 18.268,
+          "to": 23.778,
+          "text": "我们仍要用 git show 打开变化，确认它是引入失败的边界，而不是直接宣布业务根因"
+        }
+      ]
+    },
+    {
+      "id": "limits-reset",
+      "title": "结束后恢复原来的位置",
+      "start": 107.5,
+      "duration": 21.5,
+      "goal": "说明 skip、不稳定测试与 reset。",
+      "primaryTechnique": "Boundary + recorded reset",
+      "beats": [
+        {
+          "time": [
+            116,
+            138
+          ],
+          "visual": "unstable / skip / reset 三个边界",
+          "motion": "HEAD 回到开始位置",
+          "state": "restored",
+          "narration": "调查结束，不遗留 detached 状态。",
+          "audit": [
+            "skip 可能保留多个候选"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_limits_reset",
+        "voiceStart": 110.75,
+        "text": "无法构建的候选可以标记 skip，但这可能留下多个可疑 commit。<#0.45#>\n更麻烦的是不稳定测试，它会破坏整条判断链。<#0.45#>\n调查完成后运行 git bisect reset，回到开始前的 branch 与位置。<#0.45#>\n这一步让搜索过程和日常工作状态清楚分开。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.987,
+          "text": "无法构建的候选可以标记 skip，但这可能留下多个可疑 commit"
+        },
+        {
+          "from": 7.663,
+          "to": 10.483,
+          "text": "更麻烦的是不稳定测试，它会破坏整条判断链"
+        },
+        {
+          "from": 11.14,
+          "to": 15.788,
+          "text": "调查完成后运行 git bisect reset，回到开始前的 branch 与位置"
+        },
+        {
+          "from": 16.485,
+          "to": 19.46,
+          "text": "这一步让搜索过程和日常工作状态清楚分开"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 129,
+      "duration": 21,
+      "goal": "收束为验证边界、同一测试、证据确认。",
+      "primaryTechnique": "Three-step takeaway",
+      "beats": [
+        {
+          "time": [
+            138,
+            160
+          ],
+          "visual": "verify ends → bisect/test → show/reset",
+          "motion": "三步闭环",
+          "state": "takeaway",
+          "narration": "first bad 是调查入口，不是根因裁决。",
+          "audit": [
+            "不扩展 merge-aware bisect"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 132.25,
+        "text": "最后记住三个检查点。<#0.35#>\ngood 与 bad 是否经过同一测试验证？<#0.35#>\n每轮结果是否稳定并能用退出码表达？<#0.35#>\n找到 first bad 后，是否打开 patch 继续调查，并用 reset 恢复位置？<#0.45#>\nbisect 缩小的是变化边界，不会替我们解释完整根因。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 4.36,
+          "text": "最后记住三个检查点"
+        },
+        {
+          "from": 4.973,
+          "to": 7.316,
+          "text": "good 与 bad 是否经过同一测试验证？"
+        },
+        {
+          "from": 7.949,
+          "to": 10.223,
+          "text": "每轮结果是否稳定并能用退出码表达？"
+        },
+        {
+          "from": 10.885,
+          "to": 15.275,
+          "text": "找到 first bad 后，是否打开 patch 继续调查，并用 reset 恢复位置？"
+        },
+        {
+          "from": 15.954,
+          "to": 19.187,
+          "text": "bisect 缩小的是变化边界，不会替我们解释完整根因"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP23：哪个 Commit 最先让测试失败\n\n用可信 good/bad 边界和稳定测试做二分调查。\n",
+    "scriptMarkdown": "# EP23 当前脚本（160s）\n\nfirst bad 只表述为当前测试条件下的变化边界。\n",
+    "beatsMarkdown": "# EP23 Beats\n\n`verify ends → manual rounds → interval model → bisect run → show/reset`。\n",
+    "qualityMarkdown": "# EP23 审查记录\n\n- 两轮手动测试与一次自动 run 都来自真实 Git。\n- 当前 detached checkout 与 branch 位置不混淆。\n",
+    "alignmentMarkdown": "# EP23 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP23 B 站发布物料\n\n## 标题\n\nGit Bisect 怎样找到 First Bad Commit？\n\n## 简介\n\n从可信 good/bad 边界开始，手动和自动完成一次真实二分调查。\n\n## 官方参考\n\n- [git-bisect 官方手册](https://git-scm.com/docs/git-bisect)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Bisect\n调试\n```\n",
+    "coverBriefMarkdown": "# EP23 封面 Brief\n\n一条提交链从 good 到 bad，中点不断折半并锁定 first bad。\n",
+    "checklistMarkdown": "# EP23 发布检查清单\n\n- [ ] 测试退出码、first bad 证据和 bisect reset 已核对。\n"
+  }
+}

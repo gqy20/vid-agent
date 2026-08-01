@@ -1,0 +1,380 @@
+{
+  "episodeId": "ep18-stashing-work",
+  "title": "Stash 把工作放到了哪里",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-stash",
+      "docs/references/progit2-zh/book/07-git-tools/sections/stashing-cleaning.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "临时切任务，现场怎么办",
+      "start": 0,
+      "duration": 16,
+      "goal": "提出未完成工作与临时切换的冲突。",
+      "primaryTechnique": "Question + layered state",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "Index 与 Working Tree 都有修改，新任务进入",
+          "motion": "两层状态被临时收起",
+          "state": "interrupted",
+          "narration": "怎样暂存现场而不是制造半成品提交？",
+          "audit": [
+            "不把 stash 画成云端"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1.25,
+        "text": "手上的修改还没准备提交，另一个任务却需要马上切换。<#0.45#>\n我们是否只能制造一个临时 commit，或者丢掉当前现场？<#0.45#>\nstash 提供了第三种选择，但它究竟保存了哪些状态，又把它们放在了哪里？"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 4.832,
+          "text": "手上的修改还没准备提交，另一个任务却需要马上切换"
+        },
+        {
+          "from": 5.605,
+          "to": 8.787,
+          "text": "我们是否只能制造一个临时 commit，或者丢掉当前现场？"
+        },
+        {
+          "from": 9.651,
+          "to": 13.829,
+          "text": "stash 提供了第三种选择，但它究竟保存了哪些状态，又把它们放在了哪里？"
+        }
+      ]
+    },
+    {
+      "id": "two-layers",
+      "title": "现场同时跨越两个层",
+      "start": 16,
+      "duration": 18.5,
+      "goal": "展示 staged、unstaged 与 untracked 的差异。",
+      "primaryTechnique": "GitStateFlow",
+      "beats": [
+        {
+          "time": [
+            16,
+            38
+          ],
+          "visual": "config.js staged、app.js unstaged、notes.tmp untracked",
+          "motion": "三种状态逐项进入",
+          "state": "dirty",
+          "narration": "先盘点，再保存。",
+          "audit": [
+            "untracked 与 tracked 状态分开"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_two_layers",
+        "voiceStart": 17.25,
+        "text": "先看当前现场：config.js 已经 staged，app.js 仍是 unstaged，旁边还有一个 untracked 的 notes.tmp。<#0.50#>\n这三类路径并不自动得到相同处理。<#0.45#>\n我们先记录状态，再观察普通 stash push 到底带走什么。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 10.234,
+          "text": "先看当前现场：config.js 已经 staged，app.js 仍是 unstaged，旁边还有一个 untracked 的 notes.tmp"
+        },
+        {
+          "from": 10.928,
+          "to": 12.858,
+          "text": "这三类路径并不自动得到相同处理"
+        },
+        {
+          "from": 13.644,
+          "to": 16.63,
+          "text": "我们先记录状态，再观察普通 stash push 到底带走什么"
+        }
+      ]
+    },
+    {
+      "id": "stash-push",
+      "title": "Push 保存并清理 Tracked 修改",
+      "start": 34.5,
+      "duration": 26,
+      "goal": "真实执行 stash push 并观察状态。",
+      "primaryTechnique": "Recorded stash push",
+      "beats": [
+        {
+          "time": [
+            38,
+            62
+          ],
+          "visual": "git stash push -m 后 tracked 修改离开工作现场，notes.tmp 保留",
+          "motion": "Index 与 Working Tree 收进 stash entry",
+          "state": "stashed",
+          "narration": "默认不包含 untracked。",
+          "audit": [
+            "状态输出保留 ?? notes.tmp"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_stash_push",
+        "voiceStart": 35.75,
+        "text": "运行 git stash push -m switch-task。<#0.45#>\nGit 保存 tracked 文件在 Working Tree 与 Index 中的变化，然后把这两层恢复到 HEAD 对应状态。<#0.50#>\n再次查看 status，notes.tmp 仍然存在，因为普通 stash 默认不包含 untracked 文件。<#0.45#>\n需要包含它时必须显式选择，而不是假设所有现场都已保存。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 3.915,
+          "text": "运行 git stash push -m switch-task"
+        },
+        {
+          "from": 4.608,
+          "to": 10.781,
+          "text": "Git 保存 tracked 文件在 Working Tree 与 Index 中的变化，然后把这两层恢复到 HEAD 对应状态"
+        },
+        {
+          "from": 11.549,
+          "to": 18.359,
+          "text": "再次查看 status，notes.tmp 仍然存在，因为普通 stash 默认不包含 untracked 文件"
+        },
+        {
+          "from": 19.05,
+          "to": 23.878,
+          "text": "需要包含它时必须显式选择，而不是假设所有现场都已保存"
+        }
+      ]
+    },
+    {
+      "id": "inspect-entry",
+      "title": "Stash Entry 可以被检查",
+      "start": 60.5,
+      "duration": 21.5,
+      "goal": "用 refs/stash、list 与 show 证明它是本地可检查记录。",
+      "primaryTechnique": "Recorded stash list/show",
+      "beats": [
+        {
+          "time": [
+            62,
+            84
+          ],
+          "visual": "stash@{0}、message 与 stat",
+          "motion": "entry 从 refs/stash 展开",
+          "state": "inspected",
+          "narration": "它不是抽象储物箱。",
+          "audit": [
+            "不展开多 parent 拓扑"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_inspect_entry",
+        "voiceStart": 61.75,
+        "text": "现场并没有进入某个神秘抽屉。<#0.40#>\ngit stash list 会从 refs/stash 的 reflog 列出 entry，git stash show 则能检查它保存的变化。<#0.50#>\n它属于当前本地仓库，可以命名、查看和应用，但不会自动同步到远端。<#0.45#>\n这也说明 stash 更适合短期切换，而不是长期保存重要工作。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 2.864,
+          "text": "现场并没有进入某个神秘抽屉"
+        },
+        {
+          "from": 3.471,
+          "to": 9.68,
+          "text": "git stash list 会从 refs/stash 的 reflog 列出 entry，git stash show 则能检查它保存的变化"
+        },
+        {
+          "from": 10.388,
+          "to": 15.144,
+          "text": "它属于当前本地仓库，可以命名、查看和应用，但不会自动同步到远端"
+        },
+        {
+          "from": 15.809,
+          "to": 19.674,
+          "text": "这也说明 stash 更适合短期切换，而不是长期保存重要工作"
+        }
+      ]
+    },
+    {
+      "id": "apply-index",
+      "title": "Apply --index 恢复两层位置",
+      "start": 82,
+      "duration": 24.5,
+      "goal": "真实恢复 staged 与 unstaged 状态。",
+      "primaryTechnique": "Recorded apply --index + state flow",
+      "beats": [
+        {
+          "time": [
+            84,
+            109
+          ],
+          "visual": "apply --index 后 config.js 回到 Index，app.js 回到 Working Tree",
+          "motion": "两部分回到原层",
+          "state": "restored",
+          "narration": "恢复内容，也恢复暂存位置。",
+          "audit": [
+            "普通 apply 与 --index 的边界明确"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_apply_index",
+        "voiceStart": 83.25,
+        "text": "确认 entry 正确后，我们运行 git stash apply --index stash at brace 0。<#0.50#>\napp.js 的修改回到 Working Tree，config.js 的修改重新成为 staged。<#0.50#>\n这里的 --index 很关键：普通 apply 主要恢复文件内容，不保证重建原来的暂存状态。<#0.45#>\n恢复后仍要看 status 和 diff，而不是把成功提示当作最终证明。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 6.596,
+          "text": "确认 entry 正确后，我们运行 git stash apply --index stash at brace 0"
+        },
+        {
+          "from": 7.399,
+          "to": 11.484,
+          "text": "app.js 的修改回到 Working Tree，config.js 的修改重新成为 staged"
+        },
+        {
+          "from": 12.239,
+          "to": 17.568,
+          "text": "这里的 --index 很关键：普通 apply 主要恢复文件内容，不保证重建原来的暂存状态"
+        },
+        {
+          "from": 18.347,
+          "to": 22.543,
+          "text": "恢复后仍要看 status 和 diff，而不是把成功提示当作最终证明"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "title": "Apply、Pop 与 Drop 不同",
+      "start": 106.5,
+      "duration": 19.5,
+      "goal": "区分恢复与删除 entry 的生命周期。",
+      "primaryTechnique": "Lifecycle cards",
+      "beats": [
+        {
+          "time": [
+            109,
+            132
+          ],
+          "visual": "apply 保留、pop 成功后移除、drop 只移除",
+          "motion": "三条路径分开",
+          "state": "lifecycle",
+          "narration": "恢复动作与记录生命周期是两件事。",
+          "audit": [
+            "不把 pop 描述为一定删除"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_lifecycle",
+        "voiceStart": 107.75,
+        "text": "再看三个容易混淆的动作。<#0.40#>\napply 尝试恢复并保留 entry；pop 在成功应用后再移除它；drop 只移除记录。<#0.50#>\n如果应用发生冲突，pop 不应被理解成无条件清空证据。<#0.45#>\n把恢复和删除分开思考，通常更容易保留选择空间。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 2.671,
+          "text": "再看三个容易混淆的动作"
+        },
+        {
+          "from": 3.327,
+          "to": 9.176,
+          "text": "apply 尝试恢复并保留 entry；pop 在成功应用后再移除它；drop 只移除记录"
+        },
+        {
+          "from": 9.975,
+          "to": 13.227,
+          "text": "如果应用发生冲突，pop 不应被理解成无条件清空证据"
+        },
+        {
+          "from": 14.099,
+          "to": 17.713,
+          "text": "把恢复和删除分开思考，通常更容易保留选择空间"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 126,
+      "duration": 24,
+      "goal": "收束为盘点、保存、检查、恢复。",
+      "primaryTechnique": "Four-step takeaway",
+      "beats": [
+        {
+          "time": [
+            132,
+            160
+          ],
+          "visual": "status → push → show → apply --index",
+          "motion": "四步形成闭环",
+          "state": "takeaway",
+          "narration": "stash 是本地短期现场，不是备份。",
+          "audit": [
+            "保留 untracked 边界"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 127.25,
+        "text": "最后把这次切换整理成四个问题。<#0.40#>\n当前有哪些 staged、unstaged 和 untracked 状态？<#0.35#>\n普通 stash 会保存其中哪些内容？<#0.35#>\nentry 是否已经通过 list 与 show 检查？<#0.35#>\n恢复时是否需要 --index 重建原来的暂存位置？<#0.45#>\n这样使用 stash，保存的是可检查的本地短期现场，而不是一份永久备份。"
+      },
+      "captions": [
+        {
+          "from": 1.25,
+          "to": 3.321,
+          "text": "最后把这次切换整理成四个问题"
+        },
+        {
+          "from": 3.937,
+          "to": 7.637,
+          "text": "当前有哪些 staged、unstaged 和 untracked 状态？"
+        },
+        {
+          "from": 8.248,
+          "to": 10.378,
+          "text": "普通 stash 会保存其中哪些内容？"
+        },
+        {
+          "from": 11.104,
+          "to": 13.37,
+          "text": "entry 是否已经通过 list 与 show 检查？"
+        },
+        {
+          "from": 14.028,
+          "to": 16.728,
+          "text": "恢复时是否需要 --index 重建原来的暂存位置？"
+        },
+        {
+          "from": 17.405,
+          "to": 22.117,
+          "text": "这样使用 stash，保存的是可检查的本地短期现场，而不是一份永久备份"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP18：Stash 把工作放到了哪里\n\n保存并恢复 Working Tree 与 Index，同时明确 untracked 和生命周期边界。\n",
+    "scriptMarkdown": "# EP18 当前脚本（160s）\n\n不把 stash 讲成 branch、云端或永久保险。\n",
+    "beatsMarkdown": "# EP18 Beats\n\n`status → stash push → inspect entry → apply --index → lifecycle`。\n",
+    "qualityMarkdown": "# EP18 审查记录\n\n- stash 后必须保留 untracked 对照。\n- apply --index 后 staged/unstaged 状态要真实恢复。\n",
+    "alignmentMarkdown": "# EP18 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP18 B 站发布物料\n\n## 标题\n\nGit Stash 到底保存了什么？\n\n## 简介\n\n真实观察 stash 前后 Working Tree、Index 与 untracked 文件。\n\n## 官方参考\n\n- [git-stash 官方手册](https://git-scm.com/docs/git-stash)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Stash\n版本控制\n```\n",
+    "coverBriefMarkdown": "# EP18 封面 Brief\n\nWorking Tree 与 Index 收进 stash entry，再按原层恢复。\n",
+    "checklistMarkdown": "# EP18 发布检查清单\n\n- [ ] tracked、untracked 与 apply --index 的差异已核对。\n"
+  }
+}

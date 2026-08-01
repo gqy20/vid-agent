@@ -24,6 +24,14 @@ const EPISODES = [
   ['ep14-ahead-behind-non-fast-forward', 'GitCourseEp14AheadBehindNonFastForward', 'EP14'],
   ['ep15-unmerged-index', 'GitCourseEp15UnmergedIndex', 'EP15'],
   ['ep16-reflog-recovery', 'GitCourseEp16ReflogRecovery', 'EP16'],
+  ['ep17-interactive-staging', 'GitCourseEp17InteractiveStaging', 'EP17'],
+  ['ep18-stashing-work', 'GitCourseEp18StashingWork', 'EP18'],
+  ['ep19-cherry-pick', 'GitCourseEp19CherryPick', 'EP19'],
+  ['ep20-rewriting-history', 'GitCourseEp20RewritingHistory', 'EP20'],
+  ['ep21-searching-history', 'GitCourseEp21SearchingHistory', 'EP21'],
+  ['ep22-blame', 'GitCourseEp22Blame', 'EP22'],
+  ['ep23-bisect', 'GitCourseEp23Bisect', 'EP23'],
+  ['ep24-rerere', 'GitCourseEp24Rerere', 'EP24'],
 ];
 
 const fail = (message) => {
@@ -42,6 +50,8 @@ const loadEpisode = ([id, composition, symbol]) => {
     !ids.has(scene.id) || fail(`${path}: duplicate scene id ${scene.id}`);
     ids.add(scene.id);
     Number.isFinite(scene.start) && Number.isFinite(scene.duration) && scene.duration > 0 || fail(`${path}: invalid timing for ${scene.id}`);
+    Math.abs(scene.start * data.fps - Math.round(scene.start * data.fps)) < 1e-7 || fail(`${path}: ${scene.id} start must align to a ${data.fps}fps frame`);
+    Math.abs(scene.duration * data.fps - Math.round(scene.duration * data.fps)) < 1e-7 || fail(`${path}: ${scene.id} duration must align to a ${data.fps}fps frame`);
     scene.start === cursor || fail(`${path}: ${scene.id} starts at ${scene.start}, expected ${cursor}`);
     if (scene.captions !== undefined) {
       Array.isArray(scene.captions) || fail(`${path}: ${scene.id}.captions must be an array`);

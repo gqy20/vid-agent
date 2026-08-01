@@ -11,6 +11,7 @@
     "render:ranges": "TIMEOUT=120000 MUTED=1 scripts/render-ranges.sh CCInsightsPromo cc-insights-promo auto 600",
     "git-course:validate": "node scripts/git-course.mjs validate",
     "git-course:generate": "node scripts/git-course.mjs generate",
+    "git-course:sync-captions": "node scripts/git-course-sync-captions.mjs",
     "git-course:narration": "node scripts/git-course.mjs narration",
     "git-course:release": "node scripts/git-course.mjs release",
     "git-course:lab:audit": "STRICT=1 scripts/audit-overlaps.sh GitCourseComponentLab 75,225,375,525,675,825,975 renders/git-course/tmp/component-lab/audit",

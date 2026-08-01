@@ -62,7 +62,7 @@
 
 第三季聚焦两类能力：前四集精确选择、暂存、搬运和整理修改，后四集从历史中搜索变化、定位问题并复用冲突解决经验。季编号只用于内部规划，不进入视频解说、总结或发布文案。
 
-17. `ep17-interactive-staging`
+17. [`ep17-interactive-staging`](episodes/ep17-interactive-staging.json)
     一个文件怎样拆成两个提交：使用交互式暂存把同一文件中的不同修改分别放入 Index。
 
     - 主线：在 `app.js` 中同时制造一处 bug 修复和一处无关文案修改；先用 `git diff` 识别两个 hunk，再通过 `git add -p` 只选择其中一个。选中的内容进入 Index，未选中的内容继续留在 Working Tree，随后形成两个主题单一的 commit。
@@ -70,7 +70,7 @@
     - 本集边界：承接 EP02 的 Working Tree / Index / Repository 和 EP09 的比较关系，不重新讲三层基础；不把交互式暂存讲成自动理解业务意图，也不展开 `git add -e`、复杂 hunk 编辑或全部交互按键。
     - 官方依据：[git-add 的 patch mode](https://git-scm.com/docs/git-add#_interactive_mode)、[Pro Git：Interactive Staging](https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging)。
 
-18. `ep18-stashing-work`
+18. [`ep18-stashing-work`](episodes/ep18-stashing-work.json)
     stash 把工作放到了哪里：保存尚未准备提交的 Working Tree 与 Index 状态，暂时清理并恢复工作现场。
 
     - 主线：在 Working Tree 与 Index 同时存在未完成修改时临时切换任务；用 `git stash push -m` 保存现场，让文件状态回到 `HEAD`，再通过 `refs/stash`、stash reflog 和可检查的 entry 说明它不是抽象储物箱。确认内容后，用 `git stash apply --index` 恢复原来的文件与暂存状态。
@@ -78,7 +78,7 @@
     - 本集边界：不把 stash 当作 branch、远端备份或永久保险；明确普通 `apply` 与 `apply --index` 在恢复暂存状态上的差别，并只简要区分 `apply`、`pop`、`drop`，不展开 stash 的多 parent 内部拓扑或所有选项。
     - 官方依据：[git-stash](https://git-scm.com/docs/git-stash)、[Pro Git：Stashing and Cleaning](https://git-scm.com/book/en/v2/Git-Tools-Stashing-and-Cleaning)。
 
-19. `ep19-cherry-pick`
+19. [`ep19-cherry-pick`](episodes/ep19-cherry-pick.json)
     怎样只搬一个 commit 的修改：提取选中 commit 引入的变化，在当前 `HEAD` 后创建新的 commit 身份。
 
     - 主线：feature 上已经有多个 commit，但 main 只需要其中一个独立修复；先用 `git show <oid>` 核对该 commit 引入的 patch，再在 main 上执行 `git cherry-pick <oid>`。原提交留在原历史中，main 得到内容效果相同、parent 和对象 ID 不同的新提交。
@@ -86,7 +86,7 @@
     - 本集边界：不重复 EP07 的整段 rebase，也不把 cherry-pick 讲成 merge；主流程使用无冲突案例，冲突时只提示复用 EP15 的 Index 状态和 `--continue` / `--abort`，不展开 merge commit 的 `-m` 选择。
     - 官方依据：[git-cherry-pick](https://git-scm.com/docs/git-cherry-pick)、[Pro Git：Rewriting History](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History)。
 
-20. `ep20-rewriting-history`
+20. [`ep20-rewriting-history`](episodes/ep20-rewriting-history.json)
     整理提交为什么会改 hash：用 amend 和 interactive rebase 重建尚未发布的本地提交。
 
     - 主线：从一段可以运行但包含临时说明和零碎 commit 的本地历史开始；先用 `git commit --amend` 重建最近一个提交，再用 `git rebase -i` 对短提交序列执行一次 `reword` 和一次 `squash`。前后对照说明 Git 没有原地编辑旧 commit，而是根据新的内容、说明或 parent 生成新对象。
@@ -94,7 +94,7 @@
     - 本集边界：承接 EP03 的 commit 身份、EP07 的重放和 EP16 的恢复路径；不在一集内演示 edit、split、drop、reorder、fixup 等全部动作。主流程只整理尚未发布的本地历史；公开历史的协作成本与 `--force-with-lease` 只作为边界提示，不现场执行强制推送。
     - 官方依据：[git-commit 的 amend](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---amend)、[git-rebase 的 interactive mode](https://git-scm.com/docs/git-rebase#_interactive_mode)、[Pro Git：Rewriting History](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History)。
 
-21. `ep21-searching-history`
+21. [`ep21-searching-history`](episodes/ep21-searching-history.json)
     你在搜索内容、说明还是变化：区分当前文件、commit message 和历史 patch 中的不同搜索目标。
 
     - 主线：在同一仓库中让关键词同时出现在当前文件、某条 commit message 和历史 patch，但三者出现时间不同；依次用 `git grep`、`git log --grep`、`git log -S` 和 `git log -G` 得到不同答案，建立“先确定搜索对象，再选择命令”的判断路径。
@@ -102,7 +102,7 @@
     - 本集边界：不把 `-S` 简化成全文搜索，也不把 `-G` 说成只搜索当前文件；不扩展成所有 `git log` 筛选参数、shell `grep` 教程或代码搜索平台比较。EP10 负责选中 revision，本集只回答搜索目标与历史变化的关系。
     - 官方依据：[git-grep](https://git-scm.com/docs/git-grep)、[git-log 的 commit limiting 与 diff 选项](https://git-scm.com/docs/git-log)、[Pro Git：Searching](https://git-scm.com/book/en/v2/Git-Tools-Searching)。
 
-22. `ep22-blame`
+22. [`ep22-blame`](episodes/ep22-blame.json)
     这一行从哪次修改来：从当前文件行定位最后修改它的 commit，再回到完整历史上下文。
 
     - 主线：从 `app.js` 中一行值得追问的代码开始，用 `git blame -L` 找到最后修改该行的 commit；随后打开完整 patch、commit message 和 parent 对照，判断这次修改当时解决了什么问题。结论收束为：blame 是进入上下文的入口，不是对责任或最初来源的最终判定。
@@ -110,7 +110,7 @@
     - 本集边界：与 EP21 区分——EP21 从关键词或 patch 搜索历史，本集从当前已知行向后追上下文；不把 author 等同于责任人，不保证找回已删除行，也不把启发式的移动 / 复制检测描述成绝对来源证明。
     - 官方依据：[git-blame](https://git-scm.com/docs/git-blame)、[Pro Git：Debugging with Git](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)。
 
-23. `ep23-bisect`
+23. [`ep23-bisect`](episodes/ep23-bisect.json)
     哪个 commit 最先让测试失败：使用 good 与 bad 边界在提交历史中做二分查找。
 
     - 主线：准备一段旧 revision 测试通过、当前 revision 测试失败的线性历史；标记 good 与 bad 后，让 Git 选择中间 commit。每次运行同一测试并反馈结果，候选区间随之缩小，最终找到在当前测试条件下的 first bad commit。
@@ -118,7 +118,7 @@
     - 本集边界：不把 first bad commit 直接等同于业务根因；测试必须稳定、能够用退出码表达结果，无法构建的 revision 使用 skip 但可能导致多个候选。主线保持线性历史，不同时引入 merge-aware bisect、性能基准或复杂 CI 环境。
     - 官方依据：[git-bisect](https://git-scm.com/docs/git-bisect)、[Pro Git：Debugging with Git](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)。
 
-24. `ep24-rerere`
+24. [`ep24-rerere`](episodes/ep24-rerere.json)
     为什么同一个冲突不用从头解决：记录一次冲突的手工解决结果，并在相同冲突再次出现时复用。
 
     - 主线：让长期 topic branch 两次遇到形状相同的冲突；启用 `rerere.enabled` 后，第一次冲突记录 preimage，人工编辑、将路径标记为 resolved 并完成当前合并，让 Git 记录对应的 postimage。重新制造相同冲突时，Git 把已记录的解决内容应用到 Working Tree，再由人检查、测试和确认是否进入 Index。

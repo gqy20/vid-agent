@@ -1,0 +1,380 @@
+{
+  "episodeId": "ep24-rerere",
+  "title": "同一个冲突为什么不用重解",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-rerere",
+      "docs/references/progit2-zh/book/07-git-tools/sections/rerere.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "相同冲突又出现了怎么办",
+      "start": 0,
+      "duration": 17.5,
+      "goal": "提出重复冲突的解决复用问题。",
+      "primaryTechnique": "Question + repeated conflict",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "同一冲突形状出现两次，第二次已有记录",
+          "motion": "第一次解决轨迹回到第二次",
+          "state": "question",
+          "narration": "Git 能否记住我们上次怎样解决？",
+          "audit": [
+            "不表现为理解业务"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1.75,
+        "text": "长期 topic branch 又遇到了形状几乎相同的冲突。<#0.45#>\n我们必须从冲突标记开始重新编辑一次吗？<#0.40#>\nrerere 的名字来自 reuse recorded resolution，但它复用的究竟是什么，又会不会自动替我们确认正确性？"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 4.491,
+          "text": "长期 topic branch 又遇到了形状几乎相同的冲突"
+        },
+        {
+          "from": 5.18,
+          "to": 7.873,
+          "text": "我们必须从冲突标记开始重新编辑一次吗？"
+        },
+        {
+          "from": 8.681,
+          "to": 15.617,
+          "text": "rerere 的名字来自 reuse recorded resolution，但它复用的究竟是什么，又会不会自动替我们确认正确性？"
+        }
+      ]
+    },
+    {
+      "id": "first-conflict",
+      "title": "第一次仍要真实解决",
+      "start": 17.5,
+      "duration": 21.5,
+      "goal": "真实制造冲突并显示 unmerged 状态。",
+      "primaryTechnique": "Recorded merge conflict",
+      "beats": [
+        {
+          "time": [
+            16,
+            40
+          ],
+          "visual": "rerere enabled 后首次 merge，status 与 rerere status",
+          "motion": "preimage 被记录",
+          "state": "unmerged",
+          "narration": "第一次冲突没有捷径。",
+          "audit": [
+            "Index 保持 unmerged"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_first_conflict",
+        "voiceStart": 19.75,
+        "text": "我们在本地启用 rerere.enabled，然后制造第一次真实冲突。<#0.50#>\ngit status 仍显示 app.js unmerged，Working Tree 中也保留冲突标记。<#0.45#>\nrerere 会记录这次冲突的 preimage，但不会凭空知道正确结果。<#0.45#>\n第一次仍需要我们理解代码并手工解决。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 6.283,
+          "text": "我们在本地启用 rerere.enabled，然后制造第一次真实冲突"
+        },
+        {
+          "from": 6.965,
+          "to": 11.743,
+          "text": "git status 仍显示 app.js unmerged，Working Tree 中也保留冲突标记"
+        },
+        {
+          "from": 12.415,
+          "to": 16.01,
+          "text": "rerere 会记录这次冲突的 preimage，但不会凭空知道正确结果"
+        },
+        {
+          "from": 16.832,
+          "to": 19.406,
+          "text": "第一次仍需要我们理解代码并手工解决"
+        }
+      ]
+    },
+    {
+      "id": "record-resolution",
+      "title": "解决结果成为可匹配记录",
+      "start": 39,
+      "duration": 23,
+      "goal": "展示人工编辑、rerere diff、git add 与完成操作。",
+      "primaryTechnique": "Recorded resolution",
+      "beats": [
+        {
+          "time": [
+            40,
+            64
+          ],
+          "visual": "编辑 resolved 内容，rerere diff，add 并 commit",
+          "motion": "preimage 与 postimage 建立对应",
+          "state": "recorded",
+          "narration": "记录的是冲突形状与解决内容。",
+          "audit": [
+            "人工编辑先于 add"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_record_resolution",
+        "voiceStart": 41.25,
+        "text": "我们编辑 app.js，运行测试，再查看 git rerere diff。<#0.45#>\n确认内容后用 git add 把路径标记为 resolved，并完成当前合并。<#0.50#>\nGit 此时能够把冲突 preimage 与最终 postimage 关联起来。<#0.45#>\n这份记录属于当前本地仓库，不是一次新的提交合并策略。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 7.24,
+          "text": "我们编辑 app.js，运行测试，再查看 git rerere diff"
+        },
+        {
+          "from": 7.927,
+          "to": 12.118,
+          "text": "确认内容后用 git add 把路径标记为 resolved，并完成当前合并"
+        },
+        {
+          "from": 12.829,
+          "to": 16.594,
+          "text": "Git 此时能够把冲突 preimage 与最终 postimage 关联起来"
+        },
+        {
+          "from": 17.353,
+          "to": 21.072,
+          "text": "这份记录属于当前本地仓库，不是一次新的提交合并策略"
+        }
+      ]
+    },
+    {
+      "id": "repeat-conflict",
+      "title": "相同形状再次出现",
+      "start": 62,
+      "duration": 21.5,
+      "goal": "从真实 Git 状态重新制造相同冲突。",
+      "primaryTechnique": "Recorded repeated conflict",
+      "beats": [
+        {
+          "time": [
+            64,
+            88
+          ],
+          "visual": "回到合并前位置，再次 merge 产生相同 conflict ID",
+          "motion": "第二次 preimage 与记录匹配",
+          "state": "matched",
+          "narration": "匹配发生在冲突内容层。",
+          "audit": [
+            "不是回放假终端"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_repeat_conflict",
+        "voiceStart": 64.25,
+        "text": "接着回到合并前的位置，让同一组分支变化再次产生冲突。<#0.45#>\n这一次 Git 识别出可匹配的冲突形状，并把以前记录的解决内容应用到 Working Tree。<#0.50#>\n它没有移动 branch，也没有跳过 Index 的冲突状态。<#0.45#>\n复用发生在文件内容层，而不是自动完成整次 merge。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 5.962,
+          "text": "接着回到合并前的位置，让同一组分支变化再次产生冲突"
+        },
+        {
+          "from": 6.788,
+          "to": 12.089,
+          "text": "这一次 Git 识别出可匹配的冲突形状，并把以前记录的解决内容应用到 Working Tree"
+        },
+        {
+          "from": 12.888,
+          "to": 15.817,
+          "text": "它没有移动 branch，也没有跳过 Index 的冲突状态"
+        },
+        {
+          "from": 16.554,
+          "to": 19.54,
+          "text": "复用发生在文件内容层，而不是自动完成整次 merge"
+        }
+      ]
+    },
+    {
+      "id": "reuse-working-tree",
+      "title": "复用先落到 Working Tree",
+      "start": 83.5,
+      "duration": 21,
+      "goal": "明确默认不 autoupdate 时仍需人工 add。",
+      "primaryTechnique": "Working Tree / Index split",
+      "beats": [
+        {
+          "time": [
+            88,
+            112
+          ],
+          "visual": "Working Tree 已应用 resolution，Index 仍 unmerged",
+          "motion": "两层状态分开高亮",
+          "state": "reused-unconfirmed",
+          "narration": "看起来解决了，还没有确认进 Index。",
+          "audit": [
+            "默认不启用 autoupdate"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_reuse_working_tree",
+        "voiceStart": 85.75,
+        "text": "注意此时的两层状态。<#0.35#>\napp.js 在 Working Tree 里已经出现复用后的内容，但我们没有启用 rerere.autoupdate。<#0.50#>\n因此 Index 仍要求人工确认，status 仍能提醒我们当前操作尚未完成。<#0.45#>\n这段停顿很重要：自动复用不是自动认可。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 3.628,
+          "text": "注意此时的两层状态"
+        },
+        {
+          "from": 4.163,
+          "to": 9.56,
+          "text": "app.js 在 Working Tree 里已经出现复用后的内容，但我们没有启用 rerere.autoupdate"
+        },
+        {
+          "from": 10.242,
+          "to": 15.734,
+          "text": "因此 Index 仍要求人工确认，status 仍能提醒我们当前操作尚未完成"
+        },
+        {
+          "from": 16.493,
+          "to": 19.225,
+          "text": "这段停顿很重要：自动复用不是自动认可"
+        }
+      ]
+    },
+    {
+      "id": "verify-stage",
+      "title": "测试后再进入 Stage 0",
+      "start": 104.5,
+      "duration": 21.5,
+      "goal": "展示检查、测试、git add 与完成操作。",
+      "primaryTechnique": "Recorded test + add",
+      "beats": [
+        {
+          "time": [
+            112,
+            134
+          ],
+          "visual": "diff/test 通过，git add 后 ls-files -u 清空",
+          "motion": "unmerged stages 收束为 stage 0",
+          "state": "confirmed",
+          "narration": "人仍负责验证业务正确性。",
+          "audit": [
+            "复用内容保持足够时间"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_verify_stage",
+        "voiceStart": 106.75,
+        "text": "我们先检查文件 diff，再运行真实测试。<#0.40#>\n只有确认这次上下文仍然适用，才执行 git add。<#0.45#>\n随后 unmerged entries 消失，普通 stage 0 重新建立，当前操作才可以继续。<#0.50#>\nrerere 节省的是重复编辑，不会接管测试和业务判断。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 4.939,
+          "text": "我们先检查文件 diff，再运行真实测试"
+        },
+        {
+          "from": 5.611,
+          "to": 8.862,
+          "text": "只有确认这次上下文仍然适用，才执行 git add"
+        },
+        {
+          "from": 9.588,
+          "to": 15.517,
+          "text": "随后 unmerged entries 消失，普通 stage 0 重新建立，当前操作才可以继续"
+        },
+        {
+          "from": 16.416,
+          "to": 19.429,
+          "text": "rerere 节省的是重复编辑，不会接管测试和业务判断"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 126,
+      "duration": 24,
+      "goal": "收束为记录、匹配、复用、验证。",
+      "primaryTechnique": "Four-step takeaway",
+      "beats": [
+        {
+          "time": [
+            134,
+            160
+          ],
+          "visual": "preimage → postimage → reuse → test/add",
+          "motion": "四步闭环",
+          "state": "takeaway",
+          "narration": "复用解决记录，保留人工确认。",
+          "audit": [
+            "不展开 forget/clear/gc"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 128.25,
+        "text": "最后把 rerere 看成一条受控链路。<#0.40#>\n第一次冲突记录 preimage，人工解决形成 postimage。<#0.45#>\n相同冲突再次出现时，Git 尝试把记录应用到 Working Tree。<#0.45#>\n我们检查 diff、运行测试，再用 git add 确认进入 Index。<#0.45#>\n它复用的是过去的解决结果，不是对当前业务正确性的保证。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 4.022,
+          "text": "最后把 rerere 看成一条受控链路"
+        },
+        {
+          "from": 4.775,
+          "to": 9.363,
+          "text": "第一次冲突记录 preimage，人工解决形成 postimage"
+        },
+        {
+          "from": 10.076,
+          "to": 13.607,
+          "text": "相同冲突再次出现时，Git 尝试把记录应用到 Working Tree"
+        },
+        {
+          "from": 14.268,
+          "to": 18.109,
+          "text": "我们检查 diff、运行测试，再用 git add 确认进入 Index"
+        },
+        {
+          "from": 18.792,
+          "to": 21.911,
+          "text": "它复用的是过去的解决结果，不是对当前业务正确性的保证"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP24：同一个冲突为什么不用重解\n\n真实记录一次 resolution，并在相同冲突再次出现时复用到 Working Tree。\n",
+    "scriptMarkdown": "# EP24 当前脚本（160s）\n\n默认不启用 rerere.autoupdate，保留人工测试与 git add。\n",
+    "beatsMarkdown": "# EP24 Beats\n\n`first conflict → pre/post image → repeat → reuse in WT → test/add`。\n",
+    "qualityMarkdown": "# EP24 审查记录\n\n- 第二次冲突必须来自真实 Git 状态。\n- Working Tree 已复用与 Index 仍 unmerged 必须同时可见。\n",
+    "alignmentMarkdown": "# EP24 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP24 B 站发布物料\n\n## 标题\n\nGit Rerere 怎样复用冲突解决？\n\n## 简介\n\n从第一次手工解决到第二次真实复用，观察 Working Tree、Index 与人工确认边界。\n\n## 官方参考\n\n- [git-rerere 官方手册](https://git-scm.com/docs/git-rerere)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Rerere\n合并冲突\n```\n",
+    "coverBriefMarkdown": "# EP24 封面 Brief\n\n同一个冲突标记出现两次，第二次沿用已记录的解决轨迹。\n",
+    "checklistMarkdown": "# EP24 发布检查清单\n\n- [ ] preimage、postimage、Working Tree 复用与人工 add 已核对。\n"
+  }
+}

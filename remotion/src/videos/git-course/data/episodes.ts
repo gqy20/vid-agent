@@ -147,6 +147,15 @@ export const EP16 = {
   ],
 };
 
+export const EP17 = {id:'ep17-interactive-staging',title:'一个文件怎样拆成两个提交',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp17InteractiveStaging',sourceReferences:['https://git-scm.com/docs/git-add#_interactive_mode']};
+export const EP18 = {id:'ep18-stashing-work',title:'Stash 把工作放到了哪里',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp18StashingWork',sourceReferences:['https://git-scm.com/docs/git-stash']};
+export const EP19 = {id:'ep19-cherry-pick',title:'怎样只搬一个 Commit 的修改',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp19CherryPick',sourceReferences:['https://git-scm.com/docs/git-cherry-pick']};
+export const EP20 = {id:'ep20-rewriting-history',title:'整理提交为什么会改 Hash',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp20RewritingHistory',sourceReferences:['https://git-scm.com/docs/git-commit','https://git-scm.com/docs/git-rebase']};
+export const EP21 = {id:'ep21-searching-history',title:'你在搜索内容、说明还是变化',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp21SearchingHistory',sourceReferences:['https://git-scm.com/docs/git-grep','https://git-scm.com/docs/git-log']};
+export const EP22 = {id:'ep22-blame',title:'这一行从哪次修改来',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp22Blame',sourceReferences:['https://git-scm.com/docs/git-blame']};
+export const EP23 = {id:'ep23-bisect',title:'哪个 Commit 最先让测试失败',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp23Bisect',sourceReferences:['https://git-scm.com/docs/git-bisect']};
+export const EP24 = {id:'ep24-rerere',title:'同一个冲突为什么不用重解',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp24Rerere',sourceReferences:['https://git-scm.com/docs/git-rerere']};
+
 export const COMMAND_STEPS = [
   {
     command: 'git log --oneline --graph',

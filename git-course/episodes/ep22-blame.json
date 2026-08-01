@@ -1,0 +1,380 @@
+{
+  "episodeId": "ep22-blame",
+  "title": "这一行从哪次修改来",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-blame",
+      "docs/references/progit2-zh/book/07-git-tools/sections/debugging.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "这一行为什么会变成这样",
+      "start": 0,
+      "duration": 18,
+      "goal": "从当前行提出历史上下文调查。",
+      "primaryTechnique": "Question + highlighted line",
+      "beats": [
+        {
+          "time": [
+            0,
+            16
+          ],
+          "visual": "app.js 一行被选中，向后连接 commit",
+          "motion": "行与 commit 建立线索",
+          "state": "question",
+          "narration": "blame 给的是答案还是入口？",
+          "audit": [
+            "不使用责责任隐喻"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 2.25,
+        "text": "看到一行奇怪代码时，我们常问：<#0.25#>\n它是在哪次修改中变成这样的？<#0.45#>\ngit blame 可以给出一个 commit，但这个结果等于最初来源或责任人吗？<#0.45#>\n也许更稳妥的做法，是把 blame 当成进入历史上下文的第一条线索。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 4.138,
+          "text": "看到一行奇怪代码时，我们常问："
+        },
+        {
+          "from": 4.692,
+          "to": 6.359,
+          "text": "它是在哪次修改中变成这样的？"
+        },
+        {
+          "from": 7.011,
+          "to": 11.085,
+          "text": "git blame 可以给出一个 commit，但这个结果等于最初来源或责任人吗？"
+        },
+        {
+          "from": 11.758,
+          "to": 16.122,
+          "text": "也许更稳妥的做法，是把 blame 当成进入历史上下文的第一条线索"
+        }
+      ]
+    },
+    {
+      "id": "line-entry",
+      "title": "从当前已知行开始",
+      "start": 18,
+      "duration": 20.5,
+      "goal": "限定文件与行范围，建立调查入口。",
+      "primaryTechnique": "Code line + range",
+      "beats": [
+        {
+          "time": [
+            16,
+            38
+          ],
+          "visual": "app.js 第 4–6 行与问题行",
+          "motion": "范围收窄到一行",
+          "state": "located",
+          "narration": "本集从当前行向后追。",
+          "audit": [
+            "与关键词搜索区分"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_line_entry",
+        "voiceStart": 20.25,
+        "text": "这次我们已经知道当前 app.js 中值得追问的行。<#0.40#>\n因此不再从关键词搜索整段历史，而是限定文件与行范围。<#0.45#>\n问题也更具体：最后一次改变这行内容的 commit 是哪个？<#0.45#>\n得到入口后，再回到完整 patch 和 parent 判断当时的原因。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 5.08,
+          "text": "这次我们已经知道当前 app.js 中值得追问的行"
+        },
+        {
+          "from": 5.815,
+          "to": 10.194,
+          "text": "因此不再从关键词搜索整段历史，而是限定文件与行范围"
+        },
+        {
+          "from": 10.979,
+          "to": 14.505,
+          "text": "问题也更具体：最后一次改变这行内容的 commit 是哪个？"
+        },
+        {
+          "from": 15.234,
+          "to": 18.789,
+          "text": "得到入口后，再回到完整 patch 和 parent 判断当时的原因"
+        }
+      ]
+    },
+    {
+      "id": "blame-range",
+      "title": "Blame 给出最后修改线索",
+      "start": 38.5,
+      "duration": 20,
+      "goal": "真实执行 git blame -L 并读取字段。",
+      "primaryTechnique": "Recorded git blame -L",
+      "beats": [
+        {
+          "time": [
+            38,
+            62
+          ],
+          "visual": "OID、author、date、line number、content 分列",
+          "motion": "只高亮目标行对应 commit",
+          "state": "blamed",
+          "narration": "默认结果指向最后触碰。",
+          "audit": [
+            "作者不表述为责任人"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_blame_range",
+        "voiceStart": 40.75,
+        "text": "运行 git blame -L 4,6 -- app.js。<#0.45#>\n每一行旁边会出现 commit、作者、时间和原行号等线索。<#0.50#>\n我们关注目标行对应的对象 ID，但不把 author 直接翻译成责任人。<#0.45#>\n默认 blame 更接近最后一次改变当前行归属的提交。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 5.173,
+          "text": "运行 git blame -L 4,6 -- app.js"
+        },
+        {
+          "from": 5.878,
+          "to": 9.989,
+          "text": "每一行旁边会出现 commit、作者、时间和原行号等线索"
+        },
+        {
+          "from": 10.802,
+          "to": 14.83,
+          "text": "我们关注目标行对应的对象 ID，但不把 author 直接翻译成责任人"
+        },
+        {
+          "from": 15.609,
+          "to": 18.289,
+          "text": "默认 blame 更接近最后一次改变当前行归属的提交"
+        }
+      ]
+    },
+    {
+      "id": "open-commit",
+      "title": "回到 Patch 与 Parent",
+      "start": 58.5,
+      "duration": 22,
+      "goal": "用 git show 和 parent 对照解释上下文。",
+      "primaryTechnique": "Recorded git show + before/after",
+      "beats": [
+        {
+          "time": [
+            62,
+            86
+          ],
+          "visual": "message、patch、parent 前内容并列",
+          "motion": "blame OID 打开完整 commit",
+          "state": "context",
+          "narration": "一个 hash 还不是解释。",
+          "audit": [
+            "完整 patch 不被标题遮挡"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_open_commit",
+        "voiceStart": 61.25,
+        "text": "拿到对象 ID 后，马上用 git show 打开完整 commit。<#0.45#>\n提交说明告诉我们作者当时声称要解决什么，patch 展示实际变化，parent 则提供变化前的内容。<#0.50#>\n这三份证据结合起来，才能判断这一行为什么出现。<#0.45#>\n只停在 blame 输出的一行，很容易把线索误当结论。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 5.645,
+          "text": "拿到对象 ID 后，马上用 git show 打开完整 commit"
+        },
+        {
+          "from": 6.449,
+          "to": 12.918,
+          "text": "提交说明告诉我们作者当时声称要解决什么，patch 展示实际变化，parent 则提供变化前的内容"
+        },
+        {
+          "from": 13.815,
+          "to": 16.517,
+          "text": "这三份证据结合起来，才能判断这一行为什么出现"
+        },
+        {
+          "from": 17.175,
+          "to": 20.184,
+          "text": "只停在 blame 输出的一行，很容易把线索误当结论"
+        }
+      ]
+    },
+    {
+      "id": "last-touch",
+      "title": "格式化可能覆盖原线索",
+      "start": 80.5,
+      "duration": 21,
+      "goal": "说明纯格式化或移动造成的最后触碰偏差。",
+      "primaryTechnique": "Before/after attribution",
+      "beats": [
+        {
+          "time": [
+            86,
+            108
+          ],
+          "visual": "semantic change → formatting commit → default blame",
+          "motion": "归属被最后触碰覆盖",
+          "state": "limited",
+          "narration": "最后修改不等于最初引入。",
+          "audit": [
+            "不承诺找回删除行"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_last_touch",
+        "voiceStart": 83.25,
+        "text": "现在加入一次只改变空白的格式化提交。<#0.40#>\n默认 blame 可能把目标行归到这次最后触碰，而不是更早的语义修改。<#0.50#>\n代码移动和复制也会产生类似干扰。<#0.40#>\n因此 blame 回答的是一种归属推断，不是对最初来源的绝对证明。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 5.234,
+          "text": "现在加入一次只改变空白的格式化提交"
+        },
+        {
+          "from": 5.957,
+          "to": 10.41,
+          "text": "默认 blame 可能把目标行归到这次最后触碰，而不是更早的语义修改"
+        },
+        {
+          "from": 11.236,
+          "to": 13.398,
+          "text": "代码移动和复制也会产生类似干扰"
+        },
+        {
+          "from": 14.067,
+          "to": 18.896,
+          "text": "因此 blame 回答的是一种归属推断，不是对最初来源的绝对证明"
+        }
+      ]
+    },
+    {
+      "id": "heuristics",
+      "title": "-w、-M、-C 改变调查线索",
+      "start": 101.5,
+      "duration": 24.5,
+      "goal": "展示忽略空白与移动复制检测的启发式边界。",
+      "primaryTechnique": "Recorded blame variants",
+      "beats": [
+        {
+          "time": [
+            108,
+            132
+          ],
+          "visual": "default / -w / -M -C 结果对照",
+          "motion": "线索变化而非结论翻转",
+          "state": "heuristics",
+          "narration": "选项帮助追踪，但仍需验证。",
+          "audit": [
+            "明确 heuristic"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_heuristics",
+        "voiceStart": 104.25,
+        "text": "我们可以短暂比较 -w、-M 和 -C。<#0.40#>\n-w 忽略空白差异，-M 与 -C 尝试寻找移动或复制的来源。<#0.50#>\n这些选项会改变调查线索，但检测本身仍带有启发式边界。<#0.45#>\n最可靠的下一步仍是打开候选 commit、查看 surrounding history，并结合测试和需求背景。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 5.707,
+          "text": "我们可以短暂比较 -w、-M 和 -C"
+        },
+        {
+          "from": 6.444,
+          "to": 10.643,
+          "text": "-w 忽略空白差异，-M 与 -C 尝试寻找移动或复制的来源"
+        },
+        {
+          "from": 11.39,
+          "to": 15.696,
+          "text": "这些选项会改变调查线索，但检测本身仍带有启发式边界"
+        },
+        {
+          "from": 16.432,
+          "to": 22.667,
+          "text": "最可靠的下一步仍是打开候选 commit、查看 surrounding history，并结合测试和需求背景"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "总结",
+      "start": 126,
+      "duration": 24,
+      "goal": "收束为行、commit、上下文、边界。",
+      "primaryTechnique": "Investigation path",
+      "beats": [
+        {
+          "time": [
+            132,
+            160
+          ],
+          "visual": "line → blame → show → parent/context",
+          "motion": "四步向后追踪",
+          "state": "takeaway",
+          "narration": "blame 是入口，不是裁决。",
+          "audit": [
+            "不使用第一季字样"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "07_takeaway",
+        "voiceStart": 128.75,
+        "text": "最后把调查路径整理一下。<#0.40#>\n从当前已知行出发，用 blame 找到最后修改线索；再用 show 打开 message 与 patch。<#0.50#>\n随后比较 parent 和周围历史，必要时使用 -w、-M 或 -C 扩展线索。<#0.45#>\nblame 最有价值的地方不是指定谁负责，而是帮助我们更快进入能够解释这行代码的上下文。"
+      },
+      "captions": [
+        {
+          "from": 2.75,
+          "to": 4.186,
+          "text": "最后把调查路径整理一下"
+        },
+        {
+          "from": 4.882,
+          "to": 10.417,
+          "text": "从当前已知行出发，用 blame 找到最后修改线索；再用 show 打开 message 与 patch"
+        },
+        {
+          "from": 11.169,
+          "to": 16.106,
+          "text": "随后比较 parent 和周围历史，必要时使用 -w、-M 或 -C 扩展线索"
+        },
+        {
+          "from": 16.744,
+          "to": 22.074,
+          "text": "blame 最有价值的地方不是指定谁负责，而是帮助我们更快进入能够解释这行代码的上下文"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP22：这一行从哪次修改来\n\n从当前行定位最后修改 commit，再回到 patch、parent 与完整上下文。\n",
+    "scriptMarkdown": "# EP22 当前脚本（160s）\n\n不把 author 等同于责任人，不把启发式结果当绝对来源证明。\n",
+    "beatsMarkdown": "# EP22 Beats\n\n`line → blame -L → show → parent → formatting boundary → heuristics`。\n",
+    "qualityMarkdown": "# EP22 审查记录\n\n- blame 输出字段清楚可读。\n- -w/-M/-C 只描述为调查线索。\n",
+    "alignmentMarkdown": "# EP22 对齐记录\n\nTTS 与 SRT 生成后回写 captions；每段尾部保留 1–2 秒。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP22 B 站发布物料\n\n## 标题\n\nGit Blame 真能找到代码责任人吗？\n\n## 简介\n\n从当前行进入 commit、patch 与 parent 上下文，并理解格式化和移动检测边界。\n\n## 官方参考\n\n- [git-blame 官方手册](https://git-scm.com/docs/git-blame)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Blame\n代码调试\n```\n",
+    "coverBriefMarkdown": "# EP22 封面 Brief\n\n一行代码连接一个 commit，但用问号强调它只是调查入口。\n",
+    "checklistMarkdown": "# EP22 发布检查清单\n\n- [ ] author、最后触碰与启发式边界均已核对。\n"
+  }
+}
