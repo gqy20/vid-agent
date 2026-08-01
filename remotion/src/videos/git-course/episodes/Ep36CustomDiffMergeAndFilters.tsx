@@ -10,10 +10,10 @@ const DriverModel=()=> <ModelScene title="Attributes 选路，Config 提供命�
 const DiffDriver=()=> <Term scene="diff-driver" id="ep36-diff-driver" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Diff Driver 只改变阅读视图</SceneTitle><CompareCards cards={[{label:'Blob OID',detail:'保持不变',tone:'neutral'},{label:'Textconv',detail:'生成可读视图',tone:'head'}]}/></>}/>;
 // @git-course-scene diff-driver:end
 // @git-course-scene merge-driver:start
-const MergeDriver=()=> <Term scene="merge-driver" id="ep36-merge-driver" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Merge Driver 写回合并结果</SceneTitle><FlowSteps revealAtSeconds={11} steps={[{label:'%O',detail:'Base',tone:'neutral'},{label:'%A',detail:'Ours / Result',tone:'head'},{label:'%B',detail:'Theirs',tone:'feature'},{label:'Exit',detail:'0 or conflict',tone:'conflict'}]}/></>}/>;
+const MergeDriver=()=> <Term scene="merge-driver" id="ep36-merge-driver" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Merge Driver 写回合并结果</SceneTitle><CompareCards cards={[{label:'%O',detail:'Base input',tone:'neutral'},{label:'%A',detail:'Ours + result',tone:'head'},{label:'%B',detail:'Theirs input',tone:'feature'},{label:'Exit',detail:'0 / non-zero',tone:'conflict'}]}/></>}/>;
 // @git-course-scene merge-driver:end
 // @git-course-scene clean-smudge:start
-const CleanSmudge=()=> <Term scene="clean-smudge" id="ep36-clean-smudge" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Filter 位于工作区与 Index 之间</SceneTitle><FlowSteps revealAtSeconds={11} steps={[{label:'Working Tree',tone:'feature'},{label:'Clean',tone:'head'},{label:'Index',tone:'neutral'},{label:'Smudge',tone:'head'}]}/></>}/>;
+const CleanSmudge=()=> <Term scene="clean-smudge" id="ep36-clean-smudge" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Filter 位于工作区与 Index 之间</SceneTitle><CompareCards cards={[{label:'Clean',detail:'Working Tree → Index',tone:'head'},{label:'Smudge',detail:'Index → Working Tree',tone:'feature'}]}/></>}/>;
 // @git-course-scene clean-smudge:end
 // @git-course-scene takeaway:start
 const Takeaway=()=> <ModelScene title="先确认输入、输出与失败语义" captions={R.captions('takeaway')}><CompareCards cards={[{label:'Diff',detail:'View only'},{label:'Merge',detail:'Write result',tone:'head'},{label:'Filter',detail:'Transform content',tone:'feature'}]}/></ModelScene>;

@@ -10,7 +10,7 @@ const HookModel=()=> <ModelScene title="前置 Hook 裁决，后置 Hook 观察"
 const PreCommit=()=> <Term scene="pre-commit" id="ep37-pre-commit" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Pre-commit 用退出码阻止提交</SceneTitle><CompareCards cards={[{label:'Test',detail:'FAIL',tone:'conflict'},{label:'HEAD Before',detail:'unchanged'},{label:'HEAD After',detail:'unchanged'}]}/></>}/>;
 // @git-course-scene pre-commit:end
 // @git-course-scene post-commit:start
-const PostCommit=()=> <Term scene="post-commit" id="ep37-post-commit" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Post 只记录成功结果</SceneTitle><FlowSteps revealAtSeconds={11} steps={[{label:'Test PASS',tone:'head'},{label:'Commit',tone:'neutral'},{label:'HEAD Moves',tone:'feature'},{label:'Post Log',tone:'feature'}]}/></>}/>;
+const PostCommit=()=> <Term scene="post-commit" id="ep37-post-commit" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Post-commit 只记录成功结果</SceneTitle><FlowSteps revealAtSeconds={10.4} steps={[{label:'Test PASS',tone:'head'},{label:'Commit',tone:'neutral'},{label:'HEAD Moves',tone:'feature'},{label:'Post Log',tone:'feature'}]}/></>}/>;
 // @git-course-scene post-commit:end
 // @git-course-scene deployment-boundary:start
 const Deployment=()=> <Term scene="deployment-boundary" id="ep37-deployment" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>本地 Hook 不是组织强制门禁</SceneTitle><CompareCards cards={[{label:'--no-verify',detail:'可绕过适用检查',tone:'conflict'},{label:'New Clone',detail:'不会自动携带 hook',tone:'neutral'}]}/></>}/>;

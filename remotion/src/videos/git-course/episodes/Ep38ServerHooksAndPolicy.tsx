@@ -10,10 +10,10 @@ const ReceiveModel=()=> <ModelScene title="Pre-receive 检查整批 Ref 更新" 
 const BatchReject=()=> <Term scene="batch-reject" id="ep38-batch-reject" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>一条违规 Ref 拒绝整批 Receive</SceneTitle><CompareCards cards={[{label:'main',detail:'REJECTED',tone:'conflict'},{label:'topic',detail:'NOT WRITTEN',tone:'conflict'},{label:'Remote Refs',detail:'unchanged'}]}/></>}/>;
 // @git-course-scene batch-reject:end
 // @git-course-scene topic-accept:start
-const TopicAccept=()=> <Term scene="topic-accept" id="ep38-topic-accept" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>符合规则的 Topic 可以写入</SceneTitle><FlowSteps revealAtSeconds={11} steps={[{label:'Topic Push',tone:'feature'},{label:'Pre-receive',tone:'head'},{label:'Ref Update',tone:'feature'},{label:'Object Read',tone:'neutral'}]}/></>}/>;
+const TopicAccept=()=> <Term scene="topic-accept" id="ep38-topic-accept" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>符合规则的 Topic 可以写入</SceneTitle><FlowSteps revealAtSeconds={10.4} steps={[{label:'Topic Push',tone:'feature'},{label:'Pre-receive',tone:'head'},{label:'Ref Update',tone:'feature'},{label:'Object Read',tone:'neutral'}]}/></>}/>;
 // @git-course-scene topic-accept:end
 // @git-course-scene server-boundary:start
-const ServerBoundary=()=> <Term scene="server-boundary" id="ep38-server-boundary" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>No-verify 不能绕过服务端 Hook</SceneTitle><CompareCards cards={[{label:'Client Option',detail:'--no-verify',tone:'head'},{label:'Server Hook',detail:'still active',tone:'conflict'},{label:'main',detail:'unchanged'}]}/></>}/>;
+const ServerBoundary=()=> <Term scene="server-boundary" id="ep38-server-boundary" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>--no-verify 不能绕过服务端 Hook</SceneTitle><CompareCards cards={[{label:'Client Option',detail:'--no-verify',tone:'head'},{label:'Server Hook',detail:'still active',tone:'conflict'},{label:'main',detail:'unchanged'}]}/></>}/>;
 // @git-course-scene server-boundary:end
 // @git-course-scene takeaway:start
 const Takeaway=()=> <ModelScene title="共享策略落在共享写入边界" captions={R.captions('takeaway')}><FlowSteps revealAtSeconds={.4} steps={[{label:'Client',detail:'Feedback',tone:'neutral'},{label:'Server',detail:'Decision',tone:'head'},{label:'Ref',detail:'Update',tone:'feature'}]}/></ModelScene>;

@@ -10,7 +10,7 @@ const TrustModel=()=> <ModelScene title="对象、签名、密钥与信任分层
 const SignedCommit=()=> <Term scene="signed-commit" id="ep39-signed-commit" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Signed Commit 把签名写入对象</SceneTitle><CompareCards cards={[{label:'Commit OID',detail:'fixed'},{label:'gpgsig',detail:'embedded',tone:'head'},{label:'Verify',detail:'Good signature',tone:'feature'}]}/></>}/>;
 // @git-course-scene signed-commit:end
 // @git-course-scene signed-tag:start
-const SignedTag=()=> <Term scene="signed-tag" id="ep39-signed-tag" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Signed Tag 签署的是 Tag 对象</SceneTitle><FlowSteps revealAtSeconds={11} steps={[{label:'Tag Ref',tone:'neutral'},{label:'Tag Object',tone:'head'},{label:'Signature',tone:'feature'},{label:'Commit',tone:'neutral'}]}/></>}/>;
+const SignedTag=()=> <Term scene="signed-tag" id="ep39-signed-tag" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Signed Tag 签署的是 Tag 对象</SceneTitle><FlowSteps revealAtSeconds={10.4} steps={[{label:'Tag Ref',tone:'neutral'},{label:'Tag Object',detail:'signature embedded',tone:'head'},{label:'Commit',tone:'feature'}]}/></>}/>;
 // @git-course-scene signed-tag:end
 // @git-course-scene trust-loss:start
 const TrustLoss=()=> <Term scene="trust-loss" id="ep39-trust-loss" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>签名仍在，信任映射可以消失</SceneTitle><CompareCards cards={[{label:'Object',detail:'same OID'},{label:'Signature',detail:'still embedded',tone:'head'},{label:'Trust Map',detail:'missing',tone:'conflict'}]}/></>}/>;

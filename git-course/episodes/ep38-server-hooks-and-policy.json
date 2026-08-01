@@ -216,7 +216,7 @@
     },
     {
       "id": "server-boundary",
-      "title": "No-verify 不能绕过服务端 Hook",
+      "title": "--no-verify 不能绕过服务端 Hook",
       "start": 96,
       "duration": 24,
       "goal": "证明客户端选项不能控制接收端。",

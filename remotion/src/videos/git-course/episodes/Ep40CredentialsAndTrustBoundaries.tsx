@@ -10,10 +10,10 @@ const TrustModel=()=> <ModelScene title="作者、认证与授权回答不同问
 const AuthorMetadata=()=> <Term scene="author-metadata" id="ep40-author-metadata" result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>User Identity 只是 Commit 元数据</SceneTitle><CompareCards cards={[{label:'Author',detail:'name + email'},{label:'Committer',detail:'name + email',tone:'head'},{label:'Login',detail:'not involved',tone:'neutral'}]}/></>}/>;
 // @git-course-scene author-metadata:end
 // @git-course-scene auth-and-authz:start
-const AuthBoundary=()=> <Term scene="auth-and-authz" id="ep40-auth-boundary" at={13} result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>认证成功，不代表拥有 Push 权限</SceneTitle><FlowSteps revealAtSeconds={13} steps={[{label:'No Credential',detail:'401',tone:'conflict'},{label:'Reader',detail:'403',tone:'conflict'},{label:'Writer',detail:'Accepted',tone:'feature'}]}/></>}/>;
+const AuthBoundary=()=> <Term scene="auth-and-authz" id="ep40-auth-boundary" at={13} result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>认证成功，不代表拥有 Push 权限</SceneTitle><CompareCards cards={[{label:'No Credential',detail:'401',tone:'conflict'},{label:'Reader',detail:'403',tone:'conflict'},{label:'Writer',detail:'Accepted',tone:'feature'}]}/></>}/>;
 // @git-course-scene auth-and-authz:end
 // @git-course-scene credential-helper:start
-const CredentialHelper=()=> <Term scene="credential-helper" id="ep40-credential-helper" at={19.5} result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Helper 管理的是连接凭证</SceneTitle><FlowSteps revealAtSeconds={19.5} steps={[{label:'Approve',tone:'head'},{label:'Fill',tone:'feature'},{label:'Reject',tone:'conflict'}]}/></>}/>;
+const CredentialHelper=()=> <Term scene="credential-helper" id="ep40-credential-helper" at={19.5} result={<><SceneTitle style={{position:'absolute',top:112,left:180,right:180}}>Credential Helper 管理连接凭证</SceneTitle><CompareCards cards={[{label:'Approve',detail:'Store',tone:'head'},{label:'Fill',detail:'Get',tone:'feature'},{label:'Reject',detail:'Erase',tone:'conflict'}]}/></>}/>;
 // @git-course-scene credential-helper:end
 // @git-course-scene takeaway:start
 const Takeaway=()=> <ModelScene title="对象身份、连接身份、服务器权限" captions={R.captions('takeaway')}><CompareCards cards={[{label:'Metadata',detail:'Commit object'},{label:'Credential',detail:'Connection',tone:'head'},{label:'Permission',detail:'Server policy',tone:'feature'}]}/></ModelScene>;
