@@ -171,6 +171,14 @@ export const EP37 = {id:'ep37-client-hooks',title:'本地 Hook 在什么时候�
 export const EP38 = {id:'ep38-server-hooks-and-policy',title:'服务端怎样拒绝不合规更新',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp38ServerHooksAndPolicy',sourceReferences:['https://git-scm.com/docs/githooks#_pre_receive','https://git-scm.com/docs/git-receive-pack']};
 export const EP39 = {id:'ep39-signing-commits-and-tags',title:'Commit 或 Tag 的签名证明什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp39SigningCommitsAndTags',sourceReferences:['https://git-scm.com/docs/git-verify-commit','https://git-scm.com/docs/git-verify-tag']};
 export const EP40 = {id:'ep40-credentials-and-trust-boundaries',title:'提交身份为什么不能用来登录',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp40CredentialsAndTrustBoundaries',sourceReferences:['https://git-scm.com/docs/gitcredentials','https://git-scm.com/docs/git-credential']};
+export const EP41 = {id:'ep41-submodule-pointer-model',title:'Submodule 在父仓库里存了什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp41SubmodulePointerModel',sourceReferences:['https://git-scm.com/docs/gitsubmodules','https://git-scm.com/docs/git-submodule']};
+export const EP42 = {id:'ep42-cloning-and-updating-submodules',title:'Clone 以后 Submodule 为什么是空的',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp42CloningAndUpdatingSubmodules',sourceReferences:['https://git-scm.com/docs/git-clone','https://git-scm.com/docs/git-submodule']};
+export const EP43 = {id:'ep43-collaborating-with-submodules',title:'Submodule 为什么会让别人更新失败',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp43CollaboratingWithSubmodules',sourceReferences:['https://git-scm.com/docs/git-push','https://git-scm.com/docs/gitsubmodules']};
+export const EP44 = {id:'ep44-multiple-worktrees',title:'一个仓库怎样同时打开两个工作区',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp44MultipleWorktrees',sourceReferences:['https://git-scm.com/docs/git-worktree']};
+export const EP45 = {id:'ep45-git-bundle',title:'没有网络怎样传递完整 Git 历史',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp45GitBundle',sourceReferences:['https://git-scm.com/docs/git-bundle']};
+export const EP46 = {id:'ep46-sparse-partial-and-shallow-clones',title:'三种精简 Clone 到底少了什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp46SparsePartialAndShallowClones',sourceReferences:['https://git-scm.com/docs/git-sparse-checkout','https://git-scm.com/docs/partial-clone','https://git-scm.com/docs/git-clone']};
+export const EP47 = {id:'ep47-clean-and-destructive-boundaries',title:'Git Clean 到底会删除什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp47CleanAndDestructiveBoundaries',sourceReferences:['https://git-scm.com/docs/git-clean']};
+export const EP48 = {id:'ep48-maintenance-and-data-recovery',title:'Commit 什么时候才真的消失',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp48MaintenanceAndDataRecovery',sourceReferences:['https://git-scm.com/docs/git-reflog','https://git-scm.com/docs/git-fsck','https://git-scm.com/docs/git-gc']};
 
 export const COMMAND_STEPS = [
   {

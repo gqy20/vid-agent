@@ -1,0 +1,302 @@
+{
+  "episodeId": "ep42-cloning-and-updating-submodules",
+  "title": "Clone 以后 Submodule 为什么是空的",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-clone",
+      "https://git-scm.com/docs/git-submodule",
+      "https://git-scm.com/docs/gitsubmodules",
+      "docs/references/progit2-zh/book/07-git-tools/sections/submodules.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Clone 完成，子目录为什么还是空的",
+      "start": 0,
+      "duration": 21.5,
+      "goal": "提出普通 clone 只取得父仓库。",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            20
+          ],
+          "visual": "完成的 clone 与空目录",
+          "motion": "目录轮廓停住",
+          "state": "question",
+          "narration": "父对象到齐不等于子对象到齐。",
+          "audit": [
+            "不说 clone 失败"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 5.25,
+        "text": "父仓库明明 clone 成功了，为什么 submodule 目录里可能什么都没有？<#0.45#>\n这并不是文件丢失，而是普通 clone 只复制父仓库的对象和配置。<#0.45#>\n父 tree 已经告诉我们需要哪条子 commit，但子仓库还没有被初始化和取回。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 9.146,
+          "text": "父仓库明明 clone 成功了，为什么 submodule 目录里可能什么都没有？"
+        },
+        {
+          "from": 9.819,
+          "to": 13.85,
+          "text": "这并不是文件丢失，而是普通 clone 只复制父仓库的对象和配置"
+        },
+        {
+          "from": 14.563,
+          "to": 19.38,
+          "text": "父 tree 已经告诉我们需要哪条子 commit，但子仓库还没有被初始化和取回"
+        }
+      ]
+    },
+    {
+      "id": "update-model",
+      "title": "Init、Fetch 与 Checkout 是不同动作",
+      "start": 21.5,
+      "duration": 26.5,
+      "goal": "建立 submodule update 的动作链。",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            22,
+            44
+          ],
+          "visual": "Clone → Init → Fetch → Checkout",
+          "motion": "动作按依赖出现",
+          "state": "model",
+          "narration": "每步回答不同问题。",
+          "audit": [
+            "不把 update 简写成 pull"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_update_model",
+        "voiceStart": 26.75,
+        "text": "submodule init 根据 .gitmodules 把必要配置写入本地仓库，update 再克隆或获取子对象，并检出 gitlink 指定的 commit。<#0.45#>\n这里不是把子仓库切到最新 main，而是精确恢复父仓库记录的版本。<#0.45#>\n因此初始化、传输对象和检出目标，需要作为三个动作来理解。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 14.604,
+          "text": "submodule init 根据 .gitmodules 把必要配置写入本地仓库，update 再克隆或获取子对象，并检出 gitlink 指定的 commit"
+        },
+        {
+          "from": 15.261,
+          "to": 19.364,
+          "text": "这里不是把子仓库切到最新 main，而是精确恢复父仓库记录的版本"
+        },
+        {
+          "from": 20.075,
+          "to": 24.542,
+          "text": "因此初始化、传输对象和检出目标，需要作为三个动作来理解"
+        }
+      ]
+    },
+    {
+      "id": "empty-after-clone",
+      "title": "普通 Clone 只留下待初始化状态",
+      "start": 48,
+      "duration": 23,
+      "goal": "真实展示 clone 后的空目录和 - 前缀。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            45,
+            69
+          ],
+          "visual": "clone、ls、submodule status",
+          "motion": "负号状态被强调",
+          "state": "uninitialized",
+          "narration": "gitlink 已知，子对象未知。",
+          "audit": [
+            "目录状态真实"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_empty_after_clone",
+        "voiceStart": 53.25,
+        "text": "先做一次没有递归参数的普通 clone。<#0.45#>\n父仓库的文件已经出现，submodule status 却在对象 ID 前显示减号，libs/core 目录也还没有工作树内容。<#0.45#>\n这个减号表示 gitlink 已经存在，但对应子仓库还没有完成初始化和检出。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 7.796,
+          "text": "先做一次没有递归参数的普通 clone"
+        },
+        {
+          "from": 8.571,
+          "to": 15.42,
+          "text": "父仓库的文件已经出现，submodule status 却在对象 ID 前显示减号，libs/core 目录也还没有工作树内容"
+        },
+        {
+          "from": 16.159,
+          "to": 21.163,
+          "text": "这个减号表示 gitlink 已经存在，但对应子仓库还没有完成初始化和检出"
+        }
+      ]
+    },
+    {
+      "id": "init-update",
+      "title": "Update 精确检出 Gitlink 目标",
+      "start": 71,
+      "duration": 25.5,
+      "goal": "真实展示 init/update 与 detached HEAD。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            70,
+            96
+          ],
+          "visual": "init、update、symbolic-ref、OID compare",
+          "motion": "配置到对象再到 HEAD",
+          "state": "checked-out",
+          "narration": "detached 是精确版本语义。",
+          "audit": [
+            "完整 OID 对齐"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_init_update",
+        "voiceStart": 76.25,
+        "text": "接着运行 submodule init 和 update。<#0.45#>\nGit 读取 URL，取得子仓库对象，并让子仓库 HEAD 直接指向父仓库要求的 commit。<#0.45#>\nsymbolic-ref 没有返回分支名，这个 detached HEAD 不是异常；它恰好避免本地分支悄悄改变父仓库锁定的版本。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 8.332,
+          "text": "接着运行 submodule init 和 update"
+        },
+        {
+          "from": 9.061,
+          "to": 15.378,
+          "text": "Git 读取 URL，取得子仓库对象，并让子仓库 HEAD 直接指向父仓库要求的 commit"
+        },
+        {
+          "from": 16.187,
+          "to": 23.832,
+          "text": "symbolic-ref 没有返回分支名，这个 detached HEAD 不是异常；它恰好避免本地分支悄悄改变父仓库锁定的版本"
+        }
+      ]
+    },
+    {
+      "id": "recursive-clone",
+      "title": "递归 Clone 合并了准备步骤",
+      "start": 96.5,
+      "duration": 26.5,
+      "goal": "展示 recurse-submodules 的最终状态。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            97,
+            123
+          ],
+          "visual": "clone --recurse-submodules 与 OID 对比",
+          "motion": "父与子同时就绪",
+          "state": "recursive",
+          "narration": "便利参数没有改变模型。",
+          "audit": [
+            "仍检出 gitlink OID"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_recursive_clone",
+        "voiceStart": 102.25,
+        "text": "如果一开始就使用 clone --recurse-submodules，Git 会在父仓库完成后继续初始化并更新已登记的子仓库。<#0.45#>\n最终目录看起来一步到位，但底层仍然是父 clone、读取配置、取得子对象和检出 gitlink 目标。<#0.45#>\n便利参数缩短了操作，并没有把两套 repository 合成一套。"
+      },
+      "captions": [
+        {
+          "from": 5.75,
+          "to": 12.116,
+          "text": "如果一开始就使用 clone --recurse-submodules，Git 会在父仓库完成后继续初始化并更新已登记的子仓库"
+        },
+        {
+          "from": 12.853,
+          "to": 20.136,
+          "text": "最终目录看起来一步到位，但底层仍然是父 clone、读取配置、取得子对象和检出 gitlink 目标"
+        },
+        {
+          "from": 20.863,
+          "to": 24.55,
+          "text": "便利参数缩短了操作，并没有把两套 repository 合成一套"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先问对象有没有，再问检出了什么",
+      "start": 123,
+      "duration": 27,
+      "goal": "收束 clone/update 排查顺序。",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            125,
+            148
+          ],
+          "visual": "Config / Objects / Checkout",
+          "motion": "三层稳定",
+          "state": "decision",
+          "narration": "按层排查空目录。",
+          "audit": [
+            "不展开协作发布"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 128.75,
+        "text": "遇到 submodule 空目录或版本不对时，可以按三层检查。<#0.45#>\n本地是否已有子仓库配置，对象是否已经取回，HEAD 是否检出了父 gitlink 指定的 commit？<#0.45#>\n这样看，init、update 和 recurse-submodules 就不再是几条需要死记的命令，而是一组可验证的状态变化。"
+      },
+      "captions": [
+        {
+          "from": 5.75,
+          "to": 9.527,
+          "text": "遇到 submodule 空目录或版本不对时，可以按三层检查"
+        },
+        {
+          "from": 10.406,
+          "to": 16.374,
+          "text": "本地是否已有子仓库配置，对象是否已经取回，HEAD 是否检出了父 gitlink 指定的 commit？"
+        },
+        {
+          "from": 17.037,
+          "to": 24.858,
+          "text": "这样看，init、update 和 recurse-submodules 就不再是几条需要死记的命令，而是一组可验证的状态变化"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP42：克隆与更新 Submodule\n",
+    "scriptMarkdown": "# EP42 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP42 Beats\n\n`question → update model → empty → init/update → recurse → decision`。\n",
+    "qualityMarkdown": "# EP42 审查记录\n\n- 空目录、减号状态与 detached HEAD 必须真实。\n",
+    "alignmentMarkdown": "# EP42 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP42 B 站发布物料\n\n## 标题\n\nClone 以后 Submodule 为什么是空的？\n\n## 简介\n\n拆开 init、fetch 与 checkout，理解递归克隆。\n\n## 官方参考\n\n- [git-clone](https://git-scm.com/docs/git-clone)\n- [git-submodule](https://git-scm.com/docs/git-submodule)\n\n## 标签\n\n```text\nGit\nGit教程\nSubmodule\nClone\n```\n",
+    "coverBriefMarkdown": "# EP42 封面 Brief\n\n空目录走向精确检出的子 commit。\n",
+    "checklistMarkdown": "# EP42 发布检查清单\n\n- [ ] init、update 与 detached HEAD 已核对。\n"
+  }
+}

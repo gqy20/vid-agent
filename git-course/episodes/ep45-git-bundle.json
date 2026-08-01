@@ -1,0 +1,302 @@
+{
+  "episodeId": "ep45-git-bundle",
+  "title": "没有网络怎样传递完整 Git 历史",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-bundle",
+      "https://git-scm.com/docs/git-clone",
+      "https://git-scm.com/docs/git-fetch",
+      "docs/references/progit2-zh/book/07-git-tools/sections/bundling.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "一个文件能不能携带可继续协作的仓库",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出离线传递 Git 对象与 refs 的需求。",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            20
+          ],
+          "visual": "repository 压成 bundle 文件",
+          "motion": "对象图保持连接",
+          "state": "question",
+          "narration": "不是工作区压缩包。",
+          "audit": [
+            "不把 bundle 说成备份全部配置"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 5.75,
+        "text": "没有网络时，我们能不能用一个文件传递 Git 历史，而且接收方还能继续 fetch 和提交？<#0.45#>\ngit bundle 保存的不是工作目录截图，而是一组可验证的 refs 和可达对象。<#0.45#>\n它保留 Git 的对象关系，却不会自动打包工作区、hooks 或本地配置。"
+      },
+      "captions": [
+        {
+          "from": 5.75,
+          "to": 11.763,
+          "text": "没有网络时，我们能不能用一个文件传递 Git 历史，而且接收方还能继续 fetch 和提交？"
+        },
+        {
+          "from": 12.429,
+          "to": 16.734,
+          "text": "git bundle 保存的不是工作目录截图，而是一组可验证的 refs 和可达对象"
+        },
+        {
+          "from": 17.44,
+          "to": 22.083,
+          "text": "它保留 Git 的对象关系，却不会自动打包工作区、hooks 或本地配置"
+        }
+      ]
+    },
+    {
+      "id": "bundle-model",
+      "title": "Bundle 保存 Refs 与可达对象",
+      "start": 24,
+      "duration": 23.5,
+      "goal": "建立 bundle 的对象传输模型。",
+      "primaryTechnique": "Centered model",
+      "beats": [
+        {
+          "time": [
+            22,
+            44
+          ],
+          "visual": "Refs → Reachable Objects → Bundle → Receiver",
+          "motion": "对象集合进入单文件",
+          "state": "model",
+          "narration": "完整包与增量包共用同一模型。",
+          "audit": [
+            "prerequisite 单独表现"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_bundle_model",
+        "voiceStart": 29.75,
+        "text": "创建 bundle 时，Git 从指定 refs 出发收集可达对象，并把 ref 提示一同写进文件。<#0.45#>\n完整 bundle 可以直接作为 clone 来源；增量 bundle 则声明接收方必须已经拥有哪些 prerequisite。<#0.45#>\n所以它更像离线的传输端点，而不是普通压缩格式。"
+      },
+      "captions": [
+        {
+          "from": 5.75,
+          "to": 10.812,
+          "text": "创建 bundle 时，Git 从指定 refs 出发收集可达对象，并把 ref 提示一同写进文件"
+        },
+        {
+          "from": 11.568,
+          "to": 17.992,
+          "text": "完整 bundle 可以直接作为 clone 来源；增量 bundle 则声明接收方必须已经拥有哪些 prerequisite"
+        },
+        {
+          "from": 18.658,
+          "to": 21.81,
+          "text": "所以它更像离线的传输端点，而不是普通压缩格式"
+        }
+      ]
+    },
+    {
+      "id": "full-bundle",
+      "title": "完整 Bundle 可以先验证再交付",
+      "start": 47.5,
+      "duration": 26,
+      "goal": "展示 create、verify 与 list-heads。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            45,
+            69
+          ],
+          "visual": "bundle create/verify/list-heads",
+          "motion": "refs 与完整性依次确认",
+          "state": "verified",
+          "narration": "先知道包里有什么。",
+          "audit": [
+            "bundle 文件真实生成"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_full_bundle",
+        "voiceStart": 53.25,
+        "text": "先从测试仓库创建一个包含全部 refs 的完整 bundle。<#0.45#>\ngit bundle verify 检查文件是否有效以及当前仓库是否满足前置条件，list-heads 则列出包中可作为入口的 refs 和完整对象 ID。<#0.45#>\n交付前，我们可以先验证内容，而不是等到 clone 时才发现文件不完整。"
+      },
+      "captions": [
+        {
+          "from": 5.75,
+          "to": 9.03,
+          "text": "先从测试仓库创建一个包含全部 refs 的完整 bundle"
+        },
+        {
+          "from": 9.724,
+          "to": 19.247,
+          "text": "git bundle verify 检查文件是否有效以及当前仓库是否满足前置条件，list-heads 则列出包中可作为入口的 refs 和完整对象 ID"
+        },
+        {
+          "from": 20.007,
+          "to": 24.058,
+          "text": "交付前，我们可以先验证内容，而不是等到 clone 时才发现文件不完整"
+        }
+      ]
+    },
+    {
+      "id": "clone-bundle",
+      "title": "从 Bundle Clone 后对象拓扑不变",
+      "start": 73.5,
+      "duration": 24.5,
+      "goal": "验证 clone 后的 OID 与图结构。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            70,
+            96
+          ],
+          "visual": "clone bundle、log graph、OID compare",
+          "motion": "两边对象 ID 对齐",
+          "state": "cloned",
+          "narration": "文件名变化不改对象。",
+          "audit": [
+            "完整 OID 对比"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_clone_bundle",
+        "voiceStart": 79.25,
+        "text": "接收方可以像使用 remote URL 一样直接从 bundle clone。<#0.45#>\n克隆后的分支图、commit 消息和完整对象 ID 与源仓库一致，因为传递的是原始 Git 对象，而不是重新生成的提交。<#0.45#>\n接收方随后仍然拥有普通 repository，可以继续创建 refs 和新对象。"
+      },
+      "captions": [
+        {
+          "from": 5.75,
+          "to": 9.06,
+          "text": "接收方可以像使用 remote URL 一样直接从 bundle clone"
+        },
+        {
+          "from": 9.806,
+          "to": 17.444,
+          "text": "克隆后的分支图、commit 消息和完整对象 ID 与源仓库一致，因为传递的是原始 Git 对象，而不是重新生成的提交"
+        },
+        {
+          "from": 18.233,
+          "to": 22.398,
+          "text": "接收方随后仍然拥有普通 repository，可以继续创建 refs 和新对象"
+        }
+      ]
+    },
+    {
+      "id": "incremental-bundle",
+      "title": "增量 Bundle 只携带新对象",
+      "start": 98,
+      "duration": 27,
+      "goal": "展示 prerequisite、fetch 与 fast-forward。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            97,
+            123
+          ],
+          "visual": "v1.0..main bundle、verify、fetch",
+          "motion": "增量接到既有历史",
+          "state": "incremental",
+          "narration": "前置对象决定增量能否应用。",
+          "audit": [
+            "接收端先具有 v1.0"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_incremental_bundle",
+        "voiceStart": 104.25,
+        "text": "源仓库继续产生新 commit 后，可以用旧 tag 到 main 的范围创建增量 bundle。<#0.45#>\n文件声明旧 tag 对应的对象是 prerequisite，只携带它之后新增的对象和 ref。<#0.45#>\n接收方满足前置条件时，verify 会通过，再从 bundle fetch 并快进本地分支，就完成一次离线增量同步。"
+      },
+      "captions": [
+        {
+          "from": 6.25,
+          "to": 10.588,
+          "text": "源仓库继续产生新 commit 后，可以用旧 tag 到 main 的范围创建增量 bundle"
+        },
+        {
+          "from": 11.376,
+          "to": 16.014,
+          "text": "文件声明旧 tag 对应的对象是 prerequisite，只携带它之后新增的对象和 ref"
+        },
+        {
+          "from": 16.838,
+          "to": 25.215,
+          "text": "接收方满足前置条件时，verify 会通过，再从 bundle fetch 并快进本地分支，就完成一次离线增量同步"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先选边界，再决定完整或增量",
+      "start": 125,
+      "duration": 25,
+      "goal": "收束 bundle 使用判断。",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            125,
+            148
+          ],
+          "visual": "Full / Prerequisite / Incremental",
+          "motion": "三层稳定",
+          "state": "decision",
+          "narration": "对象集合必须可验证。",
+          "audit": [
+            "不宣称包含 hooks/config"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 131.25,
+        "text": "使用 bundle 时，先明确要传递哪些 refs，以及接收方已经拥有哪些对象。<#0.45#>\n第一次交付适合完整包，后续同步可以用带 prerequisite 的增量包。<#0.45#>\n只要记住它保存的是 refs 与对象图，就不会误以为工作目录、hooks 和本地配置也被一并复制。"
+      },
+      "captions": [
+        {
+          "from": 6.25,
+          "to": 11.105,
+          "text": "使用 bundle 时，先明确要传递哪些 refs，以及接收方已经拥有哪些对象"
+        },
+        {
+          "from": 11.793,
+          "to": 16.494,
+          "text": "第一次交付适合完整包，后续同步可以用带 prerequisite 的增量包"
+        },
+        {
+          "from": 17.156,
+          "to": 23.163,
+          "text": "只要记住它保存的是 refs 与对象图，就不会误以为工作目录、hooks 和本地配置也被一并复制"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP45：Git Bundle\n",
+    "scriptMarkdown": "# EP45 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP45 Beats\n\n`question → object model → verify → clone → incremental → decision`。\n",
+    "qualityMarkdown": "# EP45 审查记录\n\n- 完整与增量 bundle 都使用真实对象验证。\n",
+    "alignmentMarkdown": "# EP45 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP45 B 站发布物料\n\n## 标题\n\n没有网络怎样传递完整 Git 历史？\n\n## 简介\n\n用 Git Bundle 传递可验证的 refs 与对象，并完成增量同步。\n\n## 官方参考\n\n- [git-bundle](https://git-scm.com/docs/git-bundle)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Bundle\n离线协作\n```\n",
+    "coverBriefMarkdown": "# EP45 封面 Brief\n\n对象图进入一个 bundle 文件，再在接收端展开。\n",
+    "checklistMarkdown": "# EP45 发布检查清单\n\n- [ ] 完整、增量与 prerequisite 已核对。\n"
+  }
+}

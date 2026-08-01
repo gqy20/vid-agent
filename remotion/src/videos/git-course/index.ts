@@ -62,6 +62,14 @@ import {EP37_DURATION_IN_FRAMES, Ep37ClientHooks} from './episodes/Ep37ClientHoo
 import {EP38_DURATION_IN_FRAMES, Ep38ServerHooksAndPolicy} from './episodes/Ep38ServerHooksAndPolicy';
 import {EP39_DURATION_IN_FRAMES, Ep39SigningCommitsAndTags} from './episodes/Ep39SigningCommitsAndTags';
 import {EP40_DURATION_IN_FRAMES, Ep40CredentialsAndTrustBoundaries} from './episodes/Ep40CredentialsAndTrustBoundaries';
+import {EP41_DURATION_IN_FRAMES, Ep41SubmodulePointerModel} from './episodes/Ep41SubmodulePointerModel';
+import {EP42_DURATION_IN_FRAMES, Ep42CloningAndUpdatingSubmodules} from './episodes/Ep42CloningAndUpdatingSubmodules';
+import {EP43_DURATION_IN_FRAMES, Ep43CollaboratingWithSubmodules} from './episodes/Ep43CollaboratingWithSubmodules';
+import {EP44_DURATION_IN_FRAMES, Ep44MultipleWorktrees} from './episodes/Ep44MultipleWorktrees';
+import {EP45_DURATION_IN_FRAMES, Ep45GitBundle} from './episodes/Ep45GitBundle';
+import {EP46_DURATION_IN_FRAMES, Ep46SparsePartialAndShallowClones} from './episodes/Ep46SparsePartialAndShallowClones';
+import {EP47_DURATION_IN_FRAMES, Ep47CleanAndDestructiveBoundaries} from './episodes/Ep47CleanAndDestructiveBoundaries';
+import {EP48_DURATION_IN_FRAMES, Ep48MaintenanceAndDataRecovery} from './episodes/Ep48MaintenanceAndDataRecovery';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -300,6 +308,14 @@ export const registration: VideoRegistration = {
     {id:'GitCourseEp38ServerHooksAndPolicy',component:Ep38ServerHooksAndPolicy,durationInFrames:EP38_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp39SigningCommitsAndTags',component:Ep39SigningCommitsAndTags,durationInFrames:EP39_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp40CredentialsAndTrustBoundaries',component:Ep40CredentialsAndTrustBoundaries,durationInFrames:EP40_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp41SubmodulePointerModel',component:Ep41SubmodulePointerModel,durationInFrames:EP41_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp42CloningAndUpdatingSubmodules',component:Ep42CloningAndUpdatingSubmodules,durationInFrames:EP42_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp43CollaboratingWithSubmodules',component:Ep43CollaboratingWithSubmodules,durationInFrames:EP43_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp44MultipleWorktrees',component:Ep44MultipleWorktrees,durationInFrames:EP44_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp45GitBundle',component:Ep45GitBundle,durationInFrames:EP45_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp46SparsePartialAndShallowClones',component:Ep46SparsePartialAndShallowClones,durationInFrames:EP46_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp47CleanAndDestructiveBoundaries',component:Ep47CleanAndDestructiveBoundaries,durationInFrames:EP47_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp48MaintenanceAndDataRecovery',component:Ep48MaintenanceAndDataRecovery,durationInFrames:EP48_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {
       id: 'GitCourseComponentLab',
       component: ComponentLab,

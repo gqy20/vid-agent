@@ -48,6 +48,14 @@ const EPISODES = [
   ['ep38-server-hooks-and-policy', 'GitCourseEp38ServerHooksAndPolicy', 'EP38'],
   ['ep39-signing-commits-and-tags', 'GitCourseEp39SigningCommitsAndTags', 'EP39'],
   ['ep40-credentials-and-trust-boundaries', 'GitCourseEp40CredentialsAndTrustBoundaries', 'EP40'],
+  ['ep41-submodule-pointer-model', 'GitCourseEp41SubmodulePointerModel', 'EP41'],
+  ['ep42-cloning-and-updating-submodules', 'GitCourseEp42CloningAndUpdatingSubmodules', 'EP42'],
+  ['ep43-collaborating-with-submodules', 'GitCourseEp43CollaboratingWithSubmodules', 'EP43'],
+  ['ep44-multiple-worktrees', 'GitCourseEp44MultipleWorktrees', 'EP44'],
+  ['ep45-git-bundle', 'GitCourseEp45GitBundle', 'EP45'],
+  ['ep46-sparse-partial-and-shallow-clones', 'GitCourseEp46SparsePartialAndShallowClones', 'EP46'],
+  ['ep47-clean-and-destructive-boundaries', 'GitCourseEp47CleanAndDestructiveBoundaries', 'EP47'],
+  ['ep48-maintenance-and-data-recovery', 'GitCourseEp48MaintenanceAndDataRecovery', 'EP48'],
 ];
 
 const fail = (message) => {

@@ -1,0 +1,301 @@
+{
+  "episodeId": "ep47-clean-and-destructive-boundaries",
+  "title": "Git Clean 到底会删除什么",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-clean",
+      "https://git-scm.com/docs/gitignore",
+      "docs/references/progit2-zh/book/07-git-tools/sections/stashing-cleaning.asc"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "清理未跟踪文件为什么容易删错",
+      "start": 0,
+      "duration": 23,
+      "goal": "提出 clean 的集合与作用域风险。",
+      "primaryTechnique": "Question",
+      "beats": [
+        {
+          "time": [
+            0,
+            20
+          ],
+          "visual": "Tracked / Untracked / Ignored / Nested repo",
+          "motion": "删除边界来回变化",
+          "state": "question",
+          "narration": "一个参数改变一个集合。",
+          "audit": [
+            "真实删除仅限隔离目录"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 5.25,
+        "text": "git clean 看起来只是清理未跟踪文件，为什么仍然值得格外谨慎？<#0.45#>\n因为 untracked、ignored、目录和嵌套 repository 并不是同一集合，不同参数会改变删除边界。<#0.45#>\n最可靠的做法，是先让 Git 明确列出目标，再缩小路径范围。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 9.603,
+          "text": "git clean 看起来只是清理未跟踪文件，为什么仍然值得格外谨慎？"
+        },
+        {
+          "from": 10.31,
+          "to": 16.579,
+          "text": "因为 untracked、ignored、目录和嵌套 repository 并不是同一集合，不同参数会改变删除边界"
+        },
+        {
+          "from": 17.288,
+          "to": 21.328,
+          "text": "最可靠的做法，是先让 Git 明确列出目标，再缩小路径范围"
+        }
+      ]
+    },
+    {
+      "id": "clean-boundary",
+      "title": "参数选择集合，Pathspec 限定范围",
+      "start": 23,
+      "duration": 24.5,
+      "goal": "建立 clean 的集合模型。",
+      "primaryTechnique": "Centered compare",
+      "beats": [
+        {
+          "time": [
+            22,
+            44
+          ],
+          "visual": "-n / -X / -x / -d / pathspec",
+          "motion": "集合与范围分层",
+          "state": "model",
+          "narration": "dry-run 与删除条件分开。",
+          "audit": [
+            "不演示双 force 删除嵌套仓库"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_clean_boundary",
+        "voiceStart": 28.25,
+        "text": "-n 只预览，-d 允许考虑未跟踪目录，-X 只选 ignored，-x 则把 ignored 也并入普通未跟踪集合。<#0.45#>\n真正删除还需要 force，而命令末尾的 pathspec 可以继续限制目录范围。<#0.45#>\n这些选项不是力度等级，而是在定义不同目标集合。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 13.294,
+          "text": "-n 只预览，-d 允许考虑未跟踪目录，-X 只选 ignored，-x 则把 ignored 也并入普通未跟踪集合"
+        },
+        {
+          "from": 14.125,
+          "to": 18.628,
+          "text": "真正删除还需要 force，而命令末尾的 pathspec 可以继续限制目录范围"
+        },
+        {
+          "from": 19.389,
+          "to": 22.802,
+          "text": "这些选项不是力度等级，而是在定义不同目标集合"
+        }
+      ]
+    },
+    {
+      "id": "classify-files",
+      "title": "先辨认 Tracked、Ignored 与 Untracked",
+      "start": 47.5,
+      "duration": 26.5,
+      "goal": "真实展示 status 与 ignored 分类。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            45,
+            69
+          ],
+          "visual": "status --ignored 与目录清单",
+          "motion": "四类路径分组",
+          "state": "classified",
+          "narration": "tracked 永不属于 clean 目标。",
+          "audit": [
+            "包含 nested repo"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_classify_files",
+        "voiceStart": 52.75,
+        "text": "测试目录里同时准备 tracked 文件、普通 untracked 文件、ignored 构建产物和一个嵌套 repository。<#0.45#>\nstatus --ignored 能帮助我们看到哪些路径被忽略，而 tracked 文件即使写在 ignore 规则里，也不会变成 clean 的候选。<#0.45#>\n先分类，后面的 dry-run 才有可解释的基线。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 12.356,
+          "text": "测试目录里同时准备 tracked 文件、普通 untracked 文件、ignored 构建产物和一个嵌套 repository"
+        },
+        {
+          "from": 13.069,
+          "to": 20.98,
+          "text": "status --ignored 能帮助我们看到哪些路径被忽略，而 tracked 文件即使写在 ignore 规则里，也不会变成 clean 的候选"
+        },
+        {
+          "from": 21.71,
+          "to": 24.56,
+          "text": "先分类，后面的 dry-run 才有可解释的基线"
+        }
+      ]
+    },
+    {
+      "id": "dry-runs",
+      "title": "三个 Dry-run 展示不同删除集合",
+      "start": 74,
+      "duration": 26.5,
+      "goal": "比较 -nd、-ndX 与 -ndx。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            70,
+            96
+          ],
+          "visual": "三次 clean dry-run 输出",
+          "motion": "集合差异逐次高亮",
+          "state": "previewed",
+          "narration": "预览必须与实际参数一致。",
+          "audit": [
+            "不真正删除"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_dry_runs",
+        "voiceStart": 79.25,
+        "text": "先运行 git clean -nd，它列出普通未跟踪文件和目录，但不包含 ignored 目标。<#0.45#>\n换成 -ndX，候选变成 ignored 文件；使用 -ndx，则普通 untracked 与 ignored 一起进入预览。<#0.45#>\n真正执行前，dry-run 的参数应该与最终命令保持一致，否则预览的不是同一个集合。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 10.822,
+          "text": "先运行 git clean -nd，它列出普通未跟踪文件和目录，但不包含 ignored 目标"
+        },
+        {
+          "from": 11.532,
+          "to": 18.824,
+          "text": "换成 -ndX，候选变成 ignored 文件；使用 -ndx，则普通 untracked 与 ignored 一起进入预览"
+        },
+        {
+          "from": 19.566,
+          "to": 24.758,
+          "text": "真正执行前，dry-run 的参数应该与最终命令保持一致，否则预览的不是同一个集合"
+        }
+      ]
+    },
+    {
+      "id": "scoped-clean",
+      "title": "真实删除也要限制到明确目录",
+      "start": 100.5,
+      "duration": 24,
+      "goal": "安全展示 -fdX -- build/。",
+      "primaryTechnique": "Recorded terminal",
+      "beats": [
+        {
+          "time": [
+            97,
+            123
+          ],
+          "visual": "scoped clean、status、nested repo proof",
+          "motion": "只移除 build ignored",
+          "state": "scoped",
+          "narration": "作用域比全仓库更可控。",
+          "audit": [
+            "保留 notes、tracked 与 nested repo"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_scoped_clean",
+        "voiceStart": 105.75,
+        "text": "确认预览后，我们只在 build 路径执行 git clean -fdX -- build/。<#0.45#>\n被忽略的构建产物消失，tracked 文件、仓库根目录的普通笔记和嵌套 repository 都仍然存在。<#0.45#>\n这里的安全感来自明确集合加明确 pathspec，而不是依赖执行后再恢复。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 9.62,
+          "text": "确认预览后，我们只在 build 路径执行 git clean -fdX -- build/"
+        },
+        {
+          "from": 10.293,
+          "to": 16.4,
+          "text": "被忽略的构建产物消失，tracked 文件、仓库根目录的普通笔记和嵌套 repository 都仍然存在"
+        },
+        {
+          "from": 17.054,
+          "to": 21.832,
+          "text": "这里的安全感来自明确集合加明确 pathspec，而不是依赖执行后再恢复"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "预览同一集合，再执行最小范围",
+      "start": 124.5,
+      "duration": 25.5,
+      "goal": "收束 destructive boundary。",
+      "primaryTechnique": "Minimal summary",
+      "beats": [
+        {
+          "time": [
+            125,
+            148
+          ],
+          "visual": "Classify → Dry-run → Scope",
+          "motion": "三步稳定",
+          "state": "decision",
+          "narration": "先看目标，再删目标。",
+          "audit": [
+            "不鼓励全仓库 -fdx"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 129.75,
+        "text": "面对 git clean，可以坚持一个简单顺序。<#0.45#>\n先区分 tracked、untracked、ignored 与嵌套仓库；再用完全相同的集合参数做 dry-run；最后用 pathspec 把实际删除限制到最小范围。<#0.45#>\n这样清理就从一次猜测，变成一组可以逐项核对的目标。"
+      },
+      "captions": [
+        {
+          "from": 5.25,
+          "to": 7.553,
+          "text": "面对 git clean，可以坚持一个简单顺序"
+        },
+        {
+          "from": 8.44,
+          "to": 19.332,
+          "text": "先区分 tracked、untracked、ignored 与嵌套仓库；再用完全相同的集合参数做 dry-run；最后用 pathspec 把实际删除限制到最小范围"
+        },
+        {
+          "from": 19.998,
+          "to": 23.517,
+          "text": "这样清理就从一次猜测，变成一组可以逐项核对的目标"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP47：Clean 与破坏性边界\n",
+    "scriptMarkdown": "# EP47 当前脚本（150s）\n",
+    "beatsMarkdown": "# EP47 Beats\n\n`question → target model → classify → dry-run → scoped clean → decision`。\n",
+    "qualityMarkdown": "# EP47 审查记录\n\n- 实际删除只发生在隔离 build/。\n",
+    "alignmentMarkdown": "# EP47 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP47 B 站发布物料\n\n## 标题\n\nGit Clean 到底会删除什么？\n\n## 简介\n\n用集合、dry-run 与 pathspec 控制破坏性清理边界。\n\n## 官方参考\n\n- [git-clean](https://git-scm.com/docs/git-clean)\n- [gitignore](https://git-scm.com/docs/gitignore)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Clean\n文件清理\n```\n",
+    "coverBriefMarkdown": "# EP47 封面 Brief\n\n多个文件集合收束到一个明确删除范围。\n",
+    "checklistMarkdown": "# EP47 发布检查清单\n\n- [ ] dry-run 集合与真实命令一致。\n"
+  }
+}

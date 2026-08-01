@@ -281,6 +281,14 @@ const getComposition = (episode) => {
     'ep38-server-hooks-and-policy': 'GitCourseEp38ServerHooksAndPolicy',
     'ep39-signing-commits-and-tags': 'GitCourseEp39SigningCommitsAndTags',
     'ep40-credentials-and-trust-boundaries': 'GitCourseEp40CredentialsAndTrustBoundaries',
+    'ep41-submodule-pointer-model': 'GitCourseEp41SubmodulePointerModel',
+    'ep42-cloning-and-updating-submodules': 'GitCourseEp42CloningAndUpdatingSubmodules',
+    'ep43-collaborating-with-submodules': 'GitCourseEp43CollaboratingWithSubmodules',
+    'ep44-multiple-worktrees': 'GitCourseEp44MultipleWorktrees',
+    'ep45-git-bundle': 'GitCourseEp45GitBundle',
+    'ep46-sparse-partial-and-shallow-clones': 'GitCourseEp46SparsePartialAndShallowClones',
+    'ep47-clean-and-destructive-boundaries': 'GitCourseEp47CleanAndDestructiveBoundaries',
+    'ep48-maintenance-and-data-recovery': 'GitCourseEp48MaintenanceAndDataRecovery',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -326,6 +334,14 @@ const episodeSourceName = (episodeId) => ({
   'ep38-server-hooks-and-policy': 'Ep38ServerHooksAndPolicy.tsx',
   'ep39-signing-commits-and-tags': 'Ep39SigningCommitsAndTags.tsx',
   'ep40-credentials-and-trust-boundaries': 'Ep40CredentialsAndTrustBoundaries.tsx',
+  'ep41-submodule-pointer-model': 'Ep41SubmodulePointerModel.tsx',
+  'ep42-cloning-and-updating-submodules': 'Ep42CloningAndUpdatingSubmodules.tsx',
+  'ep43-collaborating-with-submodules': 'Ep43CollaboratingWithSubmodules.tsx',
+  'ep44-multiple-worktrees': 'Ep44MultipleWorktrees.tsx',
+  'ep45-git-bundle': 'Ep45GitBundle.tsx',
+  'ep46-sparse-partial-and-shallow-clones': 'Ep46SparsePartialAndShallowClones.tsx',
+  'ep47-clean-and-destructive-boundaries': 'Ep47CleanAndDestructiveBoundaries.tsx',
+  'ep48-maintenance-and-data-recovery': 'Ep48MaintenanceAndDataRecovery.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {
@@ -383,6 +399,9 @@ const visualBaseHash = (ctx) => {
     if (path.includes('/kit/manim/')) return false;
     // This file contains every episode and would invalidate unrelated caches.
     if (path.endsWith('/data/episodeTimelines.generated.ts')) return false;
+    // Per-recording JSON/video assets below already carry the hold-frame metadata.
+    // Hashing this all-episode registry would make one terminal retake dirty every episode.
+    if (path.endsWith('/data/terminalRecordings.generated.ts')) return false;
     return true;
   });
   const episodeSource = episodeSourceParts(ctx);
@@ -394,7 +413,7 @@ const visualBaseHash = (ctx) => {
     join(ROOT, 'scripts/terminal-recordings/build-metadata.mjs'),
   ].filter((path) => existsSync(path));
   const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...terminalAssets, ...terminalSources, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
-  return sha(JSON.stringify({schema: 3, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
+  return sha(JSON.stringify({schema: 4, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
 };
 
 const sceneFingerprint = (ctx, scene, baseHash) => {
