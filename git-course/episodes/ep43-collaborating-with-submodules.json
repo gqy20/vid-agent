@@ -40,23 +40,28 @@
       ],
       "narration": {
         "segmentId": "01_hook",
-        "voiceStart": 6.75,
-        "text": "父仓库已经 push 成功，为什么同事更新 submodule 时仍然会报找不到 commit？<#0.45#>\n问题可能不在父仓库，而在它记录的子对象尚未发布。<#0.45#>\n一个父 commit 可以合法指向本地存在的子 commit，但远端协作者未必能从子仓库取得它。"
+        "voiceStart": 0.35,
+        "text": "父仓库已经 push 成功，为什么同事更新 submodule 时仍然会报找不到 commit？<#0.45#>\n问题可能不在父仓库，而在它记录的子对象尚未发布。<#0.45#>\n设想父 remote 已经接受 P2，但子 remote 仍只有 L1；gitlink 存在，目标对象却没有公开的传输路径。<#0.45#>\n一个父 commit 可以合法指向本地存在的子 commit，但远端协作者未必能从子仓库取得它。"
       },
       "captions": [
         {
-          "from": 6.75,
-          "to": 11.202,
+          "from": 0.35,
+          "to": 4.549,
           "text": "父仓库已经 push 成功，为什么同事更新 submodule 时仍然会报找不到 commit？"
         },
         {
-          "from": 11.95,
-          "to": 14.997,
+          "from": 5.203,
+          "to": 8.719,
           "text": "问题可能不在父仓库，而在它记录的子对象尚未发布"
         },
         {
-          "from": 15.856,
-          "to": 21.916,
+          "from": 9.379,
+          "to": 16.38,
+          "text": "设想父 remote 已经接受 P2，但子 remote 仍只有 L1；gitlink 存在，目标对象却没有公开的传输路径"
+        },
+        {
+          "from": 17.12,
+          "to": 22.443,
           "text": "一个父 commit 可以合法指向本地存在的子 commit，但远端协作者未必能从子仓库取得它"
         }
       ]
@@ -65,7 +70,7 @@
       "id": "publish-model",
       "title": "两套对象要按依赖顺序发布",
       "start": 24,
-      "duration": 23,
+      "duration": 24,
       "goal": "建立 child commit → gitlink → consumer 模型。",
       "primaryTechnique": "Centered model",
       "beats": [
@@ -85,32 +90,37 @@
       ],
       "narration": {
         "segmentId": "02_publish_model",
-        "voiceStart": 30.75,
-        "text": "协作时需要追踪两条独立发布链。<#0.45#>\n先让子 commit 在子 remote 上可获取，再提交并推送父仓库里的 gitlink，最后消费者才能完整恢复版本。<#0.45#>\n父仓库只发布对象 ID，不会顺便把那个对象传到另一套 repository。"
+        "voiceStart": 24.35,
+        "text": "协作时需要追踪两条独立发布链。<#0.45#>\n先让子 commit 在子 remote 上可获取，再提交并推送父仓库里的 gitlink，最后消费者才能完整恢复版本。<#0.45#>\n这条依赖方向值得先画清：消费者先读父 gitlink，再去子 remote 请求对应的对象 ID。<#0.45#>\n因此子对象必须先可获取，父仓库只发布对象 ID，不会顺便把对象传到另一套 repository。"
       },
       "captions": [
         {
-          "from": 6.75,
-          "to": 8.693,
+          "from": 0.35,
+          "to": 2.197,
           "text": "协作时需要追踪两条独立发布链"
         },
         {
-          "from": 9.383,
-          "to": 16.671,
+          "from": 2.89,
+          "to": 9.7,
           "text": "先让子 commit 在子 remote 上可获取，再提交并推送父仓库里的 gitlink，最后消费者才能完整恢复版本"
         },
         {
-          "from": 17.534,
-          "to": 21.301,
-          "text": "父仓库只发布对象 ID，不会顺便把那个对象传到另一套 repository"
+          "from": 10.433,
+          "to": 15.517,
+          "text": "这条依赖方向值得先画清：消费者先读父 gitlink，再去子 remote 请求对应的对象 ID"
+        },
+        {
+          "from": 16.23,
+          "to": 22.391,
+          "text": "因此子对象必须先可获取，父仓库只发布对象 ID，不会顺便把对象传到另一套 repository"
         }
       ]
     },
     {
       "id": "gitlink-change",
       "title": "子仓库新提交只让父路径变脏",
-      "start": 47,
-      "duration": 25,
+      "start": 48,
+      "duration": 24.5,
       "goal": "展示子 commit 与父 gitlink 更新。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -130,23 +140,28 @@
       ],
       "narration": {
         "segmentId": "03_gitlink_change",
-        "voiceStart": 53.75,
-        "text": "我们先在子仓库创建一条新 commit。<#0.45#>\n回到父仓库，status 只把 libs/core 标成已修改，diff --submodule 显示 gitlink 从旧对象 ID 移到了新对象 ID。<#0.45#>\n要让这个选择进入父历史，还需要单独提交父仓库。"
+        "voiceStart": 48.35,
+        "text": "我们先在子仓库创建一条新 commit。<#0.45#>\n回到父仓库，status 只把 libs/core 标成已修改，diff --submodule 显示 gitlink 从旧对象 ID 移到了新对象 ID。<#0.45#>\n这里的 modified 没有携带子文件 diff，它只说明当前子 HEAD 偏离了父仓库记录的 gitlink。<#0.45#>\n要让这个选择进入父历史，还需要单独提交父仓库。"
       },
       "captions": [
         {
-          "from": 6.75,
-          "to": 9.009,
+          "from": 0.35,
+          "to": 2.571,
           "text": "我们先在子仓库创建一条新 commit"
         },
         {
-          "from": 9.651,
-          "to": 19.111,
+          "from": 3.266,
+          "to": 12.131,
           "text": "回到父仓库，status 只把 libs/core 标成已修改，diff --submodule 显示 gitlink 从旧对象 ID 移到了新对象 ID"
         },
         {
-          "from": 19.818,
-          "to": 22.919,
+          "from": 12.876,
+          "to": 18.881,
+          "text": "这里的 modified 没有携带子文件 diff，它只说明当前子 HEAD 偏离了父仓库记录的 gitlink"
+        },
+        {
+          "from": 19.737,
+          "to": 22.855,
           "text": "要让这个选择进入父历史，还需要单独提交父仓库"
         }
       ]
@@ -154,7 +169,7 @@
     {
       "id": "missing-child",
       "title": "先推父仓库会留下不可获取引用",
-      "start": 72,
+      "start": 72.5,
       "duration": 25,
       "goal": "重现消费者无法更新子 commit。",
       "primaryTechnique": "Recorded terminal",
@@ -175,23 +190,28 @@
       ],
       "narration": {
         "segmentId": "04_missing_child",
-        "voiceStart": 78.75,
-        "text": "现在故意只推送父仓库，让父 remote 先公开新的 gitlink。<#0.45#>\n另一份 clone 可以取得父 commit，却在 submodule update 时无法找到对应子对象。<#0.45#>\n这不是 gitlink 损坏，而是它指向的 commit 只存在于开发者本地，还没有进入消费者能够访问的子 remote。"
+        "voiceStart": 72.85,
+        "text": "现在故意只推送父仓库，让父 remote 先公开新的 gitlink。<#0.45#>\n另一份 clone 可以取得父 commit，却在 submodule update 时无法找到对应子对象。<#0.45#>\n如果只检查父 push 成功，很容易把跨仓库依赖误判为已经完整发布，失败会推迟到别人更新时才暴露。<#0.45#>\n这不是 gitlink 损坏，而是它指向的 commit 只存在于开发者本地，还没有进入消费者能够访问的子 remote。"
       },
       "captions": [
         {
-          "from": 6.75,
-          "to": 10.075,
+          "from": 0.35,
+          "to": 3.999,
           "text": "现在故意只推送父仓库，让父 remote 先公开新的 gitlink"
         },
         {
-          "from": 10.76,
-          "to": 15.699,
+          "from": 4.742,
+          "to": 9.578,
           "text": "另一份 clone 可以取得父 commit，却在 submodule update 时无法找到对应子对象"
         },
         {
-          "from": 16.389,
-          "to": 23.284,
+          "from": 10.271,
+          "to": 16.765,
+          "text": "如果只检查父 push 成功，很容易把跨仓库依赖误判为已经完整发布，失败会推迟到别人更新时才暴露"
+        },
+        {
+          "from": 17.404,
+          "to": 23.686,
           "text": "这不是 gitlink 损坏，而是它指向的 commit 只存在于开发者本地，还没有进入消费者能够访问的子 remote"
         }
       ]
@@ -199,8 +219,8 @@
     {
       "id": "publish-order",
       "title": "递归检查可以提前阻止坏顺序",
-      "start": 97,
-      "duration": 27.5,
+      "start": 97.5,
+      "duration": 26.5,
       "goal": "展示 recurse-submodules=check 与正确发布顺序。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -220,23 +240,28 @@
       ],
       "narration": {
         "segmentId": "05_publish_order",
-        "voiceStart": 103.75,
-        "text": "git push --recurse-submodules=check 可以在父 push 前检查这些子 commit 是否已经出现在任一子 remote。<#0.45#>\n第一次检查会拒绝继续；先推送子仓库，再重复检查，父 gitlink 才具备可恢复的依赖。<#0.45#>\n这个参数是发布门禁，不会替我们决定子仓库应该推到哪个分支。"
+        "voiceStart": 97.85,
+        "text": "git push --recurse-submodules=check 可以在父 push 前检查这些子 commit 是否已经出现在任一子 remote。<#0.45#>\n第一次检查会拒绝继续；先推送子仓库，再重复检查，父 gitlink 才具备可恢复的依赖。<#0.45#>\n可以把第一次拒绝看成一次有价值的预检：它区分了本地可用和远端可获取。<#0.45#>\n这个参数是发布门禁，不会替我们决定子仓库应该推到哪个分支。"
       },
       "captions": [
         {
-          "from": 6.75,
-          "to": 13.826,
+          "from": 0.35,
+          "to": 7.548,
           "text": "git push --recurse-submodules=check 可以在父 push 前检查这些子 commit 是否已经出现在任一子 remote"
         },
         {
-          "from": 14.505,
-          "to": 21.129,
+          "from": 8.287,
+          "to": 14.834,
           "text": "第一次检查会拒绝继续；先推送子仓库，再重复检查，父 gitlink 才具备可恢复的依赖"
         },
         {
-          "from": 21.748,
-          "to": 25.375,
+          "from": 15.533,
+          "to": 20.658,
+          "text": "可以把第一次拒绝看成一次有价值的预检：它区分了本地可用和远端可获取"
+        },
+        {
+          "from": 21.299,
+          "to": 25.182,
           "text": "这个参数是发布门禁，不会替我们决定子仓库应该推到哪个分支"
         }
       ]
@@ -244,8 +269,8 @@
     {
       "id": "takeaway",
       "title": "发布的是依赖关系，不只是两个仓库",
-      "start": 124.5,
-      "duration": 25.5,
+      "start": 124,
+      "duration": 26,
       "goal": "收束 submodule 协作模型。",
       "primaryTechnique": "Minimal summary",
       "beats": [
@@ -265,23 +290,28 @@
       ],
       "narration": {
         "segmentId": "06_takeaway",
-        "voiceStart": 131.25,
-        "text": "submodule 协作最关键的判断，不是谁先提交，而是谁先变得可获取。<#0.45#>\n子 commit 需要先进入合适的子 remote，父 gitlink 再进入父 remote，消费者才能从两边恢复同一版本。<#0.45#>\n把发布顺序当作依赖门禁，就能在同事遇到缺失对象之前发现问题。"
+        "voiceStart": 124.35,
+        "text": "submodule 协作最关键的判断，不是谁先提交，而是谁先变得可获取。<#0.45#>\n子 commit 需要先进入合适的子 remote，父 gitlink 再进入父 remote，消费者才能从两边恢复同一版本。<#0.45#>\n因此检查时不只问本地能不能构建，还要问别人只依赖公开 remote 能不能恢复同一组对象 ID。<#0.45#>\n把发布顺序当作依赖门禁，就能在同事遇到缺失对象之前发现问题。"
       },
       "captions": [
         {
-          "from": 6.75,
-          "to": 11.163,
+          "from": 0.35,
+          "to": 4.792,
           "text": "submodule 协作最关键的判断，不是谁先提交，而是谁先变得可获取"
         },
         {
-          "from": 11.898,
-          "to": 18.793,
+          "from": 5.467,
+          "to": 12.384,
           "text": "子 commit 需要先进入合适的子 remote，父 gitlink 再进入父 remote，消费者才能从两边恢复同一版本"
         },
         {
-          "from": 19.535,
-          "to": 23.686,
+          "from": 13.106,
+          "to": 19.157,
+          "text": "因此检查时不只问本地能不能构建，还要问别人只依赖公开 remote 能不能恢复同一组对象 ID"
+        },
+        {
+          "from": 19.955,
+          "to": 24.566,
           "text": "把发布顺序当作依赖门禁，就能在同事遇到缺失对象之前发现问题"
         }
       ]

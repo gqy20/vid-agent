@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 150,
+  "durationSeconds": 153,
   "sourceOfTruth": {
     "references": [
       "https://git-scm.com/docs/git-worktree",
@@ -18,7 +18,7 @@
       "id": "hook",
       "title": "切分支之前一定要收起当前工作吗",
       "start": 0,
-      "duration": 23,
+      "duration": 23.5,
       "goal": "提出多工作树并行工作的需求。",
       "primaryTechnique": "Question",
       "beats": [
@@ -38,32 +38,37 @@
       ],
       "narration": {
         "segmentId": "01_hook",
-        "voiceStart": 4.75,
-        "text": "main 工作区里还有没完成的修改，线上却突然需要处理 hotfix，我们一定要先 stash 或切换分支吗？<#0.45#>\nGit worktree 提供了另一种可能：复用同一个 repository，同时打开第二套工作目录。<#0.45#>\n关键是分清哪些状态共享，哪些状态必须各自保存。"
+        "voiceStart": 0.35,
+        "text": "main 工作区里还有没完成的修改，线上却突然需要处理 hotfix，我们一定要先 stash 或切换分支吗？<#0.45#>\nGit worktree 提供了另一种可能：复用同一个 repository，同时打开第二套工作目录。<#0.45#>\n不妨先把仓库层和现场层分开，再观察第二个目录究竟复用了什么、隔离了什么。<#0.45#>\n关键是分清哪些状态共享，哪些状态必须各自保存。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 11.095,
+          "from": 0.35,
+          "to": 7.17,
           "text": "main 工作区里还有没完成的修改，线上却突然需要处理 hotfix，我们一定要先 stash 或切换分支吗？"
         },
         {
-          "from": 11.768,
-          "to": 16.732,
-          "text": "Git worktree 提供了另一种可能：复用同一个 repository，同时打开第二套工作目录"
+          "from": 7.838,
+          "to": 12.405,
+          "text": "Git worktree 提供了另一种可能：复用同一个 repository，同时打开第二套工作目录。"
         },
         {
-          "from": 17.551,
-          "to": 21.141,
-          "text": "关键是分清哪些状态共享，哪些状态必须各自保存"
+          "from": 13.058,
+          "to": 17.939,
+          "text": "不妨先把仓库层和现场层分开，再观察第二个目录究竟复用了什么、隔离了什么。"
+        },
+        {
+          "from": 18.602,
+          "to": 22.043,
+          "text": "关键是分清哪些状态共享，哪些状态必须各自保存。"
         }
       ]
     },
     {
       "id": "worktree-model",
       "title": "对象与 Refs 共享，现场彼此独立",
-      "start": 23,
-      "duration": 24,
+      "start": 23.5,
+      "duration": 25.5,
       "goal": "建立共享/独立边界。",
       "primaryTechnique": "Centered compare",
       "beats": [
@@ -83,32 +88,37 @@
       ],
       "narration": {
         "segmentId": "02_worktree_model",
-        "voiceStart": 27.75,
-        "text": "多个 worktree 共享对象数据库和大部分 refs，所以任何一边创建的 commit 与 branch 都能被另一边看见。<#0.45#>\n但每个 worktree 拥有自己的 HEAD、index 和工作目录。<#0.45#>\n因此它们不是两份 clone，也不是同一工作区的两个窗口，而是共享仓库层、隔离现场层。"
+        "voiceStart": 23.85,
+        "text": "多个 worktree 共享对象数据库和大部分 refs，所以任何一边创建的 commit 与 branch 都能被另一边看见。<#0.45#>\n但每个 worktree 拥有自己的 HEAD、index 和工作目录。<#0.45#>\n这意味着共享的是历史能力，而不是正在编辑的文件状态，两个现场不会自动彼此覆盖。<#0.45#>\n因此它们不是两份 clone，也不是同一工作区的两个窗口，而是共享仓库层、隔离现场层。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 11.402,
-          "text": "多个 worktree 共享对象数据库和大部分 refs，所以任何一边创建的 commit 与 branch 都能被另一边看见"
+          "from": 0.35,
+          "to": 7.077,
+          "text": "多个 worktree 共享对象数据库和大部分 refs，所以任何一边创建的 commit 与 branch 都能被另一边看见。"
         },
         {
-          "from": 12.119,
-          "to": 15.378,
-          "text": "但每个 worktree 拥有自己的 HEAD、index 和工作目录"
+          "from": 7.73,
+          "to": 10.869,
+          "text": "但每个 worktree 拥有自己的 HEAD、index 和工作目录。"
         },
         {
-          "from": 16.049,
-          "to": 22.128,
-          "text": "因此它们不是两份 clone，也不是同一工作区的两个窗口，而是共享仓库层、隔离现场层"
+          "from": 11.51,
+          "to": 16.936,
+          "text": "这意味着共享的是历史能力，而不是正在编辑的文件状态，两个现场不会自动彼此覆盖。"
+        },
+        {
+          "from": 17.594,
+          "to": 23.705,
+          "text": "因此它们不是两份 clone，也不是同一工作区的两个窗口，而是共享仓库层、隔离现场层。"
         }
       ]
     },
     {
       "id": "add-hotfix",
       "title": "第二个 Worktree 保留了原现场",
-      "start": 47,
-      "duration": 25.5,
+      "start": 49,
+      "duration": 24.5,
       "goal": "真实创建 hotfix worktree。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -128,32 +138,37 @@
       ],
       "narration": {
         "segmentId": "03_add_hotfix",
-        "voiceStart": 52.25,
-        "text": "先让主工作区保留一处未提交修改，再用 worktree add 创建 hotfix 分支和第二个目录。<#0.45#>\nworktree list 同时显示两条路径、两个 HEAD 和各自检出的分支。<#0.45#>\n原目录里的修改没有被搬走，第二个目录却已经拥有一套干净的 index 与文件。"
+        "voiceStart": 49.35,
+        "text": "先让主工作区保留一处未提交修改，再用 worktree add 创建 hotfix 分支和第二个目录。<#0.45#>\nworktree list 同时显示两条路径、两个 HEAD 和各自检出的分支。<#0.45#>\n可以同时查看两边的 status：一边仍然 dirty，另一边却从独立 index 开始。<#0.45#>\n原目录里的修改没有被搬走，第二个目录却已经拥有一套干净的 index 与文件。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 11.912,
-          "text": "先让主工作区保留一处未提交修改，再用 worktree add 创建 hotfix 分支和第二个目录"
+          "from": 0.35,
+          "to": 6.694,
+          "text": "先让主工作区保留一处未提交修改，再用 worktree add 创建 hotfix 分支和第二个目录。"
         },
         {
-          "from": 12.575,
-          "to": 17.133,
-          "text": "worktree list 同时显示两条路径、两个 HEAD 和各自检出的分支"
+          "from": 7.334,
+          "to": 11.774,
+          "text": "worktree list 同时显示两条路径、两个 HEAD 和各自检出的分支。"
         },
         {
-          "from": 17.793,
-          "to": 23.539,
-          "text": "原目录里的修改没有被搬走，第二个目录却已经拥有一套干净的 index 与文件"
+          "from": 12.446,
+          "to": 17.327,
+          "text": "可以同时查看两边的 status：一边仍然 dirty，另一边却从独立 index 开始。"
+        },
+        {
+          "from": 17.99,
+          "to": 23.033,
+          "text": "原目录里的修改没有被搬走，第二个目录却已经拥有一套干净的 index 与文件。"
         }
       ]
     },
     {
       "id": "shared-state",
       "title": "新 Commit 共享，未提交修改不共享",
-      "start": 72.5,
-      "duration": 26,
+      "start": 73.5,
+      "duration": 27.5,
       "goal": "验证共享 refs 和独立现场。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -173,32 +188,37 @@
       ],
       "narration": {
         "segmentId": "04_shared_state",
-        "voiceStart": 77.75,
-        "text": "在 hotfix 工作树提交修复后，回到主工作树查看 refs 和 log，新的 branch 与 commit 已经可见。<#0.45#>\n与此同时，主工作树原来的未提交修改仍然只留在自己的 status 里。<#0.45#>\n这组对比正好验证了边界：历史共享，HEAD、index 与工作目录按 worktree 分开。"
+        "voiceStart": 73.85,
+        "text": "在 hotfix 工作树提交修复后，回到主工作树查看 refs 和 log，新的 branch 与 commit 已经可见。<#0.45#>\n与此同时，主工作树原来的未提交修改仍然只留在自己的 status 里。<#0.45#>\n如果把 commit 和未提交修改放在同一张状态表里，这条共享边界会更加直观。<#0.45#>\n这组对比正好验证了边界：历史共享，HEAD、index 与工作目录按 worktree 分开。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 11.615,
-          "text": "在 hotfix 工作树提交修复后，回到主工作树查看 refs 和 log，新的 branch 与 commit 已经可见"
+          "from": 0.35,
+          "to": 7.309,
+          "text": "在 hotfix 工作树提交修复后，回到主工作树查看 refs 和 log，新的 branch 与 commit 已经可见。"
         },
         {
-          "from": 12.319,
-          "to": 16.651,
-          "text": "与此同时，主工作树原来的未提交修改仍然只留在自己的 status 里"
+          "from": 7.982,
+          "to": 12.213,
+          "text": "与此同时，主工作树原来的未提交修改仍然只留在自己的 status 里。"
         },
         {
-          "from": 17.381,
-          "to": 23.932,
-          "text": "这组对比正好验证了边界：历史共享，HEAD、index 与工作目录按 worktree 分开"
+          "from": 12.878,
+          "to": 18.606,
+          "text": "如果把 commit 和未提交修改放在同一张状态表里，这条共享边界会更加直观。"
+        },
+        {
+          "from": 19.25,
+          "to": 25.907,
+          "text": "这组对比正好验证了边界：历史共享，HEAD、index 与工作目录按 worktree 分开。"
         }
       ]
     },
     {
       "id": "branch-guard",
       "title": "同一分支默认不能重复检出",
-      "start": 98.5,
-      "duration": 26,
+      "start": 101,
+      "duration": 27,
       "goal": "展示分支保护与 remove 语义。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -218,32 +238,37 @@
       ],
       "narration": {
         "segmentId": "05_branch_guard",
-        "voiceStart": 103.75,
-        "text": "Git 默认拒绝把同一条 branch 同时检出到另一个 worktree，因为两个 index 和工作目录可能产生彼此冲突的移动。<#0.45#>\n完成任务后运行 worktree remove，只会注销并移除那套工作树。<#0.45#>\nhotfix branch 和它指向的 commit 仍然保存在共享仓库里，是否合并或删除要另行决定。"
+        "voiceStart": 101.35,
+        "text": "Git 默认拒绝把同一条 branch 同时检出到另一个 worktree，因为两个 index 和工作目录可能产生彼此冲突的移动。<#0.45#>\n这条保护并不是限制并行工作，而是在防止两个现场同时声称自己代表同一个分支位置。<#0.45#>\n完成任务后运行 worktree remove，只会注销并移除那套工作树。<#0.45#>\nhotfix branch 和它指向的 commit 仍然保存在共享仓库里，是否合并或删除要另行决定。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 11.39,
-          "text": "Git 默认拒绝把同一条 branch 同时检出到另一个 worktree，因为两个 index 和工作目录可能产生彼此冲突的移动"
+          "from": 0.35,
+          "to": 7.448,
+          "text": "Git 默认拒绝把同一条 branch 同时检出到另一个 worktree，因为两个 index 和工作目录可能产生彼此冲突的移动。"
         },
         {
-          "from": 12.203,
-          "to": 16.685,
-          "text": "完成任务后运行 worktree remove，只会注销并移除那套工作树"
+          "from": 8.09,
+          "to": 13.749,
+          "text": "这条保护并不是限制并行工作，而是在防止两个现场同时声称自己代表同一个分支位置。"
         },
         {
-          "from": 17.419,
-          "to": 24.059,
-          "text": "hotfix branch 和它指向的 commit 仍然保存在共享仓库里，是否合并或删除要另行决定"
+          "from": 14.39,
+          "to": 18.655,
+          "text": "完成任务后运行 worktree remove，只会注销并移除那套工作树。"
+        },
+        {
+          "from": 19.322,
+          "to": 25.294,
+          "text": "hotfix branch 和它指向的 commit 仍然保存在共享仓库里，是否合并或删除要另行决定。"
         }
       ]
     },
     {
       "id": "takeaway",
       "title": "把仓库状态与工作区状态分层",
-      "start": 124.5,
-      "duration": 25.5,
+      "start": 128,
+      "duration": 25,
       "goal": "收束 worktree 使用模型。",
       "primaryTechnique": "Minimal summary",
       "beats": [
@@ -263,24 +288,29 @@
       ],
       "narration": {
         "segmentId": "06_takeaway",
-        "voiceStart": 129.75,
-        "text": "判断 worktree 行为时，可以先问状态属于哪一层。<#0.45#>\n对象和 refs 属于共享 repository；HEAD、index 与文件现场属于具体 worktree。<#0.45#>\n这让紧急修复和长期任务可以并行展开，同时也解释了为什么同一分支需要默认避免重复检出。"
+        "voiceStart": 128.35,
+        "text": "判断 worktree 行为时，可以先问状态属于哪一层。<#0.45#>\n对象和 refs 属于共享 repository；HEAD、index 与文件现场属于具体 worktree。<#0.45#>\n接到临时任务时，也可以先判断它需要新的历史分支，还是只需要另一套干净现场。<#0.45#>\n这让紧急修复和长期任务可以并行展开，同时也解释了为什么同一分支需要默认避免重复检出。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 8.29,
-          "text": "判断 worktree 行为时，可以先问状态属于哪一层"
+          "from": 0.35,
+          "to": 3.176,
+          "text": "判断 worktree 行为时，可以先问状态属于哪一层。"
         },
         {
-          "from": 9.005,
-          "to": 16.531,
-          "text": "对象和 refs 属于共享 repository；HEAD、index 与文件现场属于具体 worktree"
+          "from": 3.842,
+          "to": 10.046,
+          "text": "对象和 refs 属于共享 repository；HEAD、index 与文件现场属于具体 worktree。"
         },
         {
-          "from": 17.222,
-          "to": 23.614,
-          "text": "这让紧急修复和长期任务可以并行展开，同时也解释了为什么同一分支需要默认避免重复检出"
+          "from": 10.718,
+          "to": 15.866,
+          "text": "接到临时任务时，也可以先判断它需要新的历史分支，还是只需要另一套干净现场。"
+        },
+        {
+          "from": 16.514,
+          "to": 23.299,
+          "text": "这让紧急修复和长期任务可以并行展开，同时也解释了为什么同一分支需要默认避免重复检出。"
         }
       ]
     }

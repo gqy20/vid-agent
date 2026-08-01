@@ -8,7 +8,7 @@ import {CompareCards,FlowSteps,ModelScene,QuestionSceneVisual} from './WorkflowE
 export {EP41_DURATION_IN_FRAMES,EP41_SCENES};
 const R=createEpisodeRuntime(EP41_SCENES);
 const cue=(id:string,d=12)=>({id:id as keyof typeof TERMINAL_RECORDINGS,from:0,durationInFrames:seconds(d+.7),src:`git-course-lab/terminal/${id}.mp4`,holdFrameSrc:`git-course-lab/terminal/${id}-hold.png`,holdFromFrame:TERMINAL_RECORDINGS[id as keyof typeof TERMINAL_RECORDINGS].holdFromFrame});
-const Term=({scene,id,result,at=12}:{scene:Parameters<typeof R.captions>[0];id:string;result:React.ReactNode;at?:number})=><TerminalThenModelScene cues={[cue(id,at)]} modelAtSeconds={at} model={result} captions={R.captions(scene)} auditIdPrefix={`ep41-${scene}`}/>;
+const Term=({scene,id,result,at=12}:{scene:Parameters<typeof R.captions>[0];id:string;result:React.ReactNode;at?:number})=><TerminalThenModelScene cues={[cue(id,at)]} modelAtSeconds={at} terminalEvidenceHoldSeconds={1} model={result} captions={R.captions(scene)} auditIdPrefix={`ep41-${scene}`}/>;
 // @git-course-scene hook:start
 const Hook=()=> <QuestionSceneVisual eyebrow="SUBMODULE" question="父仓库保存了子仓库的文件吗？" captions={R.captions('hook')}/>;
 // @git-course-scene hook:end

@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 150,
+  "durationSeconds": 154,
   "sourceOfTruth": {
     "references": [
       "https://git-scm.com/docs/git-sparse-checkout",
@@ -20,7 +20,7 @@
       "id": "hook",
       "title": "少文件、少对象、少历史是一回事吗",
       "start": 0,
-      "duration": 22,
+      "duration": 22.5,
       "goal": "提出三种精简边界不能混用。",
       "primaryTechnique": "Question",
       "beats": [
@@ -40,32 +40,37 @@
       ],
       "narration": {
         "segmentId": "01_hook",
-        "voiceStart": 5.75,
-        "text": "sparse checkout、partial clone 和 shallow clone 都能让仓库看起来更小，它们减少的是同一部分吗？<#0.45#>\n答案取决于我们观察工作目录、对象数据库还是历史边界。<#0.45#>\n三者可以组合，却不能用一个“只下载需要的文件”来概括。"
+        "voiceStart": 0.35,
+        "text": "sparse checkout、partial clone 和 shallow clone 都能让仓库看起来更小，它们减少的是同一部分吗？<#0.45#>\n答案取决于我们观察工作目录、对象数据库还是历史边界。<#0.45#>\n如果不先确定昂贵的是文件、对象还是历史，很容易选对参数却解决错问题。<#0.45#>\n三者可以组合，却不能用一个“只下载需要的文件”来概括。"
       },
       "captions": [
         {
-          "from": 5.75,
-          "to": 11.607,
+          "from": 0.35,
+          "to": 7.379,
           "text": "sparse checkout、partial clone 和 shallow clone 都能让仓库看起来更小，它们减少的是同一部分吗？"
         },
         {
-          "from": 12.295,
-          "to": 15.721,
-          "text": "答案取决于我们观察工作目录、对象数据库还是历史边界"
+          "from": 8.054,
+          "to": 11.495,
+          "text": "答案取决于我们观察工作目录、对象数据库还是历史边界。"
         },
         {
-          "from": 16.437,
-          "to": 19.913,
-          "text": "三者可以组合，却不能用一个“只下载需要的文件”来概括"
+          "from": 12.158,
+          "to": 17.306,
+          "text": "如果不先确定昂贵的是文件、对象还是历史，很容易选对参数却解决错问题。"
+        },
+        {
+          "from": 17.954,
+          "to": 21.024,
+          "text": "三者可以组合，却不能用一个“只下载需要的文件”来概括。"
         }
       ]
     },
     {
       "id": "three-boundaries",
       "title": "三种机制作用在不同层",
-      "start": 22,
-      "duration": 25,
+      "start": 22.5,
+      "duration": 26.5,
       "goal": "建立三列边界模型。",
       "primaryTechnique": "Centered compare",
       "beats": [
@@ -85,37 +90,42 @@
       ],
       "narration": {
         "segmentId": "02_three_boundaries",
-        "voiceStart": 27.75,
-        "text": "sparse checkout 主要限制哪些已跟踪路径出现在工作树。<#0.45#>\npartial clone 允许某些对象内容暂时缺失，并在需要时向 promisor remote 补取。<#0.45#>\nshallow clone 则在指定深度截断 commit 祖先关系。<#0.45#>\n它们分别改变可见文件、对象可用性和历史深度。"
+        "voiceStart": 22.85,
+        "text": "sparse checkout 主要限制哪些已跟踪路径出现在工作树。<#0.45#>\npartial clone 允许某些对象内容暂时缺失，并在需要时向 promisor remote 补取。<#0.45#>\nshallow clone 则在指定深度截断 commit 祖先关系。<#0.45#>\n可以把三种机制放到同一张层级图里，分别观察 files、objects 和 parents 哪一层发生变化。<#0.45#>\n它们分别改变可见文件、对象可用性和历史深度。"
       },
       "captions": [
         {
-          "from": 5.75,
-          "to": 9.68,
-          "text": "sparse checkout 主要限制哪些已跟踪路径出现在工作树"
+          "from": 0.35,
+          "to": 4,
+          "text": "sparse checkout 主要限制哪些已跟踪路径出现在工作树。"
         },
         {
-          "from": 10.329,
-          "to": 15.369,
-          "text": "partial clone 允许某些对象内容暂时缺失，并在需要时向 promisor remote 补取"
+          "from": 4.67,
+          "to": 9.818,
+          "text": "partial clone 允许某些对象内容暂时缺失，并在需要时向 promisor remote 补取。"
         },
         {
-          "from": 15.996,
-          "to": 19.017,
-          "text": "shallow clone 则在指定深度截断 commit 祖先关系"
+          "from": 10.466,
+          "to": 13.675,
+          "text": "shallow clone 则在指定深度截断 commit 祖先关系。"
         },
         {
-          "from": 19.753,
-          "to": 23.157,
-          "text": "它们分别改变可见文件、对象可用性和历史深度"
+          "from": 14.318,
+          "to": 20.487,
+          "text": "可以把三种机制放到同一张层级图里，分别观察 files、objects 和 parents 哪一层发生变化。"
+        },
+        {
+          "from": 21.158,
+          "to": 24.704,
+          "text": "它们分别改变可见文件、对象可用性和历史深度。"
         }
       ]
     },
     {
       "id": "sparse-checkout",
       "title": "Sparse 只收窄工作树路径",
-      "start": 47,
-      "duration": 25,
+      "start": 49,
+      "duration": 27,
       "goal": "真实展示 sparse checkout 后仍有完整历史。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -135,32 +145,37 @@
       ],
       "narration": {
         "segmentId": "03_sparse_checkout",
-        "voiceStart": 52.75,
-        "text": "先从完整 clone 开始，再把 sparse checkout 设置为只显示 app 目录。<#0.45#>\n工作树里的路径明显减少，但 git log 仍能看到完整提交历史，仓库也没有因为隐藏路径就自动删除相应对象。<#0.45#>\n所以 sparse 首先解决的是工作区规模和操作范围，而不是传输协议。"
+        "voiceStart": 49.35,
+        "text": "先从完整 clone 开始，再把 sparse checkout 设置为只显示 app 目录。<#0.45#>\n工作树里的路径明显减少，但 git log 仍能看到完整提交历史，仓库也没有因为隐藏路径就自动删除相应对象。<#0.45#>\n也就是说，看不见某个路径不等于本地从未拥有它，更不等于相关历史被截断。<#0.45#>\n所以 sparse 首先解决的是工作区规模和操作范围，而不是传输协议。"
       },
       "captions": [
         {
-          "from": 5.75,
-          "to": 10.153,
-          "text": "先从完整 clone 开始，再把 sparse checkout 设置为只显示 app 目录"
+          "from": 0.35,
+          "to": 4.917,
+          "text": "先从完整 clone 开始，再把 sparse checkout 设置为只显示 app 目录。"
         },
         {
-          "from": 10.854,
-          "to": 17.756,
-          "text": "工作树里的路径明显减少，但 git log 仍能看到完整提交历史，仓库也没有因为隐藏路径就自动删除相应对象"
+          "from": 5.57,
+          "to": 13.76,
+          "text": "工作树里的路径明显减少，但 git log 仍能看到完整提交历史，仓库也没有因为隐藏路径就自动删除相应对象。"
         },
         {
-          "from": 18.465,
-          "to": 23.266,
-          "text": "所以 sparse 首先解决的是工作区规模和操作范围，而不是传输协议"
+          "from": 14.426,
+          "to": 19.713,
+          "text": "也就是说，看不见某个路径不等于本地从未拥有它，更不等于相关历史被截断。"
+        },
+        {
+          "from": 20.366,
+          "to": 25.583,
+          "text": "所以 sparse 首先解决的是工作区规模和操作范围，而不是传输协议。"
         }
       ]
     },
     {
       "id": "partial-clone",
       "title": "Partial 让对象按需补取",
-      "start": 72,
-      "duration": 28.5,
+      "start": 76,
+      "duration": 27.5,
       "goal": "展示 promisor/filter 与缺失 blob 补取。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -180,36 +195,41 @@
       ],
       "narration": {
         "segmentId": "04_partial_clone",
-        "voiceStart": 78.25,
-        "text": "接着从明确支持 filter 的测试服务执行 blob:none partial clone。<#0.45#>\n仓库配置记录 promisor 和过滤规则，一些 blob 起初并不在本地。<#0.45#>\n当 git show 真正读取那个文件时，Git 才向 remote 请求缺失对象。<#0.45#>\n这类收益依赖传输端支持，不能从普通本地复制的警告里推断。"
+        "voiceStart": 76.35,
+        "text": "接着从明确支持 filter 的测试服务执行 blob:none partial clone。<#0.45#>\n仓库配置记录 promisor 和过滤规则，一些 blob 起初并不在本地。<#0.45#>\n我们可以先数出缺失对象，再读取一个文件，观察缺失数量和网络请求是否真的发生变化。<#0.45#>\n当 git show 真正读取那个文件时，Git 才向 remote 请求缺失对象。<#0.45#>\n这类收益依赖传输端支持，不能从普通本地复制的警告里推断。"
       },
       "captions": [
         {
-          "from": 6.25,
-          "to": 11.68,
-          "text": "接着从明确支持 filter 的测试服务执行 blob:none partial clone"
+          "from": 0.35,
+          "to": 4.72,
+          "text": "接着从明确支持 filter 的测试服务执行 blob:none partial clone。"
         },
         {
-          "from": 12.324,
-          "to": 17.118,
-          "text": "仓库配置记录 promisor 和过滤规则，一些 blob 起初并不在本地"
+          "from": 5.39,
+          "to": 10.41,
+          "text": "仓库配置记录 promisor 和过滤规则，一些 blob 起初并不在本地。"
         },
         {
-          "from": 18.057,
-          "to": 22.525,
-          "text": "当 git show 真正读取那个文件时，Git 才向 remote 请求缺失对象"
+          "from": 11.078,
+          "to": 17.189,
+          "text": "我们可以先数出缺失对象，再读取一个文件，观察缺失数量和网络请求是否真的发生变化。"
         },
         {
-          "from": 23.284,
-          "to": 26.611,
-          "text": "这类收益依赖传输端支持，不能从普通本地复制的警告里推断"
+          "from": 17.846,
+          "to": 21.763,
+          "text": "当 git show 真正读取那个文件时，Git 才向 remote 请求缺失对象。"
+        },
+        {
+          "from": 22.418,
+          "to": 25.824,
+          "text": "这类收益依赖传输端支持，不能从普通本地复制的警告里推断。"
         }
       ]
     },
     {
       "id": "shallow-clone",
       "title": "Shallow 截断的是祖先历史",
-      "start": 100.5,
+      "start": 103.5,
       "duration": 24.5,
       "goal": "展示 depth、shallow 文件与 deepen。",
       "primaryTechnique": "Recorded terminal",
@@ -230,32 +250,37 @@
       ],
       "narration": {
         "segmentId": "05_shallow_clone",
-        "voiceStart": 106.75,
-        "text": "最后使用协议 URL 做 depth 为二的 shallow clone。<#0.45#>\n工作树仍然包含当前版本需要的全部文件，变化发生在 commit 祖先边界：log 只能走到 shallow 文件记录的位置。<#0.45#>\n执行 deepen 或 unshallow 后，更多祖先 commit 才进入本地历史。"
+        "voiceStart": 103.85,
+        "text": "最后使用协议 URL 做 depth 为二的 shallow clone。<#0.45#>\n工作树仍然包含当前版本需要的全部文件，变化发生在 commit 祖先边界：log 只能走到 shallow 文件记录的位置。<#0.45#>\n这里值得比较 deepen 前后的 log，因为变化的是可遍历祖先，而不是当前文件集合。<#0.45#>\n执行 deepen 或 unshallow 后，更多祖先 commit 才进入本地历史。"
       },
       "captions": [
         {
-          "from": 6.25,
-          "to": 9.61,
-          "text": "最后使用协议 URL 做 depth 为二的 shallow clone"
+          "from": 0.35,
+          "to": 3.211,
+          "text": "最后使用协议 URL 做 depth 为二的 shallow clone。"
         },
         {
-          "from": 10.266,
-          "to": 17.881,
-          "text": "工作树仍然包含当前版本需要的全部文件，变化发生在 commit 祖先边界：log 只能走到 shallow 文件记录的位置"
+          "from": 3.878,
+          "to": 11.824,
+          "text": "工作树仍然包含当前版本需要的全部文件，变化发生在 commit 祖先边界：log 只能走到 shallow 文件记录的位置。"
         },
         {
-          "from": 18.573,
-          "to": 22.372,
-          "text": "执行 deepen 或 unshallow 后，更多祖先 commit 才进入本地历史"
+          "from": 12.482,
+          "to": 17.665,
+          "text": "这里值得比较 deepen 前后的 log，因为变化的是可遍历祖先，而不是当前文件集合。"
+        },
+        {
+          "from": 18.314,
+          "to": 23.09,
+          "text": "执行 deepen 或 unshallow 后，更多祖先 commit 才进入本地历史。"
         }
       ]
     },
     {
       "id": "takeaway",
       "title": "先确认你想减少哪一种成本",
-      "start": 125,
-      "duration": 25,
+      "start": 128,
+      "duration": 26,
       "goal": "收束三种机制选择。",
       "primaryTechnique": "Minimal summary",
       "beats": [
@@ -275,24 +300,29 @@
       ],
       "narration": {
         "segmentId": "06_takeaway",
-        "voiceStart": 131.25,
-        "text": "选择精简方式前，可以先问真正昂贵的是什么。<#0.45#>\n工作树路径太多，考虑 sparse；对象内容传输太大，评估 partial 与服务端能力；历史深度不需要完整，才考虑 shallow。<#0.45#>\n先定位成本所在的层，再决定是否组合，通常比记住三个参数更可靠。"
+        "voiceStart": 128.35,
+        "text": "选择精简方式前，可以先问真正昂贵的是什么。<#0.45#>\n工作树路径太多，考虑 sparse；对象内容传输太大，评估 partial 与服务端能力；历史深度不需要完整，才考虑 shallow。<#0.45#>\n如果要组合，也应分别验证工作树、对象数据库和祖先边界，而不是只比较目录大小。<#0.45#>\n先定位成本所在的层，再决定是否组合，通常比记住三个参数更可靠。"
       },
       "captions": [
         {
-          "from": 6.25,
-          "to": 9.285,
-          "text": "选择精简方式前，可以先问真正昂贵的是什么"
+          "from": 0.35,
+          "to": 3.594,
+          "text": "选择精简方式前，可以先问真正昂贵的是什么。"
         },
         {
-          "from": 9.945,
-          "to": 18.344,
-          "text": "工作树路径太多，考虑 sparse；对象内容传输太大，评估 partial 与服务端能力；历史深度不需要完整，才考虑 shallow"
+          "from": 4.238,
+          "to": 11.743,
+          "text": "工作树路径太多，考虑 sparse；对象内容传输太大，评估 partial 与服务端能力；历史深度不需要完整，才考虑 shallow。"
         },
         {
-          "from": 19.136,
-          "to": 23.294,
-          "text": "先定位成本所在的层，再决定是否组合，通常比记住三个参数更可靠"
+          "from": 12.41,
+          "to": 18.928,
+          "text": "如果要组合，也应分别验证工作树、对象数据库和祖先边界，而不是只比较目录大小。"
+        },
+        {
+          "from": 19.574,
+          "to": 24.315,
+          "text": "先定位成本所在的层，再决定是否组合，通常比记住三个参数更可靠。"
         }
       ]
     }

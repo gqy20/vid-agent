@@ -16,6 +16,7 @@ export const TerminalThenModelScene: React.FC<{
   readonly terminalRect?: Rect;
   readonly subtitleWidth?: number;
   readonly subtitleBottom?: number;
+  readonly terminalEvidenceHoldSeconds?: number;
 }> = ({
   cues,
   modelAtSeconds,
@@ -25,14 +26,28 @@ export const TerminalThenModelScene: React.FC<{
   terminalRect = COURSE_RECTS.terminal,
   subtitleWidth = 1320,
   subtitleBottom = 64,
+  terminalEvidenceHoldSeconds = 0,
 }) => {
   const frame = useCurrentFrame();
-  const modelAtFrame = seconds(modelAtSeconds);
+  const requestedModelAtFrame = seconds(modelAtSeconds);
+  const lastCueIndex = cues.reduce((latest, cue, index) => cue.from >= cues[latest].from ? index : latest, 0);
+  const terminalEvidenceEndFrame = cues.reduce((latest, cue) => {
+    const playbackRate = cue.playbackRate ?? 1;
+    const startFromFrame = cue.startFromFrame ?? 0;
+    const holdFrame = cue.from + Math.max(0, cue.holdFromFrame - startFromFrame) / playbackRate;
+    return Math.max(latest, holdFrame + seconds(terminalEvidenceHoldSeconds));
+  }, 0);
+  const modelAtFrame = terminalEvidenceHoldSeconds > 0
+    ? Math.max(requestedModelAtFrame, terminalEvidenceEndFrame)
+    : requestedModelAtFrame;
+  const effectiveCues = cues.map((cue, index) => index === lastCueIndex
+    ? {...cue, durationInFrames: Math.max(cue.durationInFrames, Math.ceil(modelAtFrame - cue.from))}
+    : cue);
 
   return (
     <AbsoluteFill>
       {frame < modelAtFrame ? (
-        <RecordedTerminalCueSequence cues={cues} rect={terminalRect} auditIdPrefix={auditIdPrefix} />
+        <RecordedTerminalCueSequence cues={effectiveCues} rect={terminalRect} auditIdPrefix={auditIdPrefix} />
       ) : (
         <AbsoluteFill style={{background: COLOR.canvas.base}}>{model}</AbsoluteFill>
       )}

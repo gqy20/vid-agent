@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 150,
+  "durationSeconds": 161.5,
   "sourceOfTruth": {
     "references": [
       "https://git-scm.com/docs/gitsubmodules",
@@ -20,7 +20,7 @@
       "id": "hook",
       "title": "父仓库保存了子仓库的文件吗",
       "start": 0,
-      "duration": 22.5,
+      "duration": 26.5,
       "goal": "提出 submodule 并不是目录快照。",
       "primaryTechnique": "Question",
       "beats": [
@@ -40,32 +40,37 @@
       ],
       "narration": {
         "segmentId": "01_hook",
-        "voiceStart": 4.75,
-        "text": "把另一个 repository 放进项目目录后，父仓库会不会保存它里面的全部文件？<#0.45#>\n我们可以先看一个反常现象：父仓库的 tree 里只有一种特殊条目，而子仓库仍然拥有自己的历史。<#0.45#>\n这意味着 submodule 更像一个精确指针，而不是被复制进来的目录。"
+        "voiceStart": 0.35,
+        "text": "把另一个 repository 放进项目目录后，父仓库会不会保存它里面的全部文件？<#0.45#>\n我们可以先看一个反常现象：父仓库的 tree 里只有一种特殊条目，而子仓库仍然拥有自己的历史。<#0.45#>\n如果它只是普通目录，父 tree 应该列出子文件；如果不是，证据应该是一条独立的对象 ID。<#0.45#>\n这意味着 submodule 更像一个精确指针，而不是被复制进来的目录。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 8.849,
+          "from": 0.35,
+          "to": 4.882,
           "text": "把另一个 repository 放进项目目录后，父仓库会不会保存它里面的全部文件？"
         },
         {
-          "from": 9.546,
-          "to": 15.712,
-          "text": "我们可以先看一个反常现象：父仓库的 tree 里只有一种特殊条目，而子仓库仍然拥有自己的历史"
+          "from": 5.534,
+          "to": 12.354,
+          "text": "我们可以先看一个反常现象：父仓库的 tree 里只有一种特殊条目，而子仓库仍然拥有自己的历史。"
         },
         {
-          "from": 16.444,
-          "to": 20.573,
-          "text": "这意味着 submodule 更像一个精确指针，而不是被复制进来的目录"
+          "from": 13.022,
+          "to": 20.461,
+          "text": "如果它只是普通目录，父 tree 应该列出子文件；如果不是，证据应该是一条独立的对象 ID。"
+        },
+        {
+          "from": 21.122,
+          "to": 24.946,
+          "text": "这意味着 submodule 更像一个精确指针，而不是被复制进来的目录。"
         }
       ]
     },
     {
       "id": "pointer-model",
       "title": "Gitlink 指向子仓库 Commit",
-      "start": 22.5,
-      "duration": 26,
+      "start": 26.5,
+      "duration": 30,
       "goal": "建立 gitlink、.gitmodules 与独立对象库模型。",
       "primaryTechnique": "Centered model",
       "beats": [
@@ -85,32 +90,37 @@
       ],
       "narration": {
         "segmentId": "02_pointer_model",
-        "voiceStart": 27.25,
-        "text": "父仓库的 tree 使用模式 160000 保存一个 gitlink，它的对象 ID 指向子仓库的一条 commit。<#0.45#>\n.gitmodules 记录 path 和 URL，帮助其他人找到子仓库，但它并不替代 gitlink。<#0.45#>\n所以版本选择来自 gitlink，获取位置来自配置，两套仓库的对象和分支仍然彼此独立。"
+        "voiceStart": 26.85,
+        "text": "父仓库的 tree 使用模式 160000 保存一个 gitlink，它的对象 ID 指向子仓库的一条 commit。<#0.45#>\n.gitmodules 记录 path 和 URL，帮助其他人找到子仓库，但它并不替代 gitlink。<#0.45#>\n不妨把 URL 理解为路线，把 gitlink 理解为坐标：路线可以调整，坐标却必须精确。<#0.45#>\n所以版本选择来自 gitlink，获取位置来自配置，两套仓库的对象和分支仍然彼此独立。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 10.84,
-          "text": "父仓库的 tree 使用模式 160000 保存一个 gitlink，它的对象 ID 指向子仓库的一条 commit"
+          "from": 0.35,
+          "to": 8.226,
+          "text": "父仓库的 tree 使用模式 160000 保存一个 gitlink，它的对象 ID 指向子仓库的一条 commit。"
         },
         {
-          "from": 11.543,
-          "to": 17.831,
-          "text": ".gitmodules 记录 path 和 URL，帮助其他人找到子仓库，但它并不替代 gitlink"
+          "from": 8.882,
+          "to": 14.239,
+          "text": "gitmodules 记录 path 和 URL，帮助其他人找到子仓库，但它并不替代 gitlink。"
         },
         {
-          "from": 18.596,
-          "to": 24.264,
-          "text": "所以版本选择来自 gitlink，获取位置来自配置，两套仓库的对象和分支仍然彼此独立"
+          "from": 14.894,
+          "to": 21.203,
+          "text": "不妨把 URL 理解为路线，把 gitlink 理解为坐标：路线可以调整，坐标却必须精确。"
+        },
+        {
+          "from": 21.878,
+          "to": 28.396,
+          "text": "所以版本选择来自 gitlink，获取位置来自配置，两套仓库的对象和分支仍然彼此独立。"
         }
       ]
     },
     {
       "id": "add-submodule",
       "title": "添加 Submodule 改变了哪些路径",
-      "start": 48.5,
-      "duration": 22,
+      "start": 56.5,
+      "duration": 24,
       "goal": "真实展示 submodule add 的工作区变化。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -130,32 +140,37 @@
       ],
       "narration": {
         "segmentId": "03_add_submodule",
-        "voiceStart": 53.25,
-        "text": "我们在隔离环境里添加一个本地子仓库，再观察父仓库的 status。<#0.45#>\n工作区出现 .gitmodules 和 libs/core 两个待提交路径。<#0.45#>\n前者描述如何定位子仓库，后者在父仓库看来不是普通目录内容，而是准备写入 tree 的 gitlink。"
+        "voiceStart": 56.85,
+        "text": "我们在隔离环境里添加一个本地子仓库，再观察父仓库的 status。<#0.45#>\n工作区出现 .gitmodules 和 libs/core 两个待提交路径。<#0.45#>\n先不急着提交，这两个路径的差异正好揭示了获取配置与版本选择如何分工。<#0.45#>\n前者描述如何定位子仓库，后者在父仓库看来不是普通目录内容，而是准备写入 tree 的 gitlink。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 9.009,
-          "text": "我们在隔离环境里添加一个本地子仓库，再观察父仓库的 status"
+          "from": 0.35,
+          "to": 4.232,
+          "text": "我们在隔离环境里添加一个本地子仓库，再观察父仓库的 status。"
         },
         {
-          "from": 9.849,
-          "to": 13.425,
-          "text": "工作区出现 .gitmodules 和 libs/core 两个待提交路径"
+          "from": 4.886,
+          "to": 9.117,
+          "text": "工作区出现 .gitmodules 和 libs/core 两个待提交路径。"
         },
         {
-          "from": 14.187,
-          "to": 20.081,
-          "text": "前者描述如何定位子仓库，后者在父仓库看来不是普通目录内容，而是准备写入 tree 的 gitlink"
+          "from": 9.782,
+          "to": 15.208,
+          "text": "先不急着提交，这两个路径的差异正好揭示了获取配置与版本选择如何分工。"
+        },
+        {
+          "from": 15.866,
+          "to": 22.593,
+          "text": "前者描述如何定位子仓库，后者在父仓库看来不是普通目录内容，而是准备写入 tree 的 gitlink。"
         }
       ]
     },
     {
       "id": "gitlink-entry",
       "title": "160000 条目保存完整对象 ID",
-      "start": 70.5,
-      "duration": 28.5,
+      "start": 80.5,
+      "duration": 28,
       "goal": "用 ls-files 与 ls-tree 验证 gitlink。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -175,32 +190,37 @@
       ],
       "narration": {
         "segmentId": "04_gitlink_entry",
-        "voiceStart": 75.75,
-        "text": "提交父仓库后，我们分别读取 index、HEAD tree 和子仓库 HEAD。<#0.45#>\ngit ls-files 与 git ls-tree 都把 libs/core 显示为模式 160000，后面的完整对象 ID 与子仓库当前 commit 完全相同。<#0.45#>\n父仓库因此可以准确选择一个子版本，却没有把子仓库的文件对象重新收入自己的 tree。"
+        "voiceStart": 80.85,
+        "text": "提交父仓库后，我们分别读取 index、HEAD tree 和子仓库 HEAD。<#0.45#>\ngit ls-files 与 git ls-tree 都把 libs/core 显示为模式 160000，后面的完整对象 ID 与子仓库当前 commit 完全相同。<#0.45#>\n把三处结果并排后，问题就变成父仓库选择了哪个版本，而不是复制了哪些文件。<#0.45#>\n父仓库因此可以准确选择一个子版本，却没有把子仓库的文件对象重新收入自己的 tree。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 10.24,
-          "text": "提交父仓库后，我们分别读取 index、HEAD tree 和子仓库 HEAD"
+          "from": 0.35,
+          "to": 4.755,
+          "text": "提交父仓库后，我们分别读取 index、HEAD tree 和子仓库 HEAD。"
         },
         {
-          "from": 11.002,
-          "to": 20.845,
-          "text": "git ls-files 与 git ls-tree 都把 libs/core 显示为模式 160000，后面的完整对象 ID 与子仓库当前 commit 完全相同"
+          "from": 5.426,
+          "to": 15.148,
+          "text": "git ls-files 与 git ls-tree 都把 libs/core 显示为模式 160000，后面的完整对象 ID 与子仓库当前 commit 完全相同。"
         },
         {
-          "from": 21.511,
-          "to": 26.701,
-          "text": "父仓库因此可以准确选择一个子版本，却没有把子仓库的文件对象重新收入自己的 tree"
+          "from": 15.794,
+          "to": 20.64,
+          "text": "把三处结果并排后，问题就变成父仓库选择了哪个版本，而不是复制了哪些文件。"
+        },
+        {
+          "from": 21.302,
+          "to": 26.519,
+          "text": "父仓库因此可以准确选择一个子版本，却没有把子仓库的文件对象重新收入自己的 tree。"
         }
       ]
     },
     {
       "id": "independent-history",
       "title": "父子仓库拥有独立历史",
-      "start": 99,
-      "duration": 25,
+      "start": 108.5,
+      "duration": 26,
       "goal": "验证父子仓库的 refs 和对象库独立。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -220,32 +240,37 @@
       ],
       "narration": {
         "segmentId": "05_independent_history",
-        "voiceStart": 104.25,
-        "text": "再分别查看父仓库和子仓库的 log，会看到两条完全独立的提交历史。<#0.45#>\n子仓库产生新 commit 时，父仓库只会把 libs/core 标记为已修改；只有再次提交 gitlink，父历史才记录新的选择。<#0.45#>\n这也解释了为什么父仓库不能替你发布子仓库里尚未公开的 commit。"
+        "voiceStart": 108.85,
+        "text": "再分别查看父仓库和子仓库的 log，会看到两条完全独立的提交历史。<#0.45#>\n子仓库产生新 commit 时，父仓库只会把 libs/core 标记为已修改；只有再次提交 gitlink，父历史才记录新的选择。<#0.45#>\n也就是说，子历史可以继续前进，父仓库却仍停在旧 gitlink，直到我们显式更新它。<#0.45#>\n这也解释了为什么父仓库不能替你发布子仓库里尚未公开的 commit。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 9.801,
-          "text": "再分别查看父仓库和子仓库的 log，会看到两条完全独立的提交历史"
+          "from": 0.35,
+          "to": 4.546,
+          "text": "再分别查看父仓库和子仓库的 log，会看到两条完全独立的提交历史。"
         },
         {
-          "from": 10.52,
-          "to": 18.488,
-          "text": "子仓库产生新 commit 时，父仓库只会把 libs/core 标记为已修改；只有再次提交 gitlink，父历史才记录新的选择"
+          "from": 5.21,
+          "to": 12.68,
+          "text": "子仓库产生新 commit 时，父仓库只会把 libs/core 标记为已修改；只有再次提交 gitlink，父历史才记录新的选择。"
         },
         {
-          "from": 19.184,
-          "to": 22.933,
-          "text": "这也解释了为什么父仓库不能替你发布子仓库里尚未公开的 commit"
+          "from": 13.346,
+          "to": 19.55,
+          "text": "也就是说，子历史可以继续前进，父仓库却仍停在旧 gitlink，直到我们显式更新它。"
+        },
+        {
+          "from": 20.222,
+          "to": 24.209,
+          "text": "这也解释了为什么父仓库不能替你发布子仓库里尚未公开的 commit。"
         }
       ]
     },
     {
       "id": "takeaway",
       "title": "位置、版本与历史要分开看",
-      "start": 124,
-      "duration": 26,
+      "start": 134.5,
+      "duration": 27,
       "goal": "收束 submodule 指针模型。",
       "primaryTechnique": "Minimal summary",
       "beats": [
@@ -265,24 +290,29 @@
       ],
       "narration": {
         "segmentId": "06_takeaway",
-        "voiceStart": 129.25,
-        "text": "理解 submodule 时，可以把三个问题分开。<#0.45#>\n.gitmodules 建议去哪里获取，gitlink 决定父版本需要哪条子 commit，子仓库自己保存对象、refs 和历史。<#0.45#>\n一旦这三层不再混在一起，空目录、detached HEAD 和发布顺序就都有了可以追踪的原因。"
+        "voiceStart": 134.85,
+        "text": "理解 submodule 时，可以把三个问题分开。<#0.45#>\n.gitmodules 建议去哪里获取，gitlink 决定父版本需要哪条子 commit，子仓库自己保存对象、refs 和历史。<#0.45#>\n排查时也可以沿这三层逆向追问：地址是否正确、对象是否存在、子历史是否已经发布。<#0.45#>\n一旦这三层不再混在一起，空目录、detached HEAD 和发布顺序就都有了可以追踪的原因。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 7.814,
-          "text": "理解 submodule 时，可以把三个问题分开"
+          "from": 0.35,
+          "to": 2.595,
+          "text": "理解 submodule 时，可以把三个问题分开。"
         },
         {
-          "from": 8.444,
-          "to": 17.157,
-          "text": ".gitmodules 建议去哪里获取，gitlink 决定父版本需要哪条子 commit，子仓库自己保存对象、refs 和历史"
+          "from": 3.266,
+          "to": 10.364,
+          "text": "gitmodules 建议去哪里获取，gitlink 决定父版本需要哪条子 commit，子仓库自己保存对象、refs 和历史。"
         },
         {
-          "from": 17.9,
-          "to": 23.853,
-          "text": "一旦这三层不再混在一起，空目录、detached HEAD 和发布顺序就都有了可以追踪的原因"
+          "from": 11.006,
+          "to": 18.406,
+          "text": "排查时也可以沿这三层逆向追问：地址是否正确、对象是否存在、子历史是否已经发布。"
+        },
+        {
+          "from": 19.07,
+          "to": 25.274,
+          "text": "一旦这三层不再混在一起，空目录、detached HEAD 和发布顺序就都有了可以追踪的原因。"
         }
       ]
     }

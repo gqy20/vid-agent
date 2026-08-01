@@ -10,7 +10,9 @@ const episodeId = process.argv[2];
 if (!episodeId) throw new Error('Usage: node scripts/git-course-sync-captions.mjs <episode-id>');
 const fitScenes = process.argv.includes('--fit-scenes');
 const fromBuild = process.argv.includes('--from-build');
-const DEFAULT_NARRATION_LEAD = 0.75;
+const DEFAULT_NARRATION_LEAD = 0.35;
+const TARGET_TRAILING_GAP = 1.15;
+const MINIMUM_EPISODE_DURATION = 150;
 const audioSegmentsDir = join(
   ROOT,
   'remotion/renders/git-course',
@@ -40,18 +42,17 @@ const fitPlan = fitScenes ? episode.scenes.map((scene) => {
   const audioPath = join(audioSegmentsDir, `${scene.narration.segmentId}_norm.mp3`);
   const audioDuration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', audioPath], {encoding: 'utf8'}).trim());
   const sourceLead = DEFAULT_NARRATION_LEAD;
-  const tightDuration = Math.ceil((sourceLead + audioDuration + 1.5) * 2) / 2;
+  const tightDuration = Math.ceil((sourceLead + audioDuration + TARGET_TRAILING_GAP) * 2) / 2;
   return {audioDuration, sourceLead, tightDuration};
 }) : [];
-
 const tightTotal = fitPlan.reduce((sum, item) => sum + item.tightDuration, 0);
-let extraHalves = Math.max(0, Math.round((150 - tightTotal) * 2));
-const leadPadding = fitPlan.map((_, index) => {
-  const scenesLeft = fitPlan.length - index;
-  const halves = Math.floor(extraHalves / scenesLeft);
-  extraHalves -= halves;
-  return halves / 2;
-});
+if (fitScenes && tightTotal < MINIMUM_EPISODE_DURATION) {
+  throw new Error(
+    `${episodeId}: narration is ${Number((MINIMUM_EPISODE_DURATION - tightTotal).toFixed(1))}s too short; ` +
+    'add useful explanation instead of padding scenes with silence',
+  );
+}
+const leadPadding = fitPlan.map(() => 0);
 
 let sceneCursor = 0;
 for (const [index, scene] of episode.scenes.entries()) {

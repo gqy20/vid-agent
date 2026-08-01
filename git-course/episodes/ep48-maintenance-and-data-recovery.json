@@ -6,7 +6,7 @@
     "width": 1920,
     "height": 1080
   },
-  "durationSeconds": 150,
+  "durationSeconds": 155.5,
   "sourceOfTruth": {
     "references": [
       "https://git-scm.com/docs/git-reflog",
@@ -21,7 +21,7 @@
       "id": "hook",
       "title": "分支看不到 Commit，它就消失了吗",
       "start": 0,
-      "duration": 22,
+      "duration": 24.5,
       "goal": "提出 ref、reflog 与对象存活的区别。",
       "primaryTechnique": "Question",
       "beats": [
@@ -41,32 +41,37 @@
       ],
       "narration": {
         "segmentId": "01_hook",
-        "voiceStart": 4.75,
-        "text": "reset 以后分支不再指向某条 commit，它是不是已经从磁盘上消失了？<#0.45#>\n通常没有。refs、reflog、对象可达性和最终 prune 发生在不同阶段。<#0.45#>\n理解这条链，才能判断什么时候可以恢复，什么时候对象才真的被删除。"
+        "voiceStart": 0.35,
+        "text": "reset 以后分支不再指向某条 commit，它是不是已经从磁盘上消失了？<#0.45#>\n通常没有。refs、reflog、对象可达性和最终 prune 发生在不同阶段。<#0.45#>\n看不见历史与对象不存在是两个判断，我们需要逐层寻找还剩下哪些入口。<#0.45#>\n理解这条链，才能判断什么时候可以恢复，什么时候对象才真的被删除。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 9.089,
+          "from": 0.35,
+          "to": 4.511,
           "text": "reset 以后分支不再指向某条 commit，它是不是已经从磁盘上消失了？"
         },
         {
-          "from": 9.797,
-          "to": 15.22,
-          "text": "通常没有。refs、reflog、对象可达性和最终 prune 发生在不同阶段"
+          "from": 5.174,
+          "to": 11.448,
+          "text": "通常没有。refs、reflog、对象可达性和最终 prune 发生在不同阶段。"
         },
         {
-          "from": 15.882,
-          "to": 20.137,
-          "text": "理解这条链，才能判断什么时候可以恢复，什么时候对象才真的被删除"
+          "from": 12.122,
+          "to": 16.968,
+          "text": "看不见历史与对象不存在是两个判断，我们需要逐层寻找还剩下哪些入口。"
+        },
+        {
+          "from": 17.63,
+          "to": 23.091,
+          "text": "理解这条链，才能判断什么时候可以恢复，什么时候对象才真的被删除。"
         }
       ]
     },
     {
       "id": "reachability-model",
       "title": "Ref、Reflog 与 Prune 构成生命周期",
-      "start": 22,
-      "duration": 23.5,
+      "start": 24.5,
+      "duration": 22.5,
       "goal": "建立对象生命周期模型。",
       "primaryTechnique": "Centered model",
       "beats": [
@@ -86,32 +91,37 @@
       ],
       "narration": {
         "segmentId": "02_reachability_model",
-        "voiceStart": 26.75,
-        "text": "只要 branch 或 tag 可达一条 commit，它就是普通可达对象。<#0.45#>\nref 移走后，reflog 还可能记录旧对象 ID，让恢复仍然容易。<#0.45#>\nreflog 过期后，对象才进入不可达候选；是否被真正移除，还取决于 gc、prune 与保留时间。"
+        "voiceStart": 24.85,
+        "text": "只要 branch 或 tag 可达一条 commit，它就是普通可达对象。<#0.45#>\nref 移走后，reflog 还可能记录旧对象 ID，让恢复仍然容易。<#0.45#>\n即使进入不可达状态，对象也可能暂时留在数据库中，这段时间就是恢复窗口。<#0.45#>\nreflog 过期后，对象才进入不可达候选；是否被真正移除，还取决于 gc、prune 与保留时间。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 8.69,
-          "text": "只要 branch 或 tag 可达一条 commit，它就是普通可达对象"
+          "from": 0.35,
+          "to": 3.559,
+          "text": "只要 branch 或 tag 可达一条 commit，它就是普通可达对象。"
         },
         {
-          "from": 9.392,
-          "to": 13.677,
-          "text": "ref 移走后，reflog 还可能记录旧对象 ID，让恢复仍然容易"
+          "from": 4.202,
+          "to": 8.433,
+          "text": "ref 移走后，reflog 还可能记录旧对象 ID，让恢复仍然容易。"
         },
         {
-          "from": 14.474,
-          "to": 21.728,
-          "text": "reflog 过期后，对象才进入不可达候选；是否被真正移除，还取决于 gc、prune 与保留时间"
+          "from": 9.098,
+          "to": 13.944,
+          "text": "即使进入不可达状态，对象也可能暂时留在数据库中，这段时间就是恢复窗口。"
+        },
+        {
+          "from": 14.606,
+          "to": 20.775,
+          "text": "reflog 过期后，对象才进入不可达候选；是否被真正移除，还取决于 gc、prune 与保留时间。"
         }
       ]
     },
     {
       "id": "reflog-protection",
       "title": "Reflog 让离开分支的 Commit 仍可定位",
-      "start": 45.5,
-      "duration": 25,
+      "start": 47,
+      "duration": 28,
       "goal": "展示 reset 后 reflog 与 fsck 差异。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -131,37 +141,42 @@
       ],
       "narration": {
         "segmentId": "03_reflog_protection",
-        "voiceStart": 50.25,
-        "text": "我们创建一条临时 commit，再让 main reset 回上一条。<#0.45#>\n普通 log 已经看不到它，reflog 却仍记录这次移动和旧对象 ID。<#0.45#>\nfsck 默认把 reflog 当作可达入口，加入 --no-reflogs 才会把这条 commit 报告为不可达。<#0.45#>\nreflog 保护的是定位路径，不是另一份对象副本。"
+        "voiceStart": 47.35,
+        "text": "我们创建一条临时 commit，再让 main reset 回上一条。<#0.45#>\n普通 log 已经看不到它，reflog 却仍记录这次移动和旧对象 ID。<#0.45#>\n可以比较带不带 --no-reflogs 的 fsck，观察同一个对象如何因入口集合不同而改变分类。<#0.45#>\nfsck 默认把 reflog 当作可达入口，加入 --no-reflogs 才会把这条 commit 报告为不可达。<#0.45#>\nreflog 保护的是定位路径，不是另一份对象副本。"
       },
       "captions": [
         {
-          "from": 4.75,
-          "to": 7.755,
-          "text": "我们创建一条临时 commit，再让 main reset 回上一条"
+          "from": 0.35,
+          "to": 3.861,
+          "text": "我们创建一条临时 commit，再让 main reset 回上一条。"
         },
         {
-          "from": 8.577,
-          "to": 12.285,
-          "text": "普通 log 已经看不到它，reflog 却仍记录这次移动和旧对象 ID"
+          "from": 4.526,
+          "to": 8.722,
+          "text": "普通 log 已经看不到它，reflog 却仍记录这次移动和旧对象 ID。"
         },
         {
-          "from": 12.947,
-          "to": 19.197,
-          "text": "fsck 默认把 reflog 当作可达入口，加入 --no-reflogs 才会把这条 commit 报告为不可达"
+          "from": 9.386,
+          "to": 15.497,
+          "text": "可以比较带不带 --no-reflogs 的 fsck，观察同一个对象如何因入口集合不同而改变分类。"
         },
         {
-          "from": 19.955,
-          "to": 22.94,
-          "text": "reflog 保护的是定位路径，不是另一份对象副本"
+          "from": 16.154,
+          "to": 22.741,
+          "text": "fsck 默认把 reflog 当作可达入口，加入 --no-reflogs 才会把这条 commit 报告为不可达。"
+        },
+        {
+          "from": 23.39,
+          "to": 26.32,
+          "text": "reflog 保护的是定位路径，不是另一份对象副本。"
         }
       ]
     },
     {
       "id": "rescue-commit",
       "title": "对象未 Prune 前仍可以建立救援 Ref",
-      "start": 70.5,
-      "duration": 25,
+      "start": 75,
+      "duration": 25.5,
       "goal": "展示 expire 后用 fsck 找回。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -181,32 +196,37 @@
       ],
       "narration": {
         "segmentId": "04_rescue_commit",
-        "voiceStart": 75.75,
-        "text": "在隔离仓库里立即让 reflog 过期，再运行 fsck --unreachable，就能直接看到失去入口的 commit。<#0.45#>\n只要对象尚未被 prune，我们仍可用完整对象 ID 创建 rescue branch。<#0.45#>\n新 ref 重新建立可达路径后，commit 和它关联的 tree、blob 就回到了普通历史中。"
+        "voiceStart": 75.35,
+        "text": "在隔离仓库里立即让 reflog 过期，再运行 fsck --unreachable，就能直接看到失去入口的 commit。<#0.45#>\n只要对象尚未被 prune，我们仍可用完整对象 ID 创建 rescue branch。<#0.45#>\n这一步的关键不是复制对象，而是尽快建立一个不会随维护任务消失的新入口。<#0.45#>\n新 ref 重新建立可达路径后，commit 和它关联的 tree、blob 就回到了普通历史中。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 11.045,
-          "text": "在隔离仓库里立即让 reflog 过期，再运行 fsck --unreachable，就能直接看到失去入口的 commit"
+          "from": 0.35,
+          "to": 7.379,
+          "text": "在隔离仓库里立即让 reflog 过期，再运行 fsck --unreachable，就能直接看到失去入口的 commit。"
         },
         {
-          "from": 11.776,
-          "to": 15.99,
-          "text": "只要对象尚未被 prune，我们仍可用完整对象 ID 创建 rescue branch"
+          "from": 8.054,
+          "to": 12.459,
+          "text": "只要对象尚未被 prune，我们仍可用完整对象 ID 创建 rescue branch。"
         },
         {
-          "from": 16.694,
-          "to": 23.074,
-          "text": "新 ref 重新建立可达路径后，commit 和它关联的 tree、blob 就回到了普通历史中"
+          "from": 13.13,
+          "to": 18.046,
+          "text": "这一步的关键不是复制对象，而是尽快建立一个不会随维护任务消失的新入口。"
+        },
+        {
+          "from": 18.71,
+          "to": 23.823,
+          "text": "新 ref 重新建立可达路径后，commit 和它关联的 tree、blob 就回到了普通历史中。"
         }
       ]
     },
     {
       "id": "prune-object",
       "title": "Prune 才会让不可达对象离开数据库",
-      "start": 95.5,
-      "duration": 26.5,
+      "start": 100.5,
+      "duration": 28,
       "goal": "展示立即 prune 的不可逆结果和 maintenance 边界。",
       "primaryTechnique": "Recorded terminal",
       "beats": [
@@ -226,32 +246,37 @@
       ],
       "narration": {
         "segmentId": "05_prune_object",
-        "voiceStart": 100.75,
-        "text": "再创建另一条一次性 commit，移走 ref 并清空 reflog。<#0.45#>\nprune 之前，cat-file 仍能读取对象；在这个专用实验仓库执行 gc --prune=now 后，同一对象 ID 已经无法解析。<#0.45#>\n日常 git maintenance 主要安排增量维护任务，并不等于每次运行都立刻删除所有刚变成不可达的对象。"
+        "voiceStart": 100.85,
+        "text": "再创建另一条一次性 commit，移走 ref 并清空 reflog。<#0.45#>\nprune 之前，cat-file 仍能读取对象；在这个专用实验仓库执行 gc --prune=now 后，同一对象 ID 已经无法解析。<#0.45#>\n把 prune 前后用同一条 cat-file 命令核对，能把不可达与真正缺失区分开。<#0.45#>\n日常 git maintenance 主要安排增量维护任务，并不等于每次运行都立刻删除所有刚变成不可达的对象。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 9.931,
-          "text": "再创建另一条一次性 commit，移走 ref 并清空 reflog"
+          "from": 0.35,
+          "to": 4.79,
+          "text": "再创建另一条一次性 commit，移走 ref 并清空 reflog。"
         },
         {
-          "from": 10.561,
-          "to": 18.268,
-          "text": "prune 之前，cat-file 仍能读取对象；在这个专用实验仓库执行 gc --prune=now 后，同一对象 ID 已经无法解析"
+          "from": 5.462,
+          "to": 13.895,
+          "text": "prune 之前，cat-file 仍能读取对象；在这个专用实验仓库执行 gc --prune=now 后，同一对象 ID 已经无法解析。"
         },
         {
-          "from": 18.958,
-          "to": 24.621,
-          "text": "日常 git maintenance 主要安排增量维护任务，并不等于每次运行都立刻删除所有刚变成不可达的对象"
+          "from": 14.57,
+          "to": 19.451,
+          "text": "把 prune 前后用同一条 cat-file 命令核对，能把不可达与真正缺失区分开。"
+        },
+        {
+          "from": 20.114,
+          "to": 26.191,
+          "text": "日常 git maintenance 主要安排增量维护任务，并不等于每次运行都立刻删除所有刚变成不可达的对象。"
         }
       ]
     },
     {
       "id": "takeaway",
       "title": "先恢复入口，再讨论空间回收",
-      "start": 122,
-      "duration": 28,
+      "start": 128.5,
+      "duration": 27,
       "goal": "收束恢复优先级与维护边界。",
       "primaryTechnique": "Minimal summary",
       "beats": [
@@ -271,29 +296,34 @@
       ],
       "narration": {
         "segmentId": "06_takeaway",
-        "voiceStart": 127.25,
-        "text": "发现 commit 不见时，先不要把历史不可见误判成对象已删除。<#0.45#>\n依次检查 refs、reflog 和 fsck 输出，找到对象后尽快建立救援 ref。<#0.45#>\n只有当对象已经失去所有入口并被 prune，Git 内部才不再有可恢复内容。<#0.45#>\n维护负责控制成本，恢复则要利用 prune 之前的时间窗口。"
+        "voiceStart": 128.85,
+        "text": "发现 commit 不见时，先不要把历史不可见误判成对象已删除。<#0.45#>\n依次检查 refs、reflog 和 fsck 输出，找到对象后尽快建立救援 ref。<#0.45#>\n也可以先复制仓库再实验恢复命令，避免在唯一现场继续改变 reflog 或对象保留状态。<#0.45#>\n只有当对象已经失去所有入口并被 prune，Git 内部才不再有可恢复内容。<#0.45#>\n维护负责控制成本，恢复则要利用 prune 之前的时间窗口。"
       },
       "captions": [
         {
-          "from": 5.25,
-          "to": 9.207,
-          "text": "发现 commit 不见时，先不要把历史不可见误判成对象已删除"
+          "from": 0.35,
+          "to": 4,
+          "text": "发现 commit 不见时，先不要把历史不可见误判成对象已删除。"
         },
         {
-          "from": 9.878,
-          "to": 16.276,
-          "text": "依次检查 refs、reflog 和 fsck 输出，找到对象后尽快建立救援 ref"
+          "from": 4.67,
+          "to": 9.748,
+          "text": "依次检查 refs、reflog 和 fsck 输出，找到对象后尽快建立救援 ref。"
         },
         {
-          "from": 16.961,
-          "to": 21.396,
-          "text": "只有当对象已经失去所有入口并被 prune，Git 内部才不再有可恢复内容"
+          "from": 10.394,
+          "to": 16.122,
+          "text": "也可以先复制仓库再实验恢复命令，避免在唯一现场继续改变 reflog 或对象保留状态。"
         },
         {
-          "from": 22.15,
-          "to": 25.85,
-          "text": "维护负责控制成本，恢复则要利用 prune 之前的时间窗口"
+          "from": 16.766,
+          "to": 20.788,
+          "text": "只有当对象已经失去所有入口并被 prune，Git 内部才不再有可恢复内容。"
+        },
+        {
+          "from": 21.446,
+          "to": 25.398,
+          "text": "维护负责控制成本，恢复则要利用 prune 之前的时间窗口。"
         }
       ]
     }
