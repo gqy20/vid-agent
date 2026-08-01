@@ -1,0 +1,335 @@
+{
+  "episodeId": "ep38-server-hooks-and-policy",
+  "title": "服务端怎样拒绝不合规更新",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/githooks#_pre_receive",
+      "https://git-scm.com/docs/git-receive-pack#_quarantine_environment"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "客户端通过，服务器仍能拒绝吗",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出共享接收端门禁。",
+      "primaryTechnique": "Question + receive boundary",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "Push 请求停在 receive 边界",
+          "motion": "两条 ref 更新一起冻结",
+          "state": "question",
+          "narration": "谁拥有最终 ref 写入权？",
+          "audit": [
+            "不等同平台保护规则"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 3.75,
+        "text": "本地检查全部通过，push 仍然可能被服务器拒绝。<#0.45#>\n因为客户端发送的是更新请求，远端 ref 最终是否写入由接收端决定。<#0.45#>\n服务端 hook 可以在 receive-pack 更新 refs 前检查整批输入。<#0.40#>\n这一集我们用 bare remote 看清：一次拒绝究竟影响哪一批更新。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 7.148,
+          "text": "本地检查全部通过，push 仍然可能被服务器拒绝"
+        },
+        {
+          "from": 7.83,
+          "to": 12.536,
+          "text": "因为客户端发送的是更新请求，远端 ref 最终是否写入由接收端决定"
+        },
+        {
+          "from": 13.286,
+          "to": 17.162,
+          "text": "服务端 hook 可以在 receive-pack 更新 refs 前检查整批输入"
+        },
+        {
+          "from": 17.789,
+          "to": 22.053,
+          "text": "这一集我们用 bare remote 看清：一次拒绝究竟影响哪一批更新"
+        }
+      ]
+    },
+    {
+      "id": "receive-model",
+      "title": "Pre-receive 检查整批 Ref 更新",
+      "start": 24,
+      "duration": 26,
+      "goal": "建立 stdin 三元组与整批裁决模型。",
+      "primaryTechnique": "Centered receive flow",
+      "beats": [
+        {
+          "time": [
+            21,
+            42
+          ],
+          "visual": "old OID / new OID / ref name 三列进入 gate",
+          "motion": "多行归入一次 receive",
+          "state": "receive-batch",
+          "narration": "一次执行看到全部更新。",
+          "audit": [
+            "update 与 post-receive 边界明确"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_receive_model",
+        "voiceStart": 27.75,
+        "text": "pre-receive 每次 receive operation 执行一次。<#0.45#>\n它从标准输入读取多行 old OID、new OID 和 ref name，因此可以一起判断整批更新。<#0.45#>\n任何规则返回非零时，整次 receive 被拒绝。<#0.45#>\n如果需要逐 ref 裁决还有 update hook；post-receive 则发生在成功写入之后，已经不能撤销结果。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 6.278,
+          "text": "pre-receive 每次 receive operation 执行一次"
+        },
+        {
+          "from": 6.91,
+          "to": 13.093,
+          "text": "它从标准输入读取多行 old OID、new OID 和 ref name，因此可以一起判断整批更新"
+        },
+        {
+          "from": 13.771,
+          "to": 17.01,
+          "text": "任何规则返回非零时，整次 receive 被拒绝"
+        },
+        {
+          "from": 17.743,
+          "to": 24.057,
+          "text": "如果需要逐 ref 裁决还有 update hook；post-receive 则发生在成功写入之后，已经不能撤销结果"
+        }
+      ]
+    },
+    {
+      "id": "batch-reject",
+      "title": "一条违规 Ref 拒绝整批 Receive",
+      "start": 50,
+      "duration": 24,
+      "goal": "真实展示 main 与 topic 同推时整批拒绝。",
+      "primaryTechnique": "Recorded batch rejection",
+      "beats": [
+        {
+          "time": [
+            45,
+            69
+          ],
+          "visual": "两行 stdin、main 拒绝、show-ref 不变",
+          "motion": "整批更新退回",
+          "state": "rejected",
+          "narration": "topic 也没有被部分接受。",
+          "audit": [
+            "两条 ref 均未写入"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_batch_reject",
+        "voiceStart": 53.75,
+        "text": "客户端一次 push 同时请求更新 main 和 topic。<#0.45#>\nhook 日志真实收到两行输入，其中 main 命中“禁止直接更新”的规则。<#0.45#>\npre-receive 返回非零后，整批 receive 被拒绝，topic 也没有被部分写入。<#0.45#>\n服务端 show-ref 保持原状，这才是拒绝生效的最终证据。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 6.571,
+          "text": "客户端一次 push 同时请求更新 main 和 topic"
+        },
+        {
+          "from": 7.256,
+          "to": 12.163,
+          "text": "hook 日志真实收到两行输入，其中 main 命中“禁止直接更新”的规则"
+        },
+        {
+          "from": 12.828,
+          "to": 17.432,
+          "text": "pre-receive 返回非零后，整批 receive 被拒绝，topic 也没有被部分写入"
+        },
+        {
+          "from": 18.215,
+          "to": 22.029,
+          "text": "服务端 show-ref 保持原状，这才是拒绝生效的最终证据"
+        }
+      ]
+    },
+    {
+      "id": "topic-accept",
+      "title": "符合规则的 Topic 可以单独写入",
+      "start": 74,
+      "duration": 22,
+      "goal": "展示同一服务端接受 topic。",
+      "primaryTechnique": "Recorded accepted topic",
+      "beats": [
+        {
+          "time": [
+            72,
+            95
+          ],
+          "visual": "单独 push topic 与远端 ref/object",
+          "motion": "topic 穿过 gate",
+          "state": "accepted",
+          "narration": "规则拒绝更新类型，不是关闭服务器。",
+          "audit": [
+            "对象可由远端读取"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_topic_accept",
+        "voiceStart": 77.75,
+        "text": "接着只请求更新 topic ref。<#0.45#>\n同一个 pre-receive 再次读取输入，但这次没有 main，因此返回零。<#0.45#>\n远端 show-ref 出现 topic，新对象也可以从 bare repository 读取。<#0.45#>\n策略拒绝的是不合规更新，不是把整个接收端永久关闭。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 5.371,
+          "text": "接着只请求更新 topic ref"
+        },
+        {
+          "from": 6.16,
+          "to": 10.612,
+          "text": "同一个 pre-receive 再次读取输入，但这次没有 main，因此返回零"
+        },
+        {
+          "from": 11.286,
+          "to": 15.677,
+          "text": "远端 show-ref 出现 topic，新对象也可以从 bare repository 读取"
+        },
+        {
+          "from": 16.439,
+          "to": 20.231,
+          "text": "策略拒绝的是不合规更新，不是把整个接收端永久关闭"
+        }
+      ]
+    },
+    {
+      "id": "server-boundary",
+      "title": "No-verify 不能绕过服务端 Hook",
+      "start": 96,
+      "duration": 24,
+      "goal": "证明客户端选项不能控制接收端。",
+      "primaryTechnique": "Recorded server boundary",
+      "beats": [
+        {
+          "time": [
+            98,
+            121
+          ],
+          "visual": "push --no-verify main 再次 rejected",
+          "motion": "客户端绕过止于远端边界",
+          "state": "server-enforced",
+          "narration": "控制权属于服务器进程。",
+          "audit": [
+            "不扩展网络认证"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_server_boundary",
+        "voiceStart": 99.75,
+        "text": "我们再用 git push --no-verify 请求更新 main。<#0.45#>\n这个选项只能跳过适用的客户端 pre-push hook，无法关闭远端 receive-pack 中的 pre-receive。<#0.45#>\n服务器仍按同一规则拒绝 main，远端 ref 再次保持不变。<#0.45#>\n不可绕过性来自控制权位于接收端，而不是选项名字听起来更强。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 6.326,
+          "text": "我们再用 git push --no-verify 请求更新 main"
+        },
+        {
+          "from": 6.999,
+          "to": 12.285,
+          "text": "这个选项只能跳过适用的客户端 pre-push hook，无法关闭远端 receive-pack 中的 pre-receive"
+        },
+        {
+          "from": 12.967,
+          "to": 17.336,
+          "text": "服务器仍按同一规则拒绝 main，远端 ref 再次保持不变"
+        },
+        {
+          "from": 18.085,
+          "to": 22.095,
+          "text": "不可绕过性来自控制权位于接收端，而不是选项名字听起来更强"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "共享策略必须落在共享写入边界",
+      "start": 120,
+      "duration": 30,
+      "goal": "收束客户端与服务端策略边界。",
+      "primaryTechnique": "Minimal policy summary",
+      "beats": [
+        {
+          "time": [
+            124,
+            147
+          ],
+          "visual": "Client Feedback → Server Decision → Ref Update",
+          "motion": "三层边界稳定",
+          "state": "decision",
+          "narration": "门禁位置决定约束范围。",
+          "audit": [
+            "不等同托管平台 Rulesets"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 124.25,
+        "text": "如果规则需要覆盖所有写入者，它就必须落在大家共同经过的服务器边界。<#0.45#>\n客户端 hook 提供快速反馈，pre-receive 对一次 receive 做整批接受或拒绝。<#0.45#>\n最终仍要用远端 refs 和对象状态证明结果，而不是只看客户端提示。<#0.45#>\n自建服务端 hook 与托管平台的 branch protection 并不是同一套机制。<#0.35#>\n但判断问题相同：谁拥有最终写入权？"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 8.393,
+          "text": "如果规则需要覆盖所有写入者，它就必须落在大家共同经过的服务器边界"
+        },
+        {
+          "from": 9.231,
+          "to": 14.392,
+          "text": "客户端 hook 提供快速反馈，pre-receive 对一次 receive 做整批接受或拒绝"
+        },
+        {
+          "from": 15.106,
+          "to": 19.242,
+          "text": "最终仍要用远端 refs 和对象状态证明结果，而不是只看客户端提示"
+        },
+        {
+          "from": 19.988,
+          "to": 24.148,
+          "text": "自建服务端 hook 与托管平台的 branch protection 并不是同一套机制"
+        },
+        {
+          "from": 24.879,
+          "to": 27.871,
+          "text": "但判断问题相同：谁拥有最终写入权？"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP38：服务端 Hooks 与策略\n\n用 pre-receive 观察整批 ref 更新的接受与拒绝。\n",
+    "scriptMarkdown": "# EP38 当前脚本（150s）\n\n从 batch reject 到 topic accept 和 no-verify 边界。\n",
+    "beatsMarkdown": "# EP38 Beats\n\n`question → receive model → reject batch → accept topic → server boundary → decision`。\n",
+    "qualityMarkdown": "# EP38 审查记录\n\n- pre-receive 是整批裁决，不等同平台保护规则。\n",
+    "alignmentMarkdown": "# EP38 对齐记录\n\nTTS 与 SRT 生成后回写 captions；hook stdin、客户端结果和远端 refs 同步核对。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP38 B 站发布物料\n\n## 标题\n\nGit 服务端怎样拒绝不合规 Push？\n\n## 简介\n\n用 pre-receive 检查整批 ref 更新，并验证服务端写入边界。\n\n## 官方参考\n\n- [githooks：pre-receive](https://git-scm.com/docs/githooks#_pre_receive)\n- [git-receive-pack：Quarantine](https://git-scm.com/docs/git-receive-pack#_quarantine_environment)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Hooks\npre-receive\n```\n",
+    "coverBriefMarkdown": "# EP38 封面 Brief\n\n两条 ref 更新一起停在服务器 Gate 前。\n",
+    "checklistMarkdown": "# EP38 发布检查清单\n\n- [ ] 整批拒绝、topic 接受与服务端边界已核对。\n"
+  }
+}

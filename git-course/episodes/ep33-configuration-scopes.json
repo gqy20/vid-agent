@@ -1,0 +1,340 @@
+{
+  "episodeId": "ep33-configuration-scopes",
+  "title": "同一个配置为什么得到不同结果",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-config#SCOPES",
+      "https://git-scm.com/docs/git-config#Documentation/git-config.txt---show-origin"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "同一配置，为何结果不同",
+      "start": 0,
+      "duration": 20,
+      "goal": "提出配置最终值与来源的区别。",
+      "primaryTechnique": "Question + layered values",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "同一个 demo.label 出现多个来源",
+          "motion": "值逐层覆盖",
+          "state": "question",
+          "narration": "最终值从哪里来？",
+          "audit": [
+            "不把 user.name 说成登录账号"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 3.25,
+        "text": "同一条 Git 配置，在仓库外和仓库内可能得到不同结果。<#0.45#>\n问题不一定出在命令，也可能是我们读取了不同的配置层。<#0.45#>\n如果只看最终值，很容易直接改错文件。<#0.40#>\n这一集我们一起追踪：值从哪里来，又应该改哪一层。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.729,
+          "text": "同一条 Git 配置，在仓库外和仓库内可能得到不同结果"
+        },
+        {
+          "from": 7.384,
+          "to": 10.921,
+          "text": "问题不一定出在命令，也可能是我们读取了不同的配置层"
+        },
+        {
+          "from": 11.687,
+          "to": 13.715,
+          "text": "如果只看最终值，很容易直接改错文件"
+        },
+        {
+          "from": 14.525,
+          "to": 17.886,
+          "text": "这一集我们一起追踪：值从哪里来，又应该改哪一层"
+        }
+      ]
+    },
+    {
+      "id": "scope-model",
+      "title": "配置按作用范围分层读取",
+      "start": 20,
+      "duration": 29,
+      "goal": "建立 system、global、local、worktree 与 command 的范围模型。",
+      "primaryTechnique": "Centered scope flow",
+      "beats": [
+        {
+          "time": [
+            22,
+            43
+          ],
+          "visual": "五层 scope 依次进入",
+          "motion": "更具体范围接管单值配置",
+          "state": "scope-order",
+          "narration": "范围不同，来源不同。",
+          "audit": [
+            "不把多值配置简化为单值覆盖"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_scope_model",
+        "voiceStart": 23.25,
+        "text": "Git 把配置区分为 system、global、local、worktree 和 command scope。<#0.45#>\nsystem 面向整台机器，global 面向当前用户，local 保存在当前仓库。<#0.45#>\n启用 worktreeConfig 后，linked worktree 还能拥有独立位置。<#0.45#>\n命令行的 git -c 只影响这一次调用。<#0.35#>\n对普通单值配置，我们可以先把它理解为更具体的来源接管最终结果。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 8.355,
+          "text": "Git 把配置区分为 system、global、local、worktree 和 command scope"
+        },
+        {
+          "from": 9.156,
+          "to": 14.443,
+          "text": "system 面向整台机器，global 面向当前用户，local 保存在当前仓库"
+        },
+        {
+          "from": 15.088,
+          "to": 19.469,
+          "text": "启用 worktreeConfig 后，linked worktree 还能拥有独立位置"
+        },
+        {
+          "from": 20.132,
+          "to": 22.117,
+          "text": "命令行的 git -c 只影响这一次调用"
+        },
+        {
+          "from": 22.761,
+          "to": 27.255,
+          "text": "对普通单值配置，我们可以先把它理解为更具体的来源接管最终结果"
+        }
+      ]
+    },
+    {
+      "id": "inspect-origin",
+      "title": "先同时查看值、来源与范围",
+      "start": 49,
+      "duration": 24,
+      "goal": "真实展示 show-origin 与 show-scope。",
+      "primaryTechnique": "Recorded config inspection",
+      "beats": [
+        {
+          "time": [
+            47,
+            68
+          ],
+          "visual": "终端列出三层 demo.label",
+          "motion": "终端后切到来源卡",
+          "state": "origin-visible",
+          "narration": "先定位，再修改。",
+          "audit": [
+            "配置完全隔离"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_inspect_origin",
+        "voiceStart": 52.25,
+        "text": "我们先在隔离环境里，让 system、global 和 local 都写入 demo.label。<#0.45#>\n直接读取时，只看到当前仓库最终采用 local。<#0.45#>\n加入 --show-origin 和 --show-scope 后，三个值及其文件位置会一起出现。<#0.45#>\n这时问题就从“Git 为什么不听话”，变成“哪一层正在提供这个值”。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 8.374,
+          "text": "我们先在隔离环境里，让 system、global 和 local 都写入 demo.label"
+        },
+        {
+          "from": 9.086,
+          "to": 12.138,
+          "text": "直接读取时，只看到当前仓库最终采用 local"
+        },
+        {
+          "from": 12.888,
+          "to": 17.87,
+          "text": "加入 --show-origin 和 --show-scope 后，三个值及其文件位置会一起出现"
+        },
+        {
+          "from": 18.504,
+          "to": 22.231,
+          "text": "这时问题就从“Git 为什么不听话”，变成“哪一层正在提供这个值”"
+        }
+      ]
+    },
+    {
+      "id": "command-scope",
+      "title": "Command Scope 只影响本次调用",
+      "start": 73,
+      "duration": 23.5,
+      "goal": "证明 git -c 不写回配置文件。",
+      "primaryTechnique": "Recorded command override",
+      "beats": [
+        {
+          "time": [
+            72,
+            93
+          ],
+          "visual": "command 值短暂接管，再恢复 local",
+          "motion": "一次调用高亮",
+          "state": "temporary-override",
+          "narration": "临时覆盖不是持久修改。",
+          "audit": [
+            "调用后 local 仍在"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_command_scope",
+        "voiceStart": 76.75,
+        "text": "现在用 git -c demo.label=command 读取同一个 key。<#0.45#>\n这一条命令得到 command，因为覆盖只附着在当前 Git 进程。<#0.45#>\n命令结束后再次读取，结果仍然是仓库里的 local。<#0.45#>\n它适合做一次性实验，却不应该被误认为已经修改了 global 或 repository config。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 7.268,
+          "text": "现在用 git -c demo.label=command 读取同一个 key"
+        },
+        {
+          "from": 7.976,
+          "to": 11.446,
+          "text": "这一条命令得到 command，因为覆盖只附着在当前 Git 进程"
+        },
+        {
+          "from": 12.137,
+          "to": 15.891,
+          "text": "命令结束后再次读取，结果仍然是仓库里的 local"
+        },
+        {
+          "from": 16.581,
+          "to": 21.607,
+          "text": "它适合做一次性实验，却不应该被误认为已经修改了 global 或 repository config"
+        }
+      ]
+    },
+    {
+      "id": "worktree-scope",
+      "title": "Worktree 可以拥有独立配置",
+      "start": 96.5,
+      "duration": 25,
+      "goal": "说明 worktree scope 的启用条件与独立位置。",
+      "primaryTechnique": "Recorded worktree config",
+      "beats": [
+        {
+          "time": [
+            97,
+            118
+          ],
+          "visual": "主工作区与 linked worktree 得到不同值",
+          "motion": "两个读取结果分开",
+          "state": "worktree-specific",
+          "narration": "独立位置需要显式启用。",
+          "audit": [
+            "不展开 worktree 结构"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_worktree_scope",
+        "voiceStart": 100.25,
+        "text": "如果仓库启用了 extensions.worktreeConfig，worktree scope 才有独立配置位置。<#0.45#>\n我们在 linked worktree 写入 demo.label，再分别从两个工作目录读取。<#0.45#>\n主工作区仍采用 local，linked worktree 则得到自己的值。<#0.45#>\n这里先观察配置边界；worktree 的完整目录结构留到后面的专题。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 8.68,
+          "text": "如果仓库启用了 extensions.worktreeConfig，worktree scope 才有独立配置位置"
+        },
+        {
+          "from": 9.367,
+          "to": 13.609,
+          "text": "我们在 linked worktree 写入 demo.label，再分别从两个工作目录读取"
+        },
+        {
+          "from": 14.411,
+          "to": 18.648,
+          "text": "主工作区仍采用 local，linked worktree 则得到自己的值"
+        },
+        {
+          "from": 19.517,
+          "to": 23.198,
+          "text": "这里先观察配置边界；worktree 的完整目录结构留到后面的专题"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先定位来源，再决定修改范围",
+      "start": 121.5,
+      "duration": 28.5,
+      "goal": "收束配置排查顺序。",
+      "primaryTechnique": "Minimal scope summary",
+      "beats": [
+        {
+          "time": [
+            122,
+            147
+          ],
+          "visual": "Get → Origin → Scope → Change",
+          "motion": "判断链依次稳定",
+          "state": "decision",
+          "narration": "不要凭最终值猜配置文件。",
+          "audit": [
+            "不扩展 include 与 protected scope"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 125.25,
+        "text": "以后遇到配置结果不一致，我们可以先问三个问题。<#0.45#>\n当前命令读取到了什么值？它来自哪个文件？它属于哪个 scope？<#0.45#>\n确认来源后，再决定修改 system、global、local 还是 worktree。<#0.45#>\n多值配置、include 和受保护配置还有额外规则，不能机械套用一条优先级。<#0.35#>\n但先定位来源，通常能避免最常见的误改。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 6.607,
+          "text": "以后遇到配置结果不一致，我们可以先问三个问题"
+        },
+        {
+          "from": 7.264,
+          "to": 11.47,
+          "text": "当前命令读取到了什么值？它来自哪个文件？它属于哪个 scope？"
+        },
+        {
+          "from": 12.146,
+          "to": 17.477,
+          "text": "确认来源后，再决定修改 system、global、local 还是 worktree"
+        },
+        {
+          "from": 18.137,
+          "to": 23.607,
+          "text": "多值配置、include 和受保护配置还有额外规则，不能机械套用一条优先级"
+        },
+        {
+          "from": 24.187,
+          "to": 26.684,
+          "text": "但先定位来源，通常能避免最常见的误改"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP33：配置作用域\n\n从最终值回溯 origin 与 scope。\n",
+    "scriptMarkdown": "# EP33 当前脚本（150s）\n\n比较 system、global、local、worktree 与 command scope。\n",
+    "beatsMarkdown": "# EP33 Beats\n\n`question → scopes → origin → command → worktree → decision`。\n",
+    "qualityMarkdown": "# EP33 审查记录\n\n- 所有配置实验使用隔离 HOME 与临时 system config。\n",
+    "alignmentMarkdown": "# EP33 对齐记录\n\nTTS 与 SRT 生成后回写 captions；关键终端输出保持至对应字幕结束后。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP33 B 站发布物料\n\n## 标题\n\nGit 配置为什么会得到不同结果？\n\n## 简介\n\n从 origin 与 scope 找到真正生效的配置来源。\n\n## 官方参考\n\n- [git-config：Scopes](https://git-scm.com/docs/git-config#SCOPES)\n- [git-config：show-origin](https://git-scm.com/docs/git-config#Documentation/git-config.txt---show-origin)\n\n## 标签\n\n```text\nGit\nGit教程\nGit配置\ngit config\n```\n",
+    "coverBriefMarkdown": "# EP33 封面 Brief\n\n多层配置收束到一个最终值，突出来源与范围。\n",
+    "checklistMarkdown": "# EP33 发布检查清单\n\n- [ ] 配置 scope、origin 与隔离环境已核对。\n"
+  }
+}

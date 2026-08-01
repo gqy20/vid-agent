@@ -21,9 +21,9 @@ export const ChapterProgress: React.FC<{
   return (
     <div
       data-audit-id="chapter-progress"
-      style={{width: 300, justifySelf: 'center', display: 'grid', fontFamily: FONT.ui, fontSynthesis: 'none'}}
+      style={{width: 620, minWidth: 0, justifySelf: 'center', display: 'grid', fontFamily: FONT.ui, fontSynthesis: 'none'}}
     >
-      <div style={{display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'baseline'}}>
+      <div style={{display: 'flex', justifyContent: 'center', gap: 10, alignItems: 'baseline', minWidth: 0, whiteSpace: 'nowrap'}}>
         <span
           style={{
             color: COLOR.text.tertiary,
@@ -32,6 +32,7 @@ export const ChapterProgress: React.FC<{
             fontVariantNumeric: 'tabular-nums',
             lineHeight: 1.15,
             letterSpacing: '0.01em',
+            flexShrink: 0,
           }}
         >
           {String(activeIndex + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}
@@ -43,6 +44,9 @@ export const ChapterProgress: React.FC<{
             fontWeight: WEIGHT.medium,
             lineHeight: 1.15,
             letterSpacing: '0.01em',
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           {activeScene?.title}

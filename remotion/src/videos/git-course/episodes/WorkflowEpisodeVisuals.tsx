@@ -12,23 +12,42 @@ const toneColor = (tone: FlowTone) => tone === 'neutral' ? COLOR.stroke.strong :
 export const FlowSteps: React.FC<{
   readonly steps: readonly {label: string; detail?: string; tone?: FlowTone}[];
   readonly active?: number;
-}> = ({steps, active = steps.length - 1}) => (
-  <CenteredSceneBody width={1540}>
-    <div style={{position:'relative',display:'grid',gridTemplateColumns:`repeat(${steps.length}, minmax(0, 1fr))`,gap:36,alignItems:'center'}}>
-      <div style={{position:'absolute',left:100,right:100,top:64,height:9,borderRadius:9,background:COLOR.git.graphLine,zIndex:0}} />
-      {steps.map((step,index)=>{
-        const color=toneColor(step.tone ?? 'main');
-        return <div key={`${step.label}-${index}`} style={{position:'relative',zIndex:1,textAlign:'center',opacity:index<=active?1:.28}}>
-          <div style={{width:128,height:128,margin:'0 auto',borderRadius:'50%',display:'grid',placeItems:'center',background:COLOR.canvas.raised,border:`7px solid ${color}`,boxShadow:`0 14px 30px ${COLOR.effects.shadowSoft}`}}>
-            <span style={{...TYPE.title,fontFamily:FONT.mono,fontWeight:WEIGHT.bold,color}}>{index+1}</span>
-          </div>
-          <div style={{...TYPE.title,fontSize:38,fontWeight:WEIGHT.bold,marginTop:30,whiteSpace:'nowrap'}}>{step.label}</div>
-          {step.detail?<div style={{...TYPE.body,color:COLOR.text.secondary,marginTop:10}}>{step.detail}</div>:null}
-        </div>;
-      })}
-    </div>
-  </CenteredSceneBody>
-);
+  readonly revealAtSeconds?: number;
+}> = ({steps, active = steps.length - 1, revealAtSeconds = .4}) => {
+  const frame = useCurrentFrame();
+  const gap = 36;
+  const edgeInset = `calc((100% - ${(steps.length - 1) * gap}px) / ${steps.length} / 2)`;
+  const lineProgress = interpolate(
+    frame,
+    [seconds(revealAtSeconds), seconds(revealAtSeconds + .5)],
+    [0, 1],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+  );
+
+  return (
+    <CenteredSceneBody width={1540}>
+      <div style={{position:'relative',display:'grid',gridTemplateColumns:`repeat(${steps.length}, minmax(0, 1fr))`,gap,alignItems:'center'}}>
+        <div style={{position:'absolute',left:edgeInset,right:edgeInset,top:68,height:9,borderRadius:9,background:COLOR.git.graphLine,zIndex:0,transform:`scaleX(${lineProgress})`,transformOrigin:'left center'}} />
+        {steps.map((step,index)=>{
+          const color=toneColor(step.tone ?? 'main');
+          const enter = interpolate(
+            frame,
+            [seconds(revealAtSeconds) + index * 5, seconds(revealAtSeconds) + index * 5 + 14],
+            [0, 1],
+            {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+          );
+          return <div key={`${step.label}-${index}`} style={{position:'relative',zIndex:1,textAlign:'center',opacity:(index<=active?1:.28)*enter,transform:`translateY(${(1-enter)*16}px)`}}>
+            <div style={{width:144,height:144,margin:'0 auto',borderRadius:'50%',display:'grid',placeItems:'center',background:COLOR.canvas.raised,border:`8px solid ${color}`,boxShadow:`0 14px 30px ${COLOR.effects.shadowSoft}`}}>
+              <span style={{width:24,height:24,borderRadius:'50%',background:color,boxShadow:`0 0 0 8px ${COLOR.canvas.raised}`}} />
+            </div>
+            <div style={{...TYPE.title,fontSize:38,fontWeight:WEIGHT.bold,marginTop:30,whiteSpace:'nowrap'}}>{step.label}</div>
+            {step.detail?<div style={{...TYPE.body,color:COLOR.text.secondary,marginTop:10}}>{step.detail}</div>:null}
+          </div>;
+        })}
+      </div>
+    </CenteredSceneBody>
+  );
+};
 
 export const RepositoryTopology: React.FC<{
   readonly repositories: readonly {label:string;ref:string;tone?:FlowTone}[];

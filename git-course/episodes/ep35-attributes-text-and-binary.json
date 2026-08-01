@@ -1,0 +1,330 @@
+{
+  "episodeId": "ep35-attributes-text-and-binary",
+  "title": "Git 怎样确定文件的文本语义",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/gitattributes#_checking_out_and_checking_in",
+      "https://git-scm.com/docs/gitattributes#_marking_files_as_binary"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "同一脚本，为何产生整页 Diff",
+      "start": 0,
+      "duration": 22.5,
+      "goal": "提出换行与文本判断会改变 diff。",
+      "primaryTechnique": "Question + byte contrast",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "LF 与 CRLF 字节并排",
+          "motion": "相同文字分成不同字节",
+          "state": "question",
+          "narration": "Git 怎样判断文本？",
+          "audit": [
+            "不把换行说成字符显示问题"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 1.75,
+        "text": "屏幕上看起来相同的脚本，为什么有时会产生整页 diff？<#0.45#>\n差别可能不在文字，而在每一行结束时写入的是 LF 还是 CRLF。<#0.45#>\nGit 还需要判断一个路径应该按文本比较，还是只报告二进制变化。<#0.40#>\n这些语义可以由 .gitattributes 明确下来。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 5.106,
+          "text": "屏幕上看起来相同的脚本，为什么有时会产生整页 diff？"
+        },
+        {
+          "from": 5.742,
+          "to": 11.829,
+          "text": "差别可能不在文字，而在每一行结束时写入的是 LF 还是 CRLF"
+        },
+        {
+          "from": 12.495,
+          "to": 16.752,
+          "text": "Git 还需要判断一个路径应该按文本比较，还是只报告二进制变化"
+        },
+        {
+          "from": 17.428,
+          "to": 20.374,
+          "text": "这些语义可以由 .gitattributes 明确下来"
+        }
+      ]
+    },
+    {
+      "id": "attribute-model",
+      "title": "Attributes 定义路径处理语义",
+      "start": 22.5,
+      "duration": 25.5,
+      "goal": "区分 text、eol 与 diff 属性。",
+      "primaryTechnique": "Centered attribute flow",
+      "beats": [
+        {
+          "time": [
+            21.5,
+            44
+          ],
+          "visual": "Working Tree → Index 与 Diff 两条路径",
+          "motion": "text、eol、-diff 分别落位",
+          "state": "attribute-model",
+          "narration": "三个属性解决不同问题。",
+          "audit": [
+            "不与 ignore 混淆"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_attribute_model",
+        "voiceStart": 24.25,
+        "text": ".gitattributes 按路径为 Git 指定处理语义。<#0.45#>\ntext 决定内容是否进行文本换行规范化，eol 控制 checkout 到工作区时采用哪种行尾。<#0.45#>\ndiff 属性决定比较时使用文本规则、二进制提示，还是自定义 driver。<#0.45#>\n它和 .gitignore 不同：ignore 决定未跟踪路径是否进入候选，attributes 决定路径进入 Git 后怎样被处理。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 4.69,
+          "text": ".gitattributes 按路径为 Git 指定处理语义"
+        },
+        {
+          "from": 5.366,
+          "to": 10.753,
+          "text": "text 决定内容是否进行文本换行规范化，eol 控制 checkout 到工作区时采用哪种行尾"
+        },
+        {
+          "from": 11.429,
+          "to": 16.46,
+          "text": "diff 属性决定比较时使用文本规则、二进制提示，还是自定义 driver"
+        },
+        {
+          "from": 17.12,
+          "to": 23.637,
+          "text": "它和 .gitignore 不同：ignore 决定未跟踪路径是否进入候选，attributes 决定路径进入 Git 后怎样被处理"
+        }
+      ]
+    },
+    {
+      "id": "inspect-attributes",
+      "title": "先查看路径实际命中的属性",
+      "start": 48,
+      "duration": 28,
+      "goal": "真实展示 check-attr 与字节差异。",
+      "primaryTechnique": "Recorded attribute inspection",
+      "beats": [
+        {
+          "time": [
+            47,
+            69
+          ],
+          "visual": "check-attr 与 od 字节输出",
+          "motion": "属性结果对应两个状态",
+          "state": "attributes-visible",
+          "narration": "规则与实际内容一起核对。",
+          "audit": [
+            "必要输出可读"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_inspect_attributes",
+        "voiceStart": 49.75,
+        "text": "我们先让 script.sh 在工作区使用 CRLF，再查看它当前命中的 text、eol 和 diff 属性。<#0.45#>\ngit check-attr 给出规则结果，字节查看则证明工作区仍保留 CRLF。<#0.45#>\n当路径声明 text eol=lf 时，下一次写入 Index 的内容会按文本语义规范化。<#0.45#>\n规则和字节证据需要放在一起看，不能只相信编辑器显示。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 8.346,
+          "text": "我们先让 script.sh 在工作区使用 CRLF，再查看它当前命中的 text、eol 和 diff 属性"
+        },
+        {
+          "from": 8.999,
+          "to": 14.53,
+          "text": "git check-attr 给出规则结果，字节查看则证明工作区仍保留 CRLF"
+        },
+        {
+          "from": 15.278,
+          "to": 21.603,
+          "text": "当路径声明 text eol=lf 时，下一次写入 Index 的内容会按文本语义规范化"
+        },
+        {
+          "from": 22.234,
+          "to": 25.986,
+          "text": "规则和字节证据需要放在一起看，不能只相信编辑器显示"
+        }
+      ]
+    },
+    {
+      "id": "renormalize",
+      "title": "Renormalize 重新写入规范内容",
+      "start": 76,
+      "duration": 24,
+      "goal": "证明 attributes 不会自动改写既有 blob。",
+      "primaryTechnique": "Recorded renormalization",
+      "beats": [
+        {
+          "time": [
+            72.5,
+            95
+          ],
+          "visual": "add --renormalize 后 cached diff",
+          "motion": "Index 内容收束为 LF",
+          "state": "normalized",
+          "narration": "规则生效还需要重新 add。",
+          "audit": [
+            "Working Tree 与 Index 分开"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_renormalize",
+        "voiceStart": 77.75,
+        "text": "新增 attributes 不会自动改写仓库里已经存在的 blob。<#0.45#>\n我们执行 git add --renormalize，把已跟踪路径按新规则重新送入 Index。<#0.45#>\n随后 cached diff 显示规范化变化，而 git show :script.sh 中的字节已经统一为 LF。<#0.45#>\n这里改变的是准备提交的内容，不是悄悄重写旧提交。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 5.102,
+          "text": "新增 attributes 不会自动改写仓库里已经存在的 blob"
+        },
+        {
+          "from": 5.798,
+          "to": 10.63,
+          "text": "我们执行 git add --renormalize，把已跟踪路径按新规则重新送入 Index"
+        },
+        {
+          "from": 11.309,
+          "to": 18.422,
+          "text": "随后 cached diff 显示规范化变化，而 git show :script.sh 中的字节已经统一为 LF"
+        },
+        {
+          "from": 19.078,
+          "to": 22.238,
+          "text": "这里改变的是准备提交的内容，不是悄悄重写旧提交"
+        }
+      ]
+    },
+    {
+      "id": "binary-diff",
+      "title": "Binary 路径不应伪装成文本 Diff",
+      "start": 100,
+      "duration": 22,
+      "goal": "展示 -diff 把噪声文本变成二进制提示。",
+      "primaryTechnique": "Recorded binary diff",
+      "beats": [
+        {
+          "time": [
+            98,
+            121
+          ],
+          "visual": "规则前后的 diff 输出",
+          "motion": "噪声行收束为 Binary files differ",
+          "state": "binary",
+          "narration": "比较语义由路径规则固定。",
+          "audit": [
+            "不暗示文件被加密"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_binary_diff",
+        "voiceStart": 101.75,
+        "text": "另一个 fixture 虽然能被当作文本展开，但这些字节对人没有可审查的行语义。<#0.45#>\n没有规则时，diff 会输出一片噪声。<#0.45#>\n为路径设置 -diff 后，Git 改为明确报告二进制文件发生变化。<#0.45#>\n文件内容没有被加密或隐藏，改变的是 Git 如何向我们呈现比较结果。"
+      },
+      "captions": [
+        {
+          "from": 1.75,
+          "to": 6.476,
+          "text": "另一个 fixture 虽然能被当作文本展开，但这些字节对人没有可审查的行语义"
+        },
+        {
+          "from": 7.369,
+          "to": 9.921,
+          "text": "没有规则时，diff 会输出一片噪声"
+        },
+        {
+          "from": 10.591,
+          "to": 14.977,
+          "text": "为路径设置 -diff 后，Git 改为明确报告二进制文件发生变化"
+        },
+        {
+          "from": 15.683,
+          "to": 20.247,
+          "text": "文件内容没有被加密或隐藏，改变的是 Git 如何向我们呈现比较结果"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "区分 Index 规范与工作区输出",
+      "start": 122,
+      "duration": 28,
+      "goal": "收束 text/eol/diff 的判断。",
+      "primaryTechnique": "Minimal attribute summary",
+      "beats": [
+        {
+          "time": [
+            124,
+            147
+          ],
+          "visual": "Text → Index LF；EOL → Working Tree；Diff → Review",
+          "motion": "三条职责稳定",
+          "state": "decision",
+          "narration": "分别回答三个问题。",
+          "audit": [
+            "不展开 merge driver"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 124.25,
+        "text": "以后处理跨平台文本，可以分别问三个问题。<#0.45#>\n写入 Index 时是否要规范化？checkout 到工作区时需要哪种 eol？比较时应该按文本还是二进制呈现？<#0.45#>\n关键路径优先使用显式 attributes，不把结果完全交给内容猜测。<#0.45#>\n规则改变后，还要重新 add 或 renormalize，既有 blob 才会产生新的规范版本。"
+      },
+      "captions": [
+        {
+          "from": 2.25,
+          "to": 4.744,
+          "text": "以后处理跨平台文本，可以分别问三个问题"
+        },
+        {
+          "from": 5.414,
+          "to": 13.324,
+          "text": "写入 Index 时是否要规范化？checkout 到工作区时需要哪种 eol？比较时应该按文本还是二进制呈现？"
+        },
+        {
+          "from": 14.062,
+          "to": 18.855,
+          "text": "关键路径优先使用显式 attributes，不把结果完全交给内容猜测"
+        },
+        {
+          "from": 19.65,
+          "to": 25.979,
+          "text": "规则改变后，还要重新 add 或 renormalize，既有 blob 才会产生新的规范版本"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP35：Attributes 的文本与二进制语义\n\n区分 text、eol、diff 与 renormalize。\n",
+    "scriptMarkdown": "# EP35 当前脚本（150s）\n\n从字节证据进入 Index 规范与 diff 呈现。\n",
+    "beatsMarkdown": "# EP35 Beats\n\n`question → model → check-attr → renormalize → binary → decision`。\n",
+    "qualityMarkdown": "# EP35 审查记录\n\n- attributes 不与 ignore 混用，不暗示自动改写旧 blob。\n",
+    "alignmentMarkdown": "# EP35 对齐记录\n\nTTS 与 SRT 生成后回写 captions；字节输出保持至解释完成。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP35 B 站发布物料\n\n## 标题\n\nGit 怎样确定文本、换行与 Binary Diff？\n\n## 简介\n\n用 .gitattributes 固定 Index 规范、工作区行尾和 diff 语义。\n\n## 官方参考\n\n- [gitattributes：Checking-out and checking-in](https://git-scm.com/docs/gitattributes#_checking_out_and_checking_in)\n- [gitattributes：Marking files as binary](https://git-scm.com/docs/gitattributes#_marking_files_as_binary)\n\n## 标签\n\n```text\nGit\nGit教程\n.gitattributes\n换行符\n```\n",
+    "coverBriefMarkdown": "# EP35 封面 Brief\n\nLF 与 CRLF 汇入统一 Index，旁侧保留 Binary 标记。\n",
+    "checklistMarkdown": "# EP35 发布检查清单\n\n- [ ] text、eol、diff 与 renormalize 已核对。\n"
+  }
+}

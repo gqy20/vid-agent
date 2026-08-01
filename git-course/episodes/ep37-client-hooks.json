@@ -1,0 +1,335 @@
+{
+  "episodeId": "ep37-client-hooks",
+  "title": "本地 Hook 在什么时候运行",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/githooks",
+      "https://git-scm.com/docs/githooks#_pre_commit"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Commit 之前，谁可以说停",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出前置裁决与后置观察的差异。",
+      "primaryTechnique": "Question + commit gate",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "Commit 动作经过 Pre，再到 Post",
+          "motion": "失败状态阻断对象生成",
+          "state": "question",
+          "narration": "Hook 运行在动作的哪个阶段？",
+          "audit": [
+            "不把所有 hook 统一描述"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 3.75,
+        "text": "同样一份 staged 内容，有时能 commit，有时却在对象生成前被拒绝。<#0.45#>\n差别可能来自当前仓库的本地 hook。<#0.45#>\n但 hook 并不是统一的“自动脚本”。<#0.35#>\n运行阶段、输入、工作目录和可绕过性都可能不同。<#0.40#>\n我们只抓住两个边界：前置裁决和后置观察。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 8.18,
+          "text": "同样一份 staged 内容，有时能 commit，有时却在对象生成前被拒绝"
+        },
+        {
+          "from": 8.858,
+          "to": 11.397,
+          "text": "差别可能来自当前仓库的本地 hook"
+        },
+        {
+          "from": 12.172,
+          "to": 13.951,
+          "text": "但 hook 并不是统一的“自动脚本”"
+        },
+        {
+          "from": 14.549,
+          "to": 18.753,
+          "text": "运行阶段、输入、工作目录和可绕过性都可能不同"
+        },
+        {
+          "from": 19.366,
+          "to": 21.965,
+          "text": "我们只抓住两个边界：前置裁决和后置观察"
+        }
+      ]
+    },
+    {
+      "id": "hook-model",
+      "title": "前置 Hook 裁决，后置 Hook 观察",
+      "start": 24,
+      "duration": 22.5,
+      "goal": "建立 pre-commit 与 post-commit 的阶段模型。",
+      "primaryTechnique": "Centered hook flow",
+      "beats": [
+        {
+          "time": [
+            21,
+            42
+          ],
+          "visual": "Staged → Pre → Commit → Post",
+          "motion": "非零出口在 Commit 前截断",
+          "state": "hook-phases",
+          "narration": "退出状态只对当前阶段生效。",
+          "audit": [
+            "post 不伪装成门禁"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_hook_model",
+        "voiceStart": 27.75,
+        "text": "pre-commit 在提交对象创建前运行。<#0.45#>\n它返回非零状态时，当前 commit 停止，HEAD 不会前进。<#0.45#>\npost-commit 则发生在成功提交之后，适合记录通知或触发只读动作，已经不能撤销刚才的提交。<#0.45#>\n阶段不同，脚本能够表达的控制也不同。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 5.94,
+          "text": "pre-commit 在提交对象创建前运行"
+        },
+        {
+          "from": 6.755,
+          "to": 10.147,
+          "text": "它返回非零状态时，当前 commit 停止，HEAD 不会前进"
+        },
+        {
+          "from": 10.903,
+          "to": 17.473,
+          "text": "post-commit 则发生在成功提交之后，适合记录通知或触发只读动作，已经不能撤销刚才的提交"
+        },
+        {
+          "from": 18.173,
+          "to": 20.392,
+          "text": "阶段不同，脚本能够表达的控制也不同"
+        }
+      ]
+    },
+    {
+      "id": "pre-commit",
+      "title": "Pre-commit 用退出码阻止提交",
+      "start": 46.5,
+      "duration": 25.5,
+      "goal": "真实展示失败 hook 与 HEAD 不变。",
+      "primaryTechnique": "Recorded pre-commit failure",
+      "beats": [
+        {
+          "time": [
+            45,
+            69
+          ],
+          "visual": "失败测试、非零退出、HEAD 对照",
+          "motion": "Commit 流在 Pre 处停止",
+          "state": "blocked",
+          "narration": "对象尚未创建。",
+          "audit": [
+            "hook 可执行位与路径可见"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_pre_commit",
+        "voiceStart": 50.75,
+        "text": "fixture 先放入一份会让测试失败的 staged 内容。<#0.45#>\n没有 hook 时它能够形成提交；启用可执行的 pre-commit 后，同样的检查返回非零。<#0.45#>\n终端显示 commit 被阻止，前后 HEAD 对象 ID 完全相同。<#0.45#>\n这里真正的证据不是一行红字，而是 ref 没有前进。"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 7.222,
+          "text": "fixture 先放入一份会让测试失败的 staged 内容"
+        },
+        {
+          "from": 7.912,
+          "to": 13.749,
+          "text": "没有 hook 时它能够形成提交；启用可执行的 pre-commit 后，同样的检查返回非零"
+        },
+        {
+          "from": 14.534,
+          "to": 19.367,
+          "text": "终端显示 commit 被阻止，前后 HEAD 对象 ID 完全相同"
+        },
+        {
+          "from": 20.089,
+          "to": 23.702,
+          "text": "这里真正的证据不是一行红字，而是 ref 没有前进"
+        }
+      ]
+    },
+    {
+      "id": "post-commit",
+      "title": "修复后提交，Post 只记录结果",
+      "start": 72,
+      "duration": 23.5,
+      "goal": "展示成功 pre 与 post 日志。",
+      "primaryTechnique": "Recorded successful hooks",
+      "beats": [
+        {
+          "time": [
+            72,
+            95
+          ],
+          "visual": "测试 PASS、Commit 成功、post 日志",
+          "motion": "HEAD 前进后通知出现",
+          "state": "committed",
+          "narration": "通知发生在成功之后。",
+          "audit": [
+            "post 不修改业务文件"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_post_commit",
+        "voiceStart": 76.25,
+        "text": "我们修复 staged 内容，让同一项检查通过。<#0.45#>\npre-commit 返回零后，Git 创建 commit 并让 HEAD 前进。<#0.45#>\n随后 post-commit 把新对象 ID 记录到日志。<#0.45#>\n这份日志帮助观察结果，却没有再修改工作区，也没有伪装成第二次提交门禁。"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 6.89,
+          "text": "我们修复 staged 内容，让同一项检查通过"
+        },
+        {
+          "from": 7.625,
+          "to": 11.977,
+          "text": "pre-commit 返回零后，Git 创建 commit 并让 HEAD 前进"
+        },
+        {
+          "from": 12.697,
+          "to": 15.995,
+          "text": "随后 post-commit 把新对象 ID 记录到日志"
+        },
+        {
+          "from": 16.808,
+          "to": 21.377,
+          "text": "这份日志帮助观察结果，却没有再修改工作区，也没有伪装成第二次提交门禁"
+        }
+      ]
+    },
+    {
+      "id": "deployment-boundary",
+      "title": "本地 Hook 不是组织强制门禁",
+      "start": 95.5,
+      "duration": 27,
+      "goal": "展示 no-verify 与 clone 不携带 hook。",
+      "primaryTechnique": "Recorded bypass and clone",
+      "beats": [
+        {
+          "time": [
+            98,
+            121
+          ],
+          "visual": "--no-verify 绕过与新 clone hooks 目录",
+          "motion": "本地规则边界显现",
+          "state": "local-only",
+          "narration": "部署决定覆盖范围。",
+          "audit": [
+            "不扩展到全部 hooks"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_deployment_boundary",
+        "voiceStart": 99.75,
+        "text": "git commit --no-verify 可以绕过适用的 pre-commit 检查。<#0.45#>\n再 clone 到新目录，自定义 hook 也不会随着普通仓库内容自动出现。<#0.45#>\ncore.hooksPath 可以改变查找目录，但配置、脚本和可执行环境仍需要显式部署。<#0.45#>\n因此本地 hook 很适合快速反馈和个人自动化，却不能单独承担组织强制策略。"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 8.019,
+          "text": "git commit --no-verify 可以绕过适用的 pre-commit 检查"
+        },
+        {
+          "from": 8.718,
+          "to": 12.763,
+          "text": "再 clone 到新目录，自定义 hook 也不会随着普通仓库内容自动出现"
+        },
+        {
+          "from": 13.433,
+          "to": 19.003,
+          "text": "core.hooksPath 可以改变查找目录，但配置、脚本和可执行环境仍需要显式部署"
+        },
+        {
+          "from": 19.676,
+          "to": 24.838,
+          "text": "因此本地 hook 很适合快速反馈和个人自动化，却不能单独承担组织强制策略"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先确认阶段，再判断控制能力",
+      "start": 122.5,
+      "duration": 27.5,
+      "goal": "收束 hook 判断问题。",
+      "primaryTechnique": "Minimal hook summary",
+      "beats": [
+        {
+          "time": [
+            124,
+            147
+          ],
+          "visual": "When → Input → Exit → Deploy",
+          "motion": "四问依次稳定",
+          "state": "decision",
+          "narration": "不要把一个 hook 的规则套给全部。",
+          "audit": [
+            "共同探讨语气"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 126.75,
+        "text": "理解一个 hook 时，可以先问四件事。<#0.45#>\n它在动作前还是动作后运行？从参数或 stdin 收到什么？退出状态能否阻止当前操作？脚本怎样部署到每台机器？<#0.45#>\npre-commit 能提供本地反馈，post-commit 能观察成功结果。<#0.45#>\n真正需要不可绕过的共享策略时，我们还要把边界移到接收端。"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 6.596,
+          "text": "理解一个 hook 时，可以先问四件事"
+        },
+        {
+          "from": 7.329,
+          "to": 16.434,
+          "text": "它在动作前还是动作后运行？从参数或 stdin 收到什么？退出状态能否阻止当前操作？脚本怎样部署到每台机器？"
+        },
+        {
+          "from": 17.122,
+          "to": 21.304,
+          "text": "pre-commit 能提供本地反馈，post-commit 能观察成功结果"
+        },
+        {
+          "from": 21.96,
+          "to": 25.645,
+          "text": "真正需要不可绕过的共享策略时，我们还要把边界移到接收端"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP37：客户端 Hooks\n\n区分前置裁决、后置观察与部署边界。\n",
+    "scriptMarkdown": "# EP37 当前脚本（150s）\n\n从失败 commit 到成功、通知与绕过。\n",
+    "beatsMarkdown": "# EP37 Beats\n\n`question → phases → pre-commit → post-commit → local boundary → decision`。\n",
+    "qualityMarkdown": "# EP37 审查记录\n\n- 本地 hook 不被描述为不可绕过的组织门禁。\n",
+    "alignmentMarkdown": "# EP37 对齐记录\n\nTTS 与 SRT 生成后回写 captions；失败输出与 HEAD 对照保持到解释完成。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP37 B 站发布物料\n\n## 标题\n\nGit Hook 在 Commit 的什么时候运行？\n\n## 简介\n\n比较 pre-commit 的前置裁决、post-commit 的后置观察和本地部署边界。\n\n## 官方参考\n\n- [githooks](https://git-scm.com/docs/githooks)\n- [pre-commit](https://git-scm.com/docs/githooks#_pre_commit)\n\n## 标签\n\n```text\nGit\nGit教程\nGit Hooks\npre-commit\n```\n",
+    "coverBriefMarkdown": "# EP37 封面 Brief\n\nCommit 流程穿过 Pre 门，Post 日志位于结果之后。\n",
+    "checklistMarkdown": "# EP37 发布检查清单\n\n- [ ] hook 阶段、退出码、绕过与部署边界已核对。\n"
+  }
+}

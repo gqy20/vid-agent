@@ -163,6 +163,14 @@ export const EP29 = {id:'ep29-patch-series',title:'没有 Remote 怎样传递提
 export const EP30 = {id:'ep30-maintaining-topic-branches',title:'维护者怎样评估多个 Topic',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp30MaintainingTopicBranches',sourceReferences:['https://git-scm.com/book/en/v2/Distributed-Git-Maintaining-a-Project','https://git-scm.com/docs/gitworkflows']};
 export const EP31 = {id:'ep31-release-and-maintenance-branches',title:'发布后怎样继续修旧版本',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp31ReleaseAndMaintenanceBranches',sourceReferences:['https://git-scm.com/docs/gitworkflows','https://git-scm.com/docs/git-tag']};
 export const EP32 = {id:'ep32-choosing-integration-strategy',title:'一项贡献应该怎样进入 Main',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp32ChoosingIntegrationStrategy',sourceReferences:['https://git-scm.com/docs/git-merge','https://git-scm.com/docs/git-rebase','https://git-scm.com/docs/git-cherry-pick']};
+export const EP33 = {id:'ep33-configuration-scopes',title:'同一个配置为什么得到不同结果',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp33ConfigurationScopes',sourceReferences:['https://git-scm.com/docs/git-config#SCOPES']};
+export const EP34 = {id:'ep34-ignore-rules-and-excludes',title:'为什么有些文件不出现在 Status',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp34IgnoreRulesAndExcludes',sourceReferences:['https://git-scm.com/docs/gitignore','https://git-scm.com/docs/git-check-ignore']};
+export const EP35 = {id:'ep35-attributes-text-and-binary',title:'Git 怎样确定文件的文本语义',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp35AttributesTextAndBinary',sourceReferences:['https://git-scm.com/docs/gitattributes']};
+export const EP36 = {id:'ep36-custom-diff-merge-and-filters',title:'特殊文件怎样接入 Git',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp36CustomDiffMergeAndFilters',sourceReferences:['https://git-scm.com/docs/gitattributes']};
+export const EP37 = {id:'ep37-client-hooks',title:'本地 Hook 在什么时候运行',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp37ClientHooks',sourceReferences:['https://git-scm.com/docs/githooks']};
+export const EP38 = {id:'ep38-server-hooks-and-policy',title:'服务端怎样拒绝不合规更新',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp38ServerHooksAndPolicy',sourceReferences:['https://git-scm.com/docs/githooks#_pre_receive','https://git-scm.com/docs/git-receive-pack']};
+export const EP39 = {id:'ep39-signing-commits-and-tags',title:'Commit 或 Tag 的签名证明什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp39SigningCommitsAndTags',sourceReferences:['https://git-scm.com/docs/git-verify-commit','https://git-scm.com/docs/git-verify-tag']};
+export const EP40 = {id:'ep40-credentials-and-trust-boundaries',title:'提交身份为什么不能用来登录',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp40CredentialsAndTrustBoundaries',sourceReferences:['https://git-scm.com/docs/gitcredentials','https://git-scm.com/docs/git-credential']};
 
 export const COMMAND_STEPS = [
   {

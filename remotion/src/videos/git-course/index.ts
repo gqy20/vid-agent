@@ -54,6 +54,14 @@ import {EP29_DURATION_IN_FRAMES, Ep29PatchSeries} from './episodes/Ep29PatchSeri
 import {EP30_DURATION_IN_FRAMES, Ep30MaintainingTopicBranches} from './episodes/Ep30MaintainingTopicBranches';
 import {EP31_DURATION_IN_FRAMES, Ep31ReleaseAndMaintenanceBranches} from './episodes/Ep31ReleaseAndMaintenanceBranches';
 import {EP32_DURATION_IN_FRAMES, Ep32ChoosingIntegrationStrategy} from './episodes/Ep32ChoosingIntegrationStrategy';
+import {EP33_DURATION_IN_FRAMES, Ep33ConfigurationScopes} from './episodes/Ep33ConfigurationScopes';
+import {EP34_DURATION_IN_FRAMES, Ep34IgnoreRulesAndExcludes} from './episodes/Ep34IgnoreRulesAndExcludes';
+import {EP35_DURATION_IN_FRAMES, Ep35AttributesTextAndBinary} from './episodes/Ep35AttributesTextAndBinary';
+import {EP36_DURATION_IN_FRAMES, Ep36CustomDiffMergeAndFilters} from './episodes/Ep36CustomDiffMergeAndFilters';
+import {EP37_DURATION_IN_FRAMES, Ep37ClientHooks} from './episodes/Ep37ClientHooks';
+import {EP38_DURATION_IN_FRAMES, Ep38ServerHooksAndPolicy} from './episodes/Ep38ServerHooksAndPolicy';
+import {EP39_DURATION_IN_FRAMES, Ep39SigningCommitsAndTags} from './episodes/Ep39SigningCommitsAndTags';
+import {EP40_DURATION_IN_FRAMES, Ep40CredentialsAndTrustBoundaries} from './episodes/Ep40CredentialsAndTrustBoundaries';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -284,6 +292,14 @@ export const registration: VideoRegistration = {
     {id:'GitCourseEp30MaintainingTopicBranches',component:Ep30MaintainingTopicBranches,durationInFrames:EP30_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp31ReleaseAndMaintenanceBranches',component:Ep31ReleaseAndMaintenanceBranches,durationInFrames:EP31_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp32ChoosingIntegrationStrategy',component:Ep32ChoosingIntegrationStrategy,durationInFrames:EP32_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp33ConfigurationScopes',component:Ep33ConfigurationScopes,durationInFrames:EP33_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp34IgnoreRulesAndExcludes',component:Ep34IgnoreRulesAndExcludes,durationInFrames:EP34_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp35AttributesTextAndBinary',component:Ep35AttributesTextAndBinary,durationInFrames:EP35_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp36CustomDiffMergeAndFilters',component:Ep36CustomDiffMergeAndFilters,durationInFrames:EP36_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp37ClientHooks',component:Ep37ClientHooks,durationInFrames:EP37_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp38ServerHooksAndPolicy',component:Ep38ServerHooksAndPolicy,durationInFrames:EP38_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp39SigningCommitsAndTags',component:Ep39SigningCommitsAndTags,durationInFrames:EP39_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp40CredentialsAndTrustBoundaries',component:Ep40CredentialsAndTrustBoundaries,durationInFrames:EP40_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {
       id: 'GitCourseComponentLab',
       component: ComponentLab,

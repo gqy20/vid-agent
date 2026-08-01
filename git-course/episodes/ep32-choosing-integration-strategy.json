@@ -79,7 +79,7 @@
             18,
             40
           ],
-          "visual": "main 与 topic 两个提交，复制三组 refs",
+          "visual": "main 与 topic 从共同 Base 分叉，再复制三组 refs",
           "motion": "同一对象分成三条隔离路径",
           "state": "baseline",
           "narration": "比较必须控制相同起点。",

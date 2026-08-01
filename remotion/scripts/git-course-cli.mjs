@@ -273,6 +273,14 @@ const getComposition = (episode) => {
     'ep30-maintaining-topic-branches': 'GitCourseEp30MaintainingTopicBranches',
     'ep31-release-and-maintenance-branches': 'GitCourseEp31ReleaseAndMaintenanceBranches',
     'ep32-choosing-integration-strategy': 'GitCourseEp32ChoosingIntegrationStrategy',
+    'ep33-configuration-scopes': 'GitCourseEp33ConfigurationScopes',
+    'ep34-ignore-rules-and-excludes': 'GitCourseEp34IgnoreRulesAndExcludes',
+    'ep35-attributes-text-and-binary': 'GitCourseEp35AttributesTextAndBinary',
+    'ep36-custom-diff-merge-and-filters': 'GitCourseEp36CustomDiffMergeAndFilters',
+    'ep37-client-hooks': 'GitCourseEp37ClientHooks',
+    'ep38-server-hooks-and-policy': 'GitCourseEp38ServerHooksAndPolicy',
+    'ep39-signing-commits-and-tags': 'GitCourseEp39SigningCommitsAndTags',
+    'ep40-credentials-and-trust-boundaries': 'GitCourseEp40CredentialsAndTrustBoundaries',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -310,6 +318,14 @@ const episodeSourceName = (episodeId) => ({
   'ep30-maintaining-topic-branches': 'Ep30MaintainingTopicBranches.tsx',
   'ep31-release-and-maintenance-branches': 'Ep31ReleaseAndMaintenanceBranches.tsx',
   'ep32-choosing-integration-strategy': 'Ep32ChoosingIntegrationStrategy.tsx',
+  'ep33-configuration-scopes': 'Ep33ConfigurationScopes.tsx',
+  'ep34-ignore-rules-and-excludes': 'Ep34IgnoreRulesAndExcludes.tsx',
+  'ep35-attributes-text-and-binary': 'Ep35AttributesTextAndBinary.tsx',
+  'ep36-custom-diff-merge-and-filters': 'Ep36CustomDiffMergeAndFilters.tsx',
+  'ep37-client-hooks': 'Ep37ClientHooks.tsx',
+  'ep38-server-hooks-and-policy': 'Ep38ServerHooksAndPolicy.tsx',
+  'ep39-signing-commits-and-tags': 'Ep39SigningCommitsAndTags.tsx',
+  'ep40-credentials-and-trust-boundaries': 'Ep40CredentialsAndTrustBoundaries.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {

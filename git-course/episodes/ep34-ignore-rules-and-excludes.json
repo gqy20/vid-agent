@@ -1,0 +1,336 @@
+{
+  "episodeId": "ep34-ignore-rules-and-excludes",
+  "title": "为什么有些文件不出现在 Status",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/gitignore",
+      "https://git-scm.com/docs/git-check-ignore",
+      "https://git-scm.com/docs/git-rm#Documentation/git-rm.txt---cached"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "文件存在，为何 Status 看不到",
+      "start": 0,
+      "duration": 20.5,
+      "goal": "提出文件存在与普通 untracked 候选不同。",
+      "primaryTechnique": "Question + hidden paths",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "四个文件中三个从 status 消失",
+          "motion": "来源标签依次出现",
+          "state": "question",
+          "narration": "是谁让路径被忽略？",
+          "audit": [
+            "不把 ignore 说成删除"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 3.75,
+        "text": "文件明明还在工作区，git status 却可能完全不显示它。<#0.45#>\n这不代表文件被删除，也不代表 Git 在替我们保护秘密。<#0.45#>\n它更可能命中了某一条 ignore 规则。<#0.40#>\n我们先区分规则来自哪里，再看已经被跟踪的文件为什么不同。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 7.181,
+          "text": "文件明明还在工作区，git status 却可能完全不显示它"
+        },
+        {
+          "from": 7.937,
+          "to": 11.474,
+          "text": "这不代表文件被删除，也不代表 Git 在替我们保护秘密"
+        },
+        {
+          "from": 12.208,
+          "to": 13.961,
+          "text": "它更可能命中了某一条 ignore 规则"
+        },
+        {
+          "from": 14.676,
+          "to": 18.375,
+          "text": "我们先区分规则来自哪里，再看已经被跟踪的文件为什么不同"
+        }
+      ]
+    },
+    {
+      "id": "rule-sources",
+      "title": "不同规则服务不同共享边界",
+      "start": 20.5,
+      "duration": 26.5,
+      "goal": "建立 .gitignore、info/exclude 与全局规则的职责。",
+      "primaryTechnique": "Centered source comparison",
+      "beats": [
+        {
+          "time": [
+            21,
+            42
+          ],
+          "visual": "团队、当前 clone、当前用户三张规则卡",
+          "motion": "路径落入对应来源",
+          "state": "sources",
+          "narration": "共享范围决定规则位置。",
+          "audit": [
+            "不把优先级画成绝对单链"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_rule_sources",
+        "voiceStart": 24.25,
+        "text": "项目里的 .gitignore 会随仓库共享，适合团队都不需要提交的 build 产物。<#0.45#>\n.git/info/exclude 只属于当前 clone，可以放本地笔记。<#0.45#>\ncore.excludesFile 面向当前用户，常用来处理编辑器产生的临时文件。<#0.45#>\n这些位置都影响 untracked 路径，但共享边界完全不同。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 9.047,
+          "text": "项目里的 .gitignore 会随仓库共享，适合团队都不需要提交的 build 产物"
+        },
+        {
+          "from": 9.707,
+          "to": 14.844,
+          "text": ".git/info/exclude 只属于当前 clone，可以放本地笔记"
+        },
+        {
+          "from": 15.486,
+          "to": 20.12,
+          "text": "core.excludesFile 面向当前用户，常用来处理编辑器产生的临时文件"
+        },
+        {
+          "from": 20.836,
+          "to": 24.321,
+          "text": "这些位置都影响 untracked 路径，但共享边界完全不同"
+        }
+      ]
+    },
+    {
+      "id": "check-rules",
+      "title": "Check-ignore 说明命中了哪条规则",
+      "start": 47,
+      "duration": 25,
+      "goal": "真实展示规则来源与最小 pattern。",
+      "primaryTechnique": "Recorded check-ignore",
+      "beats": [
+        {
+          "time": [
+            45,
+            68
+          ],
+          "visual": "status 与 check-ignore -v 对照",
+          "motion": "来源行接管主视觉",
+          "state": "matched",
+          "narration": "不要只猜文件名。",
+          "audit": [
+            "包含根锚定、目录与 negation"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_check_rules",
+        "voiceStart": 50.75,
+        "text": "fixture 里同时准备 build 目录、本地笔记和编辑器临时文件。<#0.45#>\n加入三种来源的规则后，普通 status 不再列出它们。<#0.45#>\ngit check-ignore -v 会给出命中的文件、行号和 pattern。<#0.45#>\n根目录锚定、目录结尾斜杠和否定规则的含义，也应该从真实匹配结果判断，而不是只凭直觉。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 8.124,
+          "text": "fixture 里同时准备 build 目录、本地笔记和编辑器临时文件"
+        },
+        {
+          "from": 8.857,
+          "to": 11.777,
+          "text": "加入三种来源的规则后，普通 status 不再列出它们"
+        },
+        {
+          "from": 12.497,
+          "to": 16.282,
+          "text": "git check-ignore -v 会给出命中的文件、行号和 pattern"
+        },
+        {
+          "from": 17.041,
+          "to": 23.338,
+          "text": "根目录锚定、目录结尾斜杠和否定规则的含义，也应该从真实匹配结果判断，而不是只凭直觉"
+        }
+      ]
+    },
+    {
+      "id": "tracked-path",
+      "title": "Ignore 不会移除 Tracked Path",
+      "start": 72,
+      "duration": 22,
+      "goal": "证明 tracked 文件仍由 Index 管理。",
+      "primaryTechnique": "Recorded tracked path",
+      "beats": [
+        {
+          "time": [
+            71,
+            94
+          ],
+          "visual": "tracked.env 修改仍出现在 status",
+          "motion": "Index 标签保持",
+          "state": "tracked",
+          "narration": "匹配规则不改变跟踪状态。",
+          "audit": [
+            "ls-files 证明 tracked"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_tracked_path",
+        "voiceStart": 75.75,
+        "text": "接着给已经提交过的 tracked.env 增加一条匹配规则。<#0.45#>\n修改文件后，git status 仍然会报告变化。<#0.45#>\ngit ls-files 也证明这个路径还在 Index 里。<#0.45#>\nignore 只影响未跟踪路径的默认候选，不会让已经 tracked 的内容自动退出历史。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 7.009,
+          "text": "接着给已经提交过的 tracked.env 增加一条匹配规则"
+        },
+        {
+          "from": 7.75,
+          "to": 10.415,
+          "text": "修改文件后，git status 仍然会报告变化"
+        },
+        {
+          "from": 11.102,
+          "to": 13.881,
+          "text": "git ls-files 也证明这个路径还在 Index 里"
+        },
+        {
+          "from": 14.573,
+          "to": 20.241,
+          "text": "ignore 只影响未跟踪路径的默认候选，不会让已经 tracked 的内容自动退出历史"
+        }
+      ]
+    },
+    {
+      "id": "stop-tracking",
+      "title": "停止跟踪与保留文件是两件事",
+      "start": 94,
+      "duration": 27,
+      "goal": "展示 rm --cached 后由 ignore 接管。",
+      "primaryTechnique": "Recorded cached removal",
+      "beats": [
+        {
+          "time": [
+            97,
+            120
+          ],
+          "visual": "Index 删除，Working Tree 文件保留",
+          "motion": "Tracked → Untracked → Ignored",
+          "state": "untracked-ignored",
+          "narration": "先改变 Index，再由规则忽略。",
+          "audit": [
+            "文件仍存在"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_stop_tracking",
+        "voiceStart": 98.25,
+        "text": "如果团队确实决定不再跟踪这个路径，需要单独改变 Index。<#0.45#>\ngit rm --cached 会暂存删除，但保留工作区里的真实文件。<#0.45#>\n提交这次变化后，路径重新成为 untracked；此时 ignore 规则才阻止它回到普通 add 候选。<#0.45#>\n停止跟踪和保留本地文件，是两个连续但不同的动作。"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 7.548,
+          "text": "如果团队确实决定不再跟踪这个路径，需要单独改变 Index"
+        },
+        {
+          "from": 8.324,
+          "to": 12.654,
+          "text": "git rm --cached 会暂存删除，但保留工作区里的真实文件"
+        },
+        {
+          "from": 13.333,
+          "to": 20.207,
+          "text": "提交这次变化后，路径重新成为 untracked；此时 ignore 规则才阻止它回到普通 add 候选"
+        },
+        {
+          "from": 20.984,
+          "to": 24.87,
+          "text": "停止跟踪和保留本地文件，是两个连续但不同的动作"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先问路径是否已经被跟踪",
+      "start": 121,
+      "duration": 29,
+      "goal": "收束 ignore 排查模型。",
+      "primaryTechnique": "Minimal ignore decision",
+      "beats": [
+        {
+          "time": [
+            123,
+            147
+          ],
+          "visual": "Tracked? → Source → Pattern",
+          "motion": "三问依次稳定",
+          "state": "decision",
+          "narration": "先判跟踪状态。",
+          "audit": [
+            "不展开 clean"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 125.25,
+        "text": "以后遇到文件不在 status，我们可以先问：它是否已经被跟踪？<#0.45#>\n如果没有，再用 check-ignore 找到真正命中的来源和 pattern。<#0.45#>\n团队规则放 .gitignore，当前 clone 的例外放 info/exclude，个人工具噪声放用户级规则。<#0.45#>\nignore 不删除文件、不保护秘密，也不能替代停止跟踪。<#0.35#>\n先分清路径状态，规则才容易解释。"
+      },
+      "captions": [
+        {
+          "from": 4.25,
+          "to": 7.686,
+          "text": "以后遇到文件不在 status，我们可以先问：它是否已经被跟踪？"
+        },
+        {
+          "from": 8.511,
+          "to": 11.588,
+          "text": "如果没有，再用 check-ignore 找到真正命中的来源和 pattern"
+        },
+        {
+          "from": 12.294,
+          "to": 19.081,
+          "text": "团队规则放 .gitignore，当前 clone 的例外放 info/exclude，个人工具噪声放用户级规则"
+        },
+        {
+          "from": 19.915,
+          "to": 23.527,
+          "text": "ignore 不删除文件、不保护秘密，也不能替代停止跟踪"
+        },
+        {
+          "from": 24.147,
+          "to": 26.877,
+          "text": "先分清路径状态，规则才容易解释"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP34：Ignore 规则与 Exclude\n\n区分共享规则、私有规则与 tracked path。\n",
+    "scriptMarkdown": "# EP34 当前脚本（150s）\n\n从规则来源进入 tracked / untracked 边界。\n",
+    "beatsMarkdown": "# EP34 Beats\n\n`question → sources → check-ignore → tracked → rm --cached → decision`。\n",
+    "qualityMarkdown": "# EP34 审查记录\n\n- ignore 不删除、不保密、不影响已 tracked 内容。\n",
+    "alignmentMarkdown": "# EP34 对齐记录\n\nTTS 与 SRT 生成后回写 captions；终端结果按字幕尾点保持。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP34 B 站发布物料\n\n## 标题\n\n为什么有些文件不出现在 Git Status？\n\n## 简介\n\n区分 .gitignore、info/exclude、用户规则与 tracked 文件。\n\n## 官方参考\n\n- [gitignore](https://git-scm.com/docs/gitignore)\n- [git-check-ignore](https://git-scm.com/docs/git-check-ignore)\n- [git-rm](https://git-scm.com/docs/git-rm#Documentation/git-rm.txt---cached)\n\n## 标签\n\n```text\nGit\nGit教程\n.gitignore\nGit Status\n```\n",
+    "coverBriefMarkdown": "# EP34 封面 Brief\n\n文件卡与三种 ignore 来源形成清楚对照。\n",
+    "checklistMarkdown": "# EP34 发布检查清单\n\n- [ ] tracked、untracked 与 ignore 来源已核对。\n"
+  }
+}

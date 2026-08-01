@@ -1,0 +1,333 @@
+{
+  "episodeId": "ep39-signing-commits-and-tags",
+  "title": "Commit 或 Tag 的签名证明什么",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---gpg-signltkey-idgt",
+      "https://git-scm.com/docs/git-tag#Documentation/git-tag.txt---sign",
+      "https://git-scm.com/docs/git-verify-commit",
+      "https://git-scm.com/docs/git-verify-tag",
+      "https://git-scm.com/docs/git-config#Documentation/git-config.txt-gpgsshallowedSignersFile"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "签名证明身份，还是证明关系",
+      "start": 0,
+      "duration": 21.5,
+      "goal": "提出对象签名与身份信任的区别。",
+      "primaryTechnique": "Question + signature relation",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "Object、Signature、Key、Identity 四点关系",
+          "motion": "验证链逐步连接",
+          "state": "question",
+          "narration": "有效签名不自动等于真实身份。",
+          "audit": [
+            "不说成加密仓库"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 3.25,
+        "text": "一个 commit 显示签名有效，究竟证明了什么？<#0.45#>\n它没有把仓库内容加密，也不会自动证明作者就是我们心里想到的那个人。<#0.45#>\n验证首先建立的是对象内容与某把密钥之间的签署关系。<#0.40#>\n至于这把密钥代表谁，还需要验证者自己的信任映射。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.14,
+          "text": "一个 commit 显示签名有效，究竟证明了什么？"
+        },
+        {
+          "from": 6.914,
+          "to": 10.755,
+          "text": "它没有把仓库内容加密，也不会自动证明作者就是我们心里想到的那个人"
+        },
+        {
+          "from": 11.544,
+          "to": 15.382,
+          "text": "验证首先建立的是对象内容与某把密钥之间的签署关系"
+        },
+        {
+          "from": 16.027,
+          "to": 19.504,
+          "text": "至于这把密钥代表谁，还需要验证者自己的信任映射"
+        }
+      ]
+    },
+    {
+      "id": "trust-model",
+      "title": "对象、签名、密钥与信任分层",
+      "start": 21.5,
+      "duration": 25.5,
+      "goal": "建立签名验证的四层模型。",
+      "primaryTechnique": "Centered trust chain",
+      "beats": [
+        {
+          "time": [
+            21,
+            42
+          ],
+          "visual": "Object → Signature → Public Key → Allowed Signer",
+          "motion": "密码学验证与身份映射分开",
+          "state": "trust-chain",
+          "narration": "两次判断不能合并。",
+          "audit": [
+            "user.name 不作为凭证"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_trust_model",
+        "voiceStart": 24.75,
+        "text": "验证可以拆成两次判断。<#0.45#>\n第一步，签名是否与当前 commit 或 tag 对象内容以及公钥匹配。<#0.45#>\n第二步，当前验证者是否通过 allowed signers、证书或其他信任链，把这把密钥映射到某个身份。<#0.45#>\nuser.name 和 user.email 只是对象元数据，不能替代这条信任关系。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 4.992,
+          "text": "验证可以拆成两次判断"
+        },
+        {
+          "from": 5.648,
+          "to": 10.013,
+          "text": "第一步，签名是否与当前 commit 或 tag 对象内容以及公钥匹配"
+        },
+        {
+          "from": 10.733,
+          "to": 18.719,
+          "text": "第二步，当前验证者是否通过 allowed signers、证书或其他信任链，把这把密钥映射到某个身份"
+        },
+        {
+          "from": 19.411,
+          "to": 23.805,
+          "text": "user.name 和 user.email 只是对象元数据，不能替代这条信任关系"
+        }
+      ]
+    },
+    {
+      "id": "signed-commit",
+      "title": "Signed Commit 把签名写入对象",
+      "start": 47,
+      "duration": 28,
+      "goal": "真实创建并验证 SSH signed commit。",
+      "primaryTechnique": "Recorded signed commit",
+      "beats": [
+        {
+          "time": [
+            45,
+            69
+          ],
+          "visual": "commit -S、gpgsig header、verify-commit",
+          "motion": "对象与签名锁定",
+          "state": "commit-verified",
+          "narration": "对象内容变化会破坏匹配。",
+          "audit": [
+            "只使用临时测试 key"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_signed_commit",
+        "voiceStart": 50.25,
+        "text": "fixture 使用完全临时的 SSH signing key 创建 commit。<#0.45#>\ngit commit -S 把 signature header 写入 commit 对象，cat-file 可以直接看到这段结构。<#0.45#>\ngit verify-commit 随后核对签名、对象内容和 allowed signers。<#0.45#>\n验证通过说明当前对象没有脱离这把密钥的签署关系，不代表内容因此变得不可读取。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 7.306,
+          "text": "fixture 使用完全临时的 SSH signing key 创建 commit"
+        },
+        {
+          "from": 8.018,
+          "to": 13.664,
+          "text": "git commit -S 把 signature header 写入 commit 对象，cat-file 可以直接看到这段结构"
+        },
+        {
+          "from": 14.308,
+          "to": 19.076,
+          "text": "git verify-commit 随后核对签名、对象内容和 allowed signers"
+        },
+        {
+          "from": 19.74,
+          "to": 26.149,
+          "text": "验证通过说明当前对象没有脱离这把密钥的签署关系，不代表内容因此变得不可读取"
+        }
+      ]
+    },
+    {
+      "id": "signed-tag",
+      "title": "Signed Tag 签署的是 Tag 对象",
+      "start": 75,
+      "duration": 23.5,
+      "goal": "区分 signed annotated tag 与 lightweight tag。",
+      "primaryTechnique": "Recorded signed tag",
+      "beats": [
+        {
+          "time": [
+            72,
+            95
+          ],
+          "visual": "tag -s、tag object、verify-tag",
+          "motion": "Tag 对象包住目标 commit",
+          "state": "tag-verified",
+          "narration": "签名覆盖 tag 对象。",
+          "audit": [
+            "不与 lightweight tag 混同"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_signed_tag",
+        "voiceStart": 78.25,
+        "text": "接着创建 signed annotated tag。<#0.45#>\n它先生成一个 tag 对象，记录目标对象、tagger、说明和签名，再由 ref 指向这个 tag。<#0.45#>\ngit verify-tag 验证的是 tag 对象本身。<#0.45#>\nlightweight tag 只有一个 ref，没有这层可签署的 tag object，因此两者不能只按名字比较。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 5.133,
+          "text": "接着创建 signed annotated tag"
+        },
+        {
+          "from": 5.954,
+          "to": 11.561,
+          "text": "它先生成一个 tag 对象，记录目标对象、tagger、说明和签名，再由 ref 指向这个 tag"
+        },
+        {
+          "from": 12.3,
+          "to": 14.427,
+          "text": "git verify-tag 验证的是 tag 对象本身"
+        },
+        {
+          "from": 15.316,
+          "to": 21.334,
+          "text": "lightweight tag 只有一个 ref，没有这层可签署的 tag object，因此两者不能只按名字比较"
+        }
+      ]
+    },
+    {
+      "id": "trust-loss",
+      "title": "签名仍在，信任映射可以消失",
+      "start": 98.5,
+      "duration": 23.5,
+      "goal": "展示移除 allowed signers 后验证失败。",
+      "primaryTechnique": "Recorded trust removal",
+      "beats": [
+        {
+          "time": [
+            98,
+            121
+          ],
+          "visual": "同一对象在有/无 allowed signers 下验证",
+          "motion": "Identity 映射断开",
+          "state": "untrusted",
+          "narration": "对象未变，验证者上下文变了。",
+          "audit": [
+            "完整 OID 保持"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_trust_loss",
+        "voiceStart": 102.25,
+        "text": "现在不修改 commit，也不修改其中的 signature。<#0.45#>\n我们只移走当前验证者的 allowed signers 文件，再验证同一个完整对象 ID。<#0.45#>\n密码学签名仍嵌在对象里，但 Git 无法完成身份信任映射，因此验证失败。<#0.45#>\n变化发生在验证者上下文，而不是被签署对象。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 6.21,
+          "text": "现在不修改 commit，也不修改其中的 signature"
+        },
+        {
+          "from": 6.982,
+          "to": 11.263,
+          "text": "我们只移走当前验证者的 allowed signers 文件，再验证同一个完整对象 ID"
+        },
+        {
+          "from": 12.065,
+          "to": 18.041,
+          "text": "密码学签名仍嵌在对象里，但 Git 无法完成身份信任映射，因此验证失败"
+        },
+        {
+          "from": 18.837,
+          "to": 21.722,
+          "text": "变化发生在验证者上下文，而不是被签署对象"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "签名验证不等于仓库加密",
+      "start": 122,
+      "duration": 28,
+      "goal": "收束签名证明边界。",
+      "primaryTechnique": "Minimal signing summary",
+      "beats": [
+        {
+          "time": [
+            124,
+            147
+          ],
+          "visual": "Integrity + Key Match + Trust Mapping",
+          "motion": "三层结论稳定",
+          "state": "decision",
+          "narration": "分别核对对象与信任。",
+          "audit": [
+            "不比较签名生态"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 125.75,
+        "text": "看到 signed commit 或 tag 时，我们可以分开问三个问题。<#0.45#>\n签名是否覆盖当前对象内容？它匹配哪把密钥？当前验证者为何信任这把密钥代表某个身份？<#0.45#>\n签名帮助验证完整性与签署关系，却不会加密仓库。<#0.45#>\n真实身份来自 allowed signers、证书或其他信任链，而不是 commit 里的显示名称。"
+      },
+      "captions": [
+        {
+          "from": 3.75,
+          "to": 7.121,
+          "text": "看到 signed commit 或 tag 时，我们可以分开问三个问题"
+        },
+        {
+          "from": 7.825,
+          "to": 15.108,
+          "text": "签名是否覆盖当前对象内容？它匹配哪把密钥？当前验证者为何信任这把密钥代表某个身份？"
+        },
+        {
+          "from": 15.778,
+          "to": 19.197,
+          "text": "签名帮助验证完整性与签署关系，却不会加密仓库"
+        },
+        {
+          "from": 19.868,
+          "to": 26.115,
+          "text": "真实身份来自 allowed signers、证书或其他信任链，而不是 commit 里的显示名称"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP39：签署 Commit 与 Tag\n\n区分对象签名、密钥匹配和验证者信任。\n",
+    "scriptMarkdown": "# EP39 当前脚本（150s）\n\n使用临时 SSH signing fixture 完成 commit、tag 与 trust loss。\n",
+    "beatsMarkdown": "# EP39 Beats\n\n`question → trust model → signed commit → signed tag → trust loss → decision`。\n",
+    "qualityMarkdown": "# EP39 审查记录\n\n- 不使用真实私钥，不把签名描述成加密或自动身份认证。\n",
+    "alignmentMarkdown": "# EP39 对齐记录\n\nTTS 与 SRT 生成后回写 captions；验证输出与完整对象 ID 同步展示。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP39 B 站发布物料\n\n## 标题\n\nGit Commit 与 Tag 的签名证明什么？\n\n## 简介\n\n用临时 SSH key 区分对象签名、密钥匹配和验证者信任。\n\n## 官方参考\n\n- [git-commit：Signing](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---gpg-signltkey-idgt)\n- [git-verify-commit](https://git-scm.com/docs/git-verify-commit)\n- [git-verify-tag](https://git-scm.com/docs/git-verify-tag)\n\n## 标签\n\n```text\nGit\nGit教程\nCommit Signing\nSSH Signing\n```\n",
+    "coverBriefMarkdown": "# EP39 封面 Brief\n\n大型 commit 与 tag 对象连接签名和公钥，信任映射单独呈现。\n",
+    "checklistMarkdown": "# EP39 发布检查清单\n\n- [ ] 临时密钥、对象签名与 trust mapping 已核对。\n"
+  }
+}

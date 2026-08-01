@@ -1,0 +1,336 @@
+{
+  "episodeId": "ep36-custom-diff-merge-and-filters",
+  "title": "特殊文件怎样接入 Git",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/gitattributes#_generating_diff_text",
+      "https://git-scm.com/docs/gitattributes#_performing_a_three_way_merge",
+      "https://git-scm.com/docs/gitattributes#_filter"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "同一 Driver，改变的是哪一层",
+      "start": 0,
+      "duration": 23,
+      "goal": "提出 diff、merge 与 filter 的作用边界。",
+      "primaryTechnique": "Question + three pipelines",
+      "beats": [
+        {
+          "time": [
+            0,
+            18
+          ],
+          "visual": "同一 data.demo 分成三条管线",
+          "motion": "read、merge、transform 分流",
+          "state": "question",
+          "narration": "三种 driver 并不等价。",
+          "audit": [
+            "不把 driver 画成同一处理链"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 3.25,
+        "text": "特殊文件不容易直接阅读、合并或规范化时，Git 可以把路径交给自定义 driver。<#0.45#>\n但 diff driver、merge driver 和 clean / smudge filter 改变的并不是同一层。<#0.45#>\n如果把它们都理解成“转换文件”，就会误判 blob 是否真的变化。<#0.40#>\n我们用同一种 demo 格式，做三次隔离实验。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 8.857,
+          "text": "特殊文件不容易直接阅读、合并或规范化时，Git 可以把路径交给自定义 driver"
+        },
+        {
+          "from": 9.58,
+          "to": 13.581,
+          "text": "但 diff driver、merge driver 和 clean / smudge filter 改变的并不是同一层"
+        },
+        {
+          "from": 14.322,
+          "to": 17.658,
+          "text": "如果把它们都理解成“转换文件”，就会误判 blob 是否真的变化"
+        },
+        {
+          "from": 18.381,
+          "to": 20.961,
+          "text": "我们用同一种 demo 格式，做三次隔离实验"
+        }
+      ]
+    },
+    {
+      "id": "driver-model",
+      "title": "Attributes 选路，Config 提供命令",
+      "start": 23,
+      "duration": 23.5,
+      "goal": "建立 attributes 名称与 config 命令的关系。",
+      "primaryTechnique": "Centered routing model",
+      "beats": [
+        {
+          "time": [
+            21,
+            42
+          ],
+          "visual": "Path Rule → Driver Name → Config Command",
+          "motion": "三段路由建立",
+          "state": "routing",
+          "narration": "clone attributes 不等于安装命令。",
+          "audit": [
+            "部署边界明确"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "02_driver_model",
+        "voiceStart": 26.25,
+        "text": ".gitattributes 负责说 data.demo 使用哪个 driver 名称。<#0.45#>\n真正执行的命令通常来自 Git config。<#0.45#>\n因此 clone 可以带来 path rule，却不会自动替当前机器安装脚本或配置 driver。<#0.45#>\n这条部署边界很重要：规则可以共享，执行环境仍需要显式准备。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.882,
+          "text": ".gitattributes 负责说 data.demo 使用哪个 driver 名称"
+        },
+        {
+          "from": 7.599,
+          "to": 10.025,
+          "text": "真正执行的命令通常来自 Git config"
+        },
+        {
+          "from": 10.659,
+          "to": 16.067,
+          "text": "因此 clone 可以带来 path rule，却不会自动替当前机器安装脚本或配置 driver"
+        },
+        {
+          "from": 16.723,
+          "to": 21.488,
+          "text": "这条部署边界很重要：规则可以共享，执行环境仍需要显式准备"
+        }
+      ]
+    },
+    {
+      "id": "diff-driver",
+      "title": "Diff Driver 只改变阅读视图",
+      "start": 46.5,
+      "duration": 23,
+      "goal": "展示 textconv 前后 blob 不变。",
+      "primaryTechnique": "Recorded textconv diff",
+      "beats": [
+        {
+          "time": [
+            45,
+            68
+          ],
+          "visual": "原始 diff 与 textconv 输出对照",
+          "motion": "可读字段取代编码行",
+          "state": "view-only",
+          "narration": "blob 身份保持。",
+          "audit": [
+            "check-attr 命中 diff driver"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "03_diff_driver",
+        "voiceStart": 49.75,
+        "text": "第一条路径是 diff driver。<#0.45#>\nGit 先读取 blob，再用 textconv 脚本生成更适合人比较的临时视图。<#0.45#>\n启用前后，diff 的可读性明显不同，但 Index 里的 blob 对象 ID 没有改变。<#0.45#>\n所以 textconv 服务审查，它不是写入仓库的内容转换。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 5.151,
+          "text": "第一条路径是 diff driver"
+        },
+        {
+          "from": 5.823,
+          "to": 11.066,
+          "text": "Git 先读取 blob，再用 textconv 脚本生成更适合人比较的临时视图"
+        },
+        {
+          "from": 11.781,
+          "to": 16.749,
+          "text": "启用前后，diff 的可读性明显不同，但 Index 里的 blob 对象 ID 没有改变"
+        },
+        {
+          "from": 17.515,
+          "to": 21.119,
+          "text": "所以 textconv 服务审查，它不是写入仓库的内容转换"
+        }
+      ]
+    },
+    {
+      "id": "merge-driver",
+      "title": "Merge Driver 写回合并结果",
+      "start": 69.5,
+      "duration": 26,
+      "goal": "展示 O/A/B 输入与退出码语义。",
+      "primaryTechnique": "Recorded custom merge",
+      "beats": [
+        {
+          "time": [
+            71,
+            94
+          ],
+          "visual": "%O %A %B 与 driver 日志",
+          "motion": "三个输入汇入结果",
+          "state": "merged",
+          "narration": "退出码表达成功或冲突。",
+          "audit": [
+            "每个 parent 只有一条关系"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "04_merge_driver",
+        "voiceStart": 72.75,
+        "text": "第二条路径是 merge driver。<#0.45#>\nGit 把 base、当前一侧和另一侧的临时文件分别传入 %O、%A 与 %B。<#0.45#>\ndriver 需要把结果写回 %A，并用零退出码表示成功；非零则让 Git 保持冲突状态。<#0.45#>\n这里的输出会参与后续提交，因此它和只读的 textconv 完全不同。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 5.067,
+          "text": "第二条路径是 merge driver"
+        },
+        {
+          "from": 5.688,
+          "to": 12.066,
+          "text": "Git 把 base、当前一侧和另一侧的临时文件分别传入 %O、%A 与 %B"
+        },
+        {
+          "from": 12.709,
+          "to": 18.7,
+          "text": "driver 需要把结果写回 %A，并用零退出码表示成功；非零则让 Git 保持冲突状态"
+        },
+        {
+          "from": 19.38,
+          "to": 24.256,
+          "text": "这里的输出会参与后续提交，因此它和只读的 textconv 完全不同"
+        }
+      ]
+    },
+    {
+      "id": "clean-smudge",
+      "title": "Filter 位于工作区与 Index 之间",
+      "start": 95.5,
+      "duration": 26.5,
+      "goal": "展示幂等 clean/smudge 与两侧内容差异。",
+      "primaryTechnique": "Recorded clean smudge",
+      "beats": [
+        {
+          "time": [
+            97,
+            121
+          ],
+          "visual": "Working Tree ↔ Clean/Smudge ↔ Index",
+          "motion": "内容跨边界转换",
+          "state": "filtered",
+          "narration": "filter 可能改变 blob。",
+          "audit": [
+            "转换幂等"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "05_clean_smudge",
+        "voiceStart": 98.75,
+        "text": "第三条路径是 clean 和 smudge filter。<#0.45#>\nclean 在内容进入 Index 前执行，smudge 在 checkout 到工作区时执行。<#0.45#>\n我们让工作区保留便于编辑的前缀，而 Index 中只保存规范数据。<#0.45#>\n再次 add 不应持续产生变化，因此示例 filter 必须幂等。<#0.35#>\n它能改变 blob，却不是天然的加密或安全边界。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 5.842,
+          "text": "第三条路径是 clean 和 smudge filter"
+        },
+        {
+          "from": 6.54,
+          "to": 11.312,
+          "text": "clean 在内容进入 Index 前执行，smudge 在 checkout 到工作区时执行"
+        },
+        {
+          "from": 12.083,
+          "to": 16.314,
+          "text": "我们让工作区保留便于编辑的前缀，而 Index 中只保存规范数据"
+        },
+        {
+          "from": 17.022,
+          "to": 20.999,
+          "text": "再次 add 不应持续产生变化，因此示例 filter 必须幂等"
+        },
+        {
+          "from": 21.67,
+          "to": 24.645,
+          "text": "它能改变 blob，却不是天然的加密或安全边界"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先确认输入、输出与失败语义",
+      "start": 122,
+      "duration": 28,
+      "goal": "比较三条 driver 管线。",
+      "primaryTechnique": "Minimal pipeline summary",
+      "beats": [
+        {
+          "time": [
+            124,
+            147
+          ],
+          "visual": "Diff=View；Merge=Result；Filter=Content",
+          "motion": "三条结论稳定",
+          "state": "decision",
+          "narration": "不要只看 driver 名称。",
+          "audit": [
+            "不展开 process protocol"
+          ]
+        }
+      ],
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 125.25,
+        "text": "选择自定义 driver 时，可以先核对输入、输出和失败语义。<#0.45#>\ndiff driver 生成阅读视图，不改 blob。merge driver 写回合并结果，并用退出码表达成功或冲突。<#0.45#>\nfilter 位于工作区与 Index 之间，可能改变实际存储内容。<#0.45#>\nattributes 只是选中名称，config 和脚本部署仍需要每台机器明确完成。"
+      },
+      "captions": [
+        {
+          "from": 3.25,
+          "to": 6.872,
+          "text": "选择自定义 driver 时，可以先核对输入、输出和失败语义"
+        },
+        {
+          "from": 7.576,
+          "to": 15.327,
+          "text": "diff driver 生成阅读视图，不改 blob。merge driver 写回合并结果，并用退出码表达成功或冲突"
+        },
+        {
+          "from": 15.956,
+          "to": 20.177,
+          "text": "filter 位于工作区与 Index 之间，可能改变实际存储内容"
+        },
+        {
+          "from": 20.847,
+          "to": 25.86,
+          "text": "attributes 只是选中名称，config 和脚本部署仍需要每台机器明确完成"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP36：自定义 Diff、Merge 与 Filter\n\n比较三条 driver 管线的输入、输出和失败语义。\n",
+    "scriptMarkdown": "# EP36 当前脚本（150s）\n\n用同一 demo 格式完成三次隔离实验。\n",
+    "beatsMarkdown": "# EP36 Beats\n\n`question → routing → diff → merge → filter → decision`。\n",
+    "qualityMarkdown": "# EP36 审查记录\n\n- textconv 不改 blob；merge 写回 %A；filter 保持幂等。\n",
+    "alignmentMarkdown": "# EP36 对齐记录\n\nTTS 与 SRT 生成后回写 captions；driver 结果与对应解释同屏。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP36 B 站发布物料\n\n## 标题\n\nGit 的 Diff、Merge 与 Filter Driver 有何不同？\n\n## 简介\n\n用真实 driver 比较阅读视图、合并结果和内容转换。\n\n## 官方参考\n\n- [gitattributes：Diff](https://git-scm.com/docs/gitattributes#_generating_diff_text)\n- [gitattributes：Merge](https://git-scm.com/docs/gitattributes#_performing_a_three_way_merge)\n- [gitattributes：Filter](https://git-scm.com/docs/gitattributes#_filter)\n\n## 标签\n\n```text\nGit\nGit教程\n.gitattributes\nGit Driver\n```\n",
+    "coverBriefMarkdown": "# EP36 封面 Brief\n\n同一文件分流到 Diff、Merge、Filter 三条大型管线。\n",
+    "checklistMarkdown": "# EP36 发布检查清单\n\n- [ ] 三种 driver 的输入、输出与失败语义已核对。\n"
+  }
+}
