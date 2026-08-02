@@ -187,6 +187,14 @@ export const EP53 = {id:'ep53-refs-head-and-packed-refs',title:'Git 的名字怎
 export const EP54 = {id:'ep54-refspecs',title:'Fetch 与 Push 怎样映射 Refs',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp54Refspecs',sourceReferences:['https://git-scm.com/docs/git-fetch','https://git-scm.com/docs/git-push']};
 export const EP55 = {id:'ep55-packfiles-and-deltas',title:'Packfile 怎样压缩 Git 对象',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp55PackfilesAndDeltas',sourceReferences:['https://git-scm.com/docs/git-repack','https://git-scm.com/docs/git-verify-pack']};
 export const EP56 = {id:'ep56-transfer-protocols',title:'两个仓库怎样交换 Git 对象',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp56TransferProtocols',sourceReferences:['https://git-scm.com/docs/protocol-v2','https://git-scm.com/docs/gitprotocol-pack']};
+export const EP57 = {id:'ep57-git-protocols-and-access',title:'四种 Git 连接方式改变了什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp57GitProtocolsAndAccess',sourceReferences:['https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols','https://git-scm.com/docs/git-clone']};
+export const EP58 = {id:'ep58-bare-repositories-and-receive-pack',title:'一台服务器怎样接收 Push',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp58BareRepositoriesAndReceivePack',sourceReferences:['https://git-scm.com/docs/git-init','https://git-scm.com/docs/git-receive-pack']};
+export const EP59 = {id:'ep59-ssh-keys-and-server-access',title:'SSH Key 怎样变成仓库权限',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp59SshKeysAndServerAccess',sourceReferences:['https://git-scm.com/docs/git-shell','https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key']};
+export const EP60 = {id:'ep60-smart-http',title:'Smart HTTP 怎样提供 Git 服务',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp60SmartHttp',sourceReferences:['https://git-scm.com/docs/git-http-backend','https://git-scm.com/docs/gitprotocol-http']};
+export const EP61 = {id:'ep61-git-daemon',title:'Git Daemon 适合什么场景',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp61GitDaemon',sourceReferences:['https://git-scm.com/docs/git-daemon']};
+export const EP62 = {id:'ep62-gitweb',title:'GitWeb 为什么不是 Git 传输协议',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp62Gitweb',sourceReferences:['https://git-scm.com/docs/gitweb','https://git-scm.com/docs/git-instaweb']};
+export const EP63 = {id:'ep63-hosted-vs-self-hosted',title:'Git 服务应该托管还是自建',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp63HostedVsSelfHosted',sourceReferences:['https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols','https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server']};
+export const EP64 = {id:'ep64-operating-self-hosted-git',title:'自托管 Git 到底要维护什么',seriesTitle:'看得见的 Git',compositionId:'GitCourseEp64OperatingSelfHostedGit',sourceReferences:['https://git-scm.com/docs/git-fsck','https://git-scm.com/docs/git-maintenance','https://git-scm.com/docs/git-bundle']};
 
 export const COMMAND_STEPS = [
   {

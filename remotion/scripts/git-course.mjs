@@ -64,6 +64,14 @@ const EPISODES = [
   ['ep54-refspecs', 'GitCourseEp54Refspecs', 'EP54'],
   ['ep55-packfiles-and-deltas', 'GitCourseEp55PackfilesAndDeltas', 'EP55'],
   ['ep56-transfer-protocols', 'GitCourseEp56TransferProtocols', 'EP56'],
+  ['ep57-git-protocols-and-access', 'GitCourseEp57GitProtocolsAndAccess', 'EP57'],
+  ['ep58-bare-repositories-and-receive-pack', 'GitCourseEp58BareRepositoriesAndReceivePack', 'EP58'],
+  ['ep59-ssh-keys-and-server-access', 'GitCourseEp59SshKeysAndServerAccess', 'EP59'],
+  ['ep60-smart-http', 'GitCourseEp60SmartHttp', 'EP60'],
+  ['ep61-git-daemon', 'GitCourseEp61GitDaemon', 'EP61'],
+  ['ep62-gitweb', 'GitCourseEp62Gitweb', 'EP62'],
+  ['ep63-hosted-vs-self-hosted', 'GitCourseEp63HostedVsSelfHosted', 'EP63'],
+  ['ep64-operating-self-hosted-git', 'GitCourseEp64OperatingSelfHostedGit', 'EP64'],
 ];
 
 const fail = (message) => {

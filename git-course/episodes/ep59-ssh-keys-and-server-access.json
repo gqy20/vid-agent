@@ -1,0 +1,270 @@
+{
+  "episodeId": "ep59-ssh-keys-and-server-access",
+  "title": "SSH Key 怎样变成仓库权限",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 151,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-shell",
+      "https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "能登录 SSH 就能 Push 吗",
+      "start": 0,
+      "duration": 23,
+      "goal": "拆开 SSH 认证与仓库授权",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "一把 SSH key 认证成功后，是否就自动拥有服务器上所有 repository 的写权限？<#0.45#>\n这里至少有三次判断：服务器是不是可信，client 是谁，以及这个身份能操作什么。<#0.45#>\nSSH 只负责建立受保护的会话，仓库授权仍由文件权限或托管层决定。<#0.45#>\n提交里的 author 名称也不能替代登录身份。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.778,
+          "text": "一把 SSH key 认证成功后，是否就自动拥有服务器上所有 repository 的写权限？"
+        },
+        {
+          "from": 6.546,
+          "to": 12.272,
+          "text": "这里至少有三次判断：服务器是不是可信，client 是谁，以及这个身份能操作什么"
+        },
+        {
+          "from": 13.084,
+          "to": 18.661,
+          "text": "SSH 只负责建立受保护的会话，仓库授权仍由文件权限或托管层决定"
+        },
+        {
+          "from": 19.358,
+          "to": 21.496,
+          "text": "提交里的 author 名称也不能替代登录身份"
+        }
+      ]
+    },
+    {
+      "id": "identity-model",
+      "title": "Host、User 与 Repository 是三层判断",
+      "start": 23,
+      "duration": 26.5,
+      "goal": "建立 SSH 信任模型",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_identity_model",
+        "voiceStart": 23.35,
+        "text": "host key 回答连接的是不是预期服务器，known hosts 保存的是这层信任。<#0.45#>\nuser key 证明 client 持有与某个 public key 对应的 private key。<#0.35#>\n这两个方向的证明不同，不能用 user key 替代 host key 检查。<#0.45#>\n认证之后，git-shell、forced command 或平台授权再限制仓库路径与读写动作。<#0.45#>\n三层混在一起，就很容易把认证成功误读成写权限已经开放。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.286,
+          "text": "host key 回答连接的是不是预期服务器，known hosts 保存的是这层信任"
+        },
+        {
+          "from": 6.039,
+          "to": 9.701,
+          "text": "user key 证明 client 持有与某个 public key 对应的 private key"
+        },
+        {
+          "from": 10.325,
+          "to": 13.696,
+          "text": "这两个方向的证明不同，不能用 user key 替代 host key 检查"
+        },
+        {
+          "from": 14.349,
+          "to": 19.897,
+          "text": "认证之后，git-shell、forced command 或平台授权再限制仓库路径与读写动作"
+        },
+        {
+          "from": 20.559,
+          "to": 24.774,
+          "text": "三层混在一起，就很容易把认证成功误读成写权限已经开放"
+        }
+      ]
+    },
+    {
+      "id": "key-evidence",
+      "title": "只展示 Public Key 与 Fingerprint",
+      "start": 49.5,
+      "duration": 24.5,
+      "goal": "真实生成隔离测试 key",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_key_evidence",
+        "voiceStart": 49.85,
+        "text": "在隔离 HOME 中生成两组临时 key，画面只展示 public key 的 fingerprint。<#0.45#>\nprivate key 的内容从不输出，录制也不读取用户现有的 agent 或 SSH 配置。<#0.35#>\nfingerprint 适合人工核对 key 身份，不需要把整段 key 复制到画面里。<#0.45#>\n不同 fingerprint 让服务端可以把两把 public key 映射到不同身份规则。<#0.45#>\n这一步证明身份材料不同，还没有证明仓库权限相同。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.523,
+          "text": "在隔离 HOME 中生成两组临时 key，画面只展示 public key 的 fingerprint"
+        },
+        {
+          "from": 5.173,
+          "to": 10.094,
+          "text": "private key 的内容从不输出，录制也不读取用户现有的 agent 或 SSH 配置"
+        },
+        {
+          "from": 10.703,
+          "to": 14.745,
+          "text": "fingerprint 适合人工核对 key 身份，不需要把整段 key 复制到画面里"
+        },
+        {
+          "from": 15.542,
+          "to": 19.502,
+          "text": "不同 fingerprint 让服务端可以把两把 public key 映射到不同身份规则"
+        },
+        {
+          "from": 20.163,
+          "to": 23.008,
+          "text": "这一步证明身份材料不同，还没有证明仓库权限相同"
+        }
+      ]
+    },
+    {
+      "id": "restricted-command",
+      "title": "Git 命令可用，不等于交互 Shell 开放",
+      "start": 74,
+      "duration": 27,
+      "goal": "展示 git-shell 限制边界",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "04_restricted_command",
+        "voiceStart": 74.35,
+        "text": "受限账号可以通过 git-shell 启动 upload-pack 或 receive-pack，同时拒绝普通交互 shell。<#0.45#>\n这种边界让 SSH 只承载 Git 服务命令。<#0.25#>\n它不提供服务器终端。<#0.35#>\nforced command 还可以根据 public key 选择允许执行的仓库服务。<#0.45#>\n服务命令仍要针对明确仓库路径运行。<#0.25#>\n不能因为使用 SSH 就跳过路径授权。<#0.45#>\n因此连接、命令和仓库是连续但独立的检查点。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.149,
+          "text": "受限账号可以通过 git-shell 启动 upload-pack 或 receive-pack，同时拒绝普通交互 shell"
+        },
+        {
+          "from": 6.899,
+          "to": 9.804,
+          "text": "这种边界让 SSH 只承载 Git 服务命令"
+        },
+        {
+          "from": 10.308,
+          "to": 11.494,
+          "text": "它不提供服务器终端"
+        },
+        {
+          "from": 12.133,
+          "to": 15.786,
+          "text": "forced command 还可以根据 public key 选择允许执行的仓库服务"
+        },
+        {
+          "from": 16.507,
+          "to": 18.798,
+          "text": "服务命令仍要针对明确仓库路径运行"
+        },
+        {
+          "from": 19.307,
+          "to": 21.651,
+          "text": "不能因为使用 SSH 就跳过路径授权"
+        },
+        {
+          "from": 22.351,
+          "to": 25.553,
+          "text": "因此连接、命令和仓库是连续但独立的检查点"
+        }
+      ]
+    },
+    {
+      "id": "authorization",
+      "title": "同一连接下，读写结果仍可不同",
+      "start": 101,
+      "duration": 23.5,
+      "goal": "对照允许读取与拒绝写入",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_authorization",
+        "voiceStart": 101.35,
+        "text": "让只读身份访问同一份 bare repository，它可以取得 refs，却不能更新 main。<#0.45#>\n允许 fetch 证明 upload-pack 可用，push 被拒绝证明 receive-pack 或文件写权限仍受控制。<#0.45#>\n把多把 key 放进同一个 Unix 账号，并不会自动产生细粒度仓库身份。<#0.45#>\n需要更细的规则时，必须增加 forced command 或托管授权层。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.928,
+          "text": "让只读身份访问同一份 bare repository，它可以取得 refs，却不能更新 main"
+        },
+        {
+          "from": 5.672,
+          "to": 12.79,
+          "text": "允许 fetch 证明 upload-pack 可用，push 被拒绝证明 receive-pack 或文件写权限仍受控制"
+        },
+        {
+          "from": 13.556,
+          "to": 17.412,
+          "text": "把多把 key 放进同一个 Unix 账号，并不会自动产生细粒度仓库身份"
+        },
+        {
+          "from": 18.151,
+          "to": 22.152,
+          "text": "需要更细的规则时，必须增加 forced command 或托管授权层"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "认证回答是谁，授权回答能做什么",
+      "start": 124.5,
+      "duration": 26.5,
+      "goal": "总结 SSH 访问边界",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 124.85,
+        "text": "SSH 访问可以按顺序检查：host key、user key、受限命令、repository authorization。<#0.45#>\n任何一层失败，都不应该用修改 Git 提交身份来解决。<#0.35#>\n排查时逐层保留证据，比反复更换 key 更容易找到真实边界。<#0.45#>\n课程录制只使用临时 key、专用 known hosts 和隔离服务配置。<#0.45#>\n下一集再看 HTTP 怎样把认证和 Git backend 接到一起。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.319,
+          "text": "SSH 访问可以按顺序检查：host key、user key、受限命令、repository authorization"
+        },
+        {
+          "from": 7.037,
+          "to": 10.225,
+          "text": "任何一层失败，都不应该用修改 Git 提交身份来解决"
+        },
+        {
+          "from": 10.777,
+          "to": 15.155,
+          "text": "排查时逐层保留证据，比反复更换 key 更容易找到真实边界"
+        },
+        {
+          "from": 15.958,
+          "to": 20.799,
+          "text": "课程录制只使用临时 key、专用 known hosts 和隔离服务配置"
+        },
+        {
+          "from": 21.57,
+          "to": 24.817,
+          "text": "下一集再看 HTTP 怎样把认证和 Git backend 接到一起"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP59：SSH Key 怎样变成仓库权限\n",
+    "scriptMarkdown": "# EP59 当前脚本\n",
+    "beatsMarkdown": "# EP59 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP59 审查记录\n\n- 仅使用临时 key，不输出 private key。\n",
+    "alignmentMarkdown": "# EP59 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP59 B 站发布物料\n\n## 标题\n\nSSH Key 为什么不等于 Git 仓库写权限\n\n## 简介\n\n拆开 host、user、受限命令与仓库授权。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-shell)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP59 封面 Brief\n\nKey 依次通过服务器、身份和仓库三层。\n",
+    "checklistMarkdown": "# EP59 发布检查清单\n\n- [ ] 临时 key 与权限边界已核对。\n"
+  }
+}

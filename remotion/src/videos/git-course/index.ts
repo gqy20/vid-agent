@@ -78,6 +78,14 @@ import {EP53_DURATION_IN_FRAMES, Ep53RefsHeadAndPackedRefs} from './episodes/Ep5
 import {EP54_DURATION_IN_FRAMES, Ep54Refspecs} from './episodes/Ep54Refspecs';
 import {EP55_DURATION_IN_FRAMES, Ep55PackfilesAndDeltas} from './episodes/Ep55PackfilesAndDeltas';
 import {EP56_DURATION_IN_FRAMES, Ep56TransferProtocols} from './episodes/Ep56TransferProtocols';
+import {EP57_DURATION_IN_FRAMES, Ep57GitProtocolsAndAccess} from './episodes/Ep57GitProtocolsAndAccess';
+import {EP58_DURATION_IN_FRAMES, Ep58BareRepositoriesAndReceivePack} from './episodes/Ep58BareRepositoriesAndReceivePack';
+import {EP59_DURATION_IN_FRAMES, Ep59SshKeysAndServerAccess} from './episodes/Ep59SshKeysAndServerAccess';
+import {EP60_DURATION_IN_FRAMES, Ep60SmartHttp} from './episodes/Ep60SmartHttp';
+import {EP61_DURATION_IN_FRAMES, Ep61GitDaemon} from './episodes/Ep61GitDaemon';
+import {EP62_DURATION_IN_FRAMES, Ep62Gitweb} from './episodes/Ep62Gitweb';
+import {EP63_DURATION_IN_FRAMES, Ep63HostedVsSelfHosted} from './episodes/Ep63HostedVsSelfHosted';
+import {EP64_DURATION_IN_FRAMES, Ep64OperatingSelfHostedGit} from './episodes/Ep64OperatingSelfHostedGit';
 import {RefLightboxIntro, RefLightboxOutro} from './kit';
 import {FPS, HEIGHT, seconds, WIDTH} from './timeline';
 
@@ -332,6 +340,14 @@ export const registration: VideoRegistration = {
     {id:'GitCourseEp54Refspecs',component:Ep54Refspecs,durationInFrames:EP54_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp55PackfilesAndDeltas',component:Ep55PackfilesAndDeltas,durationInFrames:EP55_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {id:'GitCourseEp56TransferProtocols',component:Ep56TransferProtocols,durationInFrames:EP56_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp57GitProtocolsAndAccess',component:Ep57GitProtocolsAndAccess,durationInFrames:EP57_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp58BareRepositoriesAndReceivePack',component:Ep58BareRepositoriesAndReceivePack,durationInFrames:EP58_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp59SshKeysAndServerAccess',component:Ep59SshKeysAndServerAccess,durationInFrames:EP59_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp60SmartHttp',component:Ep60SmartHttp,durationInFrames:EP60_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp61GitDaemon',component:Ep61GitDaemon,durationInFrames:EP61_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp62Gitweb',component:Ep62Gitweb,durationInFrames:EP62_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp63HostedVsSelfHosted',component:Ep63HostedVsSelfHosted,durationInFrames:EP63_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
+    {id:'GitCourseEp64OperatingSelfHostedGit',component:Ep64OperatingSelfHostedGit,durationInFrames:EP64_DURATION_IN_FRAMES,fps:FPS,width:WIDTH,height:HEIGHT},
     {
       id: 'GitCourseComponentLab',
       component: ComponentLab,

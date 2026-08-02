@@ -43,6 +43,10 @@ if [[ "$PROJECT" == "git-course-lab" && "$RECORDING_ID" =~ ^ep(49|5[0-6])- ]]; t
   [[ -f "$DEMO" ]] || DEMO="$DEMO_DIR/_ep49_56_demos.sh"
   [[ -f "$FIXTURE" ]] || FIXTURE="$BASE/fixtures/_ep49_56_workflows.sh"
 fi
+if [[ "$PROJECT" == "git-course-lab" && "$RECORDING_ID" =~ ^ep(5[7-9]|6[0-4])- ]]; then
+  [[ -f "$DEMO" ]] || DEMO="$DEMO_DIR/_ep57_64_demos.sh"
+  [[ -f "$FIXTURE" ]] || FIXTURE="$BASE/fixtures/_ep57_64_workflows.sh"
+fi
 OUT_DIR="$ROOT/remotion/public/$PROJECT/terminal"
 OUT="$OUT_DIR/$RECORDING_ID.mp4"
 HOLD="$OUT_DIR/$RECORDING_ID-hold.png"

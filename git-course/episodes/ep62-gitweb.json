@@ -1,0 +1,270 @@
+{
+  "episodeId": "ep62-gitweb",
+  "title": "GitWeb 为什么不是 Git 传输协议",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 152.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/gitweb",
+      "https://git-scm.com/docs/git-instaweb"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "网页里的 Commit 是另一份数据吗",
+      "start": 0,
+      "duration": 26,
+      "goal": "提出浏览层与传输层边界",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "GitWeb 页面里看到的 commit、tree 和 diff，是不是另外复制到网页系统的一份数据？<#0.45#>\nGitWeb 读取的是 repository 中现有的 refs 与对象，再把它们组织成可浏览页面。<#0.35#>\n当 refs 更新后，页面下一次读取就能沿着新 tip 展开历史。<#0.45#>\n它不会参与 clone、fetch 或 push 的 pack 传输。<#0.45#>\n所以浏览界面与 Git endpoint 可以共享数据，却承担不同工作。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.566,
+          "text": "GitWeb 页面里看到的 commit、tree 和 diff，是不是另外复制到网页系统的一份数据？"
+        },
+        {
+          "from": 6.221,
+          "to": 11.751,
+          "text": "GitWeb 读取的是 repository 中现有的 refs 与对象，再把它们组织成可浏览页面"
+        },
+        {
+          "from": 12.292,
+          "to": 16.016,
+          "text": "当 refs 更新后，页面下一次读取就能沿着新 tip 展开历史"
+        },
+        {
+          "from": 16.814,
+          "to": 19.67,
+          "text": "它不会参与 clone、fetch 或 push 的 pack 传输"
+        },
+        {
+          "from": 20.315,
+          "to": 24.314,
+          "text": "所以浏览界面与 Git endpoint 可以共享数据，却承担不同工作"
+        }
+      ]
+    },
+    {
+      "id": "browser-model",
+      "title": "同一对象库，两种访问方式",
+      "start": 26,
+      "duration": 25,
+      "goal": "建立 GitWeb 读取模型",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_browser_model",
+        "voiceStart": 26.35,
+        "text": "终端命令通过对象接口读取 commit、tree、blob 与 diff。<#0.45#>\nGitWeb 也从同一 repository 解析这些对象，并生成 summary、shortlog 和详情页。<#0.35#>\n页面只改变阅读路径，不会给对象增加新的字段或身份。<#0.45#>\n页面中的 hash、parent 与 tree 应该能和 cat-file 结果逐项对应。<#0.45#>\n如果对应不上，就说明浏览的仓库或 ref 不是同一状态。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.486,
+          "text": "终端命令通过对象接口读取 commit、tree、blob 与 diff"
+        },
+        {
+          "from": 5.119,
+          "to": 10.67,
+          "text": "GitWeb 也从同一 repository 解析这些对象，并生成 summary、shortlog 和详情页"
+        },
+        {
+          "from": 11.294,
+          "to": 14.544,
+          "text": "页面只改变阅读路径，不会给对象增加新的字段或身份"
+        },
+        {
+          "from": 15.268,
+          "to": 19.643,
+          "text": "页面中的 hash、parent 与 tree 应该能和 cat-file 结果逐项对应"
+        },
+        {
+          "from": 20.302,
+          "to": 23.326,
+          "text": "如果对应不上，就说明浏览的仓库或 ref 不是同一状态"
+        }
+      ]
+    },
+    {
+      "id": "refs-evidence",
+      "title": "先在终端锁定 Ref 与对象",
+      "start": 51,
+      "duration": 26,
+      "goal": "记录 GitWeb 对照基线",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_refs_evidence",
+        "voiceStart": 51.35,
+        "text": "打开页面前，先用 show-ref 记录 main 与 tag 的完整 OID。<#0.45#>\n再用 cat-file 读取 commit 的 parent 与 tree，用 ls-tree 列出快照路径。<#0.35#>\n完整 OID 可以避免短 hash 在不同页面上下文中产生歧义。<#0.35#>\nTag 页面也沿着同一条对象引用继续展开。<#0.45#>\n这组终端结果是网页核对基线，而不是页面旁边的装饰输出。<#0.45#>\n浏览器接下来必须来自同一份课程 fixture。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.2,
+          "text": "打开页面前，先用 show-ref 记录 main 与 tag 的完整 OID"
+        },
+        {
+          "from": 4.913,
+          "to": 9.849,
+          "text": "再用 cat-file 读取 commit 的 parent 与 tree，用 ls-tree 列出快照路径"
+        },
+        {
+          "from": 10.483,
+          "to": 14.051,
+          "text": "完整 OID 可以避免短 hash 在不同页面上下文中产生歧义"
+        },
+        {
+          "from": 14.621,
+          "to": 17.31,
+          "text": "Tag 页面也沿着同一条对象引用继续展开"
+        },
+        {
+          "from": 17.985,
+          "to": 21.593,
+          "text": "这组终端结果是网页核对基线，而不是页面旁边的装饰输出"
+        },
+        {
+          "from": 22.314,
+          "to": 24.656,
+          "text": "浏览器接下来必须来自同一份课程 fixture"
+        }
+      ]
+    },
+    {
+      "id": "page-evidence",
+      "title": "页面导航沿着真实对象展开",
+      "start": 77,
+      "duration": 24.5,
+      "goal": "展示真实 GitWeb 页面导航",
+      "primaryTechnique": "Browser recording",
+      "narration": {
+        "segmentId": "04_page_evidence",
+        "voiceStart": 77.35,
+        "text": "从 repository list 进入 summary，再打开 commit。<#0.45#>\n接着沿 tree 打开 blob，页面中的 action 与 hash 参数来自真实导航请求，不在 Remotion 中仿造界面。<#0.35#>\ndiff 页面同样是比较已有对象，而不是重新保存一份补丁。<#0.45#>\ncommit 页展示的 OID、parent 与 tree 都与刚才的终端基线一致。<#0.45#>\n网页只是另一种阅读方式，没有产生新的 Git 对象。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.318,
+          "text": "从 repository list 进入 summary，再打开 commit"
+        },
+        {
+          "from": 3.975,
+          "to": 10.376,
+          "text": "接着沿 tree 打开 blob，页面中的 action 与 hash 参数来自真实导航请求，不在 Remotion 中仿造界面"
+        },
+        {
+          "from": 10.9,
+          "to": 14.31,
+          "text": "diff 页面同样是比较已有对象，而不是重新保存一份补丁"
+        },
+        {
+          "from": 15.073,
+          "to": 19.282,
+          "text": "commit 页展示的 OID、parent 与 tree 都与刚才的终端基线一致"
+        },
+        {
+          "from": 19.958,
+          "to": 22.827,
+          "text": "网页只是另一种阅读方式，没有产生新的 Git 对象"
+        }
+      ]
+    },
+    {
+      "id": "transport-boundary",
+      "title": "浏览页面不承担 Clone 与 Push",
+      "start": 101.5,
+      "duration": 25.5,
+      "goal": "对照 GitWeb 与 transport 职责",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_transport_boundary",
+        "voiceStart": 101.85,
+        "text": "即使 GitWeb 页面正常打开，Git client 仍需要 SSH、Smart HTTP 或 git protocol endpoint。<#0.45#>\n页面请求读取 HTML，Git fetch 请求交换 refs 与 pack，两者的路径和响应完全不同。<#0.45#>\nGitWeb 也不提供 Pull Request、CI、用户权限管理或仓库写入。<#0.45#>\nWeb server 的访问控制仍必须由部署环境负责。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.285,
+          "text": "即使 GitWeb 页面正常打开，Git client 仍需要 SSH、Smart HTTP 或 git protocol endpoint"
+        },
+        {
+          "from": 7.942,
+          "to": 15.249,
+          "text": "页面请求读取 HTML，Git fetch 请求交换 refs 与 pack，两者的路径和响应完全不同"
+        },
+        {
+          "from": 15.889,
+          "to": 20.545,
+          "text": "GitWeb 也不提供 Pull Request、CI、用户权限管理或仓库写入"
+        },
+        {
+          "from": 21.3,
+          "to": 23.855,
+          "text": "Web server 的访问控制仍必须由部署环境负责"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "GitWeb 负责阅读，不负责传输",
+      "start": 127,
+      "duration": 25.5,
+      "goal": "总结 GitWeb 边界",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 127.35,
+        "text": "GitWeb 的价值是把 refs、commit、tree、blob 和 diff 组织成只读页面。<#0.45#>\n它与终端可以核对同一对象，却不替代 clone、fetch 或 push 服务。<#0.35#>\n页面的访问控制、日志和进程运行仍由 Web 部署环境负责。<#0.45#>\n临时 instaweb 适合本地查看，不等于生产部署建议。<#0.45#>\n下一集用这些真实组件比较托管与自建的责任边界。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.828,
+          "text": "GitWeb 的价值是把 refs、commit、tree、blob 和 diff 组织成只读页面"
+        },
+        {
+          "from": 6.479,
+          "to": 11.003,
+          "text": "它与终端可以核对同一对象，却不替代 clone、fetch 或 push 服务"
+        },
+        {
+          "from": 11.694,
+          "to": 15.506,
+          "text": "页面的访问控制、日志和进程运行仍由 Web 部署环境负责"
+        },
+        {
+          "from": 16.286,
+          "to": 19.693,
+          "text": "临时 instaweb 适合本地查看，不等于生产部署建议"
+        },
+        {
+          "from": 20.521,
+          "to": 23.913,
+          "text": "下一集用这些真实组件比较托管与自建的责任边界"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP62：GitWeb 为什么不是 Git 传输协议\n",
+    "scriptMarkdown": "# EP62 当前脚本\n",
+    "beatsMarkdown": "# EP62 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP62 审查记录\n\n- 页面与终端必须来自同一 repository fixture。\n",
+    "alignmentMarkdown": "# EP62 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP62 B 站发布物料\n\n## 标题\n\nGitWeb 读取的 Commit 和终端里是同一份吗\n\n## 简介\n\n对照 refs、commit、tree、diff 与对象传输边界。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/gitweb)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP62 封面 Brief\n\n同一对象库分别进入终端和网页。\n",
+    "checklistMarkdown": "# EP62 发布检查清单\n\n- [ ] 页面 OID 与终端基线已核对。\n"
+  }
+}

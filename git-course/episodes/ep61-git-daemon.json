@@ -1,0 +1,280 @@
+{
+  "episodeId": "ep61-git-daemon",
+  "title": "Git Daemon 适合什么场景",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 159,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-daemon",
+      "https://git-scm.com/book/en/v2/Git-on-the-Server-Git-Daemon"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "越轻量的协议越适合协作吗",
+      "start": 0,
+      "duration": 26.5,
+      "goal": "提出 daemon 的能力边界",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "git daemon 启动简单、读取高效，它是不是也适合直接承载团队的私有写协作？<#0.45#>\n这个协议通常不提供用户认证和传输加密，优势正来自边界更窄。<#0.35#>\n没有身份层意味着它无法区分多个匿名 client 的细粒度权限。<#0.45#>\n它擅长公开 clone 与 fetch，却不应该被包装成完整协作服务。<#0.45#>\n我们从未导出、允许读取和拒绝写入三个状态来观察。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.516,
+          "text": "git daemon 启动简单、读取高效，它是不是也适合直接承载团队的私有写协作？"
+        },
+        {
+          "from": 6.272,
+          "to": 10.629,
+          "text": "这个协议通常不提供用户认证和传输加密，优势正来自边界更窄"
+        },
+        {
+          "from": 11.206,
+          "to": 15.629,
+          "text": "没有身份层意味着它无法区分多个匿名 client 的细粒度权限"
+        },
+        {
+          "from": 16.285,
+          "to": 20.254,
+          "text": "它擅长公开 clone 与 fetch，却不应该被包装成完整协作服务"
+        },
+        {
+          "from": 20.971,
+          "to": 24.997,
+          "text": "我们从未导出、允许读取和拒绝写入三个状态来观察"
+        }
+      ]
+    },
+    {
+      "id": "daemon-model",
+      "title": "公开读取与私有协作不是一回事",
+      "start": 26.5,
+      "duration": 26.5,
+      "goal": "建立 daemon 服务模型",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_daemon_model",
+        "voiceStart": 26.85,
+        "text": "daemon 监听 Git protocol 请求。<#0.25#>\n它再把路径映射到受控的 repository 根目录。<#0.45#>\n仓库只有显式导出后才应被发现，避免服务启动就暴露全部目录。<#0.35#>\nbase path 还把外部地址与真实磁盘位置隔开，便于控制暴露范围。<#0.45#>\nupload-pack 默认适合匿名读取，receive-pack 默认关闭则保护服务端 refs。<#0.45#>\n可见性、读取和写入是三个不同开关。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 2.223,
+          "text": "daemon 监听 Git protocol 请求"
+        },
+        {
+          "from": 2.708,
+          "to": 4.903,
+          "text": "它再把路径映射到受控的 repository 根目录"
+        },
+        {
+          "from": 5.675,
+          "to": 10.275,
+          "text": "仓库只有显式导出后才应被发现，避免服务启动就暴露全部目录"
+        },
+        {
+          "from": 10.908,
+          "to": 15.435,
+          "text": "base path 还把外部地址与真实磁盘位置隔开，便于控制暴露范围"
+        },
+        {
+          "from": 16.086,
+          "to": 21.364,
+          "text": "upload-pack 默认适合匿名读取，receive-pack 默认关闭则保护服务端 refs"
+        },
+        {
+          "from": 22.151,
+          "to": 24.721,
+          "text": "可见性、读取和写入是三个不同开关"
+        }
+      ]
+    },
+    {
+      "id": "export-gate",
+      "title": "没有 Export 标记，仓库先保持隐藏",
+      "start": 53,
+      "duration": 27.5,
+      "goal": "真实展示 export gate",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_export_gate",
+        "voiceStart": 53.35,
+        "text": "先让 daemon 只绑定 loopback，并请求一份没有导出标记的 bare repository。<#0.45#>\n服务日志收到连接，却明确拒绝未导出的路径，client 也拿不到 refs。<#0.35#>\n拒绝发生在对象协商之前，因此不会先泄露一部分历史再失败。<#0.45#>\n加入 git-daemon-export-ok 后，同一个地址才开始返回 main。<#0.45#>\n这个标记控制 repository 是否可见，不代表每个 ref 都有独立权限。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.671,
+          "text": "先让 daemon 只绑定 loopback，并请求一份没有导出标记的 bare repository"
+        },
+        {
+          "from": 6.413,
+          "to": 11.582,
+          "text": "服务日志收到连接，却明确拒绝未导出的路径，client 也拿不到 refs"
+        },
+        {
+          "from": 12.287,
+          "to": 17.003,
+          "text": "拒绝发生在对象协商之前，因此不会先泄露一部分历史再失败"
+        },
+        {
+          "from": 17.714,
+          "to": 21.389,
+          "text": "加入 git-daemon-export-ok 后，同一个地址才开始返回 main"
+        },
+        {
+          "from": 22.058,
+          "to": 25.938,
+          "text": "这个标记控制 repository 是否可见，不代表每个 ref 都有独立权限"
+        }
+      ]
+    },
+    {
+      "id": "anonymous-read",
+      "title": "匿名 Clone 取得真实对象",
+      "start": 80.5,
+      "duration": 24,
+      "goal": "真实 clone 并核对 OID",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "04_anonymous_read",
+        "voiceStart": 80.85,
+        "text": "仓库导出后，client 可以不提供用户身份直接 clone。<#0.45#>\nclone 的 main 与服务端完整 OID 一致，说明对象传输确实完成。<#0.35#>\n后续 fetch 也沿用这条读取通道，不会突然获得新的身份上下文。<#0.45#>\n这里的匿名不是演示省略了登录，而是协议本身没有用户认证层。<#0.45#>\n因此它更适合明确允许公开读取的受控网络或镜像。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.563,
+          "text": "仓库导出后，client 可以不提供用户身份直接 clone"
+        },
+        {
+          "from": 4.226,
+          "to": 8.25,
+          "text": "clone 的 main 与服务端完整 OID 一致，说明对象传输确实完成"
+        },
+        {
+          "from": 8.823,
+          "to": 12.963,
+          "text": "后续 fetch 也沿用这条读取通道，不会突然获得新的身份上下文"
+        },
+        {
+          "from": 13.729,
+          "to": 17.96,
+          "text": "这里的匿名不是演示省略了登录，而是协议本身没有用户认证层"
+        },
+        {
+          "from": 18.713,
+          "to": 22.52,
+          "text": "因此它更适合明确允许公开读取的受控网络或镜像"
+        }
+      ]
+    },
+    {
+      "id": "write-rejected",
+      "title": "Receive-pack 继续保持关闭",
+      "start": 104.5,
+      "duration": 25.5,
+      "goal": "真实证明匿名 push 被拒绝",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_write_rejected",
+        "voiceStart": 104.85,
+        "text": "现在在 client 创建新 commit，再向同一个 git 地址 push。<#0.45#>\n服务端拒绝 receive-pack，main 仍停在原来的 OID。<#0.35#>\n即使仓库已经导出，export 标记也不会顺带打开写服务。<#0.35#>\n若真的开启匿名写，任何能连接的 client 都可能请求更新 refs。<#0.45#>\n课程不会为了展示成功而开启匿名写，因为那会模糊这个工具最重要的保护边界。<#0.45#>\n能 clone 与能 push 从来不是同一项能力。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.466,
+          "text": "现在在 client 创建新 commit，再向同一个 git 地址 push"
+        },
+        {
+          "from": 4.135,
+          "to": 6.808,
+          "text": "服务端拒绝 receive-pack，main 仍停在原来的 OID"
+        },
+        {
+          "from": 7.431,
+          "to": 11.261,
+          "text": "即使仓库已经导出，export 标记也不会顺带打开写服务"
+        },
+        {
+          "from": 11.842,
+          "to": 15.764,
+          "text": "若真的开启匿名写，任何能连接的 client 都可能请求更新 refs"
+        },
+        {
+          "from": 16.517,
+          "to": 21.191,
+          "text": "课程不会为了展示成功而开启匿名写，因为那会模糊这个工具最重要的保护边界"
+        },
+        {
+          "from": 21.869,
+          "to": 24.085,
+          "text": "能 clone 与能 push 从来不是同一项能力"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Daemon 的价值来自边界清楚",
+      "start": 130,
+      "duration": 29,
+      "goal": "总结 daemon 适用条件",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 130.35,
+        "text": "git daemon 适合轻量、快速、明确允许匿名读取的场景。<#0.45#>\nexport gate 决定哪些 repository 可见，upload-pack 提供读取，receive-pack 默认关闭。<#0.35#>\n部署时还应限制监听地址，并把进程生命周期纳入服务管理。<#0.45#>\n私有身份、细粒度授权与加密连接应该选择 SSH、HTTPS 或托管平台。<#0.45#>\n下一集把对象传输和网页浏览彻底分开。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.866,
+          "text": "git daemon 适合轻量、快速、明确允许匿名读取的场景"
+        },
+        {
+          "from": 5.524,
+          "to": 11.424,
+          "text": "export gate 决定哪些 repository 可见，upload-pack 提供读取，receive-pack 默认关闭"
+        },
+        {
+          "from": 11.974,
+          "to": 16.896,
+          "text": "部署时还应限制监听地址，并把进程生命周期纳入服务管理"
+        },
+        {
+          "from": 17.627,
+          "to": 23.644,
+          "text": "私有身份、细粒度授权与加密连接应该选择 SSH、HTTPS 或托管平台"
+        },
+        {
+          "from": 24.344,
+          "to": 27.253,
+          "text": "下一集把对象传输和网页浏览彻底分开"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP61：Git Daemon 适合什么场景\n",
+    "scriptMarkdown": "# EP61 当前脚本\n",
+    "beatsMarkdown": "# EP61 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP61 审查记录\n\n- daemon 仅绑定 loopback，审查后关闭。\n",
+    "alignmentMarkdown": "# EP61 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP61 B 站发布物料\n\n## 标题\n\nGit Daemon 为什么适合匿名读取而不是私有协作\n\n## 简介\n\n真实核对 export gate、匿名 clone 和写入拒绝。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-daemon)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP61 封面 Brief\n\n公开读取通道与关闭的写入口。\n",
+    "checklistMarkdown": "# EP61 发布检查清单\n\n- [ ] daemon 已停止且写入保持关闭。\n"
+  }
+}

@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 
 PROJECT_ROOT = os.path.abspath(sys.argv[1])
 PORT = int(sys.argv[2])
+ACCESS_MODE = sys.argv[3] if len(sys.argv) > 3 else "authenticated-read"
 USERS = {"reader": "readpass", "writer": "writepass"}
 
 
@@ -42,6 +43,14 @@ class GitHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _audit(self, status, user, service, path):
+        resource = path.rsplit("/", 1)[-1] or "repository"
+        print(
+            f"{self.command} {resource} service={service or 'none'} "
+            f"user={user or 'anonymous'} status={status}",
+            flush=True,
+        )
+
     def _serve_git(self):
         parsed = urlsplit(self.path)
         if parsed.path == "/health":
@@ -53,11 +62,15 @@ class GitHandler(BaseHTTPRequestHandler):
             return
 
         user = self._user()
-        if user is None:
+        receive = parsed.path.endswith("/git-receive-pack") or "service=git-receive-pack" in parsed.query
+        service = "receive-pack" if receive else "upload-pack"
+        anonymous_read = ACCESS_MODE == "anonymous-read" and not receive
+        if user is None and not anonymous_read:
+            self._audit(401, user, service, parsed.path)
             self._unauthorized()
             return
-        receive = parsed.path.endswith("/git-receive-pack") or "service=git-receive-pack" in parsed.query
         if receive and user != "writer":
+            self._audit(403, user, service, parsed.path)
             self._forbidden()
             return
 
@@ -72,8 +85,9 @@ class GitHandler(BaseHTTPRequestHandler):
             "REQUEST_METHOD": self.command,
             "CONTENT_TYPE": self.headers.get("Content-Type", ""),
             "CONTENT_LENGTH": str(length),
-            "REMOTE_USER": user,
         }
+        if user is not None:
+            env["REMOTE_USER"] = user
         result = subprocess.run(["git", "http-backend"], input=body, env=env, capture_output=True, check=False)
         raw_headers, separator, response_body = result.stdout.partition(b"\r\n\r\n")
         if not separator:
@@ -93,6 +107,7 @@ class GitHandler(BaseHTTPRequestHandler):
             self.send_header(name, value)
         self.end_headers()
         self.wfile.write(response_body)
+        self._audit(status, user, service, parsed.path)
 
     do_GET = _serve_git
     do_POST = _serve_git

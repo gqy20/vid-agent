@@ -1,0 +1,270 @@
+{
+  "episodeId": "ep63-hosted-vs-self-hosted",
+  "title": "Git 服务应该托管还是自建",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 153.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols",
+      "https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "自建一定更可控吗",
+      "start": 0,
+      "duration": 25,
+      "goal": "把选择转化为责任问题",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "把 Git 服务放在自己的机器上，是不是就一定比第三方托管更可控？<#0.45#>\n数据位置只是一个维度，真正的差异是谁长期承担身份、可用性、升级与恢复。<#0.35#>\n所谓控制力还要包含故障时能否观察、修复并按目标恢复。<#0.45#>\n同样的 git clone 命令背后，可能是 bare SSH、自托管平台或第三方服务。<#0.45#>\n选择之前，先把责任逐项摊开。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.668,
+          "text": "把 Git 服务放在自己的机器上，是不是就一定比第三方托管更可控？"
+        },
+        {
+          "from": 5.418,
+          "to": 10.534,
+          "text": "数据位置只是一个维度，真正的差异是谁长期承担身份、可用性、升级与恢复"
+        },
+        {
+          "from": 11.081,
+          "to": 15.358,
+          "text": "所谓控制力还要包含故障时能否观察、修复并按目标恢复"
+        },
+        {
+          "from": 16.212,
+          "to": 21.004,
+          "text": "同样的 git clone 命令背后，可能是 bare SSH、自托管平台或第三方服务"
+        },
+        {
+          "from": 21.75,
+          "to": 23.673,
+          "text": "选择之前，先把责任逐项摊开"
+        }
+      ]
+    },
+    {
+      "id": "decision-model",
+      "title": "比较的是责任，不是品牌",
+      "start": 25,
+      "duration": 26.5,
+      "goal": "建立 ownership matrix",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_decision_model",
+        "voiceStart": 25.35,
+        "text": "协议接入、身份源、repository 权限和 Review 集成属于协作入口。<#0.45#>\n存储、备份恢复、升级、监控和高可用属于长期运行责任。<#0.35#>\n人员轮换、值班能力和供应商退出路径也会改变长期成本。<#0.45#>\n数据边界、审计与合同条件还要根据组织约束单独确认。<#0.45#>\n只有把这些列完整，托管与自建才有可比较的对象。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.196,
+          "text": "协议接入、身份源、repository 权限和 Review 集成属于协作入口"
+        },
+        {
+          "from": 6.869,
+          "to": 12.095,
+          "text": "存储、备份恢复、升级、监控和高可用属于长期运行责任"
+        },
+        {
+          "from": 12.691,
+          "to": 16.376,
+          "text": "人员轮换、值班能力和供应商退出路径也会改变长期成本"
+        },
+        {
+          "from": 17.066,
+          "to": 21.153,
+          "text": "数据边界、审计与合同条件还要根据组织约束单独确认"
+        },
+        {
+          "from": 21.85,
+          "to": 24.944,
+          "text": "只有把这些列完整，托管与自建才有可比较的对象"
+        }
+      ]
+    },
+    {
+      "id": "small-team",
+      "title": "十人团队先看持续维护成本",
+      "start": 51.5,
+      "duration": 25,
+      "goal": "分析小团队场景",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_small_team",
+        "voiceStart": 51.85,
+        "text": "对十人团队来说，client 也许只看到一个 SSH 或 HTTPS 地址。<#0.45#>\n但自建侧还需要运行服务、账号规则、备份、监控、升级和故障响应。<#0.35#>\n这些工作即使没有故障，也会持续占用团队的工程时间。<#0.45#>\n如果这些能力没有专人维护，协议可用也不代表协作系统可靠。<#0.45#>\n托管的价值常常是把这部分持续工作转交给供应商。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.206,
+          "text": "对十人团队来说，client 也许只看到一个 SSH 或 HTTPS 地址"
+        },
+        {
+          "from": 5.859,
+          "to": 11.328,
+          "text": "但自建侧还需要运行服务、账号规则、备份、监控、升级和故障响应"
+        },
+        {
+          "from": 12,
+          "to": 15.066,
+          "text": "这些工作即使没有故障，也会持续占用团队的工程时间"
+        },
+        {
+          "from": 15.92,
+          "to": 19.892,
+          "text": "如果这些能力没有专人维护，协议可用也不代表协作系统可靠"
+        },
+        {
+          "from": 20.564,
+          "to": 23.509,
+          "text": "托管的价值常常是把这部分持续工作转交给供应商"
+        }
+      ]
+    },
+    {
+      "id": "regulated-team",
+      "title": "受监管环境先看数据与身份边界",
+      "start": 76.5,
+      "duration": 25,
+      "goal": "分析受监管内网场景",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "04_regulated_team",
+        "voiceStart": 76.85,
+        "text": "受监管内网团队可能更关心身份源、网络隔离、审计记录和数据位置。<#0.45#>\n这些约束可能推动自托管，也可能由满足条件的托管方案承担。<#0.35#>\n关键不是贴上部署标签，而是逐项拿出满足约束的证据。<#0.45#>\n数据在自己机器上不自动意味着风险更低，补丁、备份和权限错误仍由自己负责。<#0.45#>\n课程示例不能替代实际合规评估。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.137,
+          "text": "受监管内网团队可能更关心身份源、网络隔离、审计记录和数据位置"
+        },
+        {
+          "from": 5.781,
+          "to": 9.756,
+          "text": "这些约束可能推动自托管，也可能由满足条件的托管方案承担"
+        },
+        {
+          "from": 10.32,
+          "to": 14.622,
+          "text": "关键不是贴上部署标签，而是逐项拿出满足约束的证据"
+        },
+        {
+          "from": 15.291,
+          "to": 21,
+          "text": "数据在自己机器上不自动意味着风险更低，补丁、备份和权限错误仍由自己负责"
+        },
+        {
+          "from": 21.648,
+          "to": 23.568,
+          "text": "课程示例不能替代实际合规评估"
+        }
+      ]
+    },
+    {
+      "id": "ownership-check",
+      "title": "相同 Client 体验，后台责任完全不同",
+      "start": 101.5,
+      "duration": 26,
+      "goal": "用相同命令对照后台资产",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_ownership_check",
+        "voiceStart": 101.85,
+        "text": "对 client 来说，两种服务都可能返回相同 main OID，clone 体验几乎没有差别。<#0.45#>\n自建清单却包含 endpoint、repository storage、身份配置、backup 和 monitoring。<#0.35#>\n每一项都需要明确 owner、检查方法和故障时的升级路径。<#0.45#>\n托管侧则需要核对供应商当期的能力、合同和退出路径。<#0.45#>\n不能根据一条成功命令推断后台责任已经消失。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.879,
+          "text": "对 client 来说，两种服务都可能返回相同 main OID，clone 体验几乎没有差别"
+        },
+        {
+          "from": 6.578,
+          "to": 12.386,
+          "text": "自建清单却包含 endpoint、repository storage、身份配置、backup 和 monitoring"
+        },
+        {
+          "from": 12.949,
+          "to": 16.705,
+          "text": "每一项都需要明确 owner、检查方法和故障时的升级路径"
+        },
+        {
+          "from": 17.398,
+          "to": 20.882,
+          "text": "托管侧则需要核对供应商当期的能力、合同和退出路径"
+        },
+        {
+          "from": 21.699,
+          "to": 24.184,
+          "text": "不能根据一条成功命令推断后台责任已经消失"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "先决定谁承担长期工作",
+      "start": 127.5,
+      "duration": 26,
+      "goal": "总结选择方法",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 127.85,
+        "text": "托管还是自建，没有脱离约束的标准答案。<#0.45#>\n先列出身份、权限、审查、可用性、备份、升级、监控和数据边界，再分配责任。<#0.35#>\n还要约定怎样验证这些责任确实被执行，而不只停留在方案文档。<#0.45#>\nGit transport 可用只是底线，不是完整平台已经可靠的证据。<#0.45#>\n下一集把自托管最容易被忽略的恢复责任真正跑一遍。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.012,
+          "text": "托管还是自建，没有脱离约束的标准答案"
+        },
+        {
+          "from": 3.735,
+          "to": 10.773,
+          "text": "先列出身份、权限、审查、可用性、备份、升级、监控和数据边界，再分配责任"
+        },
+        {
+          "from": 11.35,
+          "to": 15.555,
+          "text": "还要约定怎样验证这些责任确实被执行，而不只停留在方案文档"
+        },
+        {
+          "from": 16.242,
+          "to": 19.869,
+          "text": "Git transport 可用只是底线，不是完整平台已经可靠的证据"
+        },
+        {
+          "from": 20.691,
+          "to": 24.637,
+          "text": "下一集把自托管最容易被忽略的恢复责任真正跑一遍"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP63：Git 服务应该托管还是自建\n",
+    "scriptMarkdown": "# EP63 当前脚本\n",
+    "beatsMarkdown": "# EP63 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP63 审查记录\n\n- 不伪造平台价格、SLA 或合规结论。\n",
+    "alignmentMarkdown": "# EP63 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP63 B 站发布物料\n\n## 标题\n\nGit 服务托管还是自建：真正要比较什么\n\n## 简介\n\n从身份、可用性、恢复与数据边界分配责任。\n\n## 官方参考\n\n- [Pro Git](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP63 封面 Brief\n\nHosted 与 Self-hosted 的责任矩阵。\n",
+    "checklistMarkdown": "# EP63 发布检查清单\n\n- [ ] 所有结论保持决策方法边界。\n"
+  }
+}

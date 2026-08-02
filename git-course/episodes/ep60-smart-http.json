@@ -1,0 +1,270 @@
+{
+  "episodeId": "ep60-smart-http",
+  "title": "Smart HTTP 怎样提供 Git 服务",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 163.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-http-backend",
+      "https://git-scm.com/docs/gitprotocol-http"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "能打开网页就能 Clone 吗",
+      "start": 0,
+      "duration": 26,
+      "goal": "区分普通网页与 Smart HTTP",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "浏览器能打开一个 repository 页面，是否就说明 Git client 可以从同一地址 clone？<#0.45#>\nSmart HTTP 需要 Web server 把特定请求交给 git http-backend。<#0.35#>\n普通 HTML 页面和 Git RPC 的请求路径、内容类型与响应都不同。<#0.45#>\nref advertisement、upload-pack 与 receive-pack RPC 才组成真正的 Git 服务。<#0.45#>\n普通网页、身份认证和对象传输不能只看成一个按钮。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.685,
+          "text": "浏览器能打开一个 repository 页面，是否就说明 Git client 可以从同一地址 clone？"
+        },
+        {
+          "from": 5.388,
+          "to": 9.633,
+          "text": "Smart HTTP 需要 Web server 把特定请求交给 git http-backend"
+        },
+        {
+          "from": 10.234,
+          "to": 14.512,
+          "text": "普通 HTML 页面和 Git RPC 的请求路径、内容类型与响应都不同"
+        },
+        {
+          "from": 15.255,
+          "to": 20.319,
+          "text": "ref advertisement、upload-pack 与 receive-pack RPC 才组成真正的 Git 服务"
+        },
+        {
+          "from": 21.058,
+          "to": 24.453,
+          "text": "普通网页、身份认证和对象传输不能只看成一个按钮"
+        }
+      ]
+    },
+    {
+      "id": "http-model",
+      "title": "Web Server 与 Git Backend 各管一层",
+      "start": 26,
+      "duration": 30,
+      "goal": "建立 Smart HTTP 请求模型",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_http_model",
+        "voiceStart": 26.35,
+        "text": "client 先请求带 service 参数的 info refs，取得能力与可见 refs。<#0.45#>\n后续 POST 请求再进入 upload-pack 或 receive-pack RPC，交换协议数据。<#0.35#>\n同一个 URL 前缀可以承载读取与写入，但两类服务仍能采用不同策略。<#0.45#>\nWeb server 负责 TLS、认证、路由与访问控制，backend 负责 Git 服务。<#0.45#>\n两层组合起来，才是可管理的 Smart HTTP endpoint。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.302,
+          "text": "client 先请求带 service 参数的 info refs，取得能力与可见 refs"
+        },
+        {
+          "from": 6.939,
+          "to": 11.82,
+          "text": "后续 POST 请求再进入 upload-pack 或 receive-pack RPC，交换协议数据"
+        },
+        {
+          "from": 12.513,
+          "to": 17.476,
+          "text": "同一个 URL 前缀可以承载读取与写入，但两类服务仍能采用不同策略"
+        },
+        {
+          "from": 18.231,
+          "to": 24.067,
+          "text": "Web server 负责 TLS、认证、路由与访问控制，backend 负责 Git 服务"
+        },
+        {
+          "from": 24.8,
+          "to": 28.301,
+          "text": "两层组合起来，才是可管理的 Smart HTTP endpoint"
+        }
+      ]
+    },
+    {
+      "id": "read-service",
+      "title": "匿名读取先经过 Upload-pack",
+      "start": 56,
+      "duration": 29.5,
+      "goal": "真实记录只读 HTTP 请求",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_read_service",
+        "voiceStart": 56.35,
+        "text": "在 loopback fixture 中启动 CGI 服务，再执行一次匿名 ls-remote 和 clone。<#0.45#>\n访问日志可以看到 info refs 查询与 git-upload-pack 请求，client 则拿到真实 main OID。<#0.35#>\n服务端必须把 URL 路径稳定映射到预期 repository，不能只依赖目录猜测。<#0.45#>\n环境变量中的 project root、path info 和 query string 都来自这次请求。<#0.45#>\n这证明读取服务已经接通，却没有推断写入也开放。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.639,
+          "text": "在 loopback fixture 中启动 CGI 服务，再执行一次匿名 ls-remote 和 clone"
+        },
+        {
+          "from": 6.382,
+          "to": 13.114,
+          "text": "访问日志可以看到 info refs 查询与 git-upload-pack 请求，client 则拿到真实 main OID"
+        },
+        {
+          "from": 13.697,
+          "to": 18.305,
+          "text": "服务端必须把 URL 路径稳定映射到预期 repository，不能只依赖目录猜测"
+        },
+        {
+          "from": 19.146,
+          "to": 24.293,
+          "text": "环境变量中的 project root、path info 和 query string 都来自这次请求"
+        },
+        {
+          "from": 24.975,
+          "to": 27.866,
+          "text": "这证明读取服务已经接通，却没有推断写入也开放"
+        }
+      ]
+    },
+    {
+      "id": "auth-boundary",
+      "title": "401 与授权拒绝是两个阶段",
+      "start": 85.5,
+      "duration": 27.5,
+      "goal": "区分认证与授权结果",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "04_auth_boundary",
+        "voiceStart": 85.85,
+        "text": "当写路径要求身份时，缺少凭证的请求先收到 HTTP 认证挑战。<#0.45#>\n身份验证通过后，Web server 仍可以根据用户与仓库规则拒绝 receive-pack。<#0.35#>\n这两种失败需要不同的日志字段，排查时不能只看最终的 push 错误。<#0.45#>\n所以 401 表示尚未认证，已认证后的拒绝则属于授权或策略问题。<#0.45#>\n日志只保留用户标识与路径，不记录 Authorization 内容。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.749,
+          "text": "当写路径要求身份时，缺少凭证的请求先收到 HTTP 认证挑战"
+        },
+        {
+          "from": 5.498,
+          "to": 10.723,
+          "text": "身份验证通过后，Web server 仍可以根据用户与仓库规则拒绝 receive-pack"
+        },
+        {
+          "from": 11.298,
+          "to": 15.277,
+          "text": "这两种失败需要不同的日志字段，排查时不能只看最终的 push 错误"
+        },
+        {
+          "from": 16.087,
+          "to": 21.6,
+          "text": "所以 401 表示尚未认证，已认证后的拒绝则属于授权或策略问题"
+        },
+        {
+          "from": 22.315,
+          "to": 25.714,
+          "text": "日志只保留用户标识与路径，不记录 Authorization 内容"
+        }
+      ]
+    },
+    {
+      "id": "write-service",
+      "title": "Receive-pack 必须显式开放",
+      "start": 113,
+      "duration": 24,
+      "goal": "真实完成一次授权 push",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_write_service",
+        "voiceStart": 113.35,
+        "text": "最后只对授权测试身份开放 receive-pack，并推送一条新的 main。<#0.45#>\nWeb 层传入受控 REMOTE_USER，backend 再执行 Git 接收流程。<#0.35#>\n仓库级策略仍可以在 receive-pack 与 hooks 中继续拒绝不合规更新。<#0.45#>\n服务端 ref 更新后，client 与 bare repository 的完整 OID 再次一致。<#0.45#>\nclone 成功从来不应被当作 push 权限的证据。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.9,
+          "text": "最后只对授权测试身份开放 receive-pack，并推送一条新的 main"
+        },
+        {
+          "from": 4.605,
+          "to": 9.544,
+          "text": "Web 层传入受控 REMOTE_USER，backend 再执行 Git 接收流程"
+        },
+        {
+          "from": 10.149,
+          "to": 14.62,
+          "text": "仓库级策略仍可以在 receive-pack 与 hooks 中继续拒绝不合规更新"
+        },
+        {
+          "from": 15.358,
+          "to": 19.178,
+          "text": "服务端 ref 更新后，client 与 bare repository 的完整 OID 再次一致"
+        },
+        {
+          "from": 20.024,
+          "to": 22.386,
+          "text": "clone 成功从来不应被当作 push 权限的证据"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Smart HTTP 是 Web 边界加 Git RPC",
+      "start": 137,
+      "duration": 26.5,
+      "goal": "总结 HTTP 服务分层",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 137.35,
+        "text": "Smart HTTP 可以拆成四件事：Web 入口、身份认证、仓库授权和 Git backend。<#0.45#>\nupload-pack 支持读取，receive-pack 的开放必须更加明确。<#0.35#>\n日志与监控也应区分 Web 请求失败和 Git 更新被拒绝。<#0.45#>\nbackend 不会自动提供组织、Review、CI 或完整用户系统。<#0.45#>\n下一集看更轻量、也更克制的 git daemon。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.134,
+          "text": "Smart HTTP 可以拆成四件事：Web 入口、身份认证、仓库授权和 Git backend"
+        },
+        {
+          "from": 7.897,
+          "to": 11.687,
+          "text": "upload-pack 支持读取，receive-pack 的开放必须更加明确"
+        },
+        {
+          "from": 12.35,
+          "to": 16.182,
+          "text": "日志与监控也应区分 Web 请求失败和 Git 更新被拒绝"
+        },
+        {
+          "from": 16.823,
+          "to": 21.286,
+          "text": "backend 不会自动提供组织、Review、CI 或完整用户系统"
+        },
+        {
+          "from": 21.942,
+          "to": 24.843,
+          "text": "下一集看更轻量、也更克制的 git daemon"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP60：Smart HTTP 怎样提供 Git 服务\n",
+    "scriptMarkdown": "# EP60 当前脚本\n",
+    "beatsMarkdown": "# EP60 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP60 审查记录\n\n- CGI 输入与日志来自 loopback fixture。\n",
+    "alignmentMarkdown": "# EP60 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP60 B 站发布物料\n\n## 标题\n\nSmart HTTP 怎样把 Web 认证接到 Git 服务\n\n## 简介\n\n拆开 info/refs、upload-pack、认证与 receive-pack。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-http-backend)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP60 封面 Brief\n\nWeb server 把请求交给 Git backend。\n",
+    "checklistMarkdown": "# EP60 发布检查清单\n\n- [ ] HTTP 日志已脱敏，读写边界已核对。\n"
+  }
+}

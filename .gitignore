@@ -98,6 +98,9 @@ remotion/public/git-course-lab/manim/
 remotion/public/git-course-lab/terminal/*.mp4
 remotion/public/git-course-lab/terminal/*-hold.png
 remotion/public/git-course-lab/terminal/*.json
+remotion/public/git-course-lab/browser/*.mp4
+remotion/public/git-course-lab/browser/*-poster.png
+remotion/public/git-course-lab/browser/*.json
 
 # claude-code-course 录屏产物（同 git-course-lab 约定）
 remotion/public/claude-code-course/audio/

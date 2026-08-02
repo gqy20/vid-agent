@@ -297,6 +297,14 @@ const getComposition = (episode) => {
     'ep54-refspecs': 'GitCourseEp54Refspecs',
     'ep55-packfiles-and-deltas': 'GitCourseEp55PackfilesAndDeltas',
     'ep56-transfer-protocols': 'GitCourseEp56TransferProtocols',
+    'ep57-git-protocols-and-access': 'GitCourseEp57GitProtocolsAndAccess',
+    'ep58-bare-repositories-and-receive-pack': 'GitCourseEp58BareRepositoriesAndReceivePack',
+    'ep59-ssh-keys-and-server-access': 'GitCourseEp59SshKeysAndServerAccess',
+    'ep60-smart-http': 'GitCourseEp60SmartHttp',
+    'ep61-git-daemon': 'GitCourseEp61GitDaemon',
+    'ep62-gitweb': 'GitCourseEp62Gitweb',
+    'ep63-hosted-vs-self-hosted': 'GitCourseEp63HostedVsSelfHosted',
+    'ep64-operating-self-hosted-git': 'GitCourseEp64OperatingSelfHostedGit',
   };
   return names[episode.episodeId] ?? fail(`No composition mapping for ${episode.episodeId}`);
 };
@@ -358,6 +366,14 @@ const episodeSourceName = (episodeId) => ({
   'ep54-refspecs': 'Ep54Refspecs.tsx',
   'ep55-packfiles-and-deltas': 'Ep55PackfilesAndDeltas.tsx',
   'ep56-transfer-protocols': 'Ep56TransferProtocols.tsx',
+  'ep57-git-protocols-and-access': 'Ep57GitProtocolsAndAccess.tsx',
+  'ep58-bare-repositories-and-receive-pack': 'Ep58BareRepositoriesAndReceivePack.tsx',
+  'ep59-ssh-keys-and-server-access': 'Ep59SshKeysAndServerAccess.tsx',
+  'ep60-smart-http': 'Ep60SmartHttp.tsx',
+  'ep61-git-daemon': 'Ep61GitDaemon.tsx',
+  'ep62-gitweb': 'Ep62Gitweb.tsx',
+  'ep63-hosted-vs-self-hosted': 'Ep63HostedVsSelfHosted.tsx',
+  'ep64-operating-self-hosted-git': 'Ep64OperatingSelfHostedGit.tsx',
 }[episodeId] ?? fail(`No episode source mapping for ${episodeId}`));
 
 const episodeSourceParts = (ctx) => {
@@ -409,9 +425,12 @@ const episodeSourceParts = (ctx) => {
 const visualBaseHash = (ctx) => {
   const courseRoot = join(REMOTION, 'src/videos/git-course');
   const episodeNumber = ctx.episode.episodeId.slice(0, 4);
+  const episodeIndex = Number(episodeNumber.slice(2));
+  const isEpisode57To64 = episodeIndex >= 57 && episodeIndex <= 64;
   const sharedSources = walkFiles(courseRoot, (path) => {
     if (!/\.(?:ts|tsx)$/.test(path)) return false;
     if (path.includes('/episodes/')) return false;
+    if (path.includes('/kit/browser/')) return false;
     if (path.includes('/kit/manim/')) return false;
     // This file contains every episode and would invalidate unrelated caches.
     if (path.endsWith('/data/episodeTimelines.generated.ts')) return false;
@@ -422,13 +441,25 @@ const visualBaseHash = (ctx) => {
   });
   const episodeSource = episodeSourceParts(ctx);
   const terminalAssets = walkFiles(join(REMOTION, 'public/git-course-lab/terminal'), (path) => path.includes(`/${episodeNumber}-`));
+  const browserAssets = episodeIndex === 62
+    ? walkFiles(join(REMOTION, 'public/git-course-lab/browser'), (path) => path.includes(`/${episodeNumber}-`))
+    : [];
   const terminalSources = [
-    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/demos'), (path) => path.includes(`/${episodeNumber}-`) || path.endsWith('/_lib.sh') || (Number(episodeNumber.slice(2)) >= 49 && Number(episodeNumber.slice(2)) <= 56 && path.endsWith('/_ep49_56_demos.sh'))),
-    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/fixtures'), (path) => path.includes(`/${episodeNumber}-`) || (Number(episodeNumber.slice(2)) >= 49 && Number(episodeNumber.slice(2)) <= 56 && path.endsWith('/_ep49_56_workflows.sh'))),
+    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/demos'), (path) => path.includes(`/${episodeNumber}-`) || path.endsWith('/_lib.sh') || (episodeIndex >= 49 && episodeIndex <= 56 && path.endsWith('/_ep49_56_demos.sh')) || (isEpisode57To64 && path.endsWith('/_ep57_64_demos.sh'))),
+    ...walkFiles(join(ROOT, 'scripts/terminal-recordings/git-course-lab/fixtures'), (path) => path.includes(`/${episodeNumber}-`) || (episodeIndex >= 49 && episodeIndex <= 56 && path.endsWith('/_ep49_56_workflows.sh')) || (isEpisode57To64 && path.endsWith('/_ep57_64_workflows.sh'))),
     join(ROOT, 'scripts/terminal-recordings/record-asciinema.sh'),
     join(ROOT, 'scripts/terminal-recordings/build-metadata.mjs'),
+    ...(episodeIndex === 57 || episodeIndex === 59 ? [join(ROOT, 'scripts/terminal-recordings/git-course-lab/ssh-forced-command.sh')] : []),
+    ...(episodeIndex === 57 || episodeIndex === 60 ? [join(ROOT, 'scripts/terminal-recordings/git-course-lab/http_git_server.py')] : []),
   ].filter((path) => existsSync(path));
-  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...terminalAssets, ...terminalSources, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
+  const auxiliarySources = [
+    ...(isEpisode57To64 ? [join(courseRoot, 'episodes/ServerInfrastructureEpisode.tsx')] : []),
+    ...(episodeIndex === 62 ? [
+      join(courseRoot, 'kit/browser/RecordedBrowserThenModelScene.tsx'),
+      join(ROOT, 'scripts/browser-recordings/git-course-lab/record_gitweb.py'),
+    ] : []),
+  ].filter((path) => existsSync(path));
+  const fileHash = hashFiles([...sharedSources, join(REMOTION, 'src/fonts.css'), ...terminalAssets, ...browserAssets, ...terminalSources, ...auxiliarySources, ...(episodeSource.blocks.size === 0 ? [episodeSource.path] : [])]);
   return sha(JSON.stringify({schema: 4, fileHash, sharedEpisodeSource: episodeSource.blocks.size > 0 ? episodeSource.shared : null}));
 };
 

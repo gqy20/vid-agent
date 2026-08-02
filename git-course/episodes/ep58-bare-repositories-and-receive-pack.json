@@ -1,0 +1,270 @@
+{
+  "episodeId": "ep58-bare-repositories-and-receive-pack",
+  "title": "一台服务器怎样接收 Push",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 150.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/docs/git-init#Documentation/git-init.txt---bare",
+      "https://git-scm.com/docs/git-receive-pack"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "服务器为什么不需要检出文件",
+      "start": 0,
+      "duration": 25,
+      "goal": "提出 bare repository 的角色",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "一台 Git 服务器接收 push 时，是否也要把 main 检出成一套工作文件？<#0.45#>\nbare repository 没有 Working Tree 和 Index，它直接把 Git directory 作为共享数据。<#0.45#>\nreceive-pack 接收对象与 ref 更新请求，却不会替服务器编辑一份项目目录。<#0.35#>\n这样也避免服务端 checkout 与远端更新争夺同一份工作文件。<#0.45#>\n这正是共享接收端通常使用 bare 结构的原因。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.543,
+          "text": "一台 Git 服务器接收 push 时，是否也要把 main 检出成一套工作文件？"
+        },
+        {
+          "from": 5.27,
+          "to": 10.598,
+          "text": "bare repository 没有 Working Tree 和 Index，它直接把 Git directory 作为共享数据"
+        },
+        {
+          "from": 11.333,
+          "to": 15.587,
+          "text": "receive-pack 接收对象与 ref 更新请求，却不会替服务器编辑一份项目目录"
+        },
+        {
+          "from": 16.213,
+          "to": 20.324,
+          "text": "这样也避免服务端 checkout 与远端更新争夺同一份工作文件"
+        },
+        {
+          "from": 21.056,
+          "to": 23.465,
+          "text": "这正是共享接收端通常使用 bare 结构的原因"
+        }
+      ]
+    },
+    {
+      "id": "bare-model",
+      "title": "Bare Repository 只保存 Git 数据",
+      "start": 25,
+      "duration": 26.5,
+      "goal": "对比普通与 bare 结构",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_bare_model",
+        "voiceStart": 25.35,
+        "text": "普通 repository 把对象、refs 和配置放在点 git 目录旁边，外面还有 Working Tree。<#0.45#>\nbare repository 则把 objects、refs、HEAD 和 config 直接放在仓库根目录。<#0.45#>\n它适合被多个 client 访问，但 bare 本身并不是网络服务器或用户系统。<#0.35#>\n备份这类仓库时，也应把整个 Git directory 当成一组数据。<#0.45#>\n连接协议、身份认证和审查能力仍要由其他层提供。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.227,
+          "text": "普通 repository 把对象、refs 和配置放在点 git 目录旁边，外面还有 Working Tree"
+        },
+        {
+          "from": 6.016,
+          "to": 11.269,
+          "text": "bare repository 则把 objects、refs、HEAD 和 config 直接放在仓库根目录"
+        },
+        {
+          "from": 11.908,
+          "to": 16.631,
+          "text": "它适合被多个 client 访问，但 bare 本身并不是网络服务器或用户系统"
+        },
+        {
+          "from": 17.195,
+          "to": 20.657,
+          "text": "备份这类仓库时，也应把整个 Git directory 当成一组数据"
+        },
+        {
+          "from": 21.453,
+          "to": 24.952,
+          "text": "连接协议、身份认证和审查能力仍要由其他层提供"
+        }
+      ]
+    },
+    {
+      "id": "init-bare",
+      "title": "先创建一份没有 Working Tree 的仓库",
+      "start": 51.5,
+      "duration": 24,
+      "goal": "真实创建并检查 bare repository",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_init_bare",
+        "voiceStart": 51.85,
+        "text": "执行 git init bare 后，rev-parse 会明确返回 true。<#0.45#>\n目录中直接出现 objects、refs、HEAD 和 config，不存在可编辑的 app 文件。<#0.35#>\n其中 HEAD 仍然可以指向默认 branch，只是没有对应工作区需要检出。<#0.45#>\n这不是少生成了一步 checkout，而是仓库类型本来就不维护工作区。<#0.45#>\n接下来让 client 把第一条 main 推送进来。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 3.505,
+          "text": "执行 git init bare 后，rev-parse 会明确返回 true"
+        },
+        {
+          "from": 4.224,
+          "to": 9.464,
+          "text": "目录中直接出现 objects、refs、HEAD 和 config，不存在可编辑的 app 文件"
+        },
+        {
+          "from": 9.992,
+          "to": 15.073,
+          "text": "其中 HEAD 仍然可以指向默认 branch，只是没有对应工作区需要检出"
+        },
+        {
+          "from": 15.728,
+          "to": 19.166,
+          "text": "这不是少生成了一步 checkout，而是仓库类型本来就不维护工作区"
+        },
+        {
+          "from": 19.896,
+          "to": 22.454,
+          "text": "接下来让 client 把第一条 main 推送进来"
+        }
+      ]
+    },
+    {
+      "id": "first-push",
+      "title": "Receive-pack 校验后才更新 Ref",
+      "start": 75.5,
+      "duration": 25,
+      "goal": "真实推送并核对服务端 ref",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "04_first_push",
+        "voiceStart": 75.85,
+        "text": "client 推送 main 时，会发送旧值、新值、目标 ref 和服务端缺失的对象。<#0.45#>\nreceive-pack 先在隔离区检查对象连通性、策略与 hooks，再决定是否接受。<#0.35#>\n隔离区让尚未通过检查的对象不会立刻混入主对象库。<#0.45#>\n成功后，服务端 refs/heads/main 才移动到新 OID。<#0.45#>\n另一份 fresh clone 可以读取同一历史，而服务器仍没有 checkout。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.14,
+          "text": "client 推送 main 时，会发送旧值、新值、目标 ref 和服务端缺失的对象"
+        },
+        {
+          "from": 5.905,
+          "to": 10.203,
+          "text": "receive-pack 先在隔离区检查对象连通性、策略与 hooks，再决定是否接受"
+        },
+        {
+          "from": 10.859,
+          "to": 13.934,
+          "text": "隔离区让尚未通过检查的对象不会立刻混入主对象库"
+        },
+        {
+          "from": 14.712,
+          "to": 18.607,
+          "text": "成功后，服务端 refs/heads/main 才移动到新 OID"
+        },
+        {
+          "from": 19.291,
+          "to": 23.41,
+          "text": "另一份 fresh clone 可以读取同一历史，而服务器仍没有 checkout"
+        }
+      ]
+    },
+    {
+      "id": "reject-stale",
+      "title": "过期的更新请求会被拒绝",
+      "start": 100.5,
+      "duration": 25.5,
+      "goal": "制造 stale non-fast-forward push",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_reject_stale",
+        "voiceStart": 100.85,
+        "text": "现在让第二个 client 在旧 tip 上继续提交，再尝试覆盖已经前进的 main。<#0.45#>\n服务端发现更新不是 fast-forward，于是真实拒绝这次 stale push。<#0.35#>\n更新请求中的旧 OID，正是服务端判断 client 是否基于当前 tip 的依据。<#0.45#>\n被拒绝的对象不会让目标 branch 偷偷移动，main 仍保持在先前接受的 OID。<#0.45#>\n这说明接收端不是被动复制目录，而是在裁决 ref 更新。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.378,
+          "text": "现在让第二个 client 在旧 tip 上继续提交，再尝试覆盖已经前进的 main"
+        },
+        {
+          "from": 6.049,
+          "to": 9.866,
+          "text": "服务端发现更新不是 fast-forward，于是真实拒绝这次 stale push"
+        },
+        {
+          "from": 10.422,
+          "to": 14.625,
+          "text": "更新请求中的旧 OID，正是服务端判断 client 是否基于当前 tip 的依据"
+        },
+        {
+          "from": 15.334,
+          "to": 19.919,
+          "text": "被拒绝的对象不会让目标 branch 偷偷移动，main 仍保持在先前接受的 OID"
+        },
+        {
+          "from": 20.641,
+          "to": 24.09,
+          "text": "这说明接收端不是被动复制目录，而是在裁决 ref 更新"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Bare 是共享数据结构，不是完整平台",
+      "start": 126,
+      "duration": 24.5,
+      "goal": "总结 bare 与 receive-pack 边界",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 126.35,
+        "text": "bare repository 解决的是不依赖 Working Tree 保存对象与 refs。<#0.45#>\nreceive-pack 解决的是接收 push、校验请求，再原子更新目标 refs。<#0.35#>\n仓库文件权限可以形成基础边界，却仍不是完整的用户授权模型。<#0.45#>\n它们没有自动提供账号、Review、备份、监控或高可用。<#0.45#>\n下一集把 SSH 身份和仓库授权接到这份 bare 数据上。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 4.259,
+          "text": "bare repository 解决的是不依赖 Working Tree 保存对象与 refs"
+        },
+        {
+          "from": 4.982,
+          "to": 9.323,
+          "text": "receive-pack 解决的是接收 push、校验请求，再原子更新目标 refs"
+        },
+        {
+          "from": 9.938,
+          "to": 13.757,
+          "text": "仓库文件权限可以形成基础边界，却仍不是完整的用户授权模型"
+        },
+        {
+          "from": 14.477,
+          "to": 18.424,
+          "text": "它们没有自动提供账号、Review、备份、监控或高可用"
+        },
+        {
+          "from": 19.118,
+          "to": 22.719,
+          "text": "下一集把 SSH 身份和仓库授权接到这份 bare 数据上"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP58：一台服务器怎样接收 Push\n",
+    "scriptMarkdown": "# EP58 当前脚本\n",
+    "beatsMarkdown": "# EP58 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP58 审查记录\n\n- 所有 push 只进入 disposable bare fixture。\n",
+    "alignmentMarkdown": "# EP58 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP58 B 站发布物料\n\n## 标题\n\nBare Repository 怎样接收一次 Git Push\n\n## 简介\n\n从 bare 目录到 receive-pack 与 non-fast-forward 拒绝。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-receive-pack)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP58 封面 Brief\n\nClient push 指向 bare repository。\n",
+    "checklistMarkdown": "# EP58 发布检查清单\n\n- [ ] receive-pack 与服务端 refs 已核对。\n"
+  }
+}

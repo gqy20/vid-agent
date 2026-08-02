@@ -1,0 +1,260 @@
+{
+  "episodeId": "ep57-git-protocols-and-access",
+  "title": "四种 Git 连接方式改变了什么",
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "durationSeconds": 156.5,
+  "sourceOfTruth": {
+    "references": [
+      "https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols",
+      "https://git-scm.com/docs/git-clone"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "地址不同，对象会不同吗",
+      "start": 0,
+      "duration": 24,
+      "goal": "提出 transport 与对象模型的边界",
+      "primaryTechnique": "Question",
+      "narration": {
+        "segmentId": "01_hook",
+        "voiceStart": 0.35,
+        "text": "同一个 repository 换成 local、SSH、HTTP 或 git 协议，拿到的历史会不会不同？<#0.45#>\n这些地址改变的是怎样找到服务、怎样建立连接，以及谁可以访问。<#0.45#>\n只要服务端公布的是同一组 refs，client 最终取得的对象和完整 OID 应该一致。<#0.45#>\n所以这一集先比较连接边界，不提前混入具体服务器配置。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 6.148,
+          "text": "同一个 repository 换成 local、SSH、HTTP 或 git 协议，拿到的历史会不会不同？"
+        },
+        {
+          "from": 6.886,
+          "to": 11.327,
+          "text": "这些地址改变的是怎样找到服务、怎样建立连接，以及谁可以访问"
+        },
+        {
+          "from": 11.983,
+          "to": 17.648,
+          "text": "只要服务端公布的是同一组 refs，client 最终取得的对象和完整 OID 应该一致"
+        },
+        {
+          "from": 18.29,
+          "to": 22.646,
+          "text": "所以这一集先比较连接边界，不提前混入具体服务器配置"
+        }
+      ]
+    },
+    {
+      "id": "transport-model",
+      "title": "连接方式与对象交换是两层",
+      "start": 24,
+      "duration": 31.5,
+      "goal": "比较四种 transport 的信任边界",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "02_transport_model",
+        "voiceStart": 24.35,
+        "text": "local path 直接使用本机文件权限，还可能利用复制或 hardlink 优化。<#0.45#>\nfile 地址仍在本机，却强制经过 Git 的传输路径，这让行为更接近网络连接。<#0.45#>\nSSH 和 HTTPS 可以承载认证与加密，git 协议通常面向匿名读取。<#0.35#>\n因此排查失败时，应先确认连接与访问层，再检查对象协商。<#0.45#>\n这些差异属于 transport，不会重写 commit、tree 或 blob 的对象模型。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.298,
+          "text": "local path 直接使用本机文件权限，还可能利用复制或 hardlink 优化"
+        },
+        {
+          "from": 6.029,
+          "to": 11.272,
+          "text": "file 地址仍在本机，却强制经过 Git 的传输路径，这让行为更接近网络连接"
+        },
+        {
+          "from": 12.065,
+          "to": 19.211,
+          "text": "SSH 和 HTTPS 可以承载认证与加密，git 协议通常面向匿名读取"
+        },
+        {
+          "from": 19.759,
+          "to": 24.172,
+          "text": "因此排查失败时，应先确认连接与访问层，再检查对象协商"
+        },
+        {
+          "from": 24.892,
+          "to": 29.779,
+          "text": "这些差异属于 transport，不会重写 commit、tree 或 blob 的对象模型"
+        }
+      ]
+    },
+    {
+      "id": "local-access",
+      "title": "Local Path 与 file:// 并不完全相同",
+      "start": 55.5,
+      "duration": 26.5,
+      "goal": "真实比较 local 与 file clone",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "03_local_access",
+        "voiceStart": 55.85,
+        "text": "先从同一份 bare repository 分别执行 local path clone 和 file 地址 clone。<#0.45#>\n两份 clone 的 main 指向相同完整 OID，说明取得的历史没有改变。<#0.45#>\n开启 trace 后可以看到，file 地址会调用 upload-pack，而直接路径可能走本地优化。<#0.35#>\n这也解释了为什么测试传输行为时，file 地址通常比直接目录更合适。<#0.45#>\n因此地址看起来都在磁盘上，执行边界仍然不同。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.161,
+          "text": "先从同一份 bare repository 分别执行 local path clone 和 file 地址 clone"
+        },
+        {
+          "from": 5.83,
+          "to": 9.738,
+          "text": "两份 clone 的 main 指向相同完整 OID，说明取得的历史没有改变"
+        },
+        {
+          "from": 10.381,
+          "to": 16.25,
+          "text": "开启 trace 后可以看到，file 地址会调用 upload-pack，而直接路径可能走本地优化"
+        },
+        {
+          "from": 16.866,
+          "to": 21.104,
+          "text": "这也解释了为什么测试传输行为时，file 地址通常比直接目录更合适"
+        },
+        {
+          "from": 21.857,
+          "to": 24.837,
+          "text": "因此地址看起来都在磁盘上，执行边界仍然不同"
+        }
+      ]
+    },
+    {
+      "id": "remote-access",
+      "title": "远程地址先决定怎样建立连接",
+      "start": 82,
+      "duration": 26,
+      "goal": "展示 SSH HTTP 与 git URL 的服务定位",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "04_remote_access",
+        "voiceStart": 82.35,
+        "text": "再把三种远程地址拆开看。<#0.25#>\n它们都需要先定位到提供 upload-pack 的一端。<#0.45#>\nSSH 会先验证服务器并认证 client，HTTP 把 Git RPC 接入 Web 基础设施。<#0.45#>\ngit 协议则追求轻量读取，通常没有用户认证和传输加密。<#0.35#>\n是否允许 push，还要继续检查服务命令和仓库授权。<#0.45#>\n协议名字只说明怎样连接，并不自动等于某一种仓库权限。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 1.806,
+          "text": "再把三种远程地址拆开看"
+        },
+        {
+          "from": 2.318,
+          "to": 4.65,
+          "text": "它们都需要先定位到提供 upload-pack 的一端"
+        },
+        {
+          "from": 5.374,
+          "to": 11.913,
+          "text": "SSH 会先验证服务器并认证 client，HTTP 把 Git RPC 接入 Web 基础设施"
+        },
+        {
+          "from": 12.589,
+          "to": 16.232,
+          "text": "git 协议则追求轻量读取，通常没有用户认证和传输加密"
+        },
+        {
+          "from": 16.929,
+          "to": 20.186,
+          "text": "是否允许 push，还要继续检查服务命令和仓库授权"
+        },
+        {
+          "from": 20.944,
+          "to": 24.553,
+          "text": "协议名字只说明怎样连接，并不自动等于某一种仓库权限"
+        }
+      ]
+    },
+    {
+      "id": "oid-check",
+      "title": "四条路径最终核对同一个 Ref",
+      "start": 108,
+      "duration": 24,
+      "goal": "用完整 OID 核对结果",
+      "primaryTechnique": "Recorded terminal",
+      "narration": {
+        "segmentId": "05_oid_check",
+        "voiceStart": 108.35,
+        "text": "判断四条路径是否指向同一份历史，最直接的方法是核对 refs 的完整 OID。<#0.45#>\n本地 endpoint 与三个隔离服务都返回相同的 main tip，client 才能把它们视为同一状态。<#0.45#>\n如果结果不同，应该检查服务端暴露的 repository 和 refs，而不是怀疑对象格式随协议变化。<#0.45#>\n证据始终来自真实命令，不从地址外观推断。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 5.828,
+          "text": "判断四条路径是否指向同一份历史，最直接的方法是核对 refs 的完整 OID"
+        },
+        {
+          "from": 6.608,
+          "to": 12.494,
+          "text": "本地 endpoint 与三个隔离服务都返回相同的 main tip，client 才能把它们视为同一状态"
+        },
+        {
+          "from": 13.227,
+          "to": 19.395,
+          "text": "如果结果不同，应该检查服务端暴露的 repository 和 refs，而不是怀疑对象格式随协议变化"
+        },
+        {
+          "from": 20.103,
+          "to": 22.633,
+          "text": "证据始终来自真实命令，不从地址外观推断"
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "title": "Transport 改变连接边界，不改变对象模型",
+      "start": 132,
+      "duration": 24.5,
+      "goal": "总结协议选择维度",
+      "primaryTechnique": "Centered model",
+      "narration": {
+        "segmentId": "06_takeaway",
+        "voiceStart": 132.35,
+        "text": "选择协议时，可以分别询问四个问题：连接到哪里，怎样认证，是否加密，默认允许读还是写。<#0.45#>\nlocal 继承文件权限，SSH 与 HTTP 可以接入身份系统，git 协议更适合公开读取。<#0.45#>\n无论使用哪种 transport，交换的仍是 refs 和 Git 对象。<#0.45#>\n下一集再看真正负责接收 push 的 bare repository。"
+      },
+      "captions": [
+        {
+          "from": 0.35,
+          "to": 7.869,
+          "text": "选择协议时，可以分别询问四个问题：连接到哪里，怎样认证，是否加密，默认允许读还是写"
+        },
+        {
+          "from": 8.634,
+          "to": 15.087,
+          "text": "local 继承文件权限，SSH 与 HTTP 可以接入身份系统，git 协议更适合公开读取"
+        },
+        {
+          "from": 15.838,
+          "to": 19.217,
+          "text": "无论使用哪种 transport，交换的仍是 refs 和 Git 对象"
+        },
+        {
+          "from": 19.875,
+          "to": 22.72,
+          "text": "下一集再看真正负责接收 push 的 bare repository"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "overviewMarkdown": "# EP57：四种 Git 连接方式改变了什么\n",
+    "scriptMarkdown": "# EP57 当前脚本\n",
+    "beatsMarkdown": "# EP57 Beats\n\n`question → model → evidence → evidence → evidence → decision`。\n",
+    "qualityMarkdown": "# EP57 审查记录\n\n- 所有地址与服务只使用 git-course-lab fixture。\n",
+    "alignmentMarkdown": "# EP57 对齐记录\n\nTTS 与 SRT 生成后回写 captions。\n"
+  },
+  "release": {
+    "bilibiliMarkdown": "# EP57 B 站发布物料\n\n## 标题\n\nGit 的 Local、SSH、HTTP 与 git:// 到底改变了什么\n\n## 简介\n\n用同一份仓库比较四种连接方式的访问与信任边界。\n\n## 官方参考\n\n- [Git 官方文档](https://git-scm.com/docs/git-clone)\n\n## 标签\n\n```text\nGit\nGit教程\n```\n",
+    "coverBriefMarkdown": "# EP57 封面 Brief\n\n同一仓库连接到四种 transport。\n",
+    "checklistMarkdown": "# EP57 发布检查清单\n\n- [ ] 四种 transport 与完整 OID 已核对。\n"
+  }
+}
