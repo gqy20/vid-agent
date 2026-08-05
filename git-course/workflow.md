@@ -31,6 +31,18 @@ git-course/episodes/<episode-id>.json
 
 不得再为单集新增同名目录、`script.md`、`scenes.json`、`beats.md`、旁白 `.txt` 源或独立 publishing 源目录。
 
+课程总物料单独维护 `git-course/course.json`。它是课程名称、定位、简介、平台文案、总封面规格和课程级人工检查项的唯一内容源；`README.md` 与 `outline.md` 继续分别承担仓库说明和课程规划，不作为平台文案的第二来源。课程总物料的派生目录为：
+
+```text
+course.json + outline.md + cover source
+  -> remotion/renders/git-course/series/tmp/cover-candidate/
+  -> remotion/renders/git-course/series/tmp/build/release-candidate/
+  -> remotion/renders/git-course/series/tmp/build/audit/release/
+  -> remotion/renders/git-course/series/current/release/
+```
+
+课程级 build、audit、approve 和 publish 与单集使用相同的 SHA-bound 语义；build 只能写 `tmp/`，approve 只更新 verdict，只有 `series-publish` 能原子替换正式课程物料。
+
 ## 旁白语气
 
 Git Course 的解说采用共同探讨问题的语气，而不是居高临下地说教。每个概念优先从一个可验证的问题、一个容易误判的现象或一次真实状态变化进入，再和观众一起比较证据、解释原因并收束结论。
@@ -67,6 +79,16 @@ pnpm --dir remotion git-course fingerprints <episode-id>
 pnpm --dir remotion git-course status <episode-id>
 pnpm --dir remotion git-course preview <episode-id> --scenes=<scene-id>
 pnpm --dir remotion git-course build <episode-id>
+```
+
+课程总物料使用独立命令，不传 episode id：
+
+```bash
+pnpm --dir remotion git-course series-status
+pnpm --dir remotion git-course series-release-build
+pnpm --dir remotion git-course series-release-audit
+pnpm --dir remotion git-course series-release-approve --note="课程总物料人工审查结论"
+pnpm --dir remotion git-course series-publish
 ```
 
 音频预览如果已经完成 TTS 与规范化，只因 scene 时间窗校验失败，可在修正 episode JSON 后使用 `preview-audio <episode-id> --scenes=<scene-id> --reuse-existing` 重新执行校验、对齐和混音。该选项只接受当前 `tmp/preview/audio/segments/` 中四类产物齐全的 segment；缺少任一 raw、SRT、文本或规范化音频都会阻断，不能借此跳过首次生成。

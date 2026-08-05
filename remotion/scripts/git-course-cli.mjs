@@ -1851,6 +1851,11 @@ const previewAudio = async (ctx) => {
 };
 
 const main = async () => {
+  if (COMMAND.startsWith('series-')) {
+    const {runSeriesReleaseCommand} = await import('./git-course-series-release.mjs');
+    await runSeriesReleaseCommand({command: COMMAND, args: process.argv.slice(3)});
+    return;
+  }
   const ctx = loadContext();
   if (COMMAND === 'plan') printPlan(ctx, plan(ctx));
   else if (COMMAND === 'fingerprints') printFingerprints(ctx, plan(ctx));

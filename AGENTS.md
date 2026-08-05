@@ -13,6 +13,7 @@
 
 - 所有课程共同遵守 `docs/course-production.md`。课程自己的 `workflow.md`、`checklist.md` 和视觉规范只增加 adapter 规则，不得削弱共享的 SHA、audit、approve、promote 和 publish 门禁。
 - 每集的 `episodes/<episode-id>.json` 是教学、scene、旁白、来源和发布数据的唯一内容源。录屏 sidecar、TTS 文本、SRT、manifest、timeline 和发布文案文件均为派生产物。
+- Git Course 的课程总名称、简介、平台文案、封面规格和课程级发布检查项以 `git-course/course.json` 为唯一内容源；课程总物料使用 `series-release-build -> series-release-audit -> series-release-approve -> series-publish`，正式输出只能由 orchestrator 写入 `remotion/renders/git-course/series/current/release/`。
 - 共享生命周期固定为 `episode JSON -> inputs -> cache/tasks -> candidate -> audit -> approve -> current -> release candidate -> release audit/approve -> published`。
 - build 只能写 `tmp/`。只有与候选 SHA 和全部输入指纹匹配的 `pass` verdict 才能晋升；只有 orchestrator 能写 `current/` 和 `current/release/`。
 - 尚未实现的阶段必须保持 `blocked`。不得用手工复制、改名或前端兼容分支伪造 Current、Release 或 Published。
@@ -79,6 +80,7 @@
 - build 阶段音频位于 `tmp/build/candidate/audio/`；只有 main candidate 通过 approve/promote 后，才原子同步到 `current/audio/segments/` 和 `current/audio/mix.m4a`。scene 与旁白窗口直接由 episode JSON 校验。
 - 发布版在当前正片确认后再封装到 `current/release/<episode-id>.mp4`；封面也输出到同一 `release/`。发布源数据维护在 episode JSON 的 `release` 字段。发布封装默认片头增益 `0dB`、片尾增益 `-5dB`。
 - 发布版必须使用 `release-build -> release-audit -> release-approve -> publish`。底层 `git-course-publish-episode.sh` 只允许 orchestrator 调用；release verdict 不是 `pass` 或 SHA 不匹配时禁止 publish。不要再新增 `publishing/` 或 `published/` 目录。
+- 课程总封面和简介不得从 `tmp/cover-candidate/` 手工复制为正式物料。`series-publish` 必须重新核对 course source、封面脚本、封面组件、字体、outline、candidate manifest 与批准 verdict 的指纹和 SHA。
 
 ## 结构与组件语法
 

@@ -27,6 +27,7 @@
 ## 文件分工
 
 - `docs/course-production.md`: Git、GitHub、Claude Code 课程共享的生产生命周期与门禁
+- `git-course/course.json`: 课程名称、简介、平台文案、总封面规格与课程级发布检查项的唯一内容源
 - `git-course/episodes/*.json`: 每集唯一内容源，包含教学、scene、旁白、审查记录和发布数据
 - `git-course/components.md`: Remotion 组件系统与历史资产边界
 - `git-course/workflow.md`: 每集从脚本到成片的生产流程，包含分段配音、BGM 复用、响度规范化和固定输出约定
@@ -52,6 +53,18 @@ pnpm --dir remotion git-course release-audit <episode-id>
 pnpm --dir remotion git-course release-approve <episode-id> --note="发布版审查结论"
 pnpm --dir remotion git-course publish <episode-id>
 ```
+
+课程总封面、简介和平台物料使用课程级发布门禁：
+
+```bash
+pnpm --dir remotion git-course series-status
+pnpm --dir remotion git-course series-release-build
+pnpm --dir remotion git-course series-release-audit
+pnpm --dir remotion git-course series-release-approve --note="课程总物料人工审查结论"
+pnpm --dir remotion git-course series-publish
+```
+
+候选与审查证据位于 `remotion/renders/git-course/series/tmp/`；只有通过课程级批准后，orchestrator 才会把完整发布包原子写入 `remotion/renders/git-course/series/current/release/`。
 
 `build` 会最大化并行所有 dirty scene、TTS、规范化和分段审查，并自动执行 main assemble 与机器审查。审查统一使用连续 2fps、每条最多 5 帧、边界 10fps burst、精确关键帧和 16 帧总览，证据汇总在 `tmp/build/audit/<main|release>/report.html`。机器检查通过后 verdict 仍为 `needs_review`；人工检查后才能 approve。没有与候选 SHA 绑定的 `pass` verdict，promote 和 publish 都会拒绝执行。
 

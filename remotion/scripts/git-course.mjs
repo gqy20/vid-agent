@@ -6,7 +6,9 @@ import {fileURLToPath} from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const REMOTION_ROOT = join(ROOT, 'remotion');
+const GIT_COURSE_ROOT = join(ROOT, 'git-course');
 const COURSE_ROOT = join(ROOT, 'git-course/episodes');
+const COURSE_METADATA = join(GIT_COURSE_ROOT, 'course.json');
 const EPISODES = [
   ['ep01-what-git-stores', 'GitCourseEp01WhatGitStores', 'EP01'],
   ['ep02-working-tree-index-repo', 'GitCourseEp02WorkingTreeIndexRepo', 'EP02'],
@@ -138,6 +140,26 @@ const validateReleaseMetadata = (episode) => {
   /https:\/\/git-scm\.com\/[^)\s]+/.test(referenceSection) || fail(`${episode.id}: 官方参考 must include at least one git-scm.com link`);
 };
 
+const validateCourseMetadata = () => {
+  existsSync(COURSE_METADATA) || fail(`${COURSE_METADATA}: course-level source is required`);
+  const course = JSON.parse(readFileSync(COURSE_METADATA, 'utf8'));
+  course.schemaVersion === 1 || fail(`${COURSE_METADATA}: schemaVersion must be 1`);
+  course.courseId === 'git-course' || fail(`${COURSE_METADATA}: courseId must be git-course`);
+  typeof course.title === 'string' && course.title.trim().length > 0 || fail(`${COURSE_METADATA}: title is required`);
+  typeof course.tagline === 'string' && course.tagline.trim().length > 0 || fail(`${COURSE_METADATA}: tagline is required`);
+  const outlinePath = resolve(ROOT, course.outlineSource ?? '');
+  outlinePath.startsWith(`${GIT_COURSE_ROOT}/`) && existsSync(outlinePath) || fail(`${COURSE_METADATA}: outlineSource must resolve inside git-course/`);
+  const release = course.release ?? fail(`${COURSE_METADATA}: release is required`);
+  for (const field of ['courseIntroMarkdown', 'bilibiliMarkdown', 'douyinMarkdown', 'coverBriefMarkdown', 'checklistMarkdown']) {
+    typeof release[field] === 'string' && release[field].trim().length > 0 || fail(`${COURSE_METADATA}: release.${field} is required`);
+  }
+  Array.isArray(release.covers) && release.covers.length === 2 || fail(`${COURSE_METADATA}: release.covers must contain square and wide specs`);
+  const covers = new Map(release.covers.map((cover) => [cover.id, cover]));
+  covers.get('square')?.width === 1080 && covers.get('square')?.height === 1080 || fail(`${COURSE_METADATA}: square cover must be 1080x1080`);
+  covers.get('wide')?.width === 960 && covers.get('wide')?.height === 540 || fail(`${COURSE_METADATA}: wide cover must be 960x540`);
+  return course;
+};
+
 const timelineSource = (episodes) => {
   const blocks = episodes.map((episode) => {
     const scenes = episode.scenes.map(({id, title, duration, captions}) => {
@@ -210,6 +232,7 @@ const validateTypographyTokens = () => {
 };
 
 const validate = ({checkGenerated = true} = {}) => {
+  validateCourseMetadata();
   const episodes = EPISODES.map(loadEpisode);
   episodes.forEach(validateNarration);
   episodes.forEach(validateReleaseMetadata);
@@ -226,7 +249,7 @@ const episodeId = process.argv[3];
 const episodes = validate({checkGenerated: command !== 'generate'});
 
 if (command === 'validate') {
-  console.log(`Validated ${episodes.length} episode JSON files, narration timelines, and release metadata.`);
+  console.log(`Validated course.json, ${episodes.length} episode JSON files, narration timelines, and release metadata.`);
 } else if (command === 'generate') {
   generateTimelines(episodes);
   console.log('Generated Remotion timelines from episode JSON files.');
